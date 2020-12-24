@@ -13,8 +13,8 @@ export default {
   }),
   computed: {
     ...mapState({
-      web3: state => state.web3.instance,
-      isLoadingWeb3: state => state.web3.isLoading,
+      web3: state => state.ethereum.web3,
+      isLoadingWeb3: state => state.ethereum.isLoading,
     })
   },
   mounted() {
@@ -22,7 +22,7 @@ export default {
   },
   methods: {
     ...mapActions({
-      initWeb3: 'web3/initWeb3'
+      initWeb3: 'ethereum/initWeb3'
     })
   }
 };

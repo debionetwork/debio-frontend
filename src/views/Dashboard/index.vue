@@ -27,14 +27,9 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
+      <div>
+        {{ walletAddress }}
+      </div>
     </v-app-bar>
 
     <v-main>
@@ -44,9 +39,15 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: 'Dashboard',
   components: {
+  },
+  computed: {
+    ...mapGetters({
+      walletAddress: 'ethereum/getWalletAddress'
+    })
   },
 }
 </script>
