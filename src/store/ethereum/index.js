@@ -28,7 +28,7 @@ export default {
     },
     SET_WALLET(state, wallet) {
       state.wallet = wallet
-    }
+    },
   },
   actions: {
     async initWeb3({ commit }) {
@@ -51,6 +51,10 @@ export default {
         commit('SET_LOADING', false)
       }
     },
+    generateMnemonic({ commit }) {
+      const mnemonic = bip39.generateMnemonic()
+      commit('SET_MNEMONIC', mnemonic)
+    },
     /*
      * generateWallet
      *
@@ -68,28 +72,34 @@ export default {
      *   web3.eth.accounts.privateKeyToAccount(privateKey)
      */
     async generateWallet({ commit, state }) {
-      // Convert mnemonic to seed buffer
-      const seedBuffer = await bip39.mnemonicToSeed(state.mnemonic)
-      // HD Key
-      const HDKey = hdkey.fromMasterSeed(seedBuffer)
-      // Derivation path
-      const derivationPath = "m/44'/60'/0'/0/"
+      try {
+        commit('SET_WALLET', null)
 
-      // For now only create 1 account which is the 0th account in terms of derivation path
-      const walletHDPath = derivationPath + '0' 
-      const wallet = HDKey.derivePath(walletHDPath).getWallet()
+        // Convert mnemonic to seed buffer
+        const seedBuffer = await bip39.mnemonicToSeed(state.mnemonic)
+        // HD Key
+        const HDKey = hdkey.fromMasterSeed(seedBuffer)
+        // Derivation path
+        const derivationPath = "m/44'/60'/0'/0/"
 
-      commit('SET_WALLET', wallet)
-      /*
-       * How to access wallet address and private key
-       */
-      // const address = wallet.getAddress().toString('hex')
-      // const privateKey = wallet.getPrivateKey().toString('hex')
+        // For now only create 1 account which is the 0th account in terms of derivation path
+        const walletHDPath = derivationPath + '0' 
+        const wallet = HDKey.derivePath(walletHDPath).getWallet()
+
+        commit('SET_WALLET', wallet)
+        commit('SET_MNEMONIC', '')
+        /*
+         * How to access wallet address and private key
+         */
+        // const address = wallet.getAddress().toString('hex')
+        // const privateKey = wallet.getPrivateKey().toString('hex')
+
+      } catch (err) {
+        console.log(err)
+        commit('SET_WALLET', null)
+        commit('SET_MNEMONIC', '')
+      }
     },
-    generateMnemonic({ commit }) {
-      const mnemonic = bip39.generateMnemonic()
-      commit('SET_MNEMONIC', mnemonic)
-    }
   },
   getters: {
     getMnemonicArray(state) {
