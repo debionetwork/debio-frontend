@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar
       app
-      color="primary"
+      color="secondary"
       dark
     >
       <div class="d-flex align-center">
@@ -10,26 +10,20 @@
           alt="Vuetify Logo"
           class="shrink mr-2"
           contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
+          src="@/assets/degenics-logo.webp"
           transition="scale-transition"
           width="40"
         />
 
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
+        <div class="text-h6 font-weight-bold light_primary--text">
+          Degenics {{ isLab ? 'Lab' : '' }}
+        </div>
       </div>
 
       <v-spacer></v-spacer>
 
-      <div>
-        {{ walletAddress }}
-      </div>
+      <!-- Menu For Development Purposes -->
+      <DevMenu dark />
     </v-app-bar>
 
     <v-main>
@@ -39,16 +33,21 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import DevMenu from '../../components/DevMenu'
 export default {
   name: 'Dashboard',
   components: {
+    DevMenu
+  },
+  mounted() {
   },
   computed: {
-    ...mapGetters({
-      walletAddress: 'ethereum/getWalletAddress'
-    })
+    isLab() {
+      return this.$route.path.indexOf('lab') > 0
+    }
   },
+  methods: {
+  }
 }
 </script>
 

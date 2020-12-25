@@ -6,6 +6,7 @@
       :class="{ 'on-hover': hover }"
       class="py-4 px-4"
       @click="onClick"
+      style="border-radius: 20px"
     >
       <v-responsive :aspect-ratio="1/1" class="d-flex align-center text-center">
         <slot>
@@ -28,6 +29,10 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="scss">
+.on-hover {
+  i {
+    color: #F60689 !important;
+  }
+}
 </style>

@@ -10,7 +10,9 @@
   "dependencies": {
     "bip39": "^3.0.3",
     "core-js": "^3.6.5",
+    "eth-crypto": "^1.8.0",
     "ethereumjs-wallet": "^1.0.1",
+    "streamsaver": "^2.0.5",
     "vue": "^2.6.11",
     "vue-router": "^3.4.9",
     "vuetify": "^2.2.11",

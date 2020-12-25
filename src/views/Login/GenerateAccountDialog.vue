@@ -7,7 +7,7 @@
     <v-card>
       <v-app-bar flat dense color="white">
         <v-toolbar-title class="title">
-          Use Mnemonic Phrase
+          Secret Backup Phrase
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn
@@ -17,15 +17,16 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-app-bar>
-      <v-card-text class="mt-4 pb-0 text-subtitle-1">
-        <v-textarea
-          outlined
-          auto-grow
-          name="input-7-4"
-          label="Type in your mnemonic phrase."
-          :value="mnemonic"
-          @input="setMnemonic"
-        ></v-textarea>
+      <v-card-text class="pb-0 text-subtitle-1">
+        <p>
+          Write this phrase on a piece of paper and store in a secure location. You will need this to access your wallet.
+        </p>
+        <p>
+          <b class="red--text">WARNING</b>: Never disclose your backup phrase. Anyone with this phrase can take your Ether forever.
+        </p>
+        <v-card outlined class="grey--text text--darken-3 text-h5 text-center px-5 py-5">
+          {{ mnemonic }}
+        </v-card>
       </v-card-text>
       <v-card-actions class="px-6 pb-4">
         <v-btn
@@ -33,10 +34,9 @@
           color="primary"
           large
           width="100%"
-          @click="onContinue"
-          :disabled="!mnemonic"
+          @click="onMnemonicSaved"
         >
-          Continue
+          I Wrote Down My Mnemonic Phrase
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -44,15 +44,13 @@
 </template>
 
 <script>
-import { mapMutations, mapState, mapActions } from 'vuex'
+import { mapMutations, mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
-  name: 'AccessAccountMnemonicDialog',
+  name: 'GenerateAccountDialog',
   props: {
     show: Boolean
   },
-  data: () => ({
-  }),
   computed: {
     _show: {
       get() {
@@ -63,7 +61,10 @@ export default {
       }
     },
     ...mapState({
-      mnemonic: state => state.ethereum.mnemonic
+      mnemonic: state => state.ethereum.mnemonic,
+    }),
+    ...mapGetters({
+      mnemonicArray: 'ethereum/getMnemonicArray' ,
     }),
   },
   methods: {
@@ -72,10 +73,12 @@ export default {
     }),
     ...mapActions({
       generateWallet: 'ethereum/generateWallet',
+      generateMnemonic: 'ethereum/generateMnemonic'
     }),
-    onContinue() {
+    onMnemonicSaved() {
       this.generateWallet()
       this._show = false
+      this.$router.push('/')
     },
     closeDialog() {
       this._show = false
@@ -88,4 +91,3 @@ export default {
 <style>
 
 </style>
-

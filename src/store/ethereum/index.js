@@ -88,11 +88,6 @@ export default {
 
         commit('SET_WALLET', wallet)
         commit('SET_MNEMONIC', '')
-        /*
-         * How to access wallet address and private key
-         */
-        // const address = wallet.getAddress().toString('hex')
-        // const privateKey = wallet.getPrivateKey().toString('hex')
 
       } catch (err) {
         console.log(err)
@@ -107,13 +102,18 @@ export default {
     },
     getWalletAddress(state) {
       return state.wallet
-        ? '0x' + state.wallet.getAddress().toString('hex')
-        : 'Account not set'
+        ? state.wallet.getAddressString()
+        : ''
     },
-    getWalletPubKey(state) {
+    getWalletPublicKey(state) {
       return state.wallet
         ? state.wallet.getPublicKeyString()
-        : 'Wallet not set'
+        : ''
+    },
+    getWalletPrivateKey(state) {
+      return state.wallet
+        ? state.wallet.getPrivateKeyString()
+        : ''
     }
   }
 }
