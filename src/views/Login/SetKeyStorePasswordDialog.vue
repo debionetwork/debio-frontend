@@ -7,7 +7,7 @@
     <v-card>
       <v-app-bar flat dense color="white">
         <v-toolbar-title class="title">
-          Use Mnemonic Phrase
+          Set Password
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn
@@ -18,13 +18,23 @@
         </v-btn>
       </v-app-bar>
       <v-card-text class="mt-4 pb-0 text-subtitle-1">
-        <v-textarea
+        <p>
+          You will need to input this password later when making transactions with this account
+        </p>
+        <v-text-field
           outlined
           auto-grow
-          label="Type in your mnemonic phrase."
-          :value="mnemonic"
-          @input="setMnemonic"
-        ></v-textarea>
+          type="password"
+          v-model="password"
+          label="Type in your password"
+          :disabled="isLoading"
+        >
+        </v-text-field>
+        <v-progress-linear
+          v-if="isLoading"
+          indeterminate
+          color="primary"
+        ></v-progress-linear>
       </v-card-text>
       <v-card-actions class="px-6 pb-4">
         <v-btn
@@ -32,10 +42,14 @@
           color="primary"
           large
           width="100%"
-          @click="onContinue"
-          :disabled="!mnemonic"
+          @click="onPasswordSet"
+          :disabled="!password || isLoading"
+          :loading="isLoading"
         >
-          Continue
+          Set Password
+          <template v-slot:loader>
+            <span>Setting Up Account</span>
+          </template>
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -43,14 +57,15 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 export default {
-  name: 'AccessAccountMnemonicDialog',
+  name: 'GenerateAccountDialog',
   props: {
     show: Boolean
   },
   data: () => ({
+    password: ''
   }),
   computed: {
     _show: {
@@ -62,16 +77,18 @@ export default {
       }
     },
     ...mapState({
-      mnemonic: state => state.ethereum.mnemonic
-    }),
+      isLoading: state => state.ethereum.isLoading
+    })
   },
   methods: {
-    ...mapMutations({
-      setMnemonic: 'ethereum/SET_MNEMONIC',
+    ...mapActions({
+      generateWallet: 'ethereum/generateWallet',
     }),
-    onContinue() {
+    async onPasswordSet() {
+      await this.generateWallet(this.password)
+
       this._show = false
-      this.$emit('mnemonic-imported')
+      this.$router.push('/')
     },
     closeDialog() {
       this._show = false

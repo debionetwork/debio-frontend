@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { mapMutations, mapState, mapGetters, mapActions } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'GenerateAccountDialog',
@@ -63,22 +63,14 @@ export default {
     ...mapState({
       mnemonic: state => state.ethereum.mnemonic,
     }),
-    ...mapGetters({
-      mnemonicArray: 'ethereum/getMnemonicArray' ,
-    }),
   },
   methods: {
     ...mapMutations({
       setMnemonic: 'ethereum/SET_MNEMONIC',
     }),
-    ...mapActions({
-      generateWallet: 'ethereum/generateWallet',
-      generateMnemonic: 'ethereum/generateMnemonic'
-    }),
     onMnemonicSaved() {
-      this.generateWallet()
       this._show = false
-      this.$router.push('/')
+      this.$emit('mnemonic-generated')
     },
     closeDialog() {
       this._show = false

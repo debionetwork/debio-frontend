@@ -1,6 +1,8 @@
 import Web3 from 'web3'
 import * as bip39 from 'bip39'
 import { hdkey } from 'ethereumjs-wallet'
+import localStorage from '../../lib/local-storage'
+
 
 const RPC_URL = 'http://localhost:8545'
 
@@ -9,6 +11,8 @@ const defaultState = {
   isLoading: false,
   mnemonic: '',
   wallet: null,
+  walletAddress: '',
+  walletPublicKey: '',
 }
 
 export default {
@@ -29,6 +33,12 @@ export default {
     SET_WALLET(state, wallet) {
       state.wallet = wallet
     },
+    SET_WALLET_PUBLIC_KEY(state, publicKey) {
+      state.walletPublicKey = publicKey
+    },
+    SET_WALLET_ADDRESS(state, walletAddress) {
+      state.walletAddress = walletAddress
+    }
   },
   actions: {
     async initWeb3({ commit }) {
@@ -71,9 +81,13 @@ export default {
      * 2. use web3 to create the account from the private key
      *   web3.eth.accounts.privateKeyToAccount(privateKey)
      */
-    async generateWallet({ commit, state }) {
+    async generateWallet({ commit, state }, password) {
       try {
-        commit('SET_WALLET', null)
+        commit('SET_LOADING', true)
+
+        commit('SET_WALLET', null) // FIXME: simpen untuk dev
+        commit('SET_WALLET_PUBLIC_KEY', '')
+        commit('SET_WALLET_ADDRESS', '')
 
         // Convert mnemonic to seed buffer
         const seedBuffer = await bip39.mnemonicToSeed(state.mnemonic)
@@ -86,20 +100,34 @@ export default {
         const walletHDPath = derivationPath + '0' 
         const wallet = HDKey.derivePath(walletHDPath).getWallet()
 
-        commit('SET_WALLET', wallet)
+        // TODO: Convert wallet to keystore, (encrypted using password)
+        const keyStoreStr = await wallet.toV3String(password)
+        console.log(keyStoreStr)
+        
+        // TODO: Save keystore in localStorage
+        localStorage.setKeyStore(keyStoreStr)
+        
+        // TODO: Set walletPublicKey to state
+        commit('SET_WALLET_PUBLIC_KEY', wallet.getPublicKeyString())
+        // TODO: Set walletAddress to state
+        commit('SET_WALLET_ADDRESS', wallet.getAddressString())
+
+        commit('SET_WALLET', wallet) // FIXME: simpen untuk dev
         commit('SET_MNEMONIC', '')
 
+        commit('SET_LOADING', false)
       } catch (err) {
         console.log(err)
-        commit('SET_WALLET', null)
+        commit('SET_WALLET', null) // FIXME: simpen untuk dev
+        commit('SET_WALLET_PUBLIC_KEY', '')
+        commit('SET_WALLET_ADDRESS', '')
         commit('SET_MNEMONIC', '')
+
+        commit('SET_LOADING', false)
       }
     },
   },
   getters: {
-    getMnemonicArray(state) {
-      return state.mnemonic.split(' ')
-    },
     getWalletAddress(state) {
       return state.wallet
         ? state.wallet.getAddressString()
