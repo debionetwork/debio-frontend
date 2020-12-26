@@ -6,9 +6,12 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import ipfsWorker from './web-workers/ipfs-worker'
 
 export default {
   name: 'App',
+  components: {
+  },
   data: () => ({
   }),
   computed: {
@@ -19,6 +22,10 @@ export default {
   },
   mounted() {
     this.initWeb3()
+    ipfsWorker.postMessage({ param: "myparam" }) // Access this object in e.data in worker
+    ipfsWorker.onmessage = event => {
+      console.log(event)
+    }
   },
   methods: {
     ...mapActions({
