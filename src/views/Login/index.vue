@@ -6,7 +6,6 @@
     </v-app-bar>
     <v-main class="login-main">
       <v-container>
-
           <v-card class="py-10 mt-10" style="max-width: 400px; margin: 0 auto; border-radius: 30px;">
             <div class="d-flex justify-center">
               <v-img
@@ -23,81 +22,34 @@
             </v-row>
             <div class="d-flex justify-center mt-4">
               <div class="d-flex flex-column" style="min-width: 320px; max-width: 400px;">
-                <v-hover v-slot="{ hover }">
-                  <v-card
-                    class="my-1"
-                    :class="{ 'card-hover': hover }"
-                    @click="onGenerateAccount"
-                    outlined
-                    :style="'border-radius: 10px;'"
-                  >
-                    <div class="d-flex align-center">
-                      <div class="my-3 ml-5">
-                        <v-icon
-                          :color="hover ? 'primary' : ''"
-                          :size="48"
-                        >
-                          mdi-key-chain
-                        </v-icon>
-                      </div>
-                      <div class="my-3 ml-10 text-center" :class="hover ? 'primary--text' : ''">
-                        Generate Account
-                      </div>
-                    </div>
-                  </v-card>
-                </v-hover>
+                <RectangleCardIconBtn
+                  icon="mdi-key-chain"
+                  text="Generate Account"
+                  @click="onGenerateAccount"
+                ></RectangleCardIconBtn>
 
-                <v-hover v-slot="{ hover }">
-                  <v-card
-                    class="my-1"
-                    :class="{ 'card-hover': hover }"
-                    @click="onUseMnemonic"
-                    outlined
-                    style="border-radius: 10px;"
-                  >
-                    <div class="d-flex align-center">
-                      <div class="my-3 ml-5">
-                        <v-icon
-                          :color="hover ? 'primary' : ''"
-                          :size="48"
-                        >
-                          mdi-script-text
-                        </v-icon>
-                      </div>
-                      <div class="my-3 ml-10 text-center" :class="hover ? 'primary--text' : ''">
-                        Use Mnemonic Phrase
-                      </div>
-                    </div>
-                  </v-card>
-                </v-hover>
+                <RectangleCardIconBtn
+                  icon="mdi-script-text"
+                  text="Use Mnemonic Phrase"
+                  @click="onUseMnemonic"
+                ></RectangleCardIconBtn>
 
-                <v-hover v-slot="{ hover }">
-                  <v-card
-                    class="my-1"
-                    :class="{ 'card-hover': hover }"
-                    outlined
-                    style="border-radius: 10px;"
-                  >
-                    <div class="d-flex align-center">
-                      <div class="my-3 ml-5">
-                        <v-icon
-                          :color="hover ? 'primary' : ''"
-                          :size="48"
-                        >
-                          mdi-key-chain
-                        </v-icon>
-                      </div>
-                      <div class="my-3 ml-10 text-center" :class="hover ? 'primary--text' : ''">
-                        Import JSON Keystore
-                      </div>
-                    </div>
-                  </v-card>
-                </v-hover>
+                <RectangleCardIconBtn
+                  icon="mdi-file-key"
+                  text="Import JSON Keystore"
+                  @click="onImportKeystore"
+                ></RectangleCardIconBtn>
+
+                <RectangleCardIconBtn
+                  icon="mdi-key-variant"
+                  text="Private Key"
+                  @click="onUsePrivateKey"
+                ></RectangleCardIconBtn>
               </div>
             </div>
           </v-card>
-
       </v-container>
+
       <GenerateAccountDialog
         :show="generateAccountDialog"
         @toggle="generateAccountDialog = $event"
@@ -108,10 +60,19 @@
         @toggle="accessAccountMnemonicDialog = $event"
         @mnemonic-imported="setKeyStorePassword('accessAccountMnemonicDialog')"
       ></AccessAccountMnemonicDialog>
-      <SetKeyStorePasswordDialog
-        :show="setKeyStorePasswordDialog"
-        @toggle="setKeyStorePasswordDialog = $event"
-      ></SetKeyStorePasswordDialog>
+      <ImportKeystoreDialog
+        :show="importKeystoreDialog"
+        @toggle="importKeystoreDialog = $event"
+      ></ImportKeystoreDialog>
+      <UsePrivateKeyDialog
+        :show="usePrivateKeyDialog"
+        @toggle="usePrivateKeyDialog = $event"
+        @private-key-imported="setKeyStorePassword('usePrivateKeyDialog')"
+      ></UsePrivateKeyDialog>
+      <SetKeystorePasswordDialog
+        :show="setKeystorePasswordDialog"
+        @toggle="setKeystorePasswordDialog = $event"
+      ></SetKeystorePasswordDialog>
     </v-main>
   </v-app>
 </template>
@@ -119,22 +80,30 @@
 <script>
 import { mapActions } from 'vuex'
 import DevMenu from '../../components/DevMenu'
+import RectangleCardIconBtn from '../../components/RectangleCardIconBtn'
 import GenerateAccountDialog from './GenerateAccountDialog'
 import AccessAccountMnemonicDialog from './AccessAccountMnemonicDialog'
-import SetKeyStorePasswordDialog from './SetKeyStorePasswordDialog'
+import ImportKeystoreDialog from './ImportKeystoreDialog'
+import UsePrivateKeyDialog from './UsePrivateKeyDialog'
+import SetKeystorePasswordDialog from './SetKeystorePasswordDialog'
 
 export default {
   name: 'Home',
   components: {
     DevMenu,
+    RectangleCardIconBtn,
     GenerateAccountDialog,
     AccessAccountMnemonicDialog,
-    SetKeyStorePasswordDialog,
+    ImportKeystoreDialog,
+    UsePrivateKeyDialog,
+    SetKeystorePasswordDialog,
   },
   data: () => ({
     generateAccountDialog: false,
     accessAccountMnemonicDialog: false,
-    setKeyStorePasswordDialog: false,
+    importKeystoreDialog: false,
+    usePrivateKeyDialog: false,
+    setKeystorePasswordDialog: false,
   }),
   methods: {
     ...mapActions({
@@ -148,9 +117,15 @@ export default {
     onUseMnemonic() {
       this.accessAccountMnemonicDialog = true
     },
+    onImportKeystore() {
+      this.importKeystoreDialog = true
+    },
+    onUsePrivateKey() {
+      this.usePrivateKeyDialog = true
+    },
     setKeyStorePassword(previousDialog) {
       this[previousDialog] = false // Hide previous dialog
-      this.setKeyStorePasswordDialog = true
+      this.setKeystorePasswordDialog = true
     }
   }
 }

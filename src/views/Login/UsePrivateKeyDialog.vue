@@ -7,7 +7,7 @@
     <v-card>
       <v-app-bar flat dense color="white">
         <v-toolbar-title class="title">
-          Set Password
+          Paste Private Key
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn
@@ -18,15 +18,13 @@
         </v-btn>
       </v-app-bar>
       <v-card-text class="mt-4 pb-0 text-subtitle-1">
-        <p>
-          You will need to input this password later when making transactions with this account
-        </p>
         <v-text-field
           outlined
           auto-grow
           type="password"
-          v-model="password"
-          label="Type in your password"
+          :value="importPrivateKeyInput"
+          @input="setImportPrivateKeyInput"
+          label="Input your private key"
           :disabled="isLoading"
         >
         </v-text-field>
@@ -42,14 +40,10 @@
           color="primary"
           large
           width="100%"
-          @click="onPasswordSet"
-          :disabled="!password || isLoading"
-          :loading="isLoading"
+          @click="onContinue"
+          :disabled="!importPrivateKeyInput"
         >
-          Set Password
-          <template v-slot:loader>
-            <span>Setting Up Account</span>
-          </template>
+          Continue
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -57,15 +51,14 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 
 export default {
-  name: 'GenerateAccountDialog',
+  name: 'UsePrivateKeyDialog',
   props: {
     show: Boolean
   },
   data: () => ({
-    password: ''
   }),
   computed: {
     _show: {
@@ -77,22 +70,21 @@ export default {
       }
     },
     ...mapState({
+      importPrivateKeyInput: state => state.ethereum.importPrivateKeyInput,
       isLoading: state => state.ethereum.isLoading
-    })
+    }),
   },
   methods: {
-    ...mapActions({
-      generateWallet: 'ethereum/generateWallet',
+    ...mapMutations({
+      setImportPrivateKeyInput: 'ethereum/SET_IMPORT_PRIVATE_KEY_INPUT',
     }),
-    async onPasswordSet() {
-      await this.generateWallet(this.password)
-
+    onContinue() {
       this._show = false
-      this.$router.push('/')
+      this.$emit('private-key-imported')
     },
     closeDialog() {
       this._show = false
-      this.setMnemonic('')
+      this.setImportPrivateKeyInput('')
     }
   }
 }
@@ -101,4 +93,5 @@ export default {
 <style>
 
 </style>
+
 

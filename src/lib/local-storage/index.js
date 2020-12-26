@@ -6,10 +6,10 @@ const localStorage = {
   /**
    * getter setters
    */
-  setKeyStore(keyStore) {
-    window.localStorage.setItem(this.DEGENICS_KS, keyStore)
+  setKeystore(keystore) {
+    window.localStorage.setItem(this.DEGENICS_KS, keystore)
   },
-  getKeyStore() {
+  getKeystore() {
     return window.localStorage.getItem(this.DEGENICS_KS) 
   },
   clear() {

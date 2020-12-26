@@ -1,6 +1,7 @@
 import Web3 from 'web3'
 import * as bip39 from 'bip39'
-import { hdkey } from 'ethereumjs-wallet'
+import Wallet, { hdkey } from 'ethereumjs-wallet'
+import * as EthUtil from 'ethereumjs-util'
 import localStorage from '../../lib/local-storage'
 
 
@@ -10,6 +11,7 @@ const defaultState = {
   web3: null,
   isLoading: false,
   mnemonic: '',
+  importPrivateKeyInput: '',
   wallet: null,
   walletAddress: '',
   walletPublicKey: '',
@@ -29,6 +31,9 @@ export default {
     },
     SET_MNEMONIC(state, mnemonic) {
       state.mnemonic = mnemonic
+    },
+    SET_IMPORT_PRIVATE_KEY_INPUT(state, privateKey) {
+      state.importPrivateKeyInput = privateKey
     },
     SET_WALLET(state, wallet) {
       state.wallet = wallet
@@ -81,7 +86,7 @@ export default {
      * 2. use web3 to create the account from the private key
      *   web3.eth.accounts.privateKeyToAccount(privateKey)
      */
-    async generateWallet({ commit, state }, password) {
+    async generateWalletFromMnemonic({ commit, state }, password) {
       try {
         commit('SET_LOADING', true)
 
@@ -100,16 +105,11 @@ export default {
         const walletHDPath = derivationPath + '0' 
         const wallet = HDKey.derivePath(walletHDPath).getWallet()
 
-        // TODO: Convert wallet to keystore, (encrypted using password)
-        const keyStoreStr = await wallet.toV3String(password)
-        console.log(keyStoreStr)
+        // Create keystore and store it in localStorage
+        const keystoreStr = await wallet.toV3String(password)
+        localStorage.setKeystore(keystoreStr)
         
-        // TODO: Save keystore in localStorage
-        localStorage.setKeyStore(keyStoreStr)
-        
-        // TODO: Set walletPublicKey to state
         commit('SET_WALLET_PUBLIC_KEY', wallet.getPublicKeyString())
-        // TODO: Set walletAddress to state
         commit('SET_WALLET_ADDRESS', wallet.getAddressString())
 
         commit('SET_WALLET', wallet) // FIXME: simpen untuk dev
@@ -126,17 +126,46 @@ export default {
         commit('SET_LOADING', false)
       }
     },
+    async generateWalletFromPrivateKey({ commit, state }, password) {
+      try {
+        commit('SET_LOADING', true)
+        commit('SET_WALLET', null) // FIXME: simpen untuk dev
+        commit('SET_WALLET_PUBLIC_KEY', '')
+        commit('SET_WALLET_ADDRESS', '')
+
+        const privateKeyBuffer = EthUtil.toBuffer(state.importPrivateKeyInput)
+        const wallet = Wallet.fromPrivateKey(privateKeyBuffer)
+
+        // Create keystore and store it in localStorage
+        const keystoreStr = await wallet.toV3String(password)
+        localStorage.setKeystore(keystoreStr)
+
+        commit('SET_WALLET_PUBLIC_KEY', wallet.getPublicKeyString())
+        commit('SET_WALLET_ADDRESS', wallet.getAddressString())
+
+        commit('SET_WALLET', wallet) // FIXME: simpen untuk dev
+
+        commit('SET_IMPORT_PRIVATE_KEY_INPUT', '')
+      } catch (err) {
+        console.log(err)
+        commit('SET_WALLET', null) // FIXME: simpen untuk dev
+        commit('SET_WALLET_PUBLIC_KEY', '')
+        commit('SET_WALLET_ADDRESS', '')
+        commit('SET_IMPORT_PRIVATE_KEY_INPUT', '')
+
+        commit('SET_LOADING', false)
+      }
+    },
   },
   getters: {
+    getKeystore() {
+      return localStorage.getKeystore()
+    },
     getWalletAddress(state) {
-      return state.wallet
-        ? state.wallet.getAddressString()
-        : ''
+      return state.walletAddress
     },
     getWalletPublicKey(state) {
-      return state.wallet
-        ? state.wallet.getPublicKeyString()
-        : ''
+      return state.walletPublicKey
     },
     getWalletPrivateKey(state) {
       return state.wallet
