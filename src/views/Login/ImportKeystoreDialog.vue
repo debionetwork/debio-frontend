@@ -17,29 +17,75 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-app-bar>
-      <v-card-text class="pb-0 text-subtitle-1">
-        <input type="file" style="display: none" ref="keystoreFileInput" />
-      </v-card-text>
-      <v-card-actions class="px-6 pb-4">
-        <v-btn
-          depressed
-          color="primary"
-          large
-          width="100%"
-          @click="onSelectKeystoreFile"
-        >
-          Select Keystore File
-        </v-btn>
-      </v-card-actions>
+      <!-- Input password for selected keystore file -->
+      <template v-if="keystore">
+        <v-card-text class="mt-4 pb-0 text-subtitle-1">
+          <v-form ref="form">
+            <v-text-field
+              v-if="fileName"
+              outlined
+              auto-grow
+              type="password"
+              v-model="password"
+              label="Input password for keystore"
+              :error-messages="keystoreInputErrors"
+              :disabled="isLoading"
+              @keyup.enter="onPasswordInput"
+            ></v-text-field>
+          </v-form>
+          <v-progress-linear
+            v-if="isLoading"
+            indeterminate
+            color="primary"
+          ></v-progress-linear>
+        </v-card-text>
+        <v-card-actions class="px-6 pb-4">
+          <v-btn
+            depressed
+            color="primary"
+            large
+            width="100%"
+            :disabled="!password"
+            @click="onPasswordInput"
+          >
+            Access Account
+          </v-btn>
+        </v-card-actions>
+      </template>
+
+      <!-- Prompt user to select keystore file -->
+      <template v-else>
+        <v-card-text class="pb-0 text-subtitle-1">
+          <input type="file" style="display: none" ref="keystoreFileInput" />
+        </v-card-text>
+        <v-card-actions class="px-6 pb-4">
+          <v-btn
+            depressed
+            color="primary"
+            large
+            width="100%"
+            @click="onSelectKeystoreFile"
+          >
+            Select Keystore File
+          </v-btn>
+        </v-card-actions>
+      </template>
     </v-card>
   </v-dialog>
 </template>
 
 <script>
 import localStorage from '../../lib/local-storage'
+import { mapActions, mapState } from 'vuex'
 
 export default {
   name: 'ImportKeystoreDialog',
+  data: () =>  ({
+    keystore: '',
+    password: '',
+    fileName: '',
+    keystoreInputErrors: []
+  }),
   props: {
     show: Boolean
   },
@@ -52,10 +98,16 @@ export default {
         this.$emit('toggle', val)
       }
     },
+    ...mapState({
+      isLoading: state => state.ethereum.isLoading,
+    }),
   },
   mounted() {
   },
   methods: {
+    ...mapActions({
+      decryptKeystore: 'ethereum/decryptKeystore'
+    }),
     setKeystoreFileInputListener() {
       const context = this
       this.$refs.keystoreFileInput.addEventListener('change', function() {
@@ -64,9 +116,7 @@ export default {
         const fr = new FileReader()
         fr.onload = async function() {
           // TODO: Validate if valid keystore
-          context.saveKeystoreToLocalStorage(fr.result)
-          context._show = false
-          context.$router.push('/')
+          context.keystore = fr.result
         }
         fr.readAsText(file)
       })
@@ -82,6 +132,31 @@ export default {
     },
     closeDialog() {
       this._show = false
+      this.clearInput()
+    },
+    clearInput() {
+     this.keystore = '',
+     this.password = '',
+     this.fileName = '',
+     this.keystoreInputErrors = []
+    },
+    async onPasswordInput() {
+      this.keystoreInputErrors = []
+
+      const keystore = JSON.parse(this.keystore)
+      const result = await this.decryptKeystore({
+        keystore,
+        password: this.password
+      })
+
+      if (result.success) {
+        this._show = false
+        this.clearInput()
+        this.$router.push('/')
+        return
+      }
+    
+      this.keystoreInputErrors.push(result.error)
     }
   }
 }

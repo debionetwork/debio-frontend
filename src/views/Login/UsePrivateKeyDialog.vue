@@ -18,21 +18,17 @@
         </v-btn>
       </v-app-bar>
       <v-card-text class="mt-4 pb-0 text-subtitle-1">
-        <v-text-field
-          outlined
-          auto-grow
-          type="password"
-          :value="importPrivateKeyInput"
-          @input="setImportPrivateKeyInput"
-          label="Input your private key"
-          :disabled="isLoading"
-        >
-        </v-text-field>
-        <v-progress-linear
-          v-if="isLoading"
-          indeterminate
-          color="primary"
-        ></v-progress-linear>
+        <v-form ref="form" v-model="formValid">
+          <v-text-field
+            outlined
+            auto-grow
+            type="password"
+            v-model="privateKey"
+            :rules="privateKeyRules"
+            label="Input your private key"
+          >
+          </v-text-field>
+        </v-form>
       </v-card-text>
       <v-card-actions class="px-6 pb-4">
         <v-btn
@@ -41,7 +37,7 @@
           large
           width="100%"
           @click="onContinue"
-          :disabled="!importPrivateKeyInput"
+          :disabled="!formValid"
         >
           Continue
         </v-btn>
@@ -51,14 +47,18 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from 'vuex'
-
 export default {
   name: 'UsePrivateKeyDialog',
   props: {
     show: Boolean
   },
   data: () => ({
+    formValid: true,
+    privateKey: '',
+    privateKeyRules: [
+      val => val && /0[xX][0-9a-fA-F]+/g.test(val)
+        || 'Invalid private key format. Must be in hex string.'
+    ]
   }),
   computed: {
     _show: {
@@ -69,22 +69,16 @@ export default {
         this.$emit('toggle', val)
       }
     },
-    ...mapState({
-      importPrivateKeyInput: state => state.ethereum.importPrivateKeyInput,
-      isLoading: state => state.ethereum.isLoading
-    }),
   },
   methods: {
-    ...mapMutations({
-      setImportPrivateKeyInput: 'ethereum/SET_IMPORT_PRIVATE_KEY_INPUT',
-    }),
     onContinue() {
       this._show = false
-      this.$emit('private-key-imported')
+      this.$emit('private-key-input', this.privateKey)
+      this.$refs.form.reset()
     },
     closeDialog() {
       this._show = false
-      this.setImportPrivateKeyInput('')
+      this.$refs.form.reset()
     }
   }
 }

@@ -10,8 +10,6 @@ const RPC_URL = 'http://localhost:8545'
 const defaultState = {
   web3: null,
   isLoading: false,
-  mnemonic: '',
-  importPrivateKeyInput: '',
   wallet: null,
   walletAddress: '',
   walletPublicKey: '',
@@ -29,9 +27,6 @@ export default {
     SET_WEB3(state, web3Instance) {
       state.web3 = web3Instance
     },
-    SET_MNEMONIC(state, mnemonic) {
-      state.mnemonic = mnemonic
-    },
     SET_IMPORT_PRIVATE_KEY_INPUT(state, privateKey) {
       state.importPrivateKeyInput = privateKey
     },
@@ -43,6 +38,11 @@ export default {
     },
     SET_WALLET_ADDRESS(state, walletAddress) {
       state.walletAddress = walletAddress
+    },
+    CLEAR_WALLET(state) {
+      state.wallet = null
+      state.walletAddress = ''
+      state.walletPublicKey = ''
     }
   },
   actions: {
@@ -66,10 +66,6 @@ export default {
         commit('SET_LOADING', false)
       }
     },
-    generateMnemonic({ commit }) {
-      const mnemonic = bip39.generateMnemonic()
-      commit('SET_MNEMONIC', mnemonic)
-    },
     /*
      * generateWallet
      *
@@ -86,16 +82,14 @@ export default {
      * 2. use web3 to create the account from the private key
      *   web3.eth.accounts.privateKeyToAccount(privateKey)
      */
-    async generateWalletFromMnemonic({ commit, state }, password) {
+    async generateWalletFromMnemonic({ commit }, { mnemonic, password }) {
       try {
         commit('SET_LOADING', true)
 
-        commit('SET_WALLET', null) // FIXME: simpen untuk dev
-        commit('SET_WALLET_PUBLIC_KEY', '')
-        commit('SET_WALLET_ADDRESS', '')
+        commit('CLEAR_WALLET')
 
         // Convert mnemonic to seed buffer
-        const seedBuffer = await bip39.mnemonicToSeed(state.mnemonic)
+        const seedBuffer = await bip39.mnemonicToSeed(mnemonic)
         // HD Key
         const HDKey = hdkey.fromMasterSeed(seedBuffer)
         // Derivation path
@@ -113,27 +107,20 @@ export default {
         commit('SET_WALLET_ADDRESS', wallet.getAddressString())
 
         commit('SET_WALLET', wallet) // FIXME: simpen untuk dev
-        commit('SET_MNEMONIC', '')
 
         commit('SET_LOADING', false)
       } catch (err) {
         console.log(err)
-        commit('SET_WALLET', null) // FIXME: simpen untuk dev
-        commit('SET_WALLET_PUBLIC_KEY', '')
-        commit('SET_WALLET_ADDRESS', '')
-        commit('SET_MNEMONIC', '')
-
+        commit('CLEAR_WALLET')
         commit('SET_LOADING', false)
       }
     },
-    async generateWalletFromPrivateKey({ commit, state }, password) {
+    async generateWalletFromPrivateKey({ commit }, { privateKey, password }) {
       try {
         commit('SET_LOADING', true)
-        commit('SET_WALLET', null) // FIXME: simpen untuk dev
-        commit('SET_WALLET_PUBLIC_KEY', '')
-        commit('SET_WALLET_ADDRESS', '')
+        commit('CLEAR_WALLET')
 
-        const privateKeyBuffer = EthUtil.toBuffer(state.importPrivateKeyInput)
+        const privateKeyBuffer = EthUtil.toBuffer(privateKey)
         const wallet = Wallet.fromPrivateKey(privateKeyBuffer)
 
         // Create keystore and store it in localStorage
@@ -145,17 +132,34 @@ export default {
 
         commit('SET_WALLET', wallet) // FIXME: simpen untuk dev
 
-        commit('SET_IMPORT_PRIVATE_KEY_INPUT', '')
       } catch (err) {
         console.log(err)
-        commit('SET_WALLET', null) // FIXME: simpen untuk dev
-        commit('SET_WALLET_PUBLIC_KEY', '')
-        commit('SET_WALLET_ADDRESS', '')
-        commit('SET_IMPORT_PRIVATE_KEY_INPUT', '')
-
+        commit('CLEAR_WALLET')
         commit('SET_LOADING', false)
       }
     },
+    async decryptKeystore({ commit }, { keystore, password }) {
+      try {
+        commit('SET_LOADING', true)
+        commit('CLEAR_WALLET')
+
+        const wallet = await Wallet.fromV3(keystore, password)
+        localStorage.setKeystore(JSON.stringify(keystore))
+
+        commit('SET_WALLET_PUBLIC_KEY', wallet.getPublicKeyString())
+        commit('SET_WALLET_ADDRESS', wallet.getAddressString())
+
+        commit('SET_WALLET', wallet) // FIXME: simpen untuk dev
+
+        return { success: true }
+      } catch (err) {
+        console.log(err)
+        commit('CLEAR_WALLET')
+
+        commit('SET_LOADING', false)
+        return { success: false, error: err.message }
+      }
+    }
   },
   getters: {
     getKeystore() {

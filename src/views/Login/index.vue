@@ -53,12 +53,12 @@
       <GenerateAccountDialog
         :show="generateAccountDialog"
         @toggle="generateAccountDialog = $event"
-        @mnemonic-generated="setKeyStorePassword('generateAccountDialog')"
+        @mnemonic-generated="(mnemonic) => setKeyStorePassword('generateAccountDialog', 'mnemonic', mnemonic)"
       ></GenerateAccountDialog>
       <AccessAccountMnemonicDialog
         :show="accessAccountMnemonicDialog"
         @toggle="accessAccountMnemonicDialog = $event"
-        @mnemonic-imported="setKeyStorePassword('accessAccountMnemonicDialog')"
+        @mnemonic-input="(mnemonic) => setKeyStorePassword('accessAccountMnemonicDialog', 'mnemonic', mnemonic)"
       ></AccessAccountMnemonicDialog>
       <ImportKeystoreDialog
         :show="importKeystoreDialog"
@@ -67,11 +67,15 @@
       <UsePrivateKeyDialog
         :show="usePrivateKeyDialog"
         @toggle="usePrivateKeyDialog = $event"
-        @private-key-imported="setKeyStorePassword('usePrivateKeyDialog')"
+        @private-key-input="(privateKey) => setKeyStorePassword('usePrivateKeyDialog', 'privateKey', privateKey)"
       ></UsePrivateKeyDialog>
       <SetKeystorePasswordDialog
+        :secretType="secretType"
+        :secret="secret"
         :show="setKeystorePasswordDialog"
         @toggle="setKeystorePasswordDialog = $event"
+        @key-store-set="clearSecret"
+        @key-store-set-cancelled="clearSecret"
       ></SetKeystorePasswordDialog>
     </v-main>
   </v-app>
@@ -104,14 +108,14 @@ export default {
     importKeystoreDialog: false,
     usePrivateKeyDialog: false,
     setKeystorePasswordDialog: false,
+    secretType: '', // mnemonic or privateKey
+    secret: '', // mnemonic or privateKey string
   }),
   methods: {
     ...mapActions({
       generateMnemonic: 'ethereum/generateMnemonic'
     }),
     onGenerateAccount() {
-      // Mnemonic will be shown in <GenerateAccountDialog />
-      this.generateMnemonic()
       this.generateAccountDialog = true
     },
     onUseMnemonic() {
@@ -123,9 +127,15 @@ export default {
     onUsePrivateKey() {
       this.usePrivateKeyDialog = true
     },
-    setKeyStorePassword(previousDialog) {
+    setKeyStorePassword(previousDialog, secretType, secret) {
+      this.secretType = secretType // mnemonic or privateKey
+      this.secret = secret // mnemonic or privateKey string
       this[previousDialog] = false // Hide previous dialog
       this.setKeystorePasswordDialog = true
+    },
+    clearSecret() {
+      this.secretType = ''
+      this.secret = ''
     }
   }
 }

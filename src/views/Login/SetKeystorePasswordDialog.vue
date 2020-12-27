@@ -28,6 +28,7 @@
           v-model="password"
           label="Type in your password"
           :disabled="isLoading"
+          @keyup.enter="onPasswordSet"
         >
         </v-text-field>
         <v-progress-linear
@@ -57,11 +58,13 @@
 </template>
 
 <script>
-import { mapActions, mapState, mapMutations } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 export default {
   name: 'SetKeystorePasswordDialog',
   props: {
+    secretType: String,
+    secret: String,
     show: Boolean
   },
   data: () => ({
@@ -78,8 +81,6 @@ export default {
     },
     ...mapState({
       isLoading: state => state.ethereum.isLoading,
-      mnemonic: state => state.ethereum.mnemonic,
-      importPrivateKeyInput: state => state.ethereum.importPrivateKeyInput,
     })
   },
   methods: {
@@ -87,26 +88,28 @@ export default {
       generateWalletFromMnemonic: 'ethereum/generateWalletFromMnemonic',
       generateWalletFromPrivateKey: 'ethereum/generateWalletFromPrivateKey',
     }),
-    ...mapMutations({
-      setMnemonic: 'ethereum/SET_MNEMONIC',
-      setImportPrivateKeyInput: 'ethereum/SET_IMPORT_PRIVATE_KEY_INPUT',
-    }),
     async onPasswordSet() {
-      if (this.mnemonic) {
-        await this.generateWalletFromMnemonic(this.password)
-      }
-      if (this.importPrivateKeyInput) {
-        await this.generateWalletFromPrivateKey(this.password)
+      if (this.secretType == 'mnemonic') {
+        await this.generateWalletFromMnemonic({
+          mnemonic: this.secret,
+          password: this.password
+        })
       }
 
-      this.closeDialog()
+      if (this.secretType == 'privateKey') {
+        await this.generateWalletFromPrivateKey({
+          privateKey: this.secret,
+          password: this.password
+        })
+      }
+
+      this._show = false
+      this.$emit('key-store-set')
       this.$router.push('/')
     },
     closeDialog() {
       this._show = false
-      // Clear import account inputs
-      this.setMnemonic('')
-      this.setImportPrivateKeyInput('')
+      this.$emit('key-store-set-cancelled')
     }
   }
 }

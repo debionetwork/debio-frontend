@@ -44,13 +44,16 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from 'vuex'
+import * as bip39 from 'bip39'
 
 export default {
   name: 'GenerateAccountDialog',
   props: {
     show: Boolean
   },
+  data: () => ({
+    mnemonic: '',
+  }),
   computed: {
     _show: {
       get() {
@@ -60,21 +63,23 @@ export default {
         this.$emit('toggle', val)
       }
     },
-    ...mapState({
-      mnemonic: state => state.ethereum.mnemonic,
-    }),
+  },
+  watch: {
+    _show(isShow) {
+      if (isShow) {
+        this.mnemonic = bip39.generateMnemonic()
+      }
+    }
   },
   methods: {
-    ...mapMutations({
-      setMnemonic: 'ethereum/SET_MNEMONIC',
-    }),
     onMnemonicSaved() {
       this._show = false
-      this.$emit('mnemonic-generated')
+      this.$emit('mnemonic-generated', this.mnemonic)
+      this.mnemonic = ''
     },
     closeDialog() {
       this._show = false
-      this.setMnemonic('')
+      this.mnemonic = ''
     }
   }
 }
