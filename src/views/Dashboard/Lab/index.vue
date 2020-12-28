@@ -28,8 +28,8 @@
       <v-btn :disabled="!encryptedObj" @click="uploadEncrypted">
         Upload Encrypted IPFS
       </v-btn>
-      <v-btn @click="downloadEncryptedIPFS">
-        Download Encrypted IPFS
+      <v-btn :disabled="!encryptedObj" @click="downloadEncryptedIPFS">
+        Download Decrypted IPFS
       </v-btn>
     </v-container>
   </div>
@@ -40,6 +40,7 @@ import EthCrypto from 'eth-crypto'
 import SquareCardBtn from '../../../components/SquareCardBtn'
 import ipfsWorker from '../../../web-workers/ipfs-worker'
 import cryptWorker from '../../../web-workers/crypt-worker'
+import IPFSHttpClient from 'ipfs-http-client';
 
 
 export default {
@@ -53,6 +54,7 @@ export default {
     publicKeyInput: '',
     encryptedObj: null,
     fileName: '',
+    // ipfsPath: 'QmegsjfWS2DiFvrLWTMtKSmKhDMUpJX2G5PUW2VUMRxTZa',
     ipfsPath: '',
   }),
   mounted() {
@@ -137,19 +139,26 @@ export default {
         console.log(event)
       }
     },
-    downloadEncryptedIPFS() {
-      console.log("masuk sini")
-      // ipfsWorker.workerDownload.postMessage("Qmd5QRAws5qCeAX3bviqrMHYmXh2KbanjosgxMyz6Y6eKk") // Access this object in e.data in worker
-      ipfsWorker.workerDownload.postMessage(this.ipfsPath);
-      ipfsWorker.workerDownload.onmessage = async event => {
+    async downloadEncryptedIPFS() {
 
-        const fl = new Blob([ event.data ], {type: 'text/plain'});
-        const encrypted = await fl.text();
-        console.log((encrypted));
-        const decrypted = await EthCrypto.decryptWithPrivateKey(this.privateKey, JSON.parse(encrypted))
-        this.download(decrypted, this.fileName + '-decrypted')
-        console.log(event.data)
+      const ipfs = IPFSHttpClient({host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
+      const res = await ipfs.get("/ipfs/"+this.ipfsPath);
+      const content = await res.next()
+      let dt = await content.value.content.next()
+      let dts = dt.value
+      console.log(dt);
+      for await (let dtd of content.value.content) {
+        var tmp = new Int8Array(dts.length + dtd.length);
+        tmp.set(dts);
+        tmp.set(dtd, dts.length);
+        dts = tmp;
       }
+      const fl = new Blob([ dts ], {type: 'text/plain'});
+      const encrypted = await fl.text();
+      console.log("Prepare decrypt");
+      const decrypted = await EthCrypto.decryptWithPrivateKey(this.privateKey, JSON.parse(encrypted))
+
+      this.download(decrypted, this.fileName)
     }
   }
 }
