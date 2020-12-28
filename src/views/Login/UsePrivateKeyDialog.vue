@@ -7,7 +7,7 @@
     <v-card>
       <v-app-bar flat dense color="white">
         <v-toolbar-title class="title">
-          Secret Backup Phrase
+          Paste Private Key
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn
@@ -17,16 +17,18 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-app-bar>
-      <v-card-text class="pb-0 text-subtitle-1">
-        <p>
-          Write this phrase on a piece of paper and store in a secure location. You will need this to access your wallet.
-        </p>
-        <p>
-          <b class="red--text">WARNING</b>: Never disclose your backup phrase. Anyone with this phrase can take your Ether forever.
-        </p>
-        <v-card outlined class="grey--text text--darken-3 text-h5 text-center px-5 py-5">
-          {{ mnemonic }}
-        </v-card>
+      <v-card-text class="mt-4 pb-0 text-subtitle-1">
+        <v-form ref="form" v-model="formValid">
+          <v-text-field
+            outlined
+            auto-grow
+            type="password"
+            v-model="privateKey"
+            :rules="privateKeyRules"
+            label="Input your private key"
+          >
+          </v-text-field>
+        </v-form>
       </v-card-text>
       <v-card-actions class="px-6 pb-4">
         <v-btn
@@ -34,9 +36,10 @@
           color="primary"
           large
           width="100%"
-          @click="onMnemonicSaved"
+          @click="onContinue"
+          :disabled="!formValid"
         >
-          I Wrote Down My Mnemonic Phrase
+          Continue
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -44,15 +47,18 @@
 </template>
 
 <script>
-import * as bip39 from 'bip39'
-
 export default {
-  name: 'GenerateAccountDialog',
+  name: 'UsePrivateKeyDialog',
   props: {
     show: Boolean
   },
   data: () => ({
-    mnemonic: '',
+    formValid: true,
+    privateKey: '',
+    privateKeyRules: [
+      val => val && /0[xX][0-9a-fA-F]+/g.test(val)
+        || 'Invalid private key format. Must be in hex string.'
+    ]
   }),
   computed: {
     _show: {
@@ -64,22 +70,15 @@ export default {
       }
     },
   },
-  watch: {
-    _show(isShow) {
-      if (isShow) {
-        this.mnemonic = bip39.generateMnemonic()
-      }
-    }
-  },
   methods: {
-    onMnemonicSaved() {
+    onContinue() {
       this._show = false
-      this.$emit('mnemonic-generated', this.mnemonic)
-      this.mnemonic = ''
+      this.$emit('private-key-input', this.privateKey)
+      this.$refs.form.reset()
     },
     closeDialog() {
       this._show = false
-      this.mnemonic = ''
+      this.$refs.form.reset()
     }
   }
 }
@@ -88,3 +87,5 @@ export default {
 <style>
 
 </style>
+
+

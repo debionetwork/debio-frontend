@@ -12,6 +12,7 @@
     "bip39": "^3.0.3",
     "core-js": "^3.6.5",
     "eth-crypto": "^1.8.0",
+    "ethereumjs-util": "^7.0.7",
     "ethereumjs-wallet": "^1.0.1",
     "ipfs-core": "^0.3.1",
     "ipfs-http-client": "^48.1.3",

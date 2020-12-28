@@ -1,0 +1,44 @@
+<template>
+  <v-hover v-slot="{ hover }">
+    <v-card
+      class="my-1"
+      :class="{ 'card-hover': hover }"
+      @click="onClick"
+      outlined
+      style="border-radius: 10px;"
+    >
+      <div class="d-flex align-center">
+        <div class="my-3 ml-5">
+          <v-icon
+            :color="hover ? 'primary' : ''"
+            :size="48"
+          >
+            {{ icon }}
+          </v-icon>
+        </div>
+        <div class="my-3 ml-10 text-center" :class="hover ? 'primary--text' : ''">
+          {{ text }}
+        </div>
+      </div>
+    </v-card>
+  </v-hover>
+</template>
+
+<script>
+export default {
+  name: 'RectangleCardIconBtn',
+  props: {
+    icon: String,
+    text: String,
+  },
+  methods: {
+    onClick() {
+      this.$emit('click')
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+
+</style>

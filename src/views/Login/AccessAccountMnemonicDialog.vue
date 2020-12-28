@@ -18,14 +18,15 @@
         </v-btn>
       </v-app-bar>
       <v-card-text class="mt-4 pb-0 text-subtitle-1">
-        <v-textarea
-          outlined
-          auto-grow
-          name="input-7-4"
-          label="Type in your mnemonic phrase."
-          :value="mnemonic"
-          @input="setMnemonic"
-        ></v-textarea>
+        <v-form ref="form" v-model="formValid">
+          <v-textarea
+            outlined
+            auto-grow
+            label="Type in your mnemonic phrase."
+            :rules="mnemonicRules"
+            v-model="mnemonic"
+          ></v-textarea>
+        </v-form>
       </v-card-text>
       <v-card-actions class="px-6 pb-4">
         <v-btn
@@ -34,7 +35,7 @@
           large
           width="100%"
           @click="onContinue"
-          :disabled="!mnemonic"
+          :disabled="!formValid"
         >
           Continue
         </v-btn>
@@ -44,14 +45,20 @@
 </template>
 
 <script>
-import { mapMutations, mapState, mapActions } from 'vuex'
-
 export default {
   name: 'AccessAccountMnemonicDialog',
   props: {
     show: Boolean
   },
   data: () => ({
+    formValid: true,
+    mnemonic: '',
+    mnemonicRules: [
+      val => { 
+        return val && val.trim().split(/\s+/g).length >= 12
+          || 'Number of words must be 12 or more'
+      }
+    ]
   }),
   computed: {
     _show: {
@@ -62,26 +69,20 @@ export default {
         this.$emit('toggle', val)
       }
     },
-    ...mapState({
-      mnemonic: state => state.ethereum.mnemonic
-    }),
   },
   methods: {
-    ...mapMutations({
-      setMnemonic: 'ethereum/SET_MNEMONIC',
-    }),
-    ...mapActions({
-      generateWallet: 'ethereum/generateWallet',
-    }),
     onContinue() {
-      this.generateWallet()
+      if (!this.$refs.form.validate()) {
+        return
+      }
       this._show = false
-      this.$router.push('/')
+      this.$emit('mnemonic-input', this.mnemonic)
+      this.$refs.form.reset()
     },
     closeDialog() {
       this._show = false
-      this.setMnemonic('')
-    }
+      this.$refs.form.reset()
+    },
   }
 }
 </script>
