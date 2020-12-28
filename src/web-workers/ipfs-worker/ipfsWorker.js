@@ -1,5 +1,12 @@
+import IPFSHttpClient from 'ipfs-http-client';
+
+
 onmessage = function(e) {
-  console.log('IPFS Worker')
-  console.log("from vue app", e.data)
-  postMessage({ from: 'IPFS Worker' })
-}
+  const ipfs = IPFSHttpClient({host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
+  console.log('IPFS Worker');
+  ipfs.add(e.data).then(ss => {
+    console.log(ss);
+    postMessage(ss);
+  });
+
+};
