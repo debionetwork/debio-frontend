@@ -1,12 +1,14 @@
 import EthCrypto from 'eth-crypto';
 
 onmessage = function(e) {
-  console.log("Encrypting...");
-  EthCrypto.decryptWithPrivateKey(e.data.publicKey, e.data.text)
-  .then(decryptedObject => {
-    console.log("Encrypted");
-    console.log(this.decryptedObject);
-    postMessage(decryptedObject);
+  console.log("Decrypting...", e.data);
+  const fl = new Blob([ e.data.text ], {type: 'text/plain'});
+  fl.text().then(encrypted => {
+    EthCrypto.decryptWithPrivateKey(e.data.privateKey, JSON.parse(encrypted))
+    .then(decryptedObject => {
+      console.log("Decrypted");
+      postMessage(decryptedObject);
+    });
   });
 
 }

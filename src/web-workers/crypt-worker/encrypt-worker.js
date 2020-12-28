@@ -5,7 +5,6 @@ onmessage = function(e) {
   EthCrypto.encryptWithPublicKey(e.data.publicKey, e.data.text)
   .then(encryptedObj => {
     console.log("Encrypted");
-    console.log(this.encryptedObj);
     postMessage(encryptedObj);
   });
 

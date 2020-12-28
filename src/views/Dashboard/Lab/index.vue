@@ -1,3 +1,4 @@
+
 <template>
   <div>
     <v-container>
@@ -40,7 +41,7 @@ import EthCrypto from 'eth-crypto'
 import SquareCardBtn from '../../../components/SquareCardBtn'
 import ipfsWorker from '../../../web-workers/ipfs-worker'
 import cryptWorker from '../../../web-workers/crypt-worker'
-import IPFSHttpClient from 'ipfs-http-client';
+// import IPFSHttpClient from 'ipfs-http-client';
 
 
 export default {
@@ -52,10 +53,10 @@ export default {
     // Hardcoded privateKey for dev
     privateKey: '0xd2b4ac161f7f82d910a5560710d14ca8262b819b369d9bcc08b58d3ecf966465',
     publicKeyInput: '',
-    encryptedObj: null,
+    encryptedObj: '',
     fileName: '',
-    // ipfsPath: 'QmegsjfWS2DiFvrLWTMtKSmKhDMUpJX2G5PUW2VUMRxTZa',
     ipfsPath: '',
+    // ipfsPath: 'QmWaAygWkQqekXcsFUZEzZdzi4L23RkPCCdcPjXgVMYe1t',
   }),
   mounted() {
     const context = this;
@@ -66,9 +67,7 @@ export default {
       context.fileName = file.name
       const fr = new FileReader()
       fr.onload = async function() {
-        console.log('file loaded')
         await context.encrypt(fr.result)
-        console.log(context.encryptedObj)
       }
       fr.readAsText(file)
     })
@@ -114,11 +113,18 @@ export default {
       this.download(encryptedJSON, this.fileName + '-encrypted')
     },
     async downloadDecrypted() {
-      const decrypted = await EthCrypto.decryptWithPrivateKey(
-        this.privateKey,
-        this.encryptedObj
-      )
-      this.download(decrypted, this.fileName + '-decrypted')
+      const text = JSON.stringify(this.encryptedObj);
+      const privateKey = this.privateKey;
+      cryptWorker.workerDecrypt.postMessage({ privateKey, text});
+      cryptWorker.workerDecrypt.onmessage = event => {
+        const decrypted = event.data;
+        this.download(decrypted, this.fileName)
+      }
+      // const decrypted = await EthCrypto.decryptWithPrivateKey(
+      //   this.privateKey,
+      //   this.encryptedObj
+      // )
+      // this.download(decrypted, this.fileName + '-decrypted')
     },
     download(data, fileName) {
       const blob = new Blob([ data ], {type: 'text/plain'})
@@ -136,29 +142,23 @@ export default {
       ipfsWorker.workerUpload.postMessage(blob) // Access this object in e.data in worker
       ipfsWorker.workerUpload.onmessage = event => {
         this.ipfsPath = event.data.path;
-        console.log(event)
       }
     },
     async downloadEncryptedIPFS() {
+      const channel = new MessageChannel();
+      channel.port1.onmessage = cryptWorker.workerDecrypt;
 
-      const ipfs = IPFSHttpClient({host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
-      const res = await ipfs.get("/ipfs/"+this.ipfsPath);
-      const content = await res.next()
-      let dt = await content.value.content.next()
-      let dts = dt.value
-      console.log(dt);
-      for await (let dtd of content.value.content) {
-        var tmp = new Int8Array(dts.length + dtd.length);
-        tmp.set(dts);
-        tmp.set(dtd, dts.length);
-        dts = tmp;
+      ipfsWorker.workerDownload.postMessage(this.ipfsPath);
+      ipfsWorker.workerDownload.onmessage = event => {
+        let privateKey = this.privateKey;
+        let text = event.data;
+        cryptWorker.workerDecrypt.postMessage({ privateKey, text}, [channel.port2]);
       }
-      const fl = new Blob([ dts ], {type: 'text/plain'});
-      const encrypted = await fl.text();
-      console.log("Prepare decrypt");
-      const decrypted = await EthCrypto.decryptWithPrivateKey(this.privateKey, JSON.parse(encrypted))
 
-      this.download(decrypted, this.fileName)
+      cryptWorker.workerDecrypt.onmessage = event => {
+        const decrypted = event.data;
+        this.download(decrypted, this.fileName)
+      }
     }
   }
 }
