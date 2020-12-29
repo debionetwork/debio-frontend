@@ -132,6 +132,7 @@ export default {
 
         commit('SET_WALLET', wallet) // FIXME: simpen untuk dev
 
+        commit('SET_LOADING', false)
       } catch (err) {
         console.log(err)
         commit('CLEAR_WALLET')
@@ -150,8 +151,10 @@ export default {
         commit('SET_WALLET_ADDRESS', wallet.getAddressString())
 
         commit('SET_WALLET', wallet) // FIXME: simpen untuk dev
+        commit('SET_LOADING', false)
 
         return { success: true }
+
       } catch (err) {
         console.log(err)
         commit('CLEAR_WALLET')

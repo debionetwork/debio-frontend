@@ -31,4 +31,9 @@ export default {
 </script>
 
 <style lang="scss">
+@media screen and (min-width: 1904px) {
+  .container {
+    max-width: 1400px !important;
+  }
+}
 </style>

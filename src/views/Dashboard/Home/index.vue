@@ -14,6 +14,7 @@
             icon="mdi-test-tube"
             title="Request Test"
             sub-title="Get your DNA samples tested"
+            @click="() => $router.push('/request-test')"
           ></MenuCard>
         </v-col>
         <v-col cols="12" md="4">

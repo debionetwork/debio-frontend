@@ -49,6 +49,7 @@ export default {
 <style lang="scss" scoped>
 .dg-menu-card {
   height: 90px;
+  width: 100%;
 
   .title {
     font-size: 18px;

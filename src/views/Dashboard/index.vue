@@ -71,7 +71,7 @@ export default {
 }
 @media screen and (min-width: 1904px) {
   div.dg-app-bar-items-container {
-    max-width: 1785px !important;
+    max-width: 1400px !important;
   } 
 }
 .dg-app-bar {
