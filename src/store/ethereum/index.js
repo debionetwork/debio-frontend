@@ -4,6 +4,12 @@ import Wallet, { hdkey } from 'ethereumjs-wallet'
 import * as EthUtil from 'ethereumjs-util'
 import localStorage from '../../lib/local-storage'
 
+const contractInfo = require('./contract.json')
+
+const Degenics = require('./contract/Degenics.json').abi
+const Location = require('./contract/Location.json').abi
+const Lab = require('./contract/Lab.json').abi
+
 
 const RPC_URL = 'http://localhost:8545'
 
@@ -13,6 +19,9 @@ const defaultState = {
   wallet: null,
   walletAddress: '',
   walletPublicKey: '',
+  contractDegenics: null,
+  contractLab: null,
+  contractLocation: null,
 }
 
 export default {
@@ -43,7 +52,16 @@ export default {
       state.wallet = null
       state.walletAddress = ''
       state.walletPublicKey = ''
-    }
+    },
+    SET_CONTRACT_DEGENICS(state, contractDegenics){
+      state.contractDegenics = contractDegenics
+    },
+    SET_CONTRACT_LOCATION(state, contractLocation){
+      state.contractLocation = contractLocation
+    },
+    SET_CONTRACT_LAB(state, contractLab){
+      state.contractLab = contractLab
+    },
   },
   actions: {
     async initWeb3({ commit }) {
@@ -56,6 +74,13 @@ export default {
         const isConnected = await web3.eth.net.isListening()
         if (isConnected) {
           commit('SET_WEB3', web3)
+          const degenicsContract =  new web3.eth.Contract(Degenics, contractInfo.Degenics.address)
+          const locationContract =  new web3.eth.Contract(Location, contractInfo.Location.address)
+          const labContract =  new web3.eth.Contract(Lab, contractInfo.Lab.address)
+
+          commit('SET_CONTRACT_DEGENICS', degenicsContract)
+          commit('SET_CONTRACT_LOCATION', locationContract)
+          commit('SET_CONTRACT_LAB', labContract)
         }
 
         commit('SET_LOADING', false)
@@ -175,6 +200,15 @@ export default {
       return state.wallet
         ? state.wallet.getPrivateKeyString()
         : ''
+    },
+    getDegenicsContract(state){
+      return state.degenicsContract
+    },
+    getLocationContract(state){
+      return state.locationContract
+    },
+    getLabContract(state){
+      return state.labContract
     }
   }
 }
