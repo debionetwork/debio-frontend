@@ -123,12 +123,15 @@
 
 <script>
 import _ from 'lodash'
-import { mapMutations, mapState } from 'vuex'
+import { mapMutations, mapState, mapActions } from 'vuex'
 import SelectableMenuCard from '../../../components/SelectableMenuCard'
 
 export default {
   components: {
     SelectableMenuCard,
+  },
+  mounted() {
+    this.getLabs()
   },
   computed: {
     selectedLab() {
@@ -137,42 +140,42 @@ export default {
         : { text: '' }
     },
     ...mapState({
-      cart: state => state.cart,
+      requestForm: state => state.requestForm,
     }),
     country: {
       get() {
-        return this.cart.lab.country
+        return this.requestForm.lab.country
       },
       set(val) {
-        this.setLab({ ...this.cart.lab, country: val })
+        this.setLab({ ...this.requestForm.lab, country: val })
       }
     },
     city: {
       get() {
-        return this.cart.lab.city
+        return this.requestForm.lab.city
       },
       set(val) {
-        this.setLab({ ...this.cart.lab, city: val })
+        this.setLab({ ...this.requestForm.lab, city: val })
       }
     },
     labId: {
       get() {
-        return this.cart.lab.id
+        return this.requestForm.lab.id
       },
     },
     labName: {
       get() {
-        return this.cart.lab.name
+        return this.requestForm.lab.name
       },
     },
     products: {
       get() {
-        return this.cart.products
+        return this.requestForm.products
       },
       set(val) {
         this.setProducts(val)
       }
-    }
+    },
   },
   data: () => ({
     // TODO: Get city selection based on selected country from smart contract
@@ -205,6 +208,13 @@ export default {
     }
   }),
   methods: {
+    ...mapActions({
+      getLabs: 'requestForm/getLabs',
+    }),
+    ...mapMutations({
+      setLab: 'requestForm/SET_LAB',
+      setProducts: 'requestForm/SET_PRODUCTS',
+    }),
     onCountryChange(selectedCountry) {
       this.country = selectedCountry
     },
@@ -232,10 +242,6 @@ export default {
       }
       this.products = [...this.products, product]
     },
-    ...mapMutations({
-      setLab: 'cart/SET_LAB',
-      setProducts: 'cart/SET_PRODUCTS',
-    }),
     onContinue() {
       this.$router.push({ name: 'request-test-checkout', })
     }
