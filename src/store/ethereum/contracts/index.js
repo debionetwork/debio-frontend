@@ -40,10 +40,10 @@ export default {
   },
   getters: {
     getDegenicsContract(state){
-      return state.degenicsContract
+      return state.contractDegenics
     },
     getLocationContract(state){
-      return state.locationContract
+      return state.contractLocation
     },
     // getLabContract(state){
       // return state.labContract
