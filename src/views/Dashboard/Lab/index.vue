@@ -9,29 +9,24 @@
         </v-col>
       </v-row>
       <v-row>
+        <v-col v-for="(file, index) in files" :key="file.name" cols="6" md="3" sm="4">
+          <SquareCardBtn @click="downloadEncryptedIPFS(index)">
+            <v-icon size="64">mdi-download</v-icon>
+            <div>{{file.fileName}}</div>
+          </SquareCardBtn>
+        </v-col>
         <v-col cols="6" md="3" sm="4">
           <SquareCardBtn @click="onEncryptUpload">
             <v-icon size="64">mdi-upload-lock</v-icon>
             <div>Encrypt and Upload</div>
             <input type="file" style="display: none" ref="encryptUploadFileInput" />
           </SquareCardBtn>
+          <v-btn :disabled="!encryptedObj" @click="uploadEncrypted">
+            Upload to IPFS
+          </v-btn>
         </v-col>
       </v-row>
-      <v-btn :disabled="!encryptedObj" @click="decryptTest">
-        Test decrypt
-      </v-btn>
-      <v-btn :disabled="!encryptedObj" @click="downloadEncrypted">
-        Download Encrypted
-      </v-btn>
-      <v-btn :disabled="!encryptedObj" @click="downloadDecrypted">
-        Download Decrypted
-      </v-btn>
-      <v-btn :disabled="!encryptedObj" @click="uploadEncrypted">
-        Upload Encrypted IPFS
-      </v-btn>
-      <v-btn :disabled="!encryptedObj" @click="downloadEncryptedIPFS">
-        Download Decrypted IPFS
-      </v-btn>
+
     </v-container>
   </div>
 </template>
@@ -41,8 +36,6 @@ import EthCrypto from 'eth-crypto'
 import SquareCardBtn from '../../../components/SquareCardBtn'
 import ipfsWorker from '../../../web-workers/ipfs-worker'
 import cryptWorker from '../../../web-workers/crypt-worker'
-// import IPFSHttpClient from 'ipfs-http-client';
-
 
 export default {
   name: 'Lab',
@@ -53,10 +46,9 @@ export default {
     // Hardcoded privateKey for dev
     privateKey: '0xd2b4ac161f7f82d910a5560710d14ca8262b819b369d9bcc08b58d3ecf966465',
     publicKeyInput: '',
-    encryptedObj: '',
+    files: [],
+    encryptedObj: null,
     fileName: '',
-    ipfsPath: '',
-    // ipfsPath: 'QmWaAygWkQqekXcsFUZEzZdzi4L23RkPCCdcPjXgVMYe1t',
   }),
   mounted() {
     const context = this;
@@ -108,10 +100,6 @@ export default {
       console.log("Decrypted")
       console.log(decrypted)
     },
-    downloadEncrypted() {
-      const encryptedJSON = JSON.stringify(this.encryptedObj)
-      this.download(encryptedJSON, this.fileName + '-encrypted')
-    },
     async downloadDecrypted() {
       const text = JSON.stringify(this.encryptedObj);
       const privateKey = this.privateKey;
@@ -120,11 +108,6 @@ export default {
         const decrypted = event.data;
         this.download(decrypted, this.fileName)
       }
-      // const decrypted = await EthCrypto.decryptWithPrivateKey(
-      //   this.privateKey,
-      //   this.encryptedObj
-      // )
-      // this.download(decrypted, this.fileName + '-decrypted')
     },
     download(data, fileName) {
       const blob = new Blob([ data ], {type: 'text/plain'})
@@ -139,26 +122,42 @@ export default {
     uploadEncrypted() {
       const data = JSON.stringify(this.encryptedObj)
       const blob = new Blob([ data ], {type: 'text/plain'})
+      let chunksAmount;
+      let arrChunks=[];
       ipfsWorker.workerUpload.postMessage(blob) // Access this object in e.data in worker
       ipfsWorker.workerUpload.onmessage = event => {
-        this.ipfsPath = event.data.path;
+        console.log(event.data)
+        if(event.data.chunksAmount) {
+          chunksAmount = event.data.chunksAmount;
+          return;
+        }
+        arrChunks.push(event.data);
+        if (chunksAmount == arrChunks.length) {
+          const fileName= this.fileName;
+          this.files.push({
+            fileName,
+            ipfsPath: arrChunks,
+          })
+          this.encryptedObj = null;
+        }
       }
     },
-    async downloadEncryptedIPFS() {
-      const channel = new MessageChannel();
-      channel.port1.onmessage = cryptWorker.workerDecrypt;
+    async downloadEncryptedIPFS(index) {
+        const channel = new MessageChannel();
+        channel.port1.onmessage = cryptWorker.workerDecrypt;
 
-      ipfsWorker.workerDownload.postMessage(this.ipfsPath);
-      ipfsWorker.workerDownload.onmessage = event => {
-        let privateKey = this.privateKey;
-        let text = event.data;
-        cryptWorker.workerDecrypt.postMessage({ privateKey, text}, [channel.port2]);
-      }
+        ipfsWorker.workerDownload.postMessage(this.files[index].ipfsPath);
+        ipfsWorker.workerDownload.onmessage = event => {
+          let privateKey = this.privateKey;
+          let text = event.data;
+          console.log(event.data)
+          cryptWorker.workerDecrypt.postMessage({ privateKey, text}, [channel.port2]);
+        }
 
-      cryptWorker.workerDecrypt.onmessage = event => {
-        const decrypted = event.data;
-        this.download(decrypted, this.fileName)
-      }
+        cryptWorker.workerDecrypt.onmessage = event => {
+          const decrypted = event.data;
+          this.download(decrypted, this.fileName)
+        }
     }
   }
 }

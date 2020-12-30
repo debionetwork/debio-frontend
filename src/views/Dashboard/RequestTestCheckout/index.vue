@@ -119,8 +119,8 @@ export default {
   }),
   computed: {
     ...mapState({
-      lab: state => state.cart.lab,
-      products: state => state.cart.products,
+      lab: state => state.requestForm.lab,
+      products: state => state.requestForm.products,
     }),
     totalPrice() {
       return this.products.reduce((sum, { price }) => sum += price, 0)

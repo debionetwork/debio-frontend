@@ -92,7 +92,7 @@ export default {
       }
     },
     ...mapState({
-      lab: state => state.cart.lab
+      lab: state => state.requestForm.lab
     }),
   },
   methods: {

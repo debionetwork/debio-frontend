@@ -4,7 +4,8 @@ onmessage = function(e) {
   console.log("Decrypting...", e.data);
   const fl = new Blob([ e.data.text ], {type: 'text/plain'});
   fl.text().then(encrypted => {
-    EthCrypto.decryptWithPrivateKey(e.data.privateKey, JSON.parse(encrypted))
+    const obj = JSON.parse(encrypted);
+    EthCrypto.decryptWithPrivateKey(e.data.privateKey, obj)
     .then(decryptedObject => {
       console.log("Decrypted");
       postMessage(decryptedObject);
