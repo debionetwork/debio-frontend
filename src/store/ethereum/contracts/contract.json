@@ -1,0 +1,38 @@
+{
+  "EternalStorage": {
+    "name": "EternalStorage",
+    "address": "0xB85c5D74027242feFF46Ff0FF5D5bE5643491864",
+    "updated": true,
+    "lastUpdate": "2020-12-30T04:19:48.384Z"
+  },
+  "Account": {
+    "name": "Account",
+    "address": "0x1263675e2b54BB498B804716a794f4971f4623A5",
+    "updated": true,
+    "lastUpdate": "2020-12-30T04:19:48.515Z"
+  },
+  "Location": {
+    "name": "Location",
+    "address": "0x481471bc39f1c06cd863f977CbfE4eB9929a6244",
+    "updated": true,
+    "lastUpdate": "2020-12-30T04:19:48.672Z"
+  },
+  "Degenics": {
+    "name": "Degenics",
+    "address": "0x60d93b95bFbc177178E214AC3D25130bd7ffb55d",
+    "updated": true,
+    "lastUpdate": "2020-12-30T04:19:49.396Z"
+  },
+  "EscrowFactory": {
+    "name": "EscrowFactory",
+    "address": "0x19D5c6c19E7c0D80eB1Ec68bfc062D091c3ff0eA",
+    "updated": true,
+    "lastUpdate": "2020-12-30T04:19:49.110Z"
+  },
+  "Specimen": {
+    "name": "Specimen",
+    "address": "0x097e73663556d215761e03B01c1b5435f32347C1",
+    "updated": true,
+    "lastUpdate": "2020-12-30T04:19:48.969Z"
+  }
+}

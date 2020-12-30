@@ -12,7 +12,7 @@
         <v-col cols="12" xl="6" lg="8" md="8" order-md="1" order="2">
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-title class="px-8">
-              <div style="font-size: 18px;">
+              <div class="text-h6">
                 Select a Lab
               </div>
             </v-card-title>
@@ -39,7 +39,7 @@
               <v-select
                 dense
                 :items="selections.labs"
-                :value="lab"
+                :value="labId"
                 @change="onLabChange"
                 menu-props="auto"
                 label="Select Lab"
@@ -57,7 +57,7 @@
                 <b>Alert</b>
               </v-toolbar-title>
             </v-toolbar>
-            <v-card-text class="white--text pt-2 px-5" style="font-size: 16px;">
+            <v-card-text class="white--text pt-2 px-5 text-body">
               <div class="mb-2">
                 Please select a lab that is as close to your location as possible.
               </div>
@@ -69,14 +69,14 @@
         </v-col>
       </v-row>
 
-      <template v-if="lab">
+      <template v-if="labId">
         <v-row class="mt-4">
           <v-col cols="12">
             <div class="px-2">
               <div class="text-h5 secondary--text text--lighten-2">
                 <b>Select Products</b>
               </div>
-              <div style="font-size: 18px;" class="mt-2">
+              <div class="mt-2 text-h6">
                 <b>{{ selectedLab.text }}</b>
               </div>
               <div>
@@ -122,6 +122,8 @@
 </template>
 
 <script>
+import _ from 'lodash'
+import { mapMutations, mapState } from 'vuex'
 import SelectableMenuCard from '../../../components/SelectableMenuCard'
 
 export default {
@@ -130,16 +132,52 @@ export default {
   },
   computed: {
     selectedLab() {
-      return this.lab
-        ? this.selections.labs.find(l => l.value == this.lab) 
-        : ''
+      return this.labId
+        ? this.selections.labs.find(l => l.value == this.labId) 
+        : { text: '' }
+    },
+    ...mapState({
+      cart: state => state.cart,
+    }),
+    country: {
+      get() {
+        return this.cart.lab.country
+      },
+      set(val) {
+        this.setLab({ ...this.cart.lab, country: val })
+      }
+    },
+    city: {
+      get() {
+        return this.cart.lab.city
+      },
+      set(val) {
+        this.setLab({ ...this.cart.lab, city: val })
+      }
+    },
+    labId: {
+      get() {
+        return this.cart.lab.id
+      },
+    },
+    labName: {
+      get() {
+        return this.cart.lab.name
+      },
+    },
+    products: {
+      get() {
+        return this.cart.products
+      },
+      set(val) {
+        this.setProducts(val)
+      }
     }
   },
   data: () => ({
-    country: '',
-    city: '',
-    lab: '',
-    products: [],
+    // TODO: Get city selection based on selected country from smart contract
+    // TODO: Get lab selection based on selected city from smart contract
+    // TODO: Get Product selection based on selected lab from smart contract
     selections: {
       countries: [
         { value: 'id', text: 'Indonesia' },
@@ -150,45 +188,54 @@ export default {
         { value: 'bandung', text: 'Bandung' },
       ],
       labs: [
-        { value: 'a', text: 'Lab A' },
-        { value: 'b', text: 'Lab B' },
-        { value: 'c', text: 'Lab C' },
-        { value: 'd', text: 'Lab D' },
+        { value: 'a', text: 'Lab A', walletAddress: '0x8274Ad69e8657D8B8b710A14b52C4A0E39316ccc' },
+        { value: 'b', text: 'Lab B', walletAddress: '0x8274Ad69e8657D8B8b710A14b52C4A0E39316ccc' },
+        { value: 'c', text: 'Lab C', walletAddress: '0x8274Ad69e8657D8B8b710A14b52C4A0E39316ccc'},
+        { value: 'd', text: 'Lab D', walletAddress: '0x8274Ad69e8657D8B8b710A14b52C4A0E39316ccc' },
       ],
       products: [
-        { title: 'Covid-19', description: 'Get tested for Covid-19 immunity', icon: 'mdi-virus' },
-        { title: 'Exercise', description: 'Exercise recommendation based on your genes', icon: 'mdi-weight-lifter' },
-        { title: 'Diet', description: 'Diet recommendation based on your genes', icon: 'mdi-food-apple' },
-        { title: 'Genetic Traits', description: 'Get to know what\'s in your genes' , icon: 'mdi-dna' },
-        { title: 'Supplement', description: 'Supplement recommendation based on your genes', icon: 'mdi-pill' },
-        { title: 'Ancestry', description: 'Ancestry information from your genes', icon: 'mdi-family-tree' },
-        { title: 'Skin', description: 'Skin traits information from your genes', icon: '$dgi-skin' },
+        { title: 'Covid-19', description: 'Get tested for Covid-19 immunity', icon: 'mdi-virus', price: 10 },
+        { title: 'Exercise', description: 'Exercise recommendation based on your genes', icon: 'mdi-weight-lifter', price: 10 },
+        { title: 'Diet', description: 'Diet recommendation based on your genes', icon: 'mdi-food-apple', price: 10 },
+        { title: 'Genetic Traits', description: 'Get to know what\'s in your genes' , icon: 'mdi-dna', price: 10 },
+        { title: 'Supplement', description: 'Supplement recommendation based on your genes', icon: 'mdi-pill', price: 10 },
+        { title: 'Ancestry', description: 'Ancestry information from your genes', icon: 'mdi-family-tree', price: 10 },
+        { title: 'Skin', description: 'Skin traits information from your genes', icon: '$dgi-skin', price: 10 },
       ]
     }
   }),
   methods: {
     onCountryChange(selectedCountry) {
       this.country = selectedCountry
-      // TODO: Get city selection based on selected country from smart contract
     },
     onCityChange(selectedCity) {
       this.city = selectedCity
-      // TODO: Get lab selection based on selected city from smart contract
     },
-    onLabChange(selectedLab) {
-      this.lab = selectedLab
-      // TODO: Get Product selection based on selected lab from smart contract
+    onLabChange(selectedLabId) {
+      const selectedLab = this.selections.labs.filter(l => l.value == selectedLabId)[0]
+      const { value, text, walletAddress } = selectedLab
+      this.setLab({
+        country: this.country,
+        city: this.city,
+        id: value,
+        name: text,
+        walletAddress
+      })
     },
     isProductSelected(product) {
       return this.products.filter(p => p.title == product.title).length > 0
     },
     selectProduct(product) {
-      if (this.products.includes(product)) {
+      if (_.includes(this.products, product)) {
         this.products = this.products.filter(p => p.title != product.title)
         return
       }
-      this.products.push(product)
+      this.products = [...this.products, product]
     },
+    ...mapMutations({
+      setLab: 'cart/SET_LAB',
+      setProducts: 'cart/SET_PRODUCTS',
+    }),
     onContinue() {
       this.$router.push({ name: 'request-test-checkout', })
     }
@@ -196,14 +243,6 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-@import '../../../styles/variables.scss';
+<style lang="scss">
 
-.dg-card {
-  border-radius: 10px;
-
-  &.alert {
-    background-color: $color-primary;
-  }
-}
 </style>

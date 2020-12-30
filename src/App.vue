@@ -19,21 +19,32 @@ export default {
       isLoadingWeb3: state => state.ethereum.isLoading,
     })
   },
-  mounted() {
-    this.initWeb3()
+  async mounted() {
+    await this.initWeb3()
+    this.initContracts()
   },
   methods: {
     ...mapActions({
-      initWeb3: 'ethereum/initWeb3'
+      initWeb3: 'ethereum/initWeb3',
+      initContracts: 'ethereum/contracts/initContracts'
     })
   }
 };
 </script>
 
 <style lang="scss">
+@import './styles/variables.scss';
+
 @media screen and (min-width: 1904px) {
   .container {
     max-width: 1400px !important;
+  }
+}
+.dg-card {
+  border-radius: 10px !important;
+
+  &.alert {
+    background-color: $color-primary !important;
   }
 }
 </style>

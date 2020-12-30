@@ -31,7 +31,7 @@ export default {
     },
     computed: {
         ...mapState({
-            contractLocation: state => state.ethereum.contractLocation
+            contractLocation: state => state.ethereum.contracts.contractLocation
         }),
     }
 }

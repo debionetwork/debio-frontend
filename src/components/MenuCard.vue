@@ -18,10 +18,10 @@
           </v-icon>
         </div>
         <div class="ml-5">
-          <div class="title">
-            {{ title }}
+          <div class="text-h6">
+            <b>{{ title }}</b>
           </div>
-          <div class="sub-title">
+          <div class="text-caption grey--text text--darken-1">
             {{ subTitle }}
           </div>
         </div>
@@ -50,14 +50,6 @@ export default {
 .dg-menu-card {
   height: 90px;
   width: 100%;
-
-  .title {
-    font-size: 18px;
-  }
-  .sub-title {
-    font-size: 12px;
-    color: #595959;
-  }
 }
 </style>
 
