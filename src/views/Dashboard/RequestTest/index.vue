@@ -131,7 +131,7 @@ export default {
     SelectableMenuCard,
   },
   mounted() {
-    this.getLabs()
+    this.getRequestFormData()
   },
   computed: {
     selectedLab() {
@@ -209,7 +209,7 @@ export default {
   }),
   methods: {
     ...mapActions({
-      getLabs: 'requestForm/getLabs',
+      getRequestFormData: 'requestForm/getRequestFormData',
     }),
     ...mapMutations({
       setLab: 'requestForm/SET_LAB',

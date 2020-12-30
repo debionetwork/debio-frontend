@@ -1,50 +1,38 @@
 {
   "EternalStorage": {
     "name": "EternalStorage",
-    "address": "0xEb12C69Dea89f46843cFD8Cbd1EdD64Bcc1E72E9",
+    "address": "0x78D31262947DBe03Ab5605324f85E0E249Bf5Bf7",
     "updated": true,
-    "lastUpdate": "2020-12-30T09:20:16.120Z"
+    "lastUpdate": "2020-12-30T10:28:17.089Z"
   },
   "Account": {
     "name": "Account",
-    "address": "0x4966E86aE0732D8dD15Af4c3dba8d691f563eB55",
+    "address": "0xb90D53A4A2829089FaB50EdAD3aD40b33c6C1A3C",
     "updated": true,
-    "lastUpdate": "2020-12-30T09:20:17.679Z"
+    "lastUpdate": "2020-12-30T10:28:17.227Z"
   },
   "Location": {
     "name": "Location",
-    "address": "0x876290070b3A1Fec575E79835e43271B9d1CDaD4",
+    "address": "0xcD295fbB30444C049f6b2E64e7dB25034d0e5cBE",
     "updated": true,
-    "lastUpdate": "2020-12-30T09:20:18.123Z"
+    "lastUpdate": "2020-12-30T10:28:17.412Z"
   },
   "Degenics": {
     "name": "Degenics",
-    "address": "0xaC566f6E8616d29da85cd4e04D10c137d5579f1D",
+    "address": "0x2658A0F27413f844745Bf03b64053bCcACEAeF58",
     "updated": true,
-    "lastUpdate": "2020-12-30T09:20:19.556Z"
+    "lastUpdate": "2020-12-30T10:28:18.090Z"
   },
   "EscrowFactory": {
     "name": "EscrowFactory",
-    "address": "0x2D1AF2B829097C9aa9d41CF79aE11B53eEbD30b7",
+    "address": "0xaaeCf2F124E2ad343166E4d8EB80644Ba5057be9",
     "updated": true,
-    "lastUpdate": "2020-12-30T09:20:19.008Z"
+    "lastUpdate": "2020-12-30T10:28:17.765Z"
   },
   "Specimen": {
     "name": "Specimen",
-    "address": "0xBfcF992D3BDD8004Ef93773CCf3E2B86868a45Fe",
+    "address": "0xeee24d0d178964CA6d3431C802080A871a590c64",
     "updated": true,
-    "lastUpdate": "2020-12-30T09:20:18.618Z"
-  },
-  "DegenicsLog": {
-    "name": "DegenicsLog",
-    "address": "0xB950f0c8E08e1670ecDbBcc398558064E1E8F219",
-    "updated": true,
-    "lastUpdate": "2020-12-30T09:20:16.741Z"
-  },
-  "Lab": {
-    "name": "Lab",
-    "address": "0x767178989C4988c9dEAab7EbB9FB451d7Fb3fa1D",
-    "updated": true,
-    "lastUpdate": "2020-12-30T09:20:17.145Z"
+    "lastUpdate": "2020-12-30T10:28:17.617Z"
   }
 }
