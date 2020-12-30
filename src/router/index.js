@@ -59,6 +59,11 @@ const routes = [
     ]
   },
   {
+    path: '/requestTest',
+    name: 'requestTest',
+    component: () => import(/* webpackChunkName */ '../views/RequestTest')
+  },
+  {
     path: '/login',
     name: 'login',
     // route level code-splitting
