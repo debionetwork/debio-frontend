@@ -6,9 +6,6 @@ const Lab = require('./abi/Lab.json')
 const Account = require('./abi/Account.json')
 const Specimen = require('./abi/Specimen.json')
 
-
-// const Lab = require('./Lab.json').abi
-
 const defaultState = {
   contractDegenics: null,
   contractLocation: null,
@@ -63,8 +60,8 @@ export default {
     getLocationContract(state){
       return state.contractLocation
     },
-    // getLabContract(state){
-      // return state.labContract
-    // }
+    getLabContract(state){
+      return state.contractLab
+    }
   }
 }

@@ -11,11 +11,15 @@
       <div class="d-flex align-center fill-height">
         <div class="my-3 ml-5">
           <v-icon
+            v-if="icon"
             color="#BA8DBB"
             :size="48"
           >
             {{ icon }}
           </v-icon>
+          <v-avatar v-else>
+            <img src="../assets/degenics-logo.webp" />
+          </v-avatar>
         </div>
         <div class="ml-5">
           <div class="text-h6">
