@@ -8,7 +8,7 @@
     style="width: 100%"
   >
     <MenuCard
-      :icon="icon"
+      :icon="_icon"
       :title="title"
       :sub-title="subTitle"
       @click="onClick"
@@ -31,8 +31,8 @@ export default {
   },
   computed: {
     _icon() {
-      return this.isSelected
-        ? 'mdi-checkbox-marked-circle'
+      return this.icon.startsWith('mdi') || this.icon.startsWith('$')
+        ? this.icon
         : ''
     }
   },

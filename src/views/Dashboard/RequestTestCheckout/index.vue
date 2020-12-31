@@ -20,6 +20,9 @@
               <div class="text-subtitle-1">
                 <b>{{ lab.name }}</b>
               </div>
+              <div v-if="lab.labAddress" class="text-body-2">
+                {{ lab.labAddress }}
+              </div>
               <div class="text-body-2">
                 {{ lab.city }}, {{ lab.country }}
               </div>
@@ -36,15 +39,19 @@
               <div v-for="(product) in products" :key="product.title" class="d-flex align-center fill-height mb-2">
                 <div class="my-3 ml-0">
                   <v-icon
+                    v-if="product.icon && product.icon.startsWith('mdi') || product.icon.startsWith('$')"
                     color="#BA8DBB"
                     :size="48"
                   >
                   {{ product.icon }}
                   </v-icon>
+                  <v-avatar v-else>
+                    <img src="../../../assets/degenics-logo.webp" />
+                  </v-avatar>
                 </div>
                 <div class="ml-5">
                   <div class="text-h6">
-                    <b>{{ product.title }}</b>
+                    <b>{{ product.serviceName }}</b>
                   </div>
                   <div class="text-caption grey--text text--darken-1">
                     {{ product.description }}
@@ -100,6 +107,8 @@
     </v-container>
     <SendPaymentDialog
       :show="sendPaymentDialog"
+      :lab="lab"
+      :totalPrice="totalPrice"
       @toggle="sendPaymentDialog = $event"
       @payment-sent="onPaymentSent"
     ></SendPaymentDialog>
@@ -119,11 +128,11 @@ export default {
   }),
   computed: {
     ...mapState({
-      lab: state => state.requestForm.lab,
-      products: state => state.requestForm.products,
+      lab: state => state.testRequest.lab,
+      products: state => state.testRequest.products,
     }),
     totalPrice() {
-      return this.products.reduce((sum, { price }) => sum += price, 0)
+      return this.products.reduce((sum, { price }) => sum += parseFloat(price), 0)
     }
   },
   methods: {
