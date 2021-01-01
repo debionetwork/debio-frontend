@@ -33,7 +33,7 @@
             {{ isLoading ? 'Connecting' : isRpcConnected ? 'Connected to network' : 'Disconnected' }}
           </v-list-item-content>
         </v-list-item>
-        <v-list-item two-line>
+        <v-list-item>
           <v-list-item-content>
             <v-text-field
               outlined
@@ -61,10 +61,53 @@
           :disabled="isLoading"
           :loading="isLoading"
         >
-          Apply Settings
+          Set Connection
           <template v-slot:loader>
-            <span>Applying</span>
+            <span>Connecting</span>
           </template>
+        </v-btn>
+      </v-card-actions>
+      <v-list>
+        <v-list-item>
+          <v-list-item-content>
+            Gas Config
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item>
+          <v-list-item-content>
+            <v-text-field
+              outlined
+              auto-grow
+              v-model="gasPriceInput"
+              label="Gas Price (Wei)"
+              hide-details="auto"
+            >
+            </v-text-field>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item>
+          <v-list-item-content>
+            <v-text-field
+              outlined
+              auto-grow
+              v-model="gasLimitInput"
+              label="Gas Limit (Gwei)"
+              hide-details="auto"
+            >
+            </v-text-field>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+      <v-card-actions class="px-4 pb-4">
+        <v-btn
+          depressed
+          color="primary"
+          large
+          width="100%"
+          @click="onSetGasConfig"
+          :disabled="!gasLimitInput || !gasPriceInput"
+        >
+          {{ justSetConfig ? 'Gas Config Set' : 'Set Gas Config' }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -73,6 +116,7 @@
 
 <script>
 import localStorage from '../lib/local-storage'
+import appConfig from '../lib/app-config'
 import { mapState, mapActions } from 'vuex'
 
 export default {
@@ -83,6 +127,13 @@ export default {
       default: false,
     },
   },
+  data: () => ({
+    show: false,
+    rpcUrlInput: '',
+    gasPriceInput: '',
+    gasLimitInput: '',
+    justSetConfig: false,
+  }),
   computed: {
     ...mapState({
       isLoading: state => state.ethereum.isLoading,
@@ -98,10 +149,6 @@ export default {
       this.rpcUrlInput = savedRpcUrl
     }
   },
-  data: () => ({
-    show: false,
-    rpcUrlInput: '',
-  }),
   watch: {
     show(isShow) {
       if (isShow) {
@@ -109,6 +156,9 @@ export default {
         if (savedRpcUrl) {
           this.rpcUrlInput = savedRpcUrl
         }
+        this.justSetConfig = false
+        this.gasPriceInput = appConfig.getGasPrice()
+        this.gasLimitInput = appConfig.getGasLimit()
       }
     }
   },
@@ -125,6 +175,11 @@ export default {
         localStorage.setRpcUrl(this.rpcUrlInput)
       }
     },
+    onSetGasConfig() {
+      appConfig.setGasPrice(this.gasPriceInput)
+      appConfig.setGasLimit(this.gasLimitInput)
+      this.justSetConfig = true
+    }
   }
 }
 </script>

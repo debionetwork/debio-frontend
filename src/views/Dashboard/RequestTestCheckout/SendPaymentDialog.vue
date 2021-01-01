@@ -32,12 +32,6 @@
           <div class="text-body-2">
             {{ lab.city }}, {{ lab.country }}
           </div>
-          <div class="text-body-1 mt-2">
-            Escrow Address
-          </div>
-          <div class="text-body-2">
-            TODO: Escrow Address
-          </div>
         </div>
 
         <!-- Payment Details -->
@@ -79,6 +73,7 @@
           outlined
           auto-grow
           type="password"
+          @keyup.enter="onSubmit"
           v-model="password"
           label="Input your password"
           :disabled="isLoading"
@@ -108,14 +103,17 @@
 
 <script>
 import Wallet from 'ethereumjs-wallet'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
+import sendTransaction from '../../../lib/send-transaction'
+import localStorage from '../../../lib/local-storage'
 
 export default {
   name: 'SendPaymentDialog',
   props: {
     show: Boolean,
     lab: Object,
-    totalPrice: [String, Number]
+    totalPrice: [String, Number],
+    products: Array,
   },
   data: () => ({
     password: '',
@@ -132,28 +130,119 @@ export default {
       }
     },
     ...mapGetters({
-      keystore: 'ethereum/getKeystore'
+      degenicsContract: 'ethereum/contracts/getDegenicsContract'
+    }),
+    ...mapState({
+      web3: state => state.ethereum.web3
     }),
   },
   methods: {
     async onSubmit() {
       this.isLoading = true
 
-      const wallet = await Wallet.fromV3(this.keystore, this.password)
-      const privateKey = wallet.getPrivateKeyString() 
+      // registerSpecimen params
+      const labAccount = this.lab.labAccount
+      const specimensToProcess = this.products.map(p => ({
+        labAccount,
+        serviceCode: p.code,
+        price: p.price
+      }))
 
-      console.log(privateKey)
-      // TODO: Send payment here
+      // Retrieve wallet
+      console.log('decrypting Keystore...')
+      const keystore = localStorage.getKeystore()
+      const wallet = await Wallet.fromV3(keystore, this.password)
+      
+      const receipts = []
+      for (let specimen of specimensToProcess) {
+        const { labAccount, serviceCode, price } = specimen
 
+        const specimenNumber = await this.registerSpecimen(labAccount, serviceCode, wallet)
+        const txReceipt = await this.paySpecimen(specimenNumber, price, wallet)
+
+        // FIXME: set specimen status to Sending here, for current prototype 
+        await this.sendSpecimen(specimenNumber, wallet)
+        
+        receipts.push({ txReceipt, specimenNumber })
+      } 
+
+      console.log(receipts)
+
+      // this._show = false
       this.isLoading = false
-
-      this._show = false
-      this.$emit('payment-sent')
+      this.$emit('payment-sent', receipts)
       this.password = ''
     },
     closeDialog() {
       this._show = false
       this.password = ''
+    },
+    /**
+    * registerSpecimen
+    *
+    * @param    {String} labAccount
+    * @param    {String} serviceCode
+    * @returns  {Number} specimenNumber
+    */
+    async registerSpecimen(labAccount, serviceCode, userWallet) {
+      console.log('Registering specimen')
+      try {
+        const abiData = this.degenicsContract.methods
+          .registerSpecimen(labAccount, serviceCode)
+          .encodeABI()
+        await sendTransaction(labAccount, userWallet, abiData)
+        
+        const specimenNumber = await this.degenicsContract.methods
+          .getLastNumber()
+          .call({ from: userWallet.getAddressString() })
+
+        return specimenNumber
+
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    /**
+    * paySpecimen
+    *
+    * @param {String} specimenNumber
+    * @param {String} price
+    * @param {Wallet} userWallet
+    * @returns {String} txHash
+    */
+    async paySpecimen(specimenNumber, price, userWallet) {
+      console.log('Paying for specimen')
+      try {
+        // Get escrow address
+        const escrowAddress = await this.degenicsContract.methods
+          .getEscrow(specimenNumber)
+          .call({ from: userWallet.getAddressString() })
+
+        const txReceipt = await sendTransaction(escrowAddress, userWallet, null, price)
+
+        return txReceipt
+
+      } catch (err) {
+        console.log(err)
+      }
+    },
+    /**
+    * sendSpecimen
+    * 
+    * set specimen status to "Sending"
+    * 
+    * @param {String} specimenNumber
+    * @param {Wallet} userWallet
+    */
+    async sendSpecimen(specimenNumber, userWallet) {
+      try {
+        await this.degenicsContract.methods
+          .sendSpecimen(specimenNumber)
+          .call({ from: userWallet.getAddressString() })
+
+      } catch (err) {
+        console.log(err)
+      }
     }
   }
 }

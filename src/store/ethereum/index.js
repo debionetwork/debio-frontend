@@ -169,8 +169,8 @@ export default {
     }
   },
   getters: {
-    getKeystore() {
-      return localStorage.getKeystore()
+    getWeb3(state) {
+      return state.web3
     },
     getWalletAddress(state) {
       return state.walletAddress

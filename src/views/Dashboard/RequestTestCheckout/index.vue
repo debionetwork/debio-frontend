@@ -39,7 +39,7 @@
               <div v-for="(product) in products" :key="product.title" class="d-flex align-center fill-height mb-2">
                 <div class="my-3 ml-0">
                   <v-icon
-                    v-if="product.icon && product.icon.startsWith('mdi') || product.icon.startsWith('$')"
+                    v-if="product.icon && (product.icon.startsWith('mdi') || product.icon.startsWith('$'))"
                     color="#BA8DBB"
                     :size="48"
                   >
@@ -108,6 +108,7 @@
     <SendPaymentDialog
       :show="sendPaymentDialog"
       :lab="lab"
+      :products="products"
       :totalPrice="totalPrice"
       @toggle="sendPaymentDialog = $event"
       @payment-sent="onPaymentSent"
@@ -139,8 +140,10 @@ export default {
     onSubmitOrder() {
       this.sendPaymentDialog = true
     },
-    onPaymentSent() {
+    onPaymentSent(receipt) {
       this.sendPaymentDialog = false
+
+      console.log('Receipt in RequestTestCheckout', receipt)
     }
   }
 }

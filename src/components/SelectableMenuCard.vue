@@ -31,7 +31,7 @@ export default {
   },
   computed: {
     _icon() {
-      return this.icon.startsWith('mdi') || this.icon.startsWith('$')
+      return this.icon && (this.icon.startsWith('mdi') || this.icon.startsWith('$'))
         ? this.icon
         : ''
     }
