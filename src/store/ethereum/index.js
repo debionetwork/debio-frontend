@@ -5,8 +5,6 @@ import * as EthUtil from 'ethereumjs-util'
 import localStorage from '../../lib/local-storage'
 import contracts from './contracts'
 
-const RPC_URL = 'http://localhost:8545'
-
 const defaultState = {
   web3: null,
   isLoading: false,
@@ -49,24 +47,27 @@ export default {
     },
   },
   actions: {
-    async initWeb3({ commit }) {
+    async initWeb3({ commit }, rpcUrl) {
       try {
         commit('SET_WEB3', null)
         commit('SET_LOADING', true)
 
         const web3 = new Web3()
-        web3.setProvider(new Web3.providers.HttpProvider(RPC_URL))
+        web3.setProvider(new Web3.providers.HttpProvider(rpcUrl))
         const isConnected = await web3.eth.net.isListening()
         if (isConnected) {
+          console.log(isConnected)
           commit('SET_WEB3', web3)
         }
 
         commit('SET_LOADING', false)
-      } catch (err) {
-        console.log(err)
+        return { success: true }
+      } catch (error) {
+        console.log(error)
         
         commit('SET_WEB3', null)
         commit('SET_LOADING', false)
+        return { success: false, error }
       }
     },
     /*

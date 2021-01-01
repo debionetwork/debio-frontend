@@ -2,6 +2,7 @@
   <v-app>
     <v-app-bar app flat color="transparent" dense>
       <v-spacer></v-spacer>
+      <SettingsMenu />
       <DevMenu />
     </v-app-bar>
     <v-main class="login-main">
@@ -84,6 +85,7 @@
 <script>
 import { mapActions } from 'vuex'
 import DevMenu from '../../components/DevMenu'
+import SettingsMenu from '../../components/SettingsMenu'
 import RectangleCardIconBtn from '../../components/RectangleCardIconBtn'
 import GenerateAccountDialog from './GenerateAccountDialog'
 import AccessAccountMnemonicDialog from './AccessAccountMnemonicDialog'
@@ -95,6 +97,7 @@ export default {
   name: 'Home',
   components: {
     DevMenu,
+    SettingsMenu,
     RectangleCardIconBtn,
     GenerateAccountDialog,
     AccessAccountMnemonicDialog,
