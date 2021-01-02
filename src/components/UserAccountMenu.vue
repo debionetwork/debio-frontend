@@ -29,15 +29,12 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import localStorage from '../lib/local-storage'
 
 export default {
   methods: {
-    ...mapGetters({
-      getKeystore: 'ethereum/getKeystore'
-    }),
     downloadKeystore() {
-      const keystore = this.getKeystore()
+      const keystore = localStorage.getKeystore()
       const blob = new Blob([ keystore ], {type: 'text/plain'})
       const e = document.createEvent('MouseEvents')
       const a = document.createElement('a')

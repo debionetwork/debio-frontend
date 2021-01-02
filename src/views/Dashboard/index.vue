@@ -24,6 +24,7 @@
 
           <v-spacer></v-spacer>
           <UserAccountMenu />
+          <SettingsMenu dark />
           <!-- Menu For Development Purposes -->
           <DevMenu dark />
       </div>
@@ -38,12 +39,14 @@
 <script>
 import DevMenu from '../../components/DevMenu'
 import UserAccountMenu from '../../components/UserAccountMenu'
+import SettingsMenu from '../../components/SettingsMenu'
 
 export default {
   name: 'Dashboard',
   components: {
     DevMenu,
-    UserAccountMenu
+    UserAccountMenu,
+    SettingsMenu,
   },
   mounted() {
   },

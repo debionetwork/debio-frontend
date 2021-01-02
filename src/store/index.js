@@ -1,14 +1,14 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import ethereum from './ethereum'
-import requestForm from './requestForm'
+import testRequest from './testRequest'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules: {
     ethereum,
-    requestForm,
+    testRequest,
   },
   state: {
   },

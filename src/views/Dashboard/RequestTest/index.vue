@@ -19,7 +19,7 @@
             <v-card-text class="px-8">
               <v-select
                 dense
-                :items="selections.countries"
+                :items="countries"
                 :value="country"
                 @change="onCountryChange"
                 label="Select Country"
@@ -28,7 +28,7 @@
 
               <v-select
                 dense
-                :items="selections.cities"
+                :items="citiesSelection"
                 :value="city"
                 @change="onCityChange"
                 label="Select City"
@@ -38,8 +38,8 @@
 
               <v-select
                 dense
-                :items="selections.labs"
-                :value="labId"
+                :items="labsSelection"
+                :value="labAccount"
                 @change="onLabChange"
                 menu-props="auto"
                 label="Select Lab"
@@ -69,7 +69,15 @@
         </v-col>
       </v-row>
 
-      <template v-if="labId">
+      <div v-if="isLoadingProducts" class="d-flex justify-center mt-10">
+        <v-progress-circular
+          :size="50"
+          color="primary"
+          indeterminate
+        ></v-progress-circular>
+      </div>
+
+      <template v-if="labAccount && !isLoadingProducts">
         <v-row class="mt-4">
           <v-col cols="12">
             <div class="px-2">
@@ -77,7 +85,7 @@
                 <b>Select Products</b>
               </div>
               <div class="mt-2 text-h6">
-                <b>{{ selectedLab.text }}</b>
+                <b>{{ selectedLab.name }}</b>
               </div>
               <div>
                 Available Products
@@ -88,14 +96,14 @@
 
         <v-row>
           <v-col
-            v-for="(product) in selections.products"
-            :key="product.title"
+            v-for="(product) in products"
+            :key="product.serviceName"
             cols="12" xl="3" lg="4" md='4'
             :class="$vuetify.breakpoint.smAndDown ? 'py-0' : 'py-1'"
           >
             <SelectableMenuCard
               :icon="product.icon"
-              :title="product.title"
+              :title="product.serviceName"
               :sub-title="product.description"
               :is-selected="isProductSelected(product)"
               @click="selectProduct(product)"
@@ -110,6 +118,7 @@
               color="primary"
               large
               width="100%"
+              :disabled="selectedProducts.length == 0"
               @click="onContinue"
             >
               Continue
@@ -123,126 +132,159 @@
 
 <script>
 import _ from 'lodash'
-import { mapMutations, mapState, mapActions } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 import SelectableMenuCard from '../../../components/SelectableMenuCard'
 
 export default {
+  name: 'RequestTest',
   components: {
     SelectableMenuCard,
   },
-  mounted() {
-    this.getLabs()
+  async mounted() {
+    await this.getCountries()
+    await this.getCities()
+    await this.getLabs()
   },
   computed: {
-    selectedLab() {
-      return this.labId
-        ? this.selections.labs.find(l => l.value == this.labId) 
-        : { text: '' }
-    },
     ...mapState({
-      requestForm: state => state.requestForm,
+      locationContract: state => state.ethereum.contracts.contractLocation,
+      degenicsContract: state => state.ethereum.contracts.contractDegenics,
     }),
-    country: {
-      get() {
-        return this.requestForm.lab.country
-      },
-      set(val) {
-        this.setLab({ ...this.requestForm.lab, country: val })
-      }
+    citiesSelection() {
+      return this.cities
+        .filter(c => c.country == this.country)
+        .map(c => ({ value: c.city, text: c.city, country: c.country }))
     },
-    city: {
-      get() {
-        return this.requestForm.lab.city
-      },
-      set(val) {
-        this.setLab({ ...this.requestForm.lab, city: val })
-      }
+    labsSelection() {
+      console.log(this.labs)
+      return this.labs.slice(1, this.labs.length)
+        .filter(lab => lab.country == this.country && lab.city == this.city)
+        .map(lab => ({ value: lab.labAccount, text: lab.name }))
     },
-    labId: {
-      get() {
-        return this.requestForm.lab.id
-      },
-    },
-    labName: {
-      get() {
-        return this.requestForm.lab.name
-      },
-    },
-    products: {
-      get() {
-        return this.requestForm.products
-      },
-      set(val) {
-        this.setProducts(val)
-      }
-    },
+    selectedLab() {
+      if (!this.labAccount) { return }
+      return this.labs.filter(l => l.labAccount == this.labAccount)[0]
+    }
   },
   data: () => ({
-    // TODO: Get city selection based on selected country from smart contract
-    // TODO: Get lab selection based on selected city from smart contract
-    // TODO: Get Product selection based on selected lab from smart contract
-    selections: {
-      countries: [
-        { value: 'id', text: 'Indonesia' },
-        { value: 'us', text: 'United States' },
-      ],
-      cities: [
-        { value: 'jakarta', text: 'Jakarta' },
-        { value: 'bandung', text: 'Bandung' },
-      ],
-      labs: [
-        { value: 'a', text: 'Lab A', walletAddress: '0x8274Ad69e8657D8B8b710A14b52C4A0E39316ccc' },
-        { value: 'b', text: 'Lab B', walletAddress: '0x8274Ad69e8657D8B8b710A14b52C4A0E39316ccc' },
-        { value: 'c', text: 'Lab C', walletAddress: '0x8274Ad69e8657D8B8b710A14b52C4A0E39316ccc'},
-        { value: 'd', text: 'Lab D', walletAddress: '0x8274Ad69e8657D8B8b710A14b52C4A0E39316ccc' },
-      ],
-      products: [
-        { title: 'Covid-19', description: 'Get tested for Covid-19 immunity', icon: 'mdi-virus', price: 10 },
-        { title: 'Exercise', description: 'Exercise recommendation based on your genes', icon: 'mdi-weight-lifter', price: 10 },
-        { title: 'Diet', description: 'Diet recommendation based on your genes', icon: 'mdi-food-apple', price: 10 },
-        { title: 'Genetic Traits', description: 'Get to know what\'s in your genes' , icon: 'mdi-dna', price: 10 },
-        { title: 'Supplement', description: 'Supplement recommendation based on your genes', icon: 'mdi-pill', price: 10 },
-        { title: 'Ancestry', description: 'Ancestry information from your genes', icon: 'mdi-family-tree', price: 10 },
-        { title: 'Skin', description: 'Skin traits information from your genes', icon: '$dgi-skin', price: 10 },
-      ]
-    }
+    country: '',
+    city: '',
+    labAccount: '',
+    selectedProducts: [],
+    isLoadingProducts: false,
+    countries: [],
+    cities: [],
+    labs: [],
+    products: [],
   }),
   methods: {
-    ...mapActions({
-      getLabs: 'requestForm/getLabs',
-    }),
     ...mapMutations({
-      setLab: 'requestForm/SET_LAB',
-      setProducts: 'requestForm/SET_PRODUCTS',
+      setLabToRequest: 'testRequest/SET_LAB',
+      setProductsToRequest: 'testRequest/SET_PRODUCTS'
     }),
+    async getCountries() {
+      const countryCount = await this.locationContract.methods.countCountry().call()
+
+      const getCountryPromises = []
+      for (let i = 1; i <= countryCount; i++) {
+        getCountryPromises.push(
+          this.locationContract.methods.countryByIndex(i).call()
+        )
+      }
+      const countries = await Promise.all(getCountryPromises)
+
+      this.countries = countries
+    },
+    async getCities() {
+      if (!this.countries) { return }
+
+      const getCitiesPromises = []
+      for (let country of this.countries) {
+        const cityCount = await this.locationContract.methods.countCity(country).call()
+        console.log('city count', cityCount)
+        for(let i = 1; i <= cityCount; i++) {
+          const promise = this.locationContract.methods
+            .cityByIndex(country, i).call()
+            .then(city => ({ country, city }))
+
+          getCitiesPromises.push(promise)
+        }
+      }
+      const cities = await Promise.all(getCitiesPromises)
+
+      this.cities = cities
+    },
+    async getLabs() {
+      if (!this.cities) { return }
+
+      const getLabsPromises = []
+      for (let cityObj of this.cities) {
+        const { country, city } = cityObj
+        const labCount = await this.degenicsContract.methods.labCount(country, city).call()
+
+        for (let i = 0; i <= labCount; i++) {
+          const promise = this.degenicsContract.methods
+            .labByIndex(country, city, i).call()
+            .then(lab => {
+              // let {labAccount, name, country, city, labAddress, labLogo, labUrl, additionalData} = lab
+              // return { labAccount, name, country, city, labAddress, labLogo, labUrl, additionalData }
+              return lab
+            })
+          
+          getLabsPromises.push(promise)
+        }
+      }
+
+      const labs = await Promise.all(getLabsPromises)
+
+      this.labs = labs
+    },
+    async getLabProducts() {
+      this.isLoadingProducts = true
+
+      try {
+        const serviceCount = await this.degenicsContract.methods.serviceCount(this.labAccount).call()     
+        const getServicePromises = []
+        for (let i = 1; i <= serviceCount; i++) {
+          const promise = await this.degenicsContract.methods.serviceByIndex(this.labAccount, i).call()
+          getServicePromises.push(promise)
+        }
+
+        const services = await Promise.all(getServicePromises)
+        console.log(services)
+
+        this.products = services
+      } catch (err) {
+        this.products = []
+      }
+
+      this.isLoadingProducts = false
+    },
     onCountryChange(selectedCountry) {
       this.country = selectedCountry
     },
     onCityChange(selectedCity) {
       this.city = selectedCity
     },
-    onLabChange(selectedLabId) {
-      const selectedLab = this.selections.labs.filter(l => l.value == selectedLabId)[0]
-      const { value, text, walletAddress } = selectedLab
-      this.setLab({
-        country: this.country,
-        city: this.city,
-        id: value,
-        name: text,
-        walletAddress
-      })
+    async onLabChange(labAccount) {
+      this.labAccount = labAccount
+      await this.getLabProducts()
     },
     isProductSelected(product) {
-      return this.products.filter(p => p.title == product.title).length > 0
+      return this.selectedProducts.filter(p => p.code == product.code).length > 0
     },
     selectProduct(product) {
-      if (_.includes(this.products, product)) {
-        this.products = this.products.filter(p => p.title != product.title)
+      // deselect
+      if (_.includes(this.selectedProducts, product)) {
+        this.selectedProducts = this.selectedProducts.filter(p => p.code != product.code)
         return
       }
-      this.products = [...this.products, product]
+      // select
+      this.selectedProducts = [...this.selectedProducts, product]
     },
     onContinue() {
+      this.setLabToRequest(this.selectedLab)
+      this.setProductsToRequest(this.selectedProducts)
       this.$router.push({ name: 'request-test-checkout', })
     }
   }

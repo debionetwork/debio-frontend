@@ -1,13 +1,17 @@
 const contractInfo = require('./contract.json')
 
-const Degenics = require('./Degenics.json').abi
-const Location = require('./Location.json').abi
-// const Lab = require('./Lab.json').abi
+const Degenics = require('./abi/Degenics.json')
+const Location = require('./abi/Location.json')
+const Lab = require('./abi/Lab.json')
+const Account = require('./abi/Account.json')
+const Specimen = require('./abi/Specimen.json')
 
 const defaultState = {
   contractDegenics: null,
   contractLocation: null,
   contractLab: null,
+  contractAccount: null,
+  contractSpecimen: null,
 }
 
 export default {
@@ -25,17 +29,28 @@ export default {
     SET_CONTRACT_LAB(state, contractLab){
       state.contractLab = contractLab
     },
+    SET_CONTRACT_ACCOUNT(state, contractAccount){
+      state.contractAccount = contractAccount
+    },
+    SET_CONTRACT_SPECIMEN(state, contractSpecimen){
+      state.contractSpecimen = contractSpecimen 
+    }
   },
   actions: {
     initContracts({ commit, rootState }) {
       const { web3 } = rootState.ethereum
       const degenicsContract =  new web3.eth.Contract(Degenics, contractInfo.Degenics.address)
       const locationContract =  new web3.eth.Contract(Location, contractInfo.Location.address)
-      // const labContract =  new web3.eth.Contract(Lab, contractInfo.Lab.address)
+      const labContract =  new web3.eth.Contract(Lab, contractInfo.Lab.address)
+      const accountContract =  new web3.eth.Contract(Account, contractInfo.Account.address)
+      const specimenContract =  new web3.eth.Contract(Specimen, contractInfo.Specimen.address)
+
 
       commit('SET_CONTRACT_DEGENICS', degenicsContract)
       commit('SET_CONTRACT_LOCATION', locationContract)
-      // commit('SET_CONTRACT_LAB', labContract)
+      commit('SET_CONTRACT_LAB', labContract)
+      commit('SET_CONTRACT_ACCOUNT', accountContract)
+      commit('SET_CONTRACT_SPECIMEN', specimenContract)
     }
   },
   getters: {
@@ -45,8 +60,8 @@ export default {
     getLocationContract(state){
       return state.contractLocation
     },
-    // getLabContract(state){
-      // return state.labContract
-    // }
+    getLabContract(state){
+      return state.contractLab
+    }
   }
 }
