@@ -85,10 +85,19 @@ export default {
     */
     async encrypt(text) {
       const publicKey = this.publicKeyInput;
+      const arrChunks = [];
+      let chunksAmount;
       cryptWorker.workerEncrypt.postMessage({ publicKey, text}) // Access this object in e.data in worker
       cryptWorker.workerEncrypt.onmessage = event => {
-        console.log("Message Encrypted: ", event)
-        this.encryptedObj = event.data;
+        if(event.data.chunksAmount) {
+          chunksAmount = event.data.chunksAmount;
+          console.log(chunksAmount);
+          return;
+        }
+        arrChunks.push(event.data);
+        if (arrChunks.length == chunksAmount ) {
+          this.encryptedObj = arrChunks;
+        }
       }
     },
     async decryptTest() {
@@ -120,23 +129,19 @@ export default {
       a.dispatchEvent(e)
     },
     uploadEncrypted() {
-      const data = JSON.stringify(this.encryptedObj)
-      const blob = new Blob([ data ], {type: 'text/plain'})
-      let chunksAmount;
-      let arrChunks=[];
-      ipfsWorker.workerUpload.postMessage(blob) // Access this object in e.data in worker
+      let arrFiles=[];
+      for (let file of this.encryptedObj) {
+        const data = JSON.stringify(file)
+        const blob = new Blob([ data ], {type: 'text/plain'})
+        ipfsWorker.workerUpload.postMessage({seed: file.seed, file: blob}) // Access this object in e.data in worker
+      }
       ipfsWorker.workerUpload.onmessage = event => {
-        console.log(event.data)
-        if(event.data.chunksAmount) {
-          chunksAmount = event.data.chunksAmount;
-          return;
-        }
-        arrChunks.push(event.data);
-        if (chunksAmount == arrChunks.length) {
+        arrFiles.push(event.data);
+        if (arrFiles.length == this.encryptedObj.length) {
           const fileName= this.fileName;
           this.files.push({
             fileName,
-            ipfsPath: arrChunks,
+            ipfsPath: arrFiles,
           })
           this.encryptedObj = null;
         }
@@ -145,22 +150,17 @@ export default {
     async downloadEncryptedIPFS(index) {
         const channel = new MessageChannel();
         channel.port1.onmessage = cryptWorker.workerDecrypt;
-
-        ipfsWorker.workerDownload.postMessage(this.files[index].ipfsPath);
+        let privateKey = this.privateKey;
+        let fileList = this.files[index].ipfsPath;
+        ipfsWorker.workerDownload.postMessage({file: fileList, privateKey});
         ipfsWorker.workerDownload.onmessage = event => {
-          let privateKey = this.privateKey;
-          let text = event.data;
-          console.log(event.data)
-          cryptWorker.workerDecrypt.postMessage({ privateKey, text}, [channel.port2]);
-        }
-
-        cryptWorker.workerDecrypt.onmessage = event => {
-          const decrypted = event.data;
-          this.download(decrypted, this.fileName)
+          this.download(event.data, this.files[index].fileName)
         }
     }
   }
 }
+
+
 </script>
 
 <style>
