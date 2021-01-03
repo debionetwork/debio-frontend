@@ -42,6 +42,16 @@ const routes = [
         component: () => import(/* webpackChunkName */ '../views/Dashboard/Home')
       },
       {
+        path: '/history-test',
+        name: 'history-test',
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/TestHistory')
+      },
+      {
+        path: '/result-test/:number',
+        name: 'result-test',
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/TestHistory/result.vue')
+      },
+      {
         path: '/request-test',
         name: 'request-test',
         component: () => import(/* webpackChunkName */ '../views/Dashboard/RequestTest')
