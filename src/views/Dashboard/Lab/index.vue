@@ -8,7 +8,7 @@
                </v-text-field>
             </v-col>
             <v-col cols="6">
-               <v-btn icon="">Search</v-btn>
+               <v-btn icon="">Scan</v-btn>
             </v-col>
          </v-row>
          <v-row>
@@ -60,8 +60,6 @@
                      <v-container v-if="item.status == 'Sending' || item.status == 'Paid'">
                         <v-icon small class="mr-2" @click="showDialog(item)">
                           mdi-check-all
-
-
                         </v-icon>
                      </v-container>
                      <v-container v-if="item.status == 'Succes' || item.status == 'Received'">

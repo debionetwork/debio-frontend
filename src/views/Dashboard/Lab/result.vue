@@ -50,7 +50,6 @@
                   <v-card-title class="headline grey lighten-2">
                      Please insert your password
                   </v-card-title>
-
                   <v-card-text>
                      <v-text-field
                         class="mt-4"
@@ -66,11 +65,7 @@
 
                   <v-card-actions>
                      <v-spacer></v-spacer>
-                     <v-btn
-                        color="primary"
-                        text
-                        @click="uploadEncrypted"
-                     >
+                     <v-btn color="primary" text @click="uploadEncrypted">
                         Save Result
                      </v-btn>
                   </v-card-actions>
@@ -104,7 +99,7 @@ export default {
     specimentNumberInput: '',
     ownerAddress: '',
     publicKeyInput: '',
-    files: [],
+    files: [{"fileName":"genome.txt","ipfsPath":[{"seed":3,"data":{"path":"QmQiowRoKmfUZLm7U3w532AjEogHU1AfDg9GbPixD5DEic","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":2957467}},{"seed":0,"data":{"path":"QmdTWcWcB1VrVuzkBDy8KDW3NzTqMJRmmm3zGT6X3WBVsP","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":10242820}},{"seed":1,"data":{"path":"QmXTtb7K6MB5YkrrBvBYQwAjmaPA1R6kstT7mLUmkN7GsR","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":10242820}},{"seed":2,"data":{"path":"QmWqwQNWXDAb6mnxrrqo1a86oKyQL46Nbvs5qa8Kunw4yb","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":10242820}}]}],
     encryptedObj: null,
     fileName: '',
     dialog: false,
@@ -129,6 +124,18 @@ export default {
     })
   },
   methods: {
+    async getFileUploaded(arrSpeciments) {
+      let objNumbers = new Map();
+      try {
+        for (let arrSpeciment of arrSpeciments) {
+          let promSpec = await this.contractDegenics.methods.getLastNumber().call({from: arrSpeciment.owner});
+          objNumbers.set(arrSpeciment.owner,promSpec);
+        }
+        return objNumbers;
+      } catch (error) {
+        console.error(error)
+      }
+    },
     async decryptWallet() {
       this.dialog = true;
       if (this.password == '') {
