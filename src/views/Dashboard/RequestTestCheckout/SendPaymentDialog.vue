@@ -103,7 +103,7 @@
 
 <script>
 import Wallet from 'ethereumjs-wallet'
-import { mapGetters, mapState } from 'vuex'
+import { mapState } from 'vuex'
 import sendTransaction from '../../../lib/send-transaction'
 import localStorage from '../../../lib/local-storage'
 
@@ -129,11 +129,9 @@ export default {
         this.$emit('toggle', val)
       }
     },
-    ...mapGetters({
-      degenicsContract: 'ethereum/contracts/getDegenicsContract'
-    }),
     ...mapState({
-      web3: state => state.ethereum.web3
+      web3: state => state.ethereum.web3,
+      degenicsContract: state => state.ethereum.contracts.contractDegenics,
     }),
   },
   methods: {
@@ -145,7 +143,8 @@ export default {
       const specimensToProcess = this.products.map(p => ({
         labAccount,
         serviceCode: p.code,
-        price: p.price
+        price: p.price,
+        productDetail: p,
       }))
 
       // Retrieve wallet
@@ -155,7 +154,7 @@ export default {
       
       const receipts = []
       for (let specimen of specimensToProcess) {
-        const { labAccount, serviceCode, price } = specimen
+        const { labAccount, serviceCode, price, productDetail } = specimen
 
         const specimenNumber = await this.registerSpecimen(labAccount, serviceCode, wallet)
         const txReceipt = await this.paySpecimen(specimenNumber, price, wallet)
@@ -163,12 +162,9 @@ export default {
         // FIXME: set specimen status to Sending here, for current prototype 
         await this.sendSpecimen(specimenNumber, wallet)
         
-        receipts.push({ txReceipt, specimenNumber })
+        receipts.push({ txReceipt, specimenNumber, productDetail })
       } 
 
-      console.log(receipts)
-
-      // this._show = false
       this.isLoading = false
       this.$emit('payment-sent', receipts)
       this.password = ''
@@ -185,12 +181,11 @@ export default {
     * @returns  {Number} specimenNumber
     */
     async registerSpecimen(labAccount, serviceCode, userWallet) {
-      console.log('Registering specimen')
       try {
         const abiData = this.degenicsContract.methods
           .registerSpecimen(labAccount, serviceCode)
           .encodeABI()
-        await sendTransaction(labAccount, userWallet, abiData)
+        await sendTransaction(this.degenicsContract._address, userWallet, abiData)
         
         const specimenNumber = await this.degenicsContract.methods
           .getLastNumber()
@@ -200,6 +195,7 @@ export default {
 
       } catch (error) {
         console.log(error)
+        return 'Error on registering specimen'
       }
     },
     /**
@@ -224,6 +220,7 @@ export default {
 
       } catch (err) {
         console.log(err)
+        return 'Error on paying for specimen'
       }
     },
     /**
@@ -236,12 +233,16 @@ export default {
     */
     async sendSpecimen(specimenNumber, userWallet) {
       try {
-        await this.degenicsContract.methods
-          .sendSpecimen(specimenNumber)
-          .call({ from: userWallet.getAddressString() })
+        const remark = ''
+        const abiData = this.degenicsContract.methods
+          .sendSpecimen(specimenNumber, remark)
+          .encodeABI()
+        const res = await sendTransaction(this.degenicsContract._address, userWallet, abiData)
 
+        console.log(res)
       } catch (err) {
         console.log(err)
+        return 'Error on sendSpecimen'
       }
     }
   }

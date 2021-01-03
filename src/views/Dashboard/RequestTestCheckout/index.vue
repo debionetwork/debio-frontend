@@ -117,7 +117,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 import SendPaymentDialog from './SendPaymentDialog'
 
 export default {
@@ -137,13 +137,19 @@ export default {
     }
   },
   methods: {
+    ...mapMutations({
+      clearTestRequest: 'testRequest/CLEAR_TEST_REQUEST',
+    }),
     onSubmitOrder() {
       this.sendPaymentDialog = true
     },
-    onPaymentSent(receipt) {
+    onPaymentSent(receipts) {
       this.sendPaymentDialog = false
+      this.clearTestRequest()
 
-      console.log('Receipt in RequestTestCheckout', receipt)
+      this.$router.push({ name: 'request-test-success', params: { receipts } })
+
+      console.log('Receipt in RequestTestCheckout', receipts)
     }
   }
 }

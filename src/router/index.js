@@ -52,6 +52,11 @@ const routes = [
         component: () => import(/* webpackChunkName */ '../views/Dashboard/RequestTestCheckout')
       },
       {
+        path: '/request-test/success',
+        name: 'request-test-success',
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/RequestTestSuccess')
+      },
+      {
         path: '/lab',
         name: 'lab',
         component: () => import(/* webpackChunkName */ '../views/Dashboard/Lab')
