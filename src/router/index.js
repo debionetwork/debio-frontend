@@ -6,7 +6,7 @@ Vue.use(VueRouter)
 
 // eslint-disable-next-line no-unused-vars
 async function checkAuth(to, from, next) {
-  const isLoggedIn = store.getters['auth/isLoggedIn'] 
+  const isLoggedIn = store.getters['auth/isLoggedIn']
   if (!isLoggedIn) {
     // If has token
     if (store.getters['auth/hasToken']) {
@@ -55,7 +55,13 @@ const routes = [
         path: '/lab',
         name: 'lab',
         component: () => import(/* webpackChunkName */ '../views/Dashboard/Lab')
+      },
+      {
+        path: '/lab/:number/:owner',
+        name: 'lab-result',
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/Lab/result.vue')
       }
+
     ]
   },
   {

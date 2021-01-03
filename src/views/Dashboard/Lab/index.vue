@@ -1,161 +1,223 @@
 
 <template>
-  <div>
-    <v-container>
-      <v-row>
-        <v-col cols="6">
-          <v-text-field v-model="publicKeyInput">
-          </v-text-field>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col v-for="(file, index) in files" :key="file.name" cols="6" md="3" sm="4">
-          <SquareCardBtn @click="downloadEncryptedIPFS(index)">
-            <v-icon size="64">mdi-download</v-icon>
-            <div>{{file.fileName}}</div>
-          </SquareCardBtn>
-        </v-col>
-        <v-col cols="6" md="3" sm="4">
-          <SquareCardBtn @click="onEncryptUpload">
-            <v-icon size="64">mdi-upload-lock</v-icon>
-            <div>Encrypt and Upload</div>
-            <input type="file" style="display: none" ref="encryptUploadFileInput" />
-          </SquareCardBtn>
-          <v-btn :disabled="!encryptedObj" @click="uploadEncrypted">
-            Upload to IPFS
-          </v-btn>
-        </v-col>
-      </v-row>
+   <div>
+      <v-container>
+         <v-row>
+            <v-col cols="6">
+               <v-text-field v-model="testNumberInput" label="Specimen Number">
+               </v-text-field>
+            </v-col>
+            <v-col cols="6">
+               <v-btn icon="">Search</v-btn>
+            </v-col>
+         </v-row>
+         <v-row>
+            <v-col>
+               <v-dialog v-model="dialog" max-width="600px" >
+                  <template>
+                     <v-card>
+                        <v-card-title class="headline grey lighten-2">
+                           Please insert your password
+                        </v-card-title>
 
-    </v-container>
-  </div>
+                        <v-card-text>
+                          <v-text-field v-model="selectedSpeciment.specimentNumber"/>
+                           <v-text-field
+                              class="mt-4"
+                              outlined
+                              auto-grow
+                              type="password"
+                              v-model="password"
+                              label="Input your password"
+                           />
+                        </v-card-text>
+
+                        <v-divider></v-divider>
+
+                        <v-card-actions>
+                           <v-spacer></v-spacer>
+                          <v-btn v-if="address == ''" color="primary" text @click="decryptWallet">
+                              Decrypt Address
+                           </v-btn>
+                           <v-btn v-if="address != ''" color="primary" text @click="acceptSpeciment">
+                              Accept Speciment
+                           </v-btn>
+                           <v-btn v-if="address != '' && selectedSpeciment.status == 'Paid'" color="primary" text @click="sendSpeciment">
+                              send Specimen
+                           </v-btn>
+                        </v-card-actions>
+                     </v-card>
+                  </template>
+               </v-dialog>
+
+               <v-data-table
+                  :headers="headers"
+                  :items="speciments"
+                  :items-per-page="5"
+                  class="elevation-1"
+               >
+                  <template v-slot:item.actions="{ item }">
+                     <v-container v-if="item.status == 'Sending' || item.status == 'Paid'">
+                        <v-icon small class="mr-2" @click="showDialog(item)">
+                          mdi-check-all
+
+
+                        </v-icon>
+                     </v-container>
+                     <v-container v-if="item.status == 'Succes' || item.status == 'Received'">
+                        <v-icon small class="mr-2" @click="gotoResult(item)">
+                          mdi-chevron-right-circle
+                        </v-icon>
+                     </v-container>
+
+                  </template>
+               </v-data-table>
+            </v-col>
+         </v-row>
+      </v-container>
+   </div>
 </template>
 
 <script>
-import EthCrypto from 'eth-crypto'
-import SquareCardBtn from '../../../components/SquareCardBtn'
-import ipfsWorker from '../../../web-workers/ipfs-worker'
-import cryptWorker from '../../../web-workers/crypt-worker'
+import { mapState } from 'vuex'
+import Wallet from 'ethereumjs-wallet'
+import router from '../../../router'
+import sendTransaction from '../../../lib/send-transaction'
+import localStorage from '../../../lib/local-storage'
 
 export default {
   name: 'Lab',
-  components: {
-    SquareCardBtn,
-  },
+  components: {},
   data: () => ({
-    // Hardcoded privateKey for dev
-    privateKey: '0xd2b4ac161f7f82d910a5560710d14ca8262b819b369d9bcc08b58d3ecf966465',
-    publicKeyInput: '',
-    files: [],
-    encryptedObj: null,
-    fileName: '',
+    testNumberInput: '',
+    headers: [
+          {
+            text: 'Owner',
+            align: 'start',
+            sortable: false,
+            value: 'owner',
+          },
+          { text: 'LabAccount', value: 'labAccount' },
+          { text: 'ServiceCode', value: 'serviceCode' },
+          { text: 'Status', value: 'status' },
+          { text: 'Actions', value: 'actions', sortable: false },
+        ],
+    speciments: [],
+    dialog: false,
+    selectedSpeciment: {},
+    address: '',
   }),
-  mounted() {
-    const context = this;
-    this.publicKeyInput = "796061614a84e4a0497586c2bd8a1b6aefc8fb4f94b0a882105e9ec71e245f3b6ec8091a3ba2d0d05994d6ae321a853d1193dfc25db8f93dd4d1d3c4a7da48e6";
-
-    this.$refs.encryptUploadFileInput.addEventListener('change', function() {
-      const file = this.files[0]
-      context.fileName = file.name
-      const fr = new FileReader()
-      fr.onload = async function() {
-        await context.encrypt(fr.result)
-      }
-      fr.readAsText(file)
-    })
+  async mounted() {
+    await this.decryptWallet()
   },
   methods: {
-    onEncryptUpload() {
-      if (!this.publicKeyInput) return
-      this.$refs.encryptUploadFileInput.click()
+    async decryptWallet() {
+      this.dialog = true;
+      if (this.password == '') {
+        return;
+      }
+      const keystore = localStorage.getKeystore()
+      const wallet = await Wallet.fromV3(keystore, this.password)
+      this.address = wallet.getAddressString();
+      this.dialog = false;
     },
-    /**
-    * Encrypt file using rsa public key
-    * ----------------------------------
-    * RSA can only encrypt 256 bits minus padding/header data effectively ==
-    * 256 bits == 32 bytes
-    * https://kulkarniamit.github.io/whatwhyhow/howto/encrypt-decrypt-file-using-rsa-public-private-keys.html
-    *
-    * Therefore, Use AES encryption. It has a lmit of more than 250 million tb
-    * Refer to:
-    * https://security.stackexchange.com/questions/33434/rsa-maximum-bytes-to-encrypt-comparison-to-aes-in-terms-of-security
-    *
-    * Use EthCrypto for AES encryption
-    * Inside it handles aes-256-cbc encryption using eccrypto library which uses crypto
-    */
-    async encrypt(text) {
-      const publicKey = this.publicKeyInput;
-      const arrChunks = [];
-      let chunksAmount;
-      cryptWorker.workerEncrypt.postMessage({ publicKey, text}) // Access this object in e.data in worker
-      cryptWorker.workerEncrypt.onmessage = event => {
-        if(event.data.chunksAmount) {
-          chunksAmount = event.data.chunksAmount;
-          console.log(chunksAmount);
-          return;
-        }
-        arrChunks.push(event.data);
-        if (arrChunks.length == chunksAmount ) {
-          this.encryptedObj = arrChunks;
-        }
+    async getSpcimentCount() {
+      try {
+        const address = this.address;
+        const specimenNum = await this.contractDegenics.methods.specimenCount().call({from:address})
+        return specimenNum;
+      } catch (error) {
+        console.log(error)
       }
     },
-    async decryptTest() {
-      console.log("Decrypting...")
-      const decrypted = await EthCrypto.decryptWithPrivateKey(
-        this.privateKey,
-        this.encryptedObj
-      )
-      console.log("Decrypted")
-      console.log(decrypted)
-    },
-    async downloadDecrypted() {
-      const text = JSON.stringify(this.encryptedObj);
-      const privateKey = this.privateKey;
-      cryptWorker.workerDecrypt.postMessage({ privateKey, text});
-      cryptWorker.workerDecrypt.onmessage = event => {
-        const decrypted = event.data;
-        this.download(decrypted, this.fileName)
+    async getSpciments(num) {
+      try {
+        let specNum = new Array(parseInt(num)).fill(null);
+        const address = this.address;
+        const promSpec = specNum.map((x, i)=>this.contractDegenics.methods.specimenByIndex(i+1).call({from: address}))
+        const arrSpeciments = await Promise.all(promSpec);
+        const specimentNumbers =  await this.getSpcimentNumber(arrSpeciments);
+        this.speciments = arrSpeciments.map(dt=>{
+          let { labAccount, owner, serviceCode, status } = dt;
+          const specimentNumber = specimentNumbers.get(owner);
+          return { labAccount, owner, serviceCode, status, specimentNumber };
+          });
+      } catch (error) {
+        console.log(error)
       }
     },
-    download(data, fileName) {
-      const blob = new Blob([ data ], {type: 'text/plain'})
-      const e = document.createEvent('MouseEvents')
-      const a = document.createElement('a')
-      a.download = fileName
-      a.href = window.URL.createObjectURL(blob)
-      a.dataset.downloadurl = ['text/json', a.download, a.href].join(':')
-      e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
-      a.dispatchEvent(e)
-    },
-    uploadEncrypted() {
-      let arrFiles=[];
-      for (let file of this.encryptedObj) {
-        const data = JSON.stringify(file)
-        const blob = new Blob([ data ], {type: 'text/plain'})
-        ipfsWorker.workerUpload.postMessage({seed: file.seed, file: blob}) // Access this object in e.data in worker
-      }
-      ipfsWorker.workerUpload.onmessage = event => {
-        arrFiles.push(event.data);
-        if (arrFiles.length == this.encryptedObj.length) {
-          const fileName= this.fileName;
-          this.files.push({
-            fileName,
-            ipfsPath: arrFiles,
-          })
-          this.encryptedObj = null;
+    async getSpcimentNumber(arrSpeciments) {
+      let objNumbers = new Map();
+      try {
+        for (let arrSpeciment of arrSpeciments) {
+          let promSpec = await this.contractDegenics.methods.getLastNumber().call({from: arrSpeciment.owner});
+          objNumbers.set(arrSpeciment.owner,promSpec);
         }
+        return objNumbers;
+      } catch (error) {
+        console.error(error)
       }
     },
-    async downloadEncryptedIPFS(index) {
-        const channel = new MessageChannel();
-        channel.port1.onmessage = cryptWorker.workerDecrypt;
-        let privateKey = this.privateKey;
-        let fileList = this.files[index].ipfsPath;
-        ipfsWorker.workerDownload.postMessage({file: fileList, privateKey});
-        ipfsWorker.workerDownload.onmessage = event => {
-          this.download(event.data, this.files[index].fileName)
-        }
+    gotoResult(item) {
+      console.log(item)
+      router.push(`/lab/${item.specimentNumber}/${item.owner}`);
+    },
+    async acceptSpeciment() {
+      try {
+
+        // Retrieve wallet
+        console.log('decrypting Keystore...')
+        const degenicsContract = this.contractDegenics._address;
+        const keystore = localStorage.getKeystore()
+        const wallet = await Wallet.fromV3(keystore, this.password)
+        const abiData = this.contractDegenics.methods
+          .receiveSpecimen(this.selectedSpeciment.specimentNumber, wallet.getPublicKeyString())
+          .encodeABI()
+
+        let tx = await sendTransaction(degenicsContract, wallet, abiData)
+
+        console.log(tx, wallet.getAddressString());
+        this.dialog = false;
+      } catch (err) {
+        this.dialog = false;
+        console.error(err)
+      }
+    },
+    showDialog(item) {
+        this.dialog = true;
+        this.selectedSpeciment = item;
+    },
+    async sendSpeciment() {
+      try {
+
+        // Retrieve wallet
+        console.log('decrypting Keystore...')
+        const degenicsContract = this.contractDegenics._address;
+        const keystore = localStorage.getKeystore()
+        const wallet = await Wallet.fromV3(keystore, this.password)
+        const abiData = this.contractDegenics.methods
+          .sendSpecimen(this.selectedSpeciment.specimentNumber, wallet.getPublicKeyString())
+          .encodeABI()
+
+        let tx = await sendTransaction(degenicsContract, wallet, abiData)
+        console.log(tx, wallet.getAddressString());
+        this.dialog = false;
+      } catch (err) {
+        this.dialog = false;
+        console.error(err)
+      }
+    },
+
+  },
+  computed: {
+    ...mapState({
+      contractDegenics: state => state.ethereum.contracts.contractDegenics,
+    })
+  },
+  watch: {
+    async address(){
+      let num = await this.getSpcimentCount();
+      await this.getSpciments(num);
     }
   }
 }
@@ -164,5 +226,4 @@ export default {
 </script>
 
 <style>
-
 </style>

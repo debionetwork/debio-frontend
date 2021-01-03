@@ -22,7 +22,7 @@ export default {
   },
   async mounted() {
     const LOCAL_RPC_URL = 'http://localhost:8545'
-    let rpcUrl = localStorage.getRpcUrl() 
+    let rpcUrl = localStorage.getRpcUrl()
     await this.initWeb3(rpcUrl ? rpcUrl : LOCAL_RPC_URL)
     this.initContracts()
   },
