@@ -157,7 +157,7 @@ export default {
     },
     labsSelection() {
       console.log(this.labs)
-      return this.labs.slice(1, this.labs.length)
+      return this.labs
         .filter(lab => lab.country == this.country && lab.city == this.city)
         .map(lab => ({ value: lab.labAccount, text: lab.name }))
     },
@@ -222,12 +222,10 @@ export default {
         const { country, city } = cityObj
         const labCount = await this.degenicsContract.methods.labCount(country, city).call()
 
-        for (let i = 0; i <= labCount; i++) {
+        for (let i = 1; i <= labCount; i++) {
           const promise = this.degenicsContract.methods
             .labByIndex(country, city, i).call()
             .then(lab => {
-              // let {labAccount, name, country, city, labAddress, labLogo, labUrl, additionalData} = lab
-              // return { labAccount, name, country, city, labAddress, labLogo, labUrl, additionalData }
               return lab
             })
           

@@ -55,10 +55,7 @@ export default {
   data: () => ({
     formValid: true,
     privateKey: '',
-    privateKeyRules: [
-      val => val && /0[xX][0-9a-fA-F]+/g.test(val)
-        || 'Invalid private key format. Must be in hex string.'
-    ]
+    privateKeyRules: [],
   }),
   computed: {
     _show: {
@@ -73,7 +70,10 @@ export default {
   methods: {
     onContinue() {
       this._show = false
-      this.$emit('private-key-input', this.privateKey)
+      const privateKey = this.privateKey.startsWith('0x')
+        ? this.privateKey
+        : '0x' + this.privateKey
+      this.$emit('private-key-input', privateKey)
       this.$refs.form.reset()
     },
     closeDialog() {

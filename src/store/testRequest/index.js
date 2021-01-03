@@ -13,6 +13,10 @@ export default {
     SET_PRODUCTS(state, products) {
       state.products = products
     },
+    CLEAR_TEST_REQUEST(state) {
+      state.lab = null
+      state.products = []
+    },
   },
   actions: {
   },
