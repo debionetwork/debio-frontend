@@ -23,7 +23,7 @@
                   :title="file.fileName"
                   sub-title="View your test reports"
                   @click="downloadDecryptedFromIPFS(index)"
-                />
+               />
             </v-col>
          </v-row>
          <v-dialog v-model="dialog" max-width="600px">
@@ -47,8 +47,8 @@
 
                   <v-card-actions>
                      <v-spacer></v-spacer>
-                     <v-btn color="primary" text @click="uploadEncrypted">
-                        Save Result
+                     <v-btn color="primary" text @click="decryptWallet">
+                        decryt wallet
                      </v-btn>
                   </v-card-actions>
                </v-card>
@@ -78,73 +78,7 @@ export default {
     specimentNumberInput: '',
     ownerAddress: '',
     publicKeyInput: '',
-    files: [{
-  "fileName": "report.html",
-  "ipfsPath": [
-    {
-      "seed": 3,
-      "data": {
-        "path": "QmQiowRoKmfUZLm7U3w532AjEogHU1AfDg9GbPixD5DEic",
-        "size": 2957467
-      }
-    },
-    {
-      "seed": 0,
-      "data": {
-        "path": "QmdTWcWcB1VrVuzkBDy8KDW3NzTqMJRmmm3zGT6X3WBVsP",
-        "size": 10242820
-      }
-    },
-    {
-      "seed": 1,
-      "data": {
-        "path": "QmXTtb7K6MB5YkrrBvBYQwAjmaPA1R6kstT7mLUmkN7GsR",
-        "size": 10242820
-      }
-    },
-    {
-      "seed": 2,
-      "data": {
-        "path": "QmWqwQNWXDAb6mnxrrqo1a86oKyQL46Nbvs5qa8Kunw4yb",
-        "size": 10242820
-      }
-    }
-  ]
-},
-{
-  "fileName": "genome.txt",
-  "ipfsPath": [
-    {
-      "seed": 3,
-      "data": {
-        "path": "QmQiowRoKmfUZLm7U3w532AjEogHU1AfDg9GbPixD5DEic",
-        "size": 2957467
-      }
-    },
-    {
-      "seed": 0,
-      "data": {
-        "path": "QmdTWcWcB1VrVuzkBDy8KDW3NzTqMJRmmm3zGT6X3WBVsP",
-        "size": 10242820
-      }
-    },
-    {
-      "seed": 1,
-      "data": {
-        "path": "QmXTtb7K6MB5YkrrBvBYQwAjmaPA1R6kstT7mLUmkN7GsR",
-        "size": 10242820
-      }
-    },
-    {
-      "seed": 2,
-      "data": {
-        "path": "QmWqwQNWXDAb6mnxrrqo1a86oKyQL46Nbvs5qa8Kunw4yb",
-        "size": 10242820
-      }
-    }
-  ]
-}
-],
+    files: [],
     encryptedObj: null,
     fileName: '',
     dialog: false,
@@ -156,7 +90,7 @@ export default {
     const context = this;
     this.publicKeyInput = "796061614a84e4a0497586c2bd8a1b6aefc8fb4f94b0a882105e9ec71e245f3b6ec8091a3ba2d0d05994d6ae321a853d1193dfc25db8f93dd4d1d3c4a7da48e6";
     this.specimentNumberInput = this.$route.params.number;
-    this.ownerAddress = this.$route.params.owner;
+    await this.decryptWallet()
     this.$refs.encryptUploadFileInput.addEventListener('change', function() {
       const file = this.files[0]
       context.fileName = file.name
@@ -169,14 +103,11 @@ export default {
     })
   },
   methods: {
-    async getFileUploaded(arrSpeciments) {
-      let objNumbers = new Map();
+    async getFileUploaded() {
       try {
-        for (let arrSpeciment of arrSpeciments) {
-          let promSpec = await this.contractDegenics.methods.getLastNumber().call({from: arrSpeciment.owner});
-          objNumbers.set(arrSpeciment.owner,promSpec);
-        }
-        return objNumbers;
+          const address = this.ownerAddress;
+          const arrFile = await this.contractDegenics.methods.getFile(this.specimentNumberInput).call({from: address});
+          this.files = JSON.parse(arrFile);
       } catch (error) {
         console.error(error)
       }
@@ -188,7 +119,7 @@ export default {
       }
       const keystore = localStorage.getKeystore()
       const wallet = await Wallet.fromV3(keystore, this.password)
-      this.address = wallet.getAddressString();
+      this.ownerAddress = wallet.getAddressString();
       this.dialog = false;
     },
     download(data, fileName) {
@@ -223,6 +154,11 @@ export default {
       contractDegenics: state => state.ethereum.contracts.contractDegenics,
     })
   },
+  watch: {
+    async ownerAddress(){
+      await this.getFileUploaded();
+    },
+  }
 }
 
 

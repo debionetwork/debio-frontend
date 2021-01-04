@@ -99,7 +99,7 @@ export default {
     specimentNumberInput: '',
     ownerAddress: '',
     publicKeyInput: '',
-    files: [{"fileName":"genome.txt","ipfsPath":[{"seed":3,"data":{"path":"QmQiowRoKmfUZLm7U3w532AjEogHU1AfDg9GbPixD5DEic","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":2957467}},{"seed":0,"data":{"path":"QmdTWcWcB1VrVuzkBDy8KDW3NzTqMJRmmm3zGT6X3WBVsP","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":10242820}},{"seed":1,"data":{"path":"QmXTtb7K6MB5YkrrBvBYQwAjmaPA1R6kstT7mLUmkN7GsR","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":10242820}},{"seed":2,"data":{"path":"QmWqwQNWXDAb6mnxrrqo1a86oKyQL46Nbvs5qa8Kunw4yb","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":10242820}}]}],
+    files: [],
     encryptedObj: null,
     fileName: '',
     dialog: false,
@@ -112,6 +112,7 @@ export default {
     this.publicKeyInput = "796061614a84e4a0497586c2bd8a1b6aefc8fb4f94b0a882105e9ec71e245f3b6ec8091a3ba2d0d05994d6ae321a853d1193dfc25db8f93dd4d1d3c4a7da48e6";
     this.specimentNumberInput = this.$route.params.number;
     this.ownerAddress = this.$route.params.owner;
+    await this.getFileUploaded()
     this.$refs.encryptUploadFileInput.addEventListener('change', function() {
       const file = this.files[0]
       context.fileName = file.name
@@ -124,14 +125,11 @@ export default {
     })
   },
   methods: {
-    async getFileUploaded(arrSpeciments) {
-      let objNumbers = new Map();
+    async getFileUploaded() {
       try {
-        for (let arrSpeciment of arrSpeciments) {
-          let promSpec = await this.contractDegenics.methods.getLastNumber().call({from: arrSpeciment.owner});
-          objNumbers.set(arrSpeciment.owner,promSpec);
-        }
-        return objNumbers;
+          const address = this.ownerAddress;
+          const arrFile = await this.contractDegenics.methods.getFile(this.specimentNumberInput).call({from: address});
+          this.files = JSON.parse(arrFile);
       } catch (error) {
         console.error(error)
       }
