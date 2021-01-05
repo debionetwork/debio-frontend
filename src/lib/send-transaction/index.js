@@ -20,9 +20,7 @@ async function sendTransaction(contractAddress, senderWallet, data, value) {
   // Create transaction
   const rawTx = {
     nonce: web3.utils.toHex(nonce),
-    gasLimit: web3.utils.toHex(
-      web3.utils.toWei(appConfig.getGasLimit(), 'gwei')
-    ),
+    gasLimit: web3.utils.toHex(appConfig.getGasLimit()),
     gasPrice: web3.utils.toHex(appConfig.getGasPrice()),
     from: senderWallet.getAddressString(),
     to: contractAddress,

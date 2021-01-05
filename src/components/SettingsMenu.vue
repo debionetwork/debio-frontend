@@ -91,7 +91,7 @@
               outlined
               auto-grow
               v-model="gasLimitInput"
-              label="Gas Limit (Gwei)"
+              label="Gas Limit (Wei)"
               hide-details="auto"
             >
             </v-text-field>

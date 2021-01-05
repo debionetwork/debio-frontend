@@ -102,10 +102,12 @@
 </template>
 
 <script>
-import Wallet from 'ethereumjs-wallet'
+/* eslint-disable */
+import Wallet from '../../../lib/dgnx-wallet'
 import { mapState } from 'vuex'
 import sendTransaction from '../../../lib/send-transaction'
 import localStorage from '../../../lib/local-storage'
+// import { decryptKeystore } from '../../../lib/dgnx-wallet'
 
 export default {
   name: 'SendPaymentDialog',
@@ -148,9 +150,8 @@ export default {
       }))
 
       // Retrieve wallet
-      console.log('decrypting Keystore...')
       const keystore = localStorage.getKeystore()
-      const wallet = await Wallet.fromV3(keystore, this.password)
+      const wallet = await Wallet.decrypt(keystore, this.password)
       
       const receipts = []
       for (let specimen of specimensToProcess) {

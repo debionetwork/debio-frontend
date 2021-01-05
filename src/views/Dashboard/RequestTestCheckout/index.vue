@@ -17,15 +17,17 @@
               </div>
             </v-card-title>
             <v-card-text class="px-8">
-              <div class="text-subtitle-1">
-                <b>{{ lab.name }}</b>
-              </div>
-              <div v-if="lab.labAddress" class="text-body-2">
-                {{ lab.labAddress }}
-              </div>
-              <div class="text-body-2">
-                {{ lab.city }}, {{ lab.country }}
-              </div>
+              <template v-if="lab">
+                <div class="text-subtitle-1">
+                  <b>{{ lab.name }}</b>
+                </div>
+                <div class="text-body-2">
+                  {{ lab.labAddress }}
+                </div>
+                <div class="text-body-2">
+                  {{ lab.city }}, {{ lab.country }}
+                </div>
+              </template>
             </v-card-text>
             <div class="px-8">
               <v-divider></v-divider>

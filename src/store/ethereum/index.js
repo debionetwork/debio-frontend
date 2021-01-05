@@ -1,9 +1,9 @@
 import Web3 from 'web3'
 import * as bip39 from 'bip39'
-import Wallet, { hdkey } from 'ethereumjs-wallet'
-import * as EthUtil from 'ethereumjs-util'
+import { hdkey } from 'ethereumjs-wallet'
 import localStorage from '../../lib/local-storage'
 import contracts from './contracts'
+import Wallet from '../../lib/dgnx-wallet'
 
 const defaultState = {
   web3: null,
@@ -101,11 +101,14 @@ export default {
 
         // For now only create 1 account which is the 0th account in terms of derivation path
         const walletHDPath = derivationPath + '0' 
-        const wallet = HDKey.derivePath(walletHDPath).getWallet()
+        const hdWallet = HDKey.derivePath(walletHDPath).getWallet()
 
         // Create keystore and store it in localStorage
-        const keystoreStr = await wallet.toV3String(password)
+        const keystore = Wallet.encrypt(hdWallet.getPrivateKeyString(), password)
+        const keystoreStr = JSON.stringify(keystore)
         localStorage.setKeystore(keystoreStr)
+
+        const wallet = Wallet.fromPrivateKey(hdWallet.getPrivateKeyString())
         
         commit('SET_WALLET_PUBLIC_KEY', wallet.getPublicKeyString())
         commit('SET_WALLET_ADDRESS', wallet.getAddressString())
@@ -124,12 +127,12 @@ export default {
         commit('SET_LOADING', true)
         commit('CLEAR_WALLET')
 
-        const privateKeyBuffer = EthUtil.toBuffer(privateKey)
-        const wallet = Wallet.fromPrivateKey(privateKeyBuffer)
-
         // Create keystore and store it in localStorage
-        const keystoreStr = await wallet.toV3String(password)
+        const keystore = Wallet.encrypt(privateKey, password)
+        const keystoreStr = JSON.stringify(keystore)
         localStorage.setKeystore(keystoreStr)
+
+        const wallet = Wallet.fromPrivateKey(privateKey)
 
         commit('SET_WALLET_PUBLIC_KEY', wallet.getPublicKeyString())
         commit('SET_WALLET_ADDRESS', wallet.getAddressString())
@@ -148,7 +151,7 @@ export default {
         commit('SET_LOADING', true)
         commit('CLEAR_WALLET')
 
-        const wallet = await Wallet.fromV3(keystore, password)
+        const wallet = Wallet.decrypt(keystore, password)
         localStorage.setKeystore(JSON.stringify(keystore))
 
         commit('SET_WALLET_PUBLIC_KEY', wallet.getPublicKeyString())

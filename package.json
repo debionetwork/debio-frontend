@@ -12,6 +12,7 @@
     "bip39": "^3.0.3",
     "core-js": "^3.6.5",
     "eth-crypto": "^1.8.0",
+    "ethereum-private-key-to-public-key": "0.0.5",
     "ethereumjs-tx": "^2.1.2",
     "ethereumjs-util": "^7.0.7",
     "ethereumjs-wallet": "^1.0.1",
