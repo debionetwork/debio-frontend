@@ -16,8 +16,13 @@
             {{ icon }}
           </v-icon>
         </div>
-        <div class="my-3 ml-10 text-center" :class="hover ? 'primary--text' : ''">
-          {{ text }}
+        <div>
+          <div class="ml-10 text-center" :class="hover ? 'primary--text' : ''">
+            {{ text }}
+          </div>
+          <div v-if="warning" class="ml-10 red--text" style="font-size: 14px;">
+            {{ warning }}
+          </div>
         </div>
       </div>
     </v-card>
@@ -26,10 +31,11 @@
 
 <script>
 export default {
-  name: 'RectangleCardIconBtn',
+  name: 'LoginOptionBtn',
   props: {
     icon: String,
     text: String,
+    warning: String,
   },
   methods: {
     onClick() {

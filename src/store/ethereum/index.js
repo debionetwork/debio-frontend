@@ -120,6 +120,8 @@ export default {
         console.log(err)
         commit('CLEAR_WALLET')
         commit('SET_LOADING', false)
+
+        throw new Error(err)
       }
     },
     async generateWalletFromPrivateKey({ commit }, { privateKey, password }) {
@@ -144,6 +146,8 @@ export default {
         console.log(err)
         commit('CLEAR_WALLET')
         commit('SET_LOADING', false)
+
+        throw new Error(err)
       }
     },
     async decryptKeystore({ commit }, { keystore, password }) {

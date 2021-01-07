@@ -6,46 +6,61 @@
       <DevMenu />
     </v-app-bar>
     <v-main class="login-main">
+      <div class="d-flex justify-center">
+        <v-img
+          src="@/assets/degenics-logo.webp"
+          max-width="150px"
+        />
+      </div>
       <v-container>
-          <v-card class="py-10 mt-10" style="max-width: 400px; margin: 0 auto; border-radius: 30px;">
-            <div class="d-flex justify-center">
-              <v-img
-                src="@/assets/degenics-logo.webp"
-                max-width="150px"
-              />
-            </div>
-            <v-row class="mt-4">
+          <v-card class="pb-10 pt-7 mt-10" style="max-width: 400px; margin: 0 auto; border-radius: 30px;">
+            <v-row class="mt-0 ml-8">
               <v-col cols="12">
-                <div class="text-h4 text-center grey--text text--darken-2">
-                  <b>Access Account</b>
+                <div class="text-h5 grey--text text--darken-2">
+                  <b>Access Your Account</b>
                 </div>
               </v-col>
             </v-row>
             <div class="d-flex justify-center mt-4">
               <div class="d-flex flex-column" style="min-width: 320px; max-width: 400px;">
-                <RectangleCardIconBtn
+                <LoginOptionBtn
+                  icon="mdi-script-text"
+                  text="Input Mnemonic Phrase"
+                  @click="onUseMnemonic"
+                ></LoginOptionBtn>
+
+                <LoginOptionBtn
+                  icon="mdi-file-key"
+                  text="Import JSON Keystore"
+                  warning="Less secure"
+                  @click="onImportKeystore"
+                >
+                </LoginOptionBtn>
+
+                <LoginOptionBtn
+                  icon="mdi-key-variant"
+                  text="Input Private Key"
+                  warning="Less secure"
+                  @click="onUsePrivateKey"
+                ></LoginOptionBtn>
+              </div>
+            </div>
+          </v-card>
+          <v-card class="pb-10 pt-7 mt-10" style="max-width: 400px; margin: 0 auto; border-radius: 30px;">
+            <v-row class="mt-0">
+              <v-col cols="12">
+                <div class="text-h5 text-center grey--text text--darken-2">
+                  <b>Create an Account</b>
+                </div>
+              </v-col>
+            </v-row>
+            <div class="d-flex justify-center mt-4">
+              <div class="d-flex flex-column" style="min-width: 320px; max-width: 400px;">
+                <LoginOptionBtn
                   icon="mdi-key-chain"
                   text="Generate Account"
                   @click="onGenerateAccount"
-                ></RectangleCardIconBtn>
-
-                <RectangleCardIconBtn
-                  icon="mdi-script-text"
-                  text="Use Mnemonic Phrase"
-                  @click="onUseMnemonic"
-                ></RectangleCardIconBtn>
-
-                <RectangleCardIconBtn
-                  icon="mdi-file-key"
-                  text="Import JSON Keystore"
-                  @click="onImportKeystore"
-                ></RectangleCardIconBtn>
-
-                <RectangleCardIconBtn
-                  icon="mdi-key-variant"
-                  text="Private Key"
-                  @click="onUsePrivateKey"
-                ></RectangleCardIconBtn>
+                ></LoginOptionBtn>
               </div>
             </div>
           </v-card>
@@ -86,7 +101,7 @@
 import { mapActions } from 'vuex'
 import DevMenu from '../../components/DevMenu'
 import SettingsMenu from '../../components/SettingsMenu'
-import RectangleCardIconBtn from '../../components/RectangleCardIconBtn'
+import LoginOptionBtn from './LoginOptionBtn'
 import GenerateAccountDialog from './GenerateAccountDialog'
 import AccessAccountMnemonicDialog from './AccessAccountMnemonicDialog'
 import ImportKeystoreDialog from './ImportKeystoreDialog'
@@ -98,7 +113,7 @@ export default {
   components: {
     DevMenu,
     SettingsMenu,
-    RectangleCardIconBtn,
+    LoginOptionBtn,
     GenerateAccountDialog,
     AccessAccountMnemonicDialog,
     ImportKeystoreDialog,
