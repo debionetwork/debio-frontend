@@ -2,6 +2,7 @@
 node_modules
 /dist
 
+src/store/ethereum/contracts/contract.json
 
 # local env files
 .env.local

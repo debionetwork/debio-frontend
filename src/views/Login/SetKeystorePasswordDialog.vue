@@ -21,22 +21,37 @@
         <p>
           You will need to input this password later when making transactions with this account
         </p>
-        <v-text-field
-          outlined
-          auto-grow
-          type="password"
-          v-model="password"
-          label="Type in your password"
-          :disabled="isLoading"
-          @keyup.enter="onPasswordSet"
-        >
-        </v-text-field>
+        <v-form v-model="passwordsValid" ref="passwordForm">
+          <v-text-field
+            :append-icon="showPassword? 'mdi-eye' : 'mdi-eye-off'"
+            @click:append="showPassword = !showPassword"
+            outlined
+            :type="showPassword ? 'text' : 'password'"
+            v-model="password"
+            label="Type in your password"
+            :rules="[passwordRule]"
+            :disabled="isLoading"
+            @keyup.enter="onPasswordSet"
+          >
+          </v-text-field>
+          <v-text-field
+            :append-icon="showPasswordConfirm ? 'mdi-eye' : 'mdi-eye-off'"
+            @click:append="showPasswordConfirm = !showPasswordConfirm"
+            outlined
+            :type="showPasswordConfirm ? 'text' : 'password'"
+            v-model="passwordConfirm"
+            label="Confirm your password"
+            :rules="[passwordConfirmRule(password)]"
+            :disabled="isLoading"
+            @keyup.enter="onPasswordSet"
+          >
+          </v-text-field>
+        </v-form>
         <v-progress-linear
           v-if="isLoading"
           indeterminate
           color="primary"
-        ></v-progress-linear>
-      </v-card-text>
+        ></v-progress-linear> </v-card-text>
       <v-card-actions class="px-6 pb-4">
         <v-btn
           depressed
@@ -44,7 +59,7 @@
           large
           width="100%"
           @click="onPasswordSet"
-          :disabled="!password || isLoading"
+          :disabled="!passwordsValid || isLoading"
           :loading="isLoading"
         >
           Set Password
@@ -68,7 +83,13 @@ export default {
     show: Boolean
   },
   data: () => ({
-    password: ''
+    passwordsValid: false,
+    password: '',
+    passwordConfirm: '',
+    showPassword: false,
+    showPasswordConfirm: false,
+    passwordRule: val => !!val || 'Password is required',
+    passwordConfirmRule: password => val => !!password && password == val || 'Passwords must match.'
   }),
   computed: {
     _show: {
@@ -89,27 +110,33 @@ export default {
       generateWalletFromPrivateKey: 'ethereum/generateWalletFromPrivateKey',
     }),
     async onPasswordSet() {
-      if (this.secretType == 'mnemonic') {
-        await this.generateWalletFromMnemonic({
-          mnemonic: this.secret,
-          password: this.password
-        })
+      try {
+        if (this.secretType == 'mnemonic') {
+          await this.generateWalletFromMnemonic({
+            mnemonic: this.secret,
+            password: this.password
+          })
+        }
+
+        if (this.secretType == 'privateKey') {
+          await this.generateWalletFromPrivateKey({
+            privateKey: this.secret,
+            password: this.password
+          })
+        }
+        this._show = false
+        this.$emit('key-store-set')
+        this.$router.push('/')
+
+      } catch (err) {
+        console.log(err)
       }
 
-      if (this.secretType == 'privateKey') {
-        await this.generateWalletFromPrivateKey({
-          privateKey: this.secret,
-          password: this.password
-        })
-      }
-
-      this._show = false
-      this.$emit('key-store-set')
-      this.$router.push('/')
     },
     closeDialog() {
       this._show = false
       this.$emit('key-store-set-cancelled')
+      this.$refs.passwordForm.reset()
     }
   }
 }

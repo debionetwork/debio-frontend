@@ -19,10 +19,15 @@
       </v-app-bar>
       <v-card-text class="pb-0 text-subtitle-1">
         <p>
-          Write this phrase on a piece of paper and store in a secure location. You will need this to access your wallet.
+        This sentence is a way to input your private key: a secret code that makes sure nobody can access your data without your permission.
         </p>
+
         <p>
-          <b class="red--text">WARNING</b>: Never disclose your backup phrase. Anyone with this phrase can take your Ether forever.
+Your private key isn't stored anywhere. It never leaves your device and must remain absolutely secret.
+        </p>
+
+        <p>
+<b>For this reason, you need to carefully save this sentence. Copy-paste it, screenshot it, write it down, and keep it safe -if you lose it, we won't be able to help you recover it. </b>
         </p>
         <v-card outlined class="grey--text text--darken-3 text-h5 text-center px-5 py-5">
           {{ mnemonic }}
