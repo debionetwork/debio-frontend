@@ -41,7 +41,7 @@ class Wallet {
       return new Wallet(wallet)
 
     } catch (err) {
-      throw new Error('dgnx-wallet Error on fromPrivateKey: ', err)
+      throw new Error('dgnx-wallet Error on fromPrivateKey: ' + err.message)
     }
   }
 
@@ -56,7 +56,7 @@ class Wallet {
       return keystore
 
     } catch (err) {
-      throw new Error('dgnx-wallet Error on encrypt: ', err)
+      throw new Error('dgnx-wallet Error on encrypt: ' + err.message)
     }
   }
 
@@ -71,7 +71,7 @@ class Wallet {
       return new Wallet(wallet)
 
     } catch (err) {
-      throw new Error('dgnx-wallet Error on decrypt: ', err)
+      throw new Error('dgnx-wallet Error on decrypt: ' + err.message)
     }
     
   }
