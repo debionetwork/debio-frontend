@@ -173,7 +173,7 @@ export default {
           // FIXME: set specimen status to Sending here, for current prototype 
           await this.sendSpecimen(specimenNumber, wallet)
           
-          receipts.push({ txReceipt, specimenNumber, productDetail })
+          receipts.push({ txReceipt, specimenNumber, productDetail, lab: this.lab })
         } 
 
         this.isLoading = false

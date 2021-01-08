@@ -149,7 +149,7 @@ export default {
       this.sendPaymentDialog = false
       this.clearTestRequest()
 
-      this.$router.push({ name: 'request-test-success', params: { receipts } })
+      this.$router.push({ name: 'request-test-receipt', params: { receipts } })
 
       console.log('Receipt in RequestTestCheckout', receipts)
     }
