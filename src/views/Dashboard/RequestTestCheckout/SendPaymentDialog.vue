@@ -79,6 +79,14 @@
           :disabled="isLoading"
         >
         </v-text-field>
+        <v-alert
+          v-if="error"
+          dense
+          text
+          type="error"
+        >
+          {{ error }}
+        </v-alert>
         <v-progress-linear
           v-if="isLoading"
           indeterminate
@@ -107,7 +115,6 @@ import Wallet from '../../../lib/dgnx-wallet'
 import { mapState } from 'vuex'
 import sendTransaction from '../../../lib/send-transaction'
 import localStorage from '../../../lib/local-storage'
-// import { decryptKeystore } from '../../../lib/dgnx-wallet'
 
 export default {
   name: 'SendPaymentDialog',
@@ -121,6 +128,7 @@ export default {
     password: '',
     isLoading: false,
     transactionFee: 'TODO',
+    error: '',
   }),
   computed: {
     _show: {
@@ -139,40 +147,51 @@ export default {
   methods: {
     async onSubmit() {
       this.isLoading = true
+      this.error = ''
 
-      // registerSpecimen params
-      const labAccount = this.lab.labAccount
-      const specimensToProcess = this.products.map(p => ({
-        labAccount,
-        serviceCode: p.code,
-        price: p.price,
-        productDetail: p,
-      }))
+      try {
+        // registerSpecimen params
+        const labAccount = this.lab.labAccount
+        const specimensToProcess = this.products.map(p => ({
+          labAccount,
+          serviceCode: p.code,
+          price: p.price,
+          productDetail: p,
+        }))
 
-      // Retrieve wallet
-      const keystore = localStorage.getKeystore()
-      const wallet = await Wallet.decrypt(keystore, this.password)
+        // Retrieve wallet
+        const keystore = localStorage.getKeystore()
+        const wallet = await Wallet.decrypt(keystore, this.password)
       
-      const receipts = []
-      for (let specimen of specimensToProcess) {
-        const { labAccount, serviceCode, price, productDetail } = specimen
+        const receipts = []
+        for (let specimen of specimensToProcess) {
+          const { labAccount, serviceCode, price, productDetail } = specimen
 
-        const specimenNumber = await this.registerSpecimen(labAccount, serviceCode, wallet)
-        const txReceipt = await this.paySpecimen(specimenNumber, price, wallet)
+          const specimenNumber = await this.registerSpecimen(labAccount, serviceCode, wallet)
+          const txReceipt = await this.paySpecimen(specimenNumber, price, wallet)
 
-        // FIXME: set specimen status to Sending here, for current prototype 
-        await this.sendSpecimen(specimenNumber, wallet)
-        
-        receipts.push({ txReceipt, specimenNumber, productDetail })
-      } 
+          // FIXME: set specimen status to Sending here, for current prototype 
+          await this.sendSpecimen(specimenNumber, wallet)
+          
+          receipts.push({ txReceipt, specimenNumber, productDetail })
+        } 
 
-      this.isLoading = false
-      this.$emit('payment-sent', receipts)
-      this.password = ''
+        this.isLoading = false
+        this.password = ''
+        this.$emit('payment-sent', receipts)
+
+      } catch (err) {
+        console.log(err)
+        this.isLoading = false
+        this.password = ''
+        this.error = err.message
+      }
+
     },
     closeDialog() {
       this._show = false
       this.password = ''
+      this.error = ''
     },
     /**
     * registerSpecimen
@@ -196,7 +215,7 @@ export default {
 
       } catch (error) {
         console.log(error)
-        return 'Error on registering specimen'
+        throw new Error('Error on registering specimen: ' + error.message)
       }
     },
     /**
@@ -221,7 +240,7 @@ export default {
 
       } catch (err) {
         console.log(err)
-        return 'Error on paying for specimen'
+        throw new Error('Error on paying for specimen' + err.message)
       }
     },
     /**
@@ -243,7 +262,7 @@ export default {
         console.log(res)
       } catch (err) {
         console.log(err)
-        return 'Error on sendSpecimen'
+        throw new Error('Error on sendSpecimen' + err.message) 
       }
     }
   }
