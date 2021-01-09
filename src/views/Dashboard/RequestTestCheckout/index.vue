@@ -22,7 +22,7 @@
                   <b>{{ lab.name }}</b>
                 </div>
                 <div class="text-body-2">
-                  {{ lab.labAddress }}
+                  {{ lab.address }}
                 </div>
                 <div class="text-body-2">
                   {{ lab.city }}, {{ lab.country }}

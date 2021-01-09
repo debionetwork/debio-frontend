@@ -1,11 +1,11 @@
 <template>
   <v-badge
-    bordered
-    color="primary"
+    color="success"
     icon="mdi-checkbox-marked-circle"
     :value="isSelected"
     overlap
     style="width: 100%"
+    class="dg-selectable-card-badge"
   >
     <MenuCard
       :icon="_icon"
@@ -44,6 +44,16 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+.dg-selectable-card-badge {
+  span.v-badge__badge {
+    height: 30px;
+    border-radius: 50%;
+    inset: auto auto calc(100% - 20px) calc(100% - 20px) !important;
 
+    i.v-icon {
+      font-size: 24px;
+    }
+  }
+}
 </style>

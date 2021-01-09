@@ -18,6 +18,7 @@ export default new Vuetify({
         primary: '#F60689',
         secondary: '#3F2040',
         light_primary: '#FDC0FF',
+        success: '#6edaa8',
       }
     }
   }

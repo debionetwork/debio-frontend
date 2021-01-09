@@ -26,8 +26,8 @@
           <div class="text-body-1 mt-4">
             <b>{{ lab.name }}</b>
           </div>
-          <div v-if="lab.labAddress" class="text-body-2">
-            {{ lab.labAddress }}
+          <div v-if="lab.address" class="text-body-2">
+            {{ lab.address }}
           </div>
           <div class="text-body-2">
             {{ lab.city }}, {{ lab.country }}
