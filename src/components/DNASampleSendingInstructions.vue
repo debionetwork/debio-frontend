@@ -16,7 +16,7 @@
       </v-row>
       <v-row>
         <v-col cols="1" class="pl-6">
-          <v-icon>mdi-numeric-{{instructions.length}}-circle</v-icon>
+          <v-icon>mdi-numeric-{{instructions.length + 1}}-circle</v-icon>
         </v-col>
         <v-col class="pl-4">
           <div>You can see the status of your order <router-link to="/history-test">here</router-link></div>

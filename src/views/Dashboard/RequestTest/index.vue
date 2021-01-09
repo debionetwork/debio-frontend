@@ -9,7 +9,7 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col cols="12" xl="6" lg="8" md="8" order-md="1" order="2">
+        <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-title class="px-8">
               <div class="text-h6">
@@ -49,7 +49,7 @@
             </v-card-text>
           </v-card>
         </v-col>
-        <v-col cols="12" xl="3" lg="4" md="4" order-md="2" order="1">
+        <v-col cols="12" xl="4" lg="4" md="4" order-md="2" order="1">
           <v-card class="dg-card alert" elevation="0" outlined>
             <v-toolbar flat dense color="transparent">
               <v-icon color="white">mdi-alert-circle</v-icon>
@@ -96,7 +96,7 @@
 
         <v-row>
           <v-col
-            v-for="(product) in products"
+            v-for="(product) in productsSelection"
             :key="product.serviceName"
             cols="12" xl="3" lg="4" md='4'
             :class="$vuetify.breakpoint.smAndDown ? 'py-0' : 'py-1'"
@@ -106,13 +106,13 @@
               :title="product.serviceName"
               :sub-title="product.description"
               :is-selected="isProductSelected(product)"
-              @click="selectProduct(product)"
+              @click="selectOneProduct(product)"
             ></SelectableMenuCard>
           </v-col>
         </v-row>
 
         <v-row justify="center" class="mt-2">
-          <v-col cols="12" md="4">
+          <v-col cols="12">
             <v-btn
               depressed
               color="primary"
@@ -156,10 +156,20 @@ export default {
         .map(c => ({ value: c.city, text: c.city, country: c.country }))
     },
     labsSelection() {
-      console.log(this.labs)
       return this.labs
         .filter(lab => lab.country == this.country && lab.city == this.city)
         .map(lab => ({ value: lab.labAccount, text: lab.name }))
+    },
+    productsSelection() {
+      return this.products
+        .map(prod => {
+          try {
+            const additionalData = JSON.parse(prod.additionalData)
+            return { ...prod, ...additionalData }
+          } catch (err) {
+            return prod
+          }
+        })
     },
     selectedLab() {
       if (!this.labAccount) { return }
@@ -201,7 +211,6 @@ export default {
       const getCitiesPromises = []
       for (let country of this.countries) {
         const cityCount = await this.locationContract.methods.countCity(country).call()
-        console.log('city count', cityCount)
         for(let i = 1; i <= cityCount; i++) {
           const promise = this.locationContract.methods
             .cityByIndex(country, i).call()
@@ -226,7 +235,12 @@ export default {
           const promise = this.degenicsContract.methods
             .labByIndex(country, city, i).call()
             .then(lab => {
-              return lab
+              try {
+                const additionalData = JSON.parse(lab['additionalData'])
+                return { ...lab, ...additionalData }
+              } catch (err) {
+                return lab
+              }
             })
           
           getLabsPromises.push(promise)
@@ -249,7 +263,6 @@ export default {
         }
 
         const services = await Promise.all(getServicePromises)
-        console.log(services)
 
         this.products = services
       } catch (err) {
@@ -279,6 +292,9 @@ export default {
       }
       // select
       this.selectedProducts = [...this.selectedProducts, product]
+    },
+    selectOneProduct(product) {
+      this.selectedProducts = [product]
     },
     onContinue() {
       this.setLabToRequest(this.selectedLab)
