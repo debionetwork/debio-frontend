@@ -51,7 +51,8 @@
           v-if="isLoading"
           indeterminate
           color="primary"
-        ></v-progress-linear> </v-card-text>
+        ></v-progress-linear>
+      </v-card-text>
       <v-card-actions class="px-6 pb-4">
         <v-btn
           depressed

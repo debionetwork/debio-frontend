@@ -19,7 +19,7 @@
       </v-app-bar>
       <v-card-text class="mt-4 pb-0 text-subtitle-1">
         <!-- Lab Recipient Details -->
-        <div>
+        <div v-if="lab">
           <div class="text-h5">
             Payment Recipient
           </div>

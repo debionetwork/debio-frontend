@@ -45,6 +45,8 @@ export default {
 }
 .dg-card {
   border-radius: 10px !important;
+  box-shadow: unset !important;
+  filter: drop-shadow(0px 7px 20px rgba(0, 0, 0, 0.07));
 
   &.alert {
     background-color: $color-primary !important;

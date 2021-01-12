@@ -82,13 +82,10 @@
           <v-col cols="12">
             <div class="px-2">
               <div class="text-h5 secondary--text text--lighten-2">
-                <b>Select Products</b>
-              </div>
-              <div class="mt-2 text-h6">
                 <b>{{ selectedLab.name }}</b>
               </div>
-              <div>
-                Available Products
+              <div class="mt-2 text-h6">
+                <b>Select Product</b>
               </div>
             </div>
           </v-col>
@@ -106,6 +103,7 @@
               :title="product.serviceName"
               :sub-title="product.description"
               :is-selected="isProductSelected(product)"
+              :disabled="isProductDisabled(product)"
               @click="selectOneProduct(product)"
             ></SelectableMenuCard>
           </v-col>
@@ -116,10 +114,11 @@
             <v-btn
               depressed
               color="primary"
-              large
+              x-large
               width="100%"
               :disabled="selectedProducts.length == 0"
               @click="onContinue"
+              height="64"
             >
               Continue
             </v-btn>
@@ -284,6 +283,12 @@ export default {
     isProductSelected(product) {
       return this.selectedProducts.filter(p => p.code == product.code).length > 0
     },
+    isProductDisabled(product) {
+      if (this.selectedProducts.length == 0) {
+        return false
+      }
+      return this.selectedProducts[0].code != product.code
+    },
     selectProduct(product) {
       // deselect
       if (_.includes(this.selectedProducts, product)) {
@@ -294,7 +299,13 @@ export default {
       this.selectedProducts = [...this.selectedProducts, product]
     },
     selectOneProduct(product) {
-      this.selectedProducts = [product]
+      if (this.selectedProducts.length == 0) {
+        this.selectedProducts = [product]
+        return
+      }
+      if (this.selectedProducts.length > 0 && this.selectedProducts[0].code == product.code) {
+        this.selectedProducts = []
+      }
     },
     onContinue() {
       this.setLabToRequest(this.selectedLab)
