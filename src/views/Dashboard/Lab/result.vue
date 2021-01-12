@@ -256,7 +256,7 @@ export default {
         const keystore = localStorage.getKeystore()
         const wallet = await Wallet.fromV3(keystore, this.password)
         const abiData = this.contractDegenics.methods
-          .analysisSucces(this.specimentNumberInput, JSON.stringify(this.files),wallet.getPublicKeyString())
+          .analysisSucces(this.specimentNumberInput, JSON.stringify(this.files),"Sucess")
           .encodeABI()
 
         let tx = await sendTransaction(degenicsContract, wallet, abiData)
