@@ -28,16 +28,19 @@
               <div class="text-h5">
                 Lab Details
               </div>
-              <div>
+              <div v-if="lab">
                 <div class="text-subtitle-1">
                   <b>{{ lab.name }}</b>
                 </div>
                 <div class="text-body-2">
-                  {{ lab.labAddress }}
+                  {{ lab.address }}
                 </div>
                 <div class="text-body-2">
                   {{ lab.city }}, {{ lab.country }}
                 </div>
+                <!-- <div v-if="lab.phone" class="text-body-2"> -->
+                  <!-- Phone: {{ lab.phone }} -->
+                <!-- </div> -->
               </div>
               <div class="my-8">
               </div>

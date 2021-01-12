@@ -12,6 +12,7 @@
       :title="title"
       :sub-title="subTitle"
       @click="onClick"
+      :disabled="disabled"
     ></MenuCard>
   </v-badge>
 </template>
@@ -28,6 +29,7 @@ export default {
     title: String,
     subTitle: String,
     isSelected: Boolean,
+    disabled: Boolean,
   },
   computed: {
     _icon() {
