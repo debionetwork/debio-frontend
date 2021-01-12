@@ -184,7 +184,7 @@ export default {
         orders.push(order)
       })
 
-      return orders.sort((a, b) => a.timestamp > b.timestamp)
+      return orders.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
     },
     goToOrderHistory() {
       console.log('TODO: go to order history')
