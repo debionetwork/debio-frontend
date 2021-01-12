@@ -4,15 +4,14 @@
       <v-container>
          <v-row>
             <v-col>
-               <v-dialog v-model="dialog" max-width="600px" >
+               <v-dialog v-model="dialog" max-width="600px">
                   <template>
                      <v-card>
                         <v-card-title class="headline grey lighten-2">
-                           Please insert your password
+                           Please Input your password
                         </v-card-title>
 
                         <v-card-text>
-                          <v-text-field v-model="selectedSpeciment.specimentNumber"/>
                            <v-text-field
                               class="mt-4"
                               outlined
@@ -27,41 +26,75 @@
 
                         <v-card-actions>
                            <v-spacer></v-spacer>
-                          <v-btn v-if="address == ''" color="primary" text @click="decryptWallet">
+                           <v-btn
+                              v-if="address == ''"
+                              color="primary"
+                              text
+                              @click="decryptWallet"
+                           >
                               Decrypt Address
                            </v-btn>
-                           <v-btn v-if="address != '' && selectedSpeciment.status == 'Paid'" color="primary" text @click="sendSpeciment">
+                           <v-btn
+                              v-if="
+                                 address != '' &&
+                                 selectedSpeciment.status == 'Paid'
+                              "
+                              color="primary"
+                              text
+                              @click="sendSpeciment"
+                           >
                               Send Specimen
                            </v-btn>
                         </v-card-actions>
                      </v-card>
                   </template>
                </v-dialog>
+               <v-dialog v-model="dialogInstruction" max-width="600px">
+                  <DNASampleSendingInstructions
+                    :specimenNumber="selectedSpeciment.number"
+                    :lab="selectedSpeciment.labData"
+                  >
+                    <template v-slot:button>
+                      <v-btn
+                        depressed
+                        color="primary"
+                        large
+                        width="100%"
+                        @click="()=>dialogInstruction=false"
+                      >
+                        Dismis
+                      </v-btn>
+                    </template>
+                  </DNASampleSendingInstructions>
+               </v-dialog>
 
-               <v-data-table
+               <DataTable
                   :headers="headers"
                   :items="speciments"
-                  :items-per-page="5"
-                  class="elevation-1"
+                  :search="search"
+                  additional-class="laporan-table"
                >
                   <template v-slot:item.actions="{ item }">
-                     <v-container v-if="item.status == 'Sending' || item.status == 'Paid'">
-                        <v-icon small class="mr-2" @click="showDialog(item)">
-                          mdi-check-all
-                        </v-icon>
-                        <v-icon small class="mr-2" @click="printEnvelope(item)">
-                          mdi-email-outline
-Google @Google
-                        </v-icon>
+                     <v-container
+                        v-if="item.status == 'Sending' || item.status == 'Paid'"
+                     >
+                        <v-btn color="primary" @click="showDialogInstruction(item)"
+                           >Sending Instrunctions</v-btn
+                        >
                      </v-container>
-                     <v-container v-if="item.status == 'Succes' || item.status == 'Received'">
-                        <v-icon small class="mr-2" @click="gotoResult(item)">
-                          mdi-chevron-right-circle
-                        </v-icon>
+                     <v-container
+                        v-if="
+                           item.status == 'Succes' || item.status == 'Received'
+                        "
+                     >
+                        <v-btn color="secondary" @click="gotoResult(item)"
+                           >View Result</v-btn
+                        >
                      </v-container>
-
                   </template>
-               </v-data-table>
+
+                  <!-- Rows -->
+               </DataTable>
             </v-col>
          </v-row>
       </v-container>
@@ -70,32 +103,34 @@ Google @Google
 
 <script>
 import { mapState } from 'vuex'
-import Wallet from 'ethereumjs-wallet'
+import Wallet from '../../../lib/dgnx-wallet'
 import router from '../../../router'
-import sendTransaction from '../../../lib/send-transaction'
 import localStorage from '../../../lib/local-storage'
+import DataTable from '../../../components/DataTable'
+import DNASampleSendingInstructions from '../../../components/DNASampleSendingInstructions'
+
 
 export default {
   name: 'history-test',
-  components: {},
+  components: {
+    DataTable,
+    DNASampleSendingInstructions,
+  },
   data: () => ({
     testNumberInput: '',
     headers: [
-          {
-            text: 'Owner',
-            align: 'start',
-            sortable: false,
-            value: 'owner',
-          },
-          { text: 'LabAccount', value: 'labAccount' },
-          { text: 'ServiceCode', value: 'serviceCode' },
+          { text: 'Lab Name', value: 'labData.name' },
+          { text: 'Product Name', value: 'serviceName' },
+          { text: 'Speciments Num', value: 'number' },
           { text: 'Status', value: 'status' },
           { text: 'Actions', value: 'actions', sortable: false },
         ],
     speciments: [],
     dialog: false,
+    dialogInstruction: false,
     selectedSpeciment: {},
     address: '',
+    password: '',
   }),
   async mounted() {
     await this.decryptWallet()
@@ -107,7 +142,7 @@ export default {
         return;
       }
       const keystore = localStorage.getKeystore()
-      const wallet = await Wallet.fromV3(keystore, this.password)
+      const wallet = await Wallet.decrypt(keystore, this.password)
       this.address = wallet.getAddressString();
       this.dialog = false;
     },
@@ -126,78 +161,58 @@ export default {
         const address = this.address;
         const promSpec = specNum.map((x, i)=>this.contractDegenics.methods.specimenByIndex(i+1).call({from: address}))
         const arrSpeciments = await Promise.all(promSpec);
-        const specimentNumbers =  await this.getSpcimentNumber(arrSpeciments);
+        const Labs = await this.getLabs(arrSpeciments);
+        console.log(arrSpeciments, Labs)
         this.speciments = arrSpeciments.map(dt=>{
-          let { labAccount, owner, serviceCode, status } = dt;
-          const specimentNumber = specimentNumbers.get(owner);
-          return { labAccount, owner, serviceCode, status, specimentNumber };
+          let { labAccount, owner, serviceCode, status, number } = dt;
+          const labData = Labs.objLab.get(labAccount);
+          const serviceName = Labs.objService.get(labAccount).find(obj=>obj.code == serviceCode).serviceName;
+          console.log("SN: ", serviceName, serviceCode)
+          return { labAccount, owner, serviceCode, status, number, labData, serviceName };
           });
       } catch (error) {
         console.log(error)
       }
     },
-    async getSpcimentNumber(arrSpeciments) {
-      let objNumbers = new Map();
+    async getLabs (arrSpeciments) {
+      let objLab = new Map();
+      let objService = new Map();
       try {
-        for (let arrSpeciment of arrSpeciments) {
-          let promSpec = await this.contractDegenics.methods.getLastNumber().call({from: arrSpeciment.owner});
-          objNumbers.set(arrSpeciment.owner,promSpec);
+        for (let speciment of arrSpeciments) {
+          let labData = await this.contractDegenics.methods.labByAccount(speciment.labAccount).call();
+          let labService = await this.getLabProducts(speciment.labAccount)
+          objService.set(speciment.labAccount, labService);
+          objLab.set(speciment.labAccount,labData);
         }
-        return objNumbers;
+        return { objLab, objService };
       } catch (error) {
         console.error(error)
+      }
+    },
+    async getLabProducts(labAccount) {
+      try {
+        const serviceCount = await this.contractDegenics.methods.serviceCount(labAccount).call()
+        let specNum = new Array(parseInt(serviceCount)).fill(null);
+        const promService = specNum.map((x, i)=>this.contractDegenics.methods.serviceByIndex(labAccount, i).call())
+        const services = await Promise.all(promService)
+        return  services
+      } catch (err) {
+        this.products = []
       }
     },
     gotoResult(item) {
       console.log(item)
       router.push(`/result-test/${item.specimentNumber}`);
     },
-    async acceptSpeciment() {
-      try {
-
-        // Retrieve wallet
-        console.log('decrypting Keystore...')
-        const degenicsContract = this.contractDegenics._address;
-        const keystore = localStorage.getKeystore()
-        const wallet = await Wallet.fromV3(keystore, this.password)
-        const abiData = this.contractDegenics.methods
-          .receiveSpecimen(this.selectedSpeciment.specimentNumber, wallet.getPublicKeyString())
-          .encodeABI()
-
-        let tx = await sendTransaction(degenicsContract, wallet, abiData)
-
-        console.log(tx, wallet.getAddressString());
-        this.dialog = false;
-      } catch (err) {
-        this.dialog = false;
-        console.error(err)
-      }
-    },
     showDialog(item) {
         this.dialog = true;
         this.selectedSpeciment = item;
     },
-    async sendSpeciment() {
-      try {
+    showDialogInstruction(item) {
+      this.dialogInstruction = true;
+      this.selectedSpeciment = item;
 
-        // Retrieve wallet
-        console.log('decrypting Keystore...')
-        const degenicsContract = this.contractDegenics._address;
-        const keystore = localStorage.getKeystore()
-        const wallet = await Wallet.fromV3(keystore, this.password)
-        const abiData = this.contractDegenics.methods
-          .sendSpecimen(this.selectedSpeciment.specimentNumber, wallet.getPublicKeyString())
-          .encodeABI()
-
-        let tx = await sendTransaction(degenicsContract, wallet, abiData)
-        console.log(tx, wallet.getAddressString());
-        this.dialog = false;
-      } catch (err) {
-        this.dialog = false;
-        console.error(err)
-      }
-    },
-
+    }
   },
   computed: {
     ...mapState({
@@ -215,5 +230,10 @@ export default {
 
 </script>
 
-<style>
+<style lang="scss">
+@import "../../../styles/variables.scss";
+
+.btn-sending {
+   background-color: $color-primary;
+}
 </style>
