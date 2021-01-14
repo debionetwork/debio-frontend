@@ -16,7 +16,8 @@ const sortingFile = ( a, b ) => {
 onmessage = function(e) {
   console.log("Downloading...");
 
-  const ipfs = IPFSHttpClient({host: 'localhost', port: 5001, protocol: 'http'});
+  const ipfs = IPFSHttpClient({host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
+  // const ipfs = IPFSHttpClient({host: 'localhost', port: 5001, protocol: 'http'});
   (async (ipfs)=>{
     let arrHash = e.data.file.sort(sortingFile);
     let dts;

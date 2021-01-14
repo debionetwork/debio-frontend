@@ -2,8 +2,8 @@
 import IPFSHttpClient from 'ipfs-http-client';
 
 onmessage = function(e) {
-  // const ipfs = IPFSHttpClient({host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
-  const ipfs = IPFSHttpClient({host: 'localhost', port: 5001, protocol: 'http'});
+  const ipfs = IPFSHttpClient({host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
+  // const ipfs = IPFSHttpClient({host: 'localhost', port: 5001, protocol: 'http'});
 
   console.log("IPFS Uploader Start");
   (async (ipfs)=>{
