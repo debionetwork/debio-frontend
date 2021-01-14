@@ -1,7 +1,7 @@
 import store from '../../store'
 import appConfig from '../app-config'
 import * as EthUtil from 'ethereumjs-util'
-import { Transaction } from 'ethereumjs-tx'
+import Transaction from 'ethereumjs-tx'
 
 /**
  * sendTransaction
@@ -26,6 +26,7 @@ async function sendTransaction(contractAddress, senderWallet, data, value) {
     to: contractAddress,
     data
   }
+
   if (value) {
     rawTx.value = web3.utils.toHex(value)
   }

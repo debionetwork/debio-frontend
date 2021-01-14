@@ -162,7 +162,7 @@ export default {
         // Retrieve wallet
         const keystore = localStorage.getKeystore()
         const wallet = await Wallet.decrypt(keystore, this.password)
-      
+
         const receipts = []
         for (let specimen of specimensToProcess) {
           const { labAccount, serviceCode, price, productDetail } = specimen
@@ -170,11 +170,11 @@ export default {
           const specimenNumber = await this.registerSpecimen(labAccount, serviceCode, wallet)
           const txReceipt = await this.paySpecimen(specimenNumber, price, wallet)
 
-          // FIXME: set specimen status to Sending here, for current prototype 
+          // FIXME: set specimen status to Sending here, for current prototype
           await this.sendSpecimen(specimenNumber, wallet)
-          
+
           receipts.push({ txReceipt, specimenNumber, productDetail, lab: this.lab })
-        } 
+        }
 
         this.isLoading = false
         this.password = ''
@@ -201,12 +201,13 @@ export default {
     * @returns  {Number} specimenNumber
     */
     async registerSpecimen(labAccount, serviceCode, userWallet) {
+      console.log(userWallet);
       try {
         const abiData = this.degenicsContract.methods
-          .registerSpecimen(labAccount, serviceCode)
+          .registerSpecimen(labAccount, serviceCode, userWallet.publicKey)
           .encodeABI()
         await sendTransaction(this.degenicsContract._address, userWallet, abiData)
-        
+
         const specimenNumber = await this.degenicsContract.methods
           .getLastNumber()
           .call({ from: userWallet.getAddressString() })
@@ -245,9 +246,9 @@ export default {
     },
     /**
     * sendSpecimen
-    * 
+    *
     * set specimen status to "Sending"
-    * 
+    *
     * @param {String} specimenNumber
     * @param {Wallet} userWallet
     */
@@ -262,7 +263,7 @@ export default {
         console.log(res)
       } catch (err) {
         console.log(err)
-        throw new Error('Error on sendSpecimen' + err.message) 
+        throw new Error('Error on sendSpecimen' + err.message)
       }
     }
   }
