@@ -14,6 +14,9 @@ const localStorage = {
   getKeystore() {
     return window.localStorage.getItem(this.DEGENICS_KS) 
   },
+  removeKeystore() {
+    window.localStorage.removeItem(this.DEGENICS_KS)
+  },
   setRpcUrl(url) {
     window.localStorage.setItem(this.DEGENICS_RPC_URL, url)
   },
@@ -28,6 +31,8 @@ const localStorage = {
   },
   clear() {
     window.localStorage.removeItem(this.DEGENICS_KS)
+    window.localStorage.removeItem(this.DEGENICS_RPC_URL)
+    window.localStorage.removeItem(this.DEGENICS_CONFIG)
   }
 }
 

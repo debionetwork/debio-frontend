@@ -1,11 +1,12 @@
 <template>
   <div id="app">
-    <router-view/>
+    <div v-if="isLoading">Loading..</div>
+    <router-view v-else />
   </div>
 </template>
 
 <script>
-import localStorage from './lib/local-storage'
+// import localStorage from './lib/local-storage'
 import { mapState, mapActions } from 'vuex'
 
 export default {
@@ -15,16 +16,15 @@ export default {
   data: () => ({
   }),
   computed: {
+    isLoading() {
+      return this.isLoadingWeb3
+    },
     ...mapState({
       web3: state => state.ethereum.web3,
-      isLoadingWeb3: state => state.ethereum.isLoading,
-    })
+      isLoadingWeb3: state => state.ethereum.isLoadingWeb3,
+    }),
   },
   async mounted() {
-    const LOCAL_RPC_URL = 'http://localhost:8545'
-    let rpcUrl = localStorage.getRpcUrl()
-    await this.initWeb3(rpcUrl ? rpcUrl : LOCAL_RPC_URL)
-    this.initContracts()
   },
   methods: {
     ...mapActions({

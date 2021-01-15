@@ -1,29 +1,28 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import store from '../store'
+import store from '@/store/index'
+import localStorage from '../lib/local-storage'
 
 Vue.use(VueRouter)
 
+function hasKeystore() {
+  const keystore = localStorage.getKeystore()
+  return !!keystore
+}
+
 // eslint-disable-next-line no-unused-vars
-async function checkAuth(to, from, next) {
-  const isLoggedIn = store.getters['auth/isLoggedIn']
-  if (!isLoggedIn) {
-    // If has token
-    if (store.getters['auth/hasToken']) {
-      // Get user data
-      await store.dispatch('auth/getUserData')
-      // If getUserData success isLoggedIn will be set to true
-      if (store.getters['auth/isLoggedIn']) {
-        // token is valid, continue
-        next(to)
-        return
-      } else {
-        next('/login')
-        return
-      }
-    }
-    // No token, go to login
+function checkIsLoggedIn(to, from, next) {
+  const isLoggedIn = hasKeystore()
+  if (!isLoggedIn && to.path != '/login') {
     next('/login')
+    return
+  }
+  // FIXME: This line is causing error when role == lab
+  //   because going to / will redirect to /lab
+  //   double redirect is considered an error by vue router
+  // if logged in and going to login route, redirect to root
+  if (isLoggedIn && to.path == '/login') {
+    next('/')
     return
   }
   // is logged in, continue
@@ -34,7 +33,7 @@ const routes = [
   {
     path: '/',
     component: () => import(/* webpackChunkName */ '../views/Dashboard'),
-    // beforeEnter: checkAuth,
+    beforeEnter: checkIsLoggedIn,
     children: [
       {
         path: '/',
@@ -87,6 +86,8 @@ const routes = [
   {
     path: '/login',
     name: 'login',
+    meta: { public: true },
+    beforeEnter: checkIsLoggedIn,
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
@@ -101,6 +102,84 @@ const router = new VueRouter({
   scrollBehavior () {
     return { x: 0, y: 0 }
   }
+})
+
+
+/**
+ * setupAppDependencies
+ *
+ * Wait for web3 and smart contracts to load
+ * this will set web3 and smart contracts to store
+ */
+async function setupAppDependencies() {
+  if (!store.getters['ethereum/getWeb3']) {
+    const LOCAL_RPC_URL = 'http://localhost:8545'
+    let rpcUrl = localStorage.getRpcUrl() || LOCAL_RPC_URL
+    await store.dispatch('ethereum/initWeb3', rpcUrl)
+    store.dispatch('ethereum/contracts/initContracts')
+  }
+  return
+}
+
+/**
+ * getUserRole()
+ *
+ * Get user role from account smart contract
+ * */
+async function getUserRole() {
+  try {
+    let role = store.getters['auth/getRole']
+    // If role is already set return it
+    if (role) {
+      return role
+    }
+    // else fetch it
+    await store.dispatch('auth/getRole');
+    role = store.getters['auth/getRole']
+
+    return role
+
+  } catch (err) {
+    console.log(err)
+    throw new Error('Error at get user role -> ', err)
+  }
+}
+
+router.beforeEach(async (to, from, next) => {
+  await setupAppDependencies()
+
+  if (to.path == '/login') {
+    next()
+    return
+  }
+  
+  // If there's an error when getting user role, go back to login
+  let role = null
+  try {
+    role = await getUserRole()
+  } catch (err) {
+    store.dispatch('auth/clearAuth')
+    next('/login')
+    return
+  }
+
+  // Role Lab
+  if (role == 'lab') {
+    if (!to.path.startsWith('/lab') && !to.meta.public) {
+      next('/lab')
+      return
+    }
+  }
+
+  // Customer
+  if (role == 'customer') {
+    if (to.path.startsWith('/lab')) {
+      next('/')
+      return
+    }
+  }
+
+  next()
 })
 
 export default router

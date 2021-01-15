@@ -7,7 +7,8 @@ import Wallet from '../../lib/dgnx-wallet'
 
 const defaultState = {
   web3: null,
-  isLoading: false,
+  isLoadingWeb3: false,
+  isLoadingWallet: false,
   wallet: null,
   walletAddress: '',
   walletPublicKey: '',
@@ -22,8 +23,11 @@ export default {
     ...defaultState,
   },
   mutations: {
-    SET_LOADING(state, isLoading) {
-      state.isLoading = isLoading
+    SET_LOADING_WEB3(state, isLoadingWeb3) {
+      state.isLoadingWeb3 = isLoadingWeb3
+    },
+    SET_LOADING_WALLET(state, isLoadingWallet) {
+      state.isLoadingWallet = isLoadingWallet
     },
     SET_WEB3(state, web3Instance) {
       state.web3 = web3Instance
@@ -50,7 +54,7 @@ export default {
     async initWeb3({ commit }, rpcUrl) {
       try {
         commit('SET_WEB3', null)
-        commit('SET_LOADING', true)
+        commit('SET_LOADING_WEB3', true)
 
         const web3 = new Web3()
         web3.setProvider(new Web3.providers.HttpProvider(rpcUrl))
@@ -60,13 +64,13 @@ export default {
           commit('SET_WEB3', web3)
         }
 
-        commit('SET_LOADING', false)
+        commit('SET_LOADING_WEB3', false)
         return { success: true }
       } catch (error) {
         console.log(error)
         
         commit('SET_WEB3', null)
-        commit('SET_LOADING', false)
+        commit('SET_LOADING_WEB3', false)
         return { success: false, error }
       }
     },
@@ -88,7 +92,7 @@ export default {
      */
     async generateWalletFromMnemonic({ commit }, { mnemonic, password }) {
       try {
-        commit('SET_LOADING', true)
+        commit('SET_LOADING_WALLET', true)
 
         commit('CLEAR_WALLET')
 
@@ -115,18 +119,18 @@ export default {
 
         commit('SET_WALLET', wallet) // FIXME: simpen untuk dev
 
-        commit('SET_LOADING', false)
+        commit('SET_LOADING_WALLET', false)
       } catch (err) {
         console.log(err)
         commit('CLEAR_WALLET')
-        commit('SET_LOADING', false)
+        commit('SET_LOADING_WALLET', false)
 
         throw new Error(err)
       }
     },
     async generateWalletFromPrivateKey({ commit }, { privateKey, password }) {
       try {
-        commit('SET_LOADING', true)
+        commit('SET_LOADING_WALLET', true)
         commit('CLEAR_WALLET')
 
         // Create keystore and store it in localStorage
@@ -145,14 +149,14 @@ export default {
       } catch (err) {
         console.log(err)
         commit('CLEAR_WALLET')
-        commit('SET_LOADING', false)
+        commit('SET_LOADING_WALLET', false)
 
         throw new Error(err)
       }
     },
     async decryptKeystore({ commit }, { keystore, password }) {
       try {
-        commit('SET_LOADING', true)
+        commit('SET_LOADING_WALLET', true)
         commit('CLEAR_WALLET')
 
         const wallet = Wallet.decrypt(keystore, password)
@@ -162,7 +166,7 @@ export default {
         commit('SET_WALLET_ADDRESS', wallet.getAddressString())
 
         commit('SET_WALLET', wallet) // FIXME: simpen untuk dev
-        commit('SET_LOADING', false)
+        commit('SET_LOADING_WALLET', false)
 
         return { success: true }
 
@@ -170,7 +174,7 @@ export default {
         console.log(err)
         commit('CLEAR_WALLET')
 
-        commit('SET_LOADING', false)
+        commit('SET_LOADING_WALLET', false)
         return { success: false, error: err.message }
       }
     }
