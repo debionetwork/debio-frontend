@@ -145,7 +145,7 @@ export default {
 
         commit('SET_WALLET', wallet) // FIXME: simpen untuk dev
 
-        commit('SET_LOADING', false)
+        commit('SET_LOADING_WALLET', false)
       } catch (err) {
         console.log(err)
         commit('CLEAR_WALLET')

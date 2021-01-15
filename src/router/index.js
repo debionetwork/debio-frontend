@@ -105,21 +105,6 @@ const router = new VueRouter({
 })
 
 
-/**
- * setupAppDependencies
- *
- * Wait for web3 and smart contracts to load
- * this will set web3 and smart contracts to store
- */
-async function setupAppDependencies() {
-  if (!store.getters['ethereum/getWeb3']) {
-    const LOCAL_RPC_URL = 'http://localhost:8545'
-    let rpcUrl = localStorage.getRpcUrl() || LOCAL_RPC_URL
-    await store.dispatch('ethereum/initWeb3', rpcUrl)
-    store.dispatch('ethereum/contracts/initContracts')
-  }
-  return
-}
 
 /**
  * getUserRole()
@@ -146,8 +131,7 @@ async function getUserRole() {
 }
 
 router.beforeEach(async (to, from, next) => {
-  await setupAppDependencies()
-
+  // If this is removed, it will cause infinite loop
   if (to.path == '/login') {
     next()
     return
