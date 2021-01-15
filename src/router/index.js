@@ -72,7 +72,7 @@ const routes = [
         component: () => import(/* webpackChunkName */ '../views/Dashboard/Lab')
       },
       {
-        path: '/lab/:number/:owner',
+        path: '/lab/:number',
         name: 'lab-result',
         component: () => import(/* webpackChunkName */ '../views/Dashboard/Lab/result.vue')
       }
