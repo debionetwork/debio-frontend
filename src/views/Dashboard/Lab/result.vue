@@ -4,12 +4,12 @@
       <v-container>
          <v-row>
             <v-col cols="6">
-               <v-text-field v-model="publicKeyInput" label="Public Key" />
+               <!-- <v-text-field v-model="publicKeyInput" label="Public Key" />
                <v-text-field
                   v-model="specimentNumberInput"
                   label="Specimen Number"
                />
-               <v-text-field v-model="ownerAddress" label="Owner Address" />
+               <v-text-field v-model="ownerAddress" label="Owner Address" /> -->
             </v-col>
          </v-row>
          <v-row>
@@ -27,30 +27,65 @@
             </v-col>
             <v-col cols="6" md="3" sm="4">
                <SquareCardBtn
-                  @click="onEncryptUpload"
+                  @click="onEncryptUploadGenome"
                   :loading="uploaderLoading"
                   :percentage="uploadProgress"
                >
                   <v-icon size="64">mdi-upload-lock</v-icon>
-                  <div>Encrypt and Upload</div>
+                  <div>Encrypt and Upload Genome</div>
                   <input
                      type="file"
                      style="display: none"
-                     ref="encryptUploadFileInput"
+                     ref="encryptUploadFileInputGenome"
                   />
                </SquareCardBtn>
-               <v-btn :disabled="!encryptedObj" @click="dialog = true">
+               <v-btn :disabled="!encryptedObjGenome" @click="showDialog('genome')">
+                  Upload to IPFS
+               </v-btn>
+            </v-col>
+            <v-col cols="6" md="3" sm="4">
+               <SquareCardBtn
+                  @click="onEncryptUploadResult"
+                  :loading="uploaderLoading"
+                  :percentage="uploadProgress"
+               >
+                  <v-icon size="64">mdi-upload-lock</v-icon>
+                  <div>Encrypt and Upload Result</div>
+                  <input
+                     type="file"
+                     style="display: none"
+                     ref="encryptUploadFileInputResult"
+                  />
+               </SquareCardBtn>
+               <v-btn :disabled="!encryptedObjResult" @click="showDialog('result')">
                   Upload to IPFS
                </v-btn>
             </v-col>
          </v-row>
-         <v-dialog v-model="dialog" max-width="600px">
+         <v-dialog v-model="dialog" persistent max-width="600px">
+            <template>
+               <v-card>
+                  <v-card-title>Save File to IPFS</v-card-title>
+                  <v-card-text>Are sure want save to IPFS?</v-card-text>
+                  <v-divider></v-divider>
+
+                  <v-card-actions>
+                     <v-spacer></v-spacer>
+                     <v-btn color="primary" text @click="uploadEncrypted">
+                        Upload to Result
+                     </v-btn>
+                  </v-card-actions>
+               </v-card>
+            </template>
+         </v-dialog>
+         <v-dialog v-model="dialogFinalize" persistent max-width="600px">
             <template>
                <v-card>
                   <v-card-title class="headline grey lighten-2">
-                     Please insert your password
+                     Finalize Transaction
                   </v-card-title>
                   <v-card-text>
+                    Please input your password to finalize Transaction
                      <v-text-field
                         class="mt-4"
                         outlined
@@ -65,13 +100,14 @@
 
                   <v-card-actions>
                      <v-spacer></v-spacer>
-                     <v-btn color="primary" text @click="uploadEncrypted">
+                     <v-btn color="primary" text @click="resultSpeciment">
                         Save Result
                      </v-btn>
                   </v-card-actions>
                </v-card>
             </template>
          </v-dialog>
+         <v-btn color="primary" :disabled="finalize" text @click="dialogFinalize=true">finalize </v-btn>
       </v-container>
    </div>
 </template>
@@ -83,7 +119,7 @@ import ipfsWorker from '../../../web-workers/ipfs-worker'
 import cryptWorker from '../../../web-workers/crypt-worker'
 import sendTransaction from '../../../lib/send-transaction'
 import localStorage from '../../../lib/local-storage'
-import Wallet from 'ethereumjs-wallet'
+import Wallet from '../../../lib/dgnx-wallet'
 import { mapState } from 'vuex'
 
 
@@ -98,28 +134,44 @@ export default {
     privateKey: '0xd2b4ac161f7f82d910a5560710d14ca8262b819b369d9bcc08b58d3ecf966465',
     specimentNumberInput: '',
     ownerAddress: '',
+    labAddress: '',
     publicKeyInput: '',
+    finalize: false,
     files: [],
-    encryptedObj: null,
+    encryptedObjResult: null,
+    encryptedObjGenome: null,
     fileName: '',
     dialog: false,
+    dialogFinalize: false,
     password: '',
     uploaderLoading: false,
     uploadProgress: 0,
+    fileType: null,
   }),
   async mounted() {
     const context = this;
-    this.publicKeyInput = "796061614a84e4a0497586c2bd8a1b6aefc8fb4f94b0a882105e9ec71e245f3b6ec8091a3ba2d0d05994d6ae321a853d1193dfc25db8f93dd4d1d3c4a7da48e6";
+    // this.publicKeyInput = "796061614a84e4a0497586c2bd8a1b6aefc8fb4f94b0a882105e9ec71e245f3b6ec8091a3ba2d0d05994d6ae321a853d1193dfc25db8f93dd4d1d3c4a7da48e6";
     this.specimentNumberInput = this.$route.params.number;
-    this.ownerAddress = this.$route.params.owner;
+    this.labAddress = JSON.parse(localStorage.getKeystore())['address'];
+    await this.getSpciments(this.labAddress);
     await this.getFileUploaded()
-    this.$refs.encryptUploadFileInput.addEventListener('change', function() {
+    this.$refs.encryptUploadFileInputResult.addEventListener('change', function() {
+      const file = this.files[0]
+      context.fileName = file.name
+      const fr = new FileReader()
+      fr.onload = async function() {
+        console.log(fr.result)
+        await context.encrypt(fr.result, 'result')
+      }
+      fr.readAsText(file)
+    })
+    this.$refs.encryptUploadFileInputGenome.addEventListener('change', function() {
       const file = this.files[0]
       context.fileName = file.name
 
       const fr = new FileReader()
       fr.onload = async function() {
-        await context.encrypt(fr.result)
+        await context.encrypt(fr.result, 'genome')
       }
       fr.readAsText(file)
     })
@@ -129,7 +181,9 @@ export default {
       try {
           const address = this.ownerAddress;
           const arrFile = await this.contractDegenics.methods.getFile(this.specimentNumberInput).call({from: address});
-          this.files = JSON.parse(arrFile);
+          if (arrFile) {
+            this.files = JSON.parse(arrFile);
+          }
       } catch (error) {
         console.error(error)
       }
@@ -140,13 +194,18 @@ export default {
         return;
       }
       const keystore = localStorage.getKeystore()
-      const wallet = await Wallet.fromV3(keystore, this.password)
-      this.address = wallet.getAddressString();
+      const wallet = await Wallet.decrypt(keystore, this.password)
+      this.address = wallet.address;
+      this.publicKeyInput = wallet.publicKey;
       this.dialog = false;
     },
-    onEncryptUpload() {
+    onEncryptUploadResult() {
       if (this.uploaderLoading) return
-      this.$refs.encryptUploadFileInput.click()
+      this.$refs.encryptUploadFileInputResult.click()
+    },
+    onEncryptUploadGenome() {
+      if (this.uploaderLoading) return
+      this.$refs.encryptUploadFileInputGenome.click()
     },
     /**
     * Encrypt file using rsa public key
@@ -162,8 +221,15 @@ export default {
     * Use EthCrypto for AES encryption
     * Inside it handles aes-256-cbc encryption using eccrypto library which uses crypto
     */
-    async encrypt(text) {
-      this.encryptedObj = null;
+    async encrypt(text, fileType) {
+      if (fileType == 'genome') {
+        this.encryptedObjGenome = null;
+      }
+
+      if (fileType == 'result') {
+        this.encryptedObjResult = null;
+      }
+
       const publicKey = this.publicKeyInput;
       const arrChunks = [];
       let chunksAmount;
@@ -178,7 +244,15 @@ export default {
         arrChunks.push(event.data)
         this.uploadProgress = arrChunks.length / chunksAmount * 100;
         if (arrChunks.length == chunksAmount ) {
-          this.encryptedObj = arrChunks;
+          // TODO make it not messy condition
+          if (fileType == 'genome') {
+            this.encryptedObjGenome = arrChunks;
+          }
+
+          if (fileType == 'result') {
+            this.encryptedObjResult = arrChunks;
+          }
+          // this.encryptedObj = arrChunks;
           chunksAmount = 0;
           this.loadingFinish();
         }
@@ -215,24 +289,29 @@ export default {
     },
     uploadEncrypted() {
       let arrFiles=[];
+      let fileType = this.fileType;
+      let objEncripted = this.selectFile(fileType)
       this.loadingStart();
-      for (let file of this.encryptedObj) {
+      console.log({fileType, arrFiles, objEncripted});
+      for (let file of objEncripted) {
         const data = JSON.stringify(file)
         const blob = new Blob([ data ], {type: 'text/plain'})
         ipfsWorker.workerUpload.postMessage({seed: file.seed, file: blob}) // Access this object in e.data in worker
       }
       ipfsWorker.workerUpload.onmessage = async event => {
+        // TODO simplify format data only needed in download from ipfs
         arrFiles.push(event.data);
-        this.uploadProgress = arrFiles.length / this.encryptedObj.length * 100;
+        this.uploadProgress = arrFiles.length / objEncripted.length * 100;
 
-        if (arrFiles.length == this.encryptedObj.length) {
+        if (arrFiles.length == objEncripted.length) {
           const fileName= this.fileName;
           this.files.push({
             fileName,
+            fileType,
             ipfsPath: arrFiles,
           })
-          await this.resultSpeciment();
-          this.encryptedObj = null;
+          this.setEmptyEnctypted(fileType)
+          this.fileType = null;
           this.loadingFinish();
         }
       }
@@ -254,7 +333,7 @@ export default {
         console.log('decrypting Keystore...')
         const degenicsContract = this.contractDegenics._address;
         const keystore = localStorage.getKeystore()
-        const wallet = await Wallet.fromV3(keystore, this.password)
+        const wallet = await Wallet.decrypt(keystore, this.password)
         const abiData = this.contractDegenics.methods
           .analysisSucces(this.specimentNumberInput, JSON.stringify(this.files),"Sucess")
           .encodeABI()
@@ -262,10 +341,23 @@ export default {
         let tx = await sendTransaction(degenicsContract, wallet, abiData)
 
         console.log(tx, wallet.getAddressString());
-        this.dialog = false;
+        this.dialogFinalize = false;
       } catch (err) {
-        this.dialog = false;
+        this.dialogFinalize = false;
         console.error(err)
+      }
+    },
+    async getSpciments(address) {
+      try {
+        let sn = this.specimentNumberInput;
+        console.log(sn, address);
+        const speciment = await this.contractDegenics.methods.specimenByNumber(sn).call({from: address})
+        this.publicKeyInput = speciment.pubkey
+        this.ownerAddress = speciment.owner;
+        this.finalize = speciment.status == 'Succes' ? true : false;
+
+      } catch (error) {
+        console.log(error)
       }
     },
     loadingStart() {
@@ -275,6 +367,29 @@ export default {
     loadingFinish() {
       this.uploaderLoading = false;
       this.uploadProgress = 0;
+      this.dialog = false;
+    },
+    setEmptyEnctypted(fileType) {
+      if (fileType == 'genome') {
+        this.encryptedObjGenome = null;
+      }
+
+      if (fileType == 'result') {
+        this.encryptedObjResult = null;
+      }
+    },
+    showDialog(fileType) {
+      this.dialog = true;
+      this.fileType = fileType;
+    },
+    selectFile(fileType) {
+      if (fileType == 'genome') {
+        return this.encryptedObjGenome;
+      }
+
+      if (fileType == 'result') {
+        return this.encryptedObjResult;
+      }
     }
   },
   computed: {

@@ -41,14 +41,6 @@
                         <v-card-actions>
                            <v-spacer></v-spacer>
                            <v-btn
-                              v-if="dialogMode=='decrypt'"
-                              color="primary"
-                              text
-                              @click="decryptWallet"
-                           >
-                              Decrypt Address
-                           </v-btn>
-                           <v-btn
                               v-if="dialogMode=='accepSpeciment'"
                               color="primary"
                               text
@@ -148,22 +140,15 @@ export default {
     products: {},
     isLoading: false,
     search: "",
+    password: "",
   }),
   async mounted() {
-    await this.decryptWallet()
+    this.address = JSON.parse(localStorage.getKeystore())['address'];
+
+    // await this.decryptWallet()
     await this.getLabProducts(this.address)
   },
   methods: {
-    async decryptWallet() {
-      this.dialog = true;
-      if (this.password == '') {
-        return;
-      }
-      const keystore = localStorage.getKeystore()
-      const wallet = await Wallet.decrypt(keystore, this.password)
-      this.address = wallet.getAddressString();
-      this.dialog = false;
-    },
     async getSpcimentCount() {
       try {
         const address = this.address;
@@ -184,8 +169,8 @@ export default {
         this.speciments = arrSpeciments.map(dt=>{
           let { labAccount, owner, serviceCode, status, number } = dt;
           const labData = Labs.objLab.get(labAccount);
-          const serviceName = Labs.objService.get(labAccount).find(obj=>obj.code == serviceCode).serviceName;
-          console.log("SN: ", serviceName, serviceCode)
+          const serviceObj = Labs.objService.get(labAccount).find(obj=>obj.code == serviceCode);
+          const serviceName = serviceObj ? serviceObj.serviceName : '';
           return { labAccount, owner, serviceCode, status, number, labName: labData.name, serviceName };
           });
       } catch (error) {
@@ -220,7 +205,7 @@ export default {
     },
     gotoResult(item) {
       console.log(item)
-      router.push(`/lab/${item.number}/${item.owner}`);
+      router.push(`/lab/${item.number}`);
     },
     async acceptSpeciment() {
       try {
