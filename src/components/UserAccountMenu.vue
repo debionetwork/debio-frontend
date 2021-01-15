@@ -17,12 +17,20 @@
       <v-list>
         <v-list-item two-line @click="downloadKeystore">
           <v-list-item-action>
-              <v-icon>mdi-file-key</v-icon>
+            <v-icon>mdi-file-key</v-icon>
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>Download Keystore File</v-list-item-title>
           </v-list-item-content>
-          </v-list-item>
+        </v-list-item>
+        <v-list-item two-line @click="logOut">
+          <v-list-item-action>
+            <v-icon>mdi-logout</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Log Out</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
       </v-list>
     </v-card>
   </v-menu>
@@ -30,9 +38,17 @@
 
 <script>
 import localStorage from '../lib/local-storage'
+import { mapActions } from 'vuex'
 
 export default {
   methods: {
+    ...mapActions({
+      clearAuth: 'auth/clearAuth'
+    }),
+    logOut() {
+      this.clearAuth()
+      this.$router.push('/login')
+    },
     downloadKeystore() {
       const keystore = localStorage.getKeystore()
       const blob = new Blob([ keystore ], {type: 'text/plain'})
@@ -43,7 +59,7 @@ export default {
       a.dataset.downloadurl = ['text/json', a.download, a.href].join(':')
       e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
       a.dispatchEvent(e)
-    }
+    },
   }
 }
 </script>

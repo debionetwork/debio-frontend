@@ -62,6 +62,9 @@ export default {
     },
     getLabContract(state){
       return state.contractLab
+    },
+    getAccountContract(state) {
+      return state.contractAccount
     }
   }
 }
