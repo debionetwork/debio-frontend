@@ -24,6 +24,7 @@ export default {
         keystore = JSON.parse(keystore)
         const accountContract = rootGetters['ethereum/contracts/getAccountContract']
         let role = await accountContract.methods.myRole().call({ from: keystore.address })
+        console.log('In Get Role: ', role)
         if (role == '') {
           role = 'customer'
         }

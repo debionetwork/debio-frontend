@@ -72,8 +72,13 @@ const routes = [
       },
       {
         path: '/lab/:number',
-        name: 'lab-result',
-        component: () => import(/* webpackChunkName */ '../views/Dashboard/Lab/result.vue')
+        name: 'lab-process',
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/Lab/Process')
+      },
+      {
+        path: '/lab/test/:number',
+        name: 'lab-process-test',
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/Lab/result')
       }
 
     ]

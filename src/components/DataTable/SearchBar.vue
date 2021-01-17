@@ -27,7 +27,7 @@
       outlined
       dense
       append-icon="mdi-magnify"
-      color="secondary"
+      color="primary"
       @input="onSearchInput"
     ></v-text-field>
   </div>
@@ -110,9 +110,9 @@ export default {
     height: 48px !important;
     align-items: center;
     width: 48px;
-    background-color: $color-secondary;
+    background-color: $color-primary;
     margin: 0 !important;
-    border: 1px solid $color-secondary;
+    border: 1px solid $color-primary;
     z-index: 2;
     border-bottom-right-radius: 5px;
     border-top-right-radius: 5px;

@@ -146,7 +146,7 @@ export default {
 .degenics-data-table {
   border-radius: 8px;
   overflow: hidden;
-  margin-top: 6px;
+  margin-top: 24px;
 
   /** BRI text-body */
   font-size: 14px;

@@ -65,8 +65,14 @@ class Wallet {
    * */
   static decrypt(keystore, password) {
     const web3 = store.getters['ethereum/getWeb3']
+
+    let _keystore = keystore
+    if (typeof keystore != 'string') {
+      _keystore = JSON.stringify(keystore)
+    }
+
     try {
-      const wallet = web3.eth.accounts.decrypt(keystore, password)
+      const wallet = web3.eth.accounts.decrypt(_keystore, password)
 
       return new Wallet(wallet)
 
