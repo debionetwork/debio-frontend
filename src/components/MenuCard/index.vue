@@ -1,28 +1,29 @@
 <template>
-  <component v-bind:is="cardComponent" @click="onClick">
+   <component v-bind:is="cardComponent" @click="onClick">
+      <v-progress-linear
+         v-if="loading"
+         indeterminate
+         color="primary"
+      ></v-progress-linear>
       <div class="d-flex align-center fill-height pr-2">
-        <div class="my-3 ml-5">
-          <v-icon
-            v-if="icon"
-            color="#BA8DBB"
-            :size="48"
-          >
-            {{ icon }}
-          </v-icon>
-          <v-avatar v-else>
-            <img src="../../assets/degenics-logo.webp" />
-          </v-avatar>
-        </div>
-        <div class="ml-5">
-          <div class="text-h6">
-            <b>{{ title }}</b>
-          </div>
-          <div class="text-caption grey--text text--darken-1">
-            {{ subTitle }}
-          </div>
-        </div>
+         <div class="my-3 ml-5">
+            <v-icon v-if="icon" color="#BA8DBB" :size="48">
+               {{ icon }}
+            </v-icon>
+            <v-avatar v-else>
+               <img src="../../assets/degenics-logo.webp" />
+            </v-avatar>
+         </div>
+         <div class="ml-5">
+            <div class="text-h6">
+               <b>{{ title }}</b>
+            </div>
+            <div class="text-caption grey--text text--darken-1">
+               {{ subTitle }}
+            </div>
+         </div>
       </div>
-  </component>
+   </component>
 </template>
 
 <script>
@@ -36,6 +37,7 @@ export default {
     title: String,
     subTitle: String,
     disabled: Boolean,
+    loading: Boolean,
   },
   components: {
     EnabledMenuCard,
@@ -56,8 +58,8 @@ export default {
 
 <style lang="scss" scoped>
 .dg-menu-card {
-  height: 90px;
-  width: 100%;
+   height: 90px;
+   width: 100%;
 }
 </style>
 

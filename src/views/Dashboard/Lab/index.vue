@@ -128,10 +128,10 @@ export default {
     },
     /**
      * nextActionsAvailable
-     * 
+     *
      * Determine the next actions available for the specimen
-     * 
-     * nextActionConditions: 
+     *
+     * nextActionConditions:
      *   'Sending'  => 'Receive'
      *   'Received' => 'Wetwork'
      *   'Wetwork'  => 'Genome'
@@ -139,7 +139,7 @@ export default {
      *   'Report'   => 'Send'
      *   'Reject'   => 'View'
      *   'Succes'   => 'View'
-     * 
+     *
      *  FIXME: Consider saving actions that are done in local storage.
      *      for simpler logic of determining next actions
      */
@@ -163,7 +163,7 @@ export default {
         }
       }
       // We have files, remove 'Wetwork' from nextActions
-      let nextActions = this.nextActions.slice(2) 
+      let nextActions = this.nextActions.slice(2)
       // Remove 'Genome' and/or 'Report' if in doneFileTypes
       doneFileTypes.forEach(fileType => {
         nextActions = nextActions.filter(action => action != fileType)
@@ -173,11 +173,11 @@ export default {
     },
     /**
      * isNextAction
-     * 
+     *
      * Determine if processAction (Receive / Wetwork / Genome / Report / Send) is the next action
      * Based on specimen status
-     * 
-     * nextActionConditions: 
+     *
+     * nextActionConditions:
      *   'Sending'  => 'Receive'
      *   'Received' => 'Wetwork'
      *   'Wetwork'  => 'Genome'
@@ -185,7 +185,7 @@ export default {
      *   'Report'   => 'Send'
      *   'Reject'   => 'View'
      *   'Succes'   => 'View'
-     * 
+     *
      * @param {string} status
      * @return {boolean}
      */

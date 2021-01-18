@@ -35,6 +35,7 @@ import { mapState } from 'vuex'
 import OrderCard from '../../../components/OrderCard'
 import PrimaryButton from '../../../components/PrimaryButton'
 import localStorage from '../../../lib/local-storage'
+import router from '../../../router'
 
 export default {
   name: 'OrderHistory',
@@ -127,7 +128,7 @@ export default {
           const { labAccount } = lab
 
           const promise = this.degenicsContract.methods
-            .serviceCount(labAccount).call()     
+            .serviceCount(labAccount).call()
               .then(async serviceCount => {
                 const getServicePromises = []
                 for (let i = 1; i <= serviceCount; i++) {
@@ -187,6 +188,7 @@ export default {
       return orders.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
     },
     goToOrderHistory() {
+      router.push(`/history-test`);
       console.log('TODO: go to order history')
     }
   },
