@@ -3,92 +3,95 @@
    <div>
       <v-container>
          <v-row>
+            <v-col cols="12">
+               <div class="text-h5 px-2 secondary--text text--lighten-2">
+                  <b>Order History</b>
+               </div>
+            </v-col>
+         </v-row>
+         <v-row>
             <v-col>
-               <v-dialog v-model="dialog" max-width="600px">
-                  <template>
-                     <v-card>
-                        <v-card-title class="headline grey lighten-2">
-                           Please Input your password
-                        </v-card-title>
-
-                        <v-card-text>
-                           <v-text-field
-                              class="mt-4"
-                              outlined
-                              auto-grow
-                              type="password"
-                              v-model="password"
-                              label="Input your password"
-                           />
-                        </v-card-text>
-
-                        <v-divider></v-divider>
-
-                        <v-card-actions>
-                           <v-spacer></v-spacer>
-                           <v-btn
-                              v-if="address == ''"
-                              color="primary"
-                              text
-                              @click="decryptWallet"
-                           >
-                              Decrypt Address
-                           </v-btn>
-                           <v-btn
-                              v-if="
-                                 address != '' &&
-                                 selectedSpeciment.status == 'Paid'
-                              "
-                              color="primary"
-                              text
-                              @click="sendSpeciment"
-                           >
-                              Send Specimen
-                           </v-btn>
-                        </v-card-actions>
-                     </v-card>
-                  </template>
-               </v-dialog>
                <v-dialog v-model="dialogInstruction" max-width="600px">
                   <DNASampleSendingInstructions
-                    :specimenNumber="selectedSpeciment.number"
-                    :lab="selectedSpeciment.labData"
+                     :specimenNumber="selectedSpeciment.number"
+                     :lab="selectedSpeciment.labData"
                   >
-                    <template v-slot:button>
-                      <v-btn
-                        depressed
-                        color="primary"
-                        large
-                        width="100%"
-                        @click="()=>dialogInstruction=false"
-                      >
-                        Dismis
-                      </v-btn>
-                    </template>
+                     <template v-slot:button>
+                        <v-btn
+                           depressed
+                           color="primary"
+                           large
+                           width="100%"
+                           @click="() => (dialogInstruction = false)"
+                        >
+                           Dismis
+                        </v-btn>
+                     </template>
                   </DNASampleSendingInstructions>
+               </v-dialog>
+               <v-dialog v-model="dialogRejected" max-width="600px">
+                 <RejectedReasonDialog
+                    :specimen="selectedSpeciment"
+                 >
+                  <template v-slot:button>
+                        <v-btn
+                           depressed
+                           color="primary"
+                           large
+                           width="100%"
+                           @click="() => (dialogRejected = false)"
+                        >
+                           Dismis
+                        </v-btn>
+                     </template>
+
+                 </RejectedReasonDialog>
+
                </v-dialog>
 
                <DataTable
                   :headers="headers"
                   :items="speciments"
                   :search="search"
+                  :loading="isLoading"
                   additional-class="laporan-table"
                >
+                  <template v-slot:search-bar>
+                     <SearchBar
+                        label="Product Name, Status, Lab Name"
+                        @input="onSearchInput"
+                     ></SearchBar>
+                  </template>
+
                   <template v-slot:item.actions="{ item }">
                      <v-container
                         v-if="item.status == 'Sending' || item.status == 'Paid'"
                      >
-                        <v-btn color="primary" @click="showDialogInstruction(item)"
+                        <v-btn
+                          class="btn-sending"
+                           small
+                           width="200"
+                           @click="showDialogInstruction(item)"
                            >Sending Instrunctions</v-btn
                         >
                      </v-container>
-                     <v-container
-                        v-if="
-                           item.status == 'Succes' || item.status == 'Received'
-                        "
-                     >
-                        <v-btn color="secondary" @click="gotoResult(item)"
+                     <v-container v-if="item.status == 'Succes'">
+                        <v-btn
+                           class="success"
+                           small
+                           width="200"
+                           @click="gotoResult(item)"
                            >View Result</v-btn
+                        >
+                     </v-container>
+
+                     <v-container v-if="item.status == 'Reject'">
+                        <v-btn
+                           class="Reject"
+                           small
+                           width="200"
+                           @click="showDialogRejected(item)"
+                           >View Reason</v-btn
                         >
                      </v-container>
                   </template>
@@ -103,49 +106,43 @@
 
 <script>
 import { mapState } from 'vuex'
-import Wallet from '../../../lib/dgnx-wallet'
 import router from '../../../router'
 import localStorage from '../../../lib/local-storage'
 import DataTable from '../../../components/DataTable'
+import SearchBar from '../../../components/DataTable/SearchBar'
 import DNASampleSendingInstructions from '../../../components/DNASampleSendingInstructions'
-
+import RejectedReasonDialog from '../../../components/RejectedReasonDialog'
 
 export default {
   name: 'history-test',
   components: {
     DataTable,
     DNASampleSendingInstructions,
+    SearchBar,
+    RejectedReasonDialog,
   },
   data: () => ({
-    testNumberInput: '',
     headers: [
           { text: 'Lab Name', value: 'labData.name' },
           { text: 'Product Name', value: 'serviceName' },
           { text: 'Speciments Num', value: 'number' },
           { text: 'Status', value: 'status' },
-          { text: 'Actions', value: 'actions', sortable: false },
+          { text: 'Actions', value: 'actions', sortable: false, align: 'center', width: '5%' },
         ],
     speciments: [],
-    dialog: false,
-    dialogInstruction: false,
     selectedSpeciment: {},
     address: '',
     password: '',
+    search: '',
+    isLoading: false,
+    dialogInstruction: false,
+    dialogRejected: false,
   }),
   async mounted() {
-    await this.decryptWallet()
+    this.address = JSON.parse(localStorage.getKeystore())['address'];
   },
   methods: {
-    async decryptWallet() {
-      this.dialog = true;
-      if (this.password == '') {
-        return;
-      }
-      const keystore = localStorage.getKeystore()
-      const wallet = await Wallet.decrypt(keystore, this.password)
-      this.address = wallet.getAddressString();
-      this.dialog = false;
-    },
+
     async getSpcimentCount() {
       try {
         const address = this.address;
@@ -157,6 +154,7 @@ export default {
     },
     async getSpciments(num) {
       try {
+        this.isLoading = true;
         let specNum = new Array(parseInt(num)).fill(null);
         const address = this.address;
         const promSpec = specNum.map((x, i)=>this.contractDegenics.methods.specimenByIndex(i+1).call({from: address}))
@@ -166,13 +164,16 @@ export default {
         this.speciments = arrSpeciments.map(dt=>{
           let { labAccount, owner, serviceCode, status, number } = dt;
           const labData = Labs.objLab.get(labAccount);
-          const serviceName = Labs.objService.get(labAccount).find(obj=>obj.code == serviceCode).serviceName;
+          const objServiceName = Labs.objService.get(labAccount).find(obj=>obj.code == serviceCode);
+          const serviceName = objServiceName ? objServiceName.serviceName : "";
           console.log("SN: ", serviceName, serviceCode)
           return { labAccount, owner, serviceCode, status, number, labData, serviceName };
           });
+
       } catch (error) {
         console.log(error)
       }
+      this.isLoading = false;
     },
     async getLabs (arrSpeciments) {
       let objLab = new Map();
@@ -193,7 +194,7 @@ export default {
       try {
         const serviceCount = await this.contractDegenics.methods.serviceCount(labAccount).call()
         let specNum = new Array(parseInt(serviceCount)).fill(null);
-        const promService = specNum.map((x, i)=>this.contractDegenics.methods.serviceByIndex(labAccount, i).call())
+        const promService = specNum.map((x, i)=>this.contractDegenics.methods.serviceByIndex(labAccount, i+1).call())
         const services = await Promise.all(promService)
         return  services
       } catch (err) {
@@ -201,18 +202,19 @@ export default {
       }
     },
     gotoResult(item) {
-      console.log(item)
-      router.push(`/result-test/${item.specimentNumber}`);
-    },
-    showDialog(item) {
-        this.dialog = true;
-        this.selectedSpeciment = item;
+      router.push(`/result-test/${item.number}`);
     },
     showDialogInstruction(item) {
       this.dialogInstruction = true;
       this.selectedSpeciment = item;
-
-    }
+    },
+    showDialogRejected(item) {
+      this.dialogRejected = true;
+      this.selectedSpeciment = item;
+    },
+    onSearchInput(val) {
+      this.search = val
+    },
   },
   computed: {
     ...mapState({
@@ -234,6 +236,19 @@ export default {
 @import "../../../styles/variables.scss";
 
 .btn-sending {
-   background-color: $color-primary;
+   background-color: $color-primary !important;
 }
+
+.Sending {
+   background-color: $color-primary !important;
+}
+
+.Succes {
+  background-color: $color-status-success !important;
+}
+
+.Reject {
+  background-color: $color-status-reject !important;
+}
+
 </style>

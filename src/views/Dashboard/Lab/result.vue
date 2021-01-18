@@ -163,7 +163,7 @@ export default {
         console.log(fr.result)
         await context.encrypt(fr.result, 'result')
       }
-      fr.readAsText(file)
+      fr.readAsDataURL(file)
     })
     this.$refs.encryptUploadFileInputGenome.addEventListener('change', function() {
       const file = this.files[0]

@@ -15,6 +15,7 @@
         v-for="(order) in orderHistory"
         :key="order.number"
         class="mb-2"
+        @click="gotoDetailOrder(order)"
       >
         <OrderCard
           :icon="order.icon"
@@ -35,6 +36,7 @@ import { mapState } from 'vuex'
 import OrderCard from '../../../components/OrderCard'
 import PrimaryButton from '../../../components/PrimaryButton'
 import localStorage from '../../../lib/local-storage'
+import router from '../../../router'
 
 export default {
   name: 'OrderHistory',
@@ -127,7 +129,7 @@ export default {
           const { labAccount } = lab
 
           const promise = this.degenicsContract.methods
-            .serviceCount(labAccount).call()     
+            .serviceCount(labAccount).call()
               .then(async serviceCount => {
                 const getServicePromises = []
                 for (let i = 1; i <= serviceCount; i++) {
@@ -187,7 +189,12 @@ export default {
       return orders.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
     },
     goToOrderHistory() {
-      console.log('TODO: go to order history')
+      router.push(`/history-test`);
+    },
+    gotoDetailOrder(order) {
+      console.log(order);
+      const receipts = order
+      this.$router.push({ name: 'order-history-detail', params: { receipts } })
     }
   },
 }

@@ -1,0 +1,236 @@
+
+<template>
+   <div>
+      <v-container>
+         <v-row>
+            <v-col cols="12">
+               <div class="text-h5 px-2 secondary--text text--lighten-2">
+                  <b>Test Result</b>
+               </div>
+            </v-col>
+         </v-row>
+         <v-row>
+            <v-col cols="12" md="8">
+               <v-card width="100%">
+                  <v-progress-linear
+                     v-if="resultLoading"
+                     indeterminate
+                     color="primary"
+                  ></v-progress-linear>
+                  <v-card-title>Result {{ serviceName }}</v-card-title>
+                  <v-card-text>
+                    {{result}}
+                  </v-card-text>
+               </v-card>
+            </v-col>
+            <v-col cols="12" md="4">
+               <div v-for="(file, index) in files" :key="file.name">
+                  <MenuCard
+                     icon="mdi-file-document-multiple-outline"
+                     :title="file.fileType"
+                     :sub-title="file.fileName"
+                     :loading="filesLoading[index]"
+                     :disabled="filesLoading[index]"
+                     @click="showDialog('download', index)"
+                  />
+               </div>
+            </v-col>
+         </v-row>
+         <v-dialog v-model="dialog" max-width="600px">
+            <template>
+               <v-card>
+                  <v-card-title class="headline grey lighten-2">
+                     Please Input your password to verify your account
+                  </v-card-title>
+                  <v-progress-linear
+                     v-if="isLoading"
+                     indeterminate
+                     color="primary"
+                  ></v-progress-linear>
+                  <v-card-text>
+                     <v-text-field
+                        class="mt-4"
+                        outlined
+                        auto-grow
+                        type="password"
+                        v-model="password"
+                        label="Input your password"
+                     />
+                  </v-card-text>
+
+                  <v-divider></v-divider>
+
+                  <v-card-actions>
+                     <v-spacer></v-spacer>
+                     <v-btn
+                        v-if="actionType == 'result'"
+                        color="primary"
+                        text
+                        @click="decryptWallet()"
+                     >
+                        decrypt wallet
+                     </v-btn>
+                     <v-btn
+                        v-if="actionType == 'download'"
+                        color="primary"
+                        text
+                        @click="decryptWallet()"
+                     >
+                        Download
+                     </v-btn>
+                  </v-card-actions>
+               </v-card>
+            </template>
+         </v-dialog>
+      </v-container>
+   </div>
+</template>
+
+<script>
+import MenuCard from '../../../components/MenuCard'
+import ipfsWorker from '../../../web-workers/ipfs-worker'
+import localStorage from '../../../lib/local-storage'
+import Wallet from '../../../lib/dgnx-wallet'
+import { mapState } from 'vuex'
+
+export default {
+  name: 'test-result',
+  components: {
+    MenuCard,
+  },
+  data: () => ({
+    privateKey: '',
+    specimentNumberInput: '',
+    ownerAddress: '',
+    files: [{"fileName":"genome.txt","fileType":"genome","ipfsPath":[{"seed":0,"data":{"path":"QmUNdNXeuGTJCmzAuhwRYfwEvcq8y6J46QXKHYYESZEqxF","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":10242820}},{"seed":1,"data":{"path":"QmYTTuYbv4kybg3c5ticzciD4vELpvBFHn3xpyhgmuGhvb","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":10242820}},{"seed":3,"data":{"path":"QmbtrPFsUhNnztVwmd7nWw5ZcDwFPXZKdfE3hnPqxZJyaY","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":2957467}},{"seed":2,"data":{"path":"QmeAzZ3TKW8cZtTqPQyMC7uCUM1HKctteg3f5hQgGD7cWQ","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":10242820}}]},{"fileName":"fd_zero_variants_notable_ethnicity.pdf","fileType":"result","ipfsPath":[{"seed":0,"data":{"path":"Qmdhxke3bRTRjRPEZ1iqRXdXc9mtkZmf97fpJgjxfevwPn","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":2380479}}]}],
+    dialog: false,
+    password: '',
+    speciment: {},
+    services : [],
+    serviceName: '',
+    result:'',
+    isLoading: false,
+    actionType: 'result',
+    fileDownloadIndex: 0,
+    filesLoading: [],
+    resultLoading: false,
+  }),
+  async mounted() {
+    this.specimentNumberInput = this.$route.params.number;
+    await this.getSpciments()
+    await this.getLabServices(this.speciment.labAccount)
+    this.ownerAddress = JSON.parse(localStorage.getKeystore())['address'];
+    await this.getFileUploaded()
+    await this.decryptWallet('result')
+    this.serviceName = this.services.find(o=> o.code == this.speciment.serviceCode).serviceName;
+  },
+  methods: {
+    async getFileUploaded() {
+      try {
+          const address = this.ownerAddress;
+          const arrFile = await this.contractDegenics.methods.getFile(this.specimentNumberInput).call({from: address});
+          this.files = JSON.parse(arrFile);
+          this.filesLoading = new Array(this.files.length).fill(false);
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async decryptWallet() {
+      this.dialog = true;
+      if (this.password == '') {
+        return;
+      }
+      const keystore = localStorage.getKeystore()
+      const wallet = await Wallet.decrypt(keystore, this.password)
+      this.ownerAddress = wallet.address;
+      const privateKey = wallet.privateKey;
+      if (this.actionType == 'result') {
+        await this.parseResult(privateKey)
+      }
+
+      if (this.actionType == 'download') {
+        await this.downloadDecryptedFromIPFS(privateKey)
+      }
+
+      this.isLoading = false;
+      this.dialog = false;
+      this.password = ''
+    },
+    download(data, fileName) {
+      const blob = new Blob([ data ], {type: 'text/plain'})
+      const e = document.createEvent('MouseEvents')
+      const a = document.createElement('a')
+      a.download = fileName
+      a.href = window.URL.createObjectURL(blob)
+      a.dataset.downloadurl = ['text/json', a.download, a.href].join(':')
+      e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+      a.dispatchEvent(e)
+    },
+    async downloadDecryptedFromIPFS(privateKey) {
+        const channel = new MessageChannel();
+        channel.port1.onmessage = ipfsWorker.workerDownload;
+        let fileList = this.files[this.fileDownloadIndex].ipfsPath;
+        this.filesLoading[this.fileDownloadIndex] = true;
+        ipfsWorker.workerDownload.postMessage({file: fileList, privateKey}, [channel.port2]);
+        ipfsWorker.workerDownload.onmessage = event => {
+          this.download(event.data, this.files[this.fileDownloadIndex].fileName)
+          this.privateKey = '';
+          this.$set(this.filesLoading,this.fileDownloadIndex, false);
+        }
+    },
+    async getSpciments() {
+      try {
+        let sn = this.specimentNumberInput;
+        let address = this.ownerAddress;
+        this.speciment = await this.contractDegenics.methods.specimenByNumber(sn).call({from: address})
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getLabServices(labAccount) {
+      try {
+        const serviceCount = await this.contractDegenics.methods.serviceCount(labAccount).call()
+        let specNum = new Array(parseInt(serviceCount)).fill(null);
+        const promService = specNum.map((x, i)=>this.contractDegenics.methods.serviceByIndex(labAccount, i+1).call())
+        const services = await Promise.all(promService)
+        this.services = services;
+      } catch (err) {
+        this.services = []
+      }
+    },
+    async parseResult(privateKey){
+      this.resultLoading = true;
+      let fileResult = this.files.find(o=> o.fileType == 'result' );
+      if (!fileResult) return
+      let fileList = fileResult.ipfsPath;
+      const channel = new MessageChannel();
+      channel.port1.onmessage = ipfsWorker.workerDownload;
+      ipfsWorker.workerDownload.postMessage({file: fileList, privateKey}, [channel.port2]);
+      ipfsWorker.workerDownload.onmessage = event => {
+        console.log("masuk sini")
+        // const blob = new Blob([ event.data ], {type: 'text/plain'})
+        this.result = event.data;
+        //window.URL.createObjectURL(blob)
+        }
+      this.resultLoading = false;
+    },
+    showDialog(actionType, index) {
+      this.dialog = true;
+      this.actionType = actionType;
+      this.fileDownloadIndex = index;
+    }
+
+  },
+
+  computed: {
+    ...mapState({
+      contractDegenics: state => state.ethereum.contracts.contractDegenics,
+    }),
+  }
+}
+
+
+</script>
+
+<style>
+</style>
