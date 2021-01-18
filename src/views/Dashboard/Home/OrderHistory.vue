@@ -15,6 +15,7 @@
         v-for="(order) in orderHistory"
         :key="order.number"
         class="mb-2"
+        @click="gotoDetailOrder(order)"
       >
         <OrderCard
           :icon="order.icon"
@@ -189,7 +190,11 @@ export default {
     },
     goToOrderHistory() {
       router.push(`/history-test`);
-      console.log('TODO: go to order history')
+    },
+    gotoDetailOrder(order) {
+      console.log(order);
+      const receipts = order
+      this.$router.push({ name: 'order-history-detail', params: { receipts } })
     }
   },
 }

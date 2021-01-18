@@ -1,6 +1,5 @@
 <template>
   <div>
-    <div class="secondary--text mb-2"><b>Test Results</b></div>
     <div v-if="testResults.length == 0 && !isLoadingTestResults">
       No test results found
     </div>
@@ -15,7 +14,7 @@
         v-for="(order) in testResults"
         :key="order.number"
         class="mb-2"
-        @click="gotoResult(order)"
+         @click="gotoResult(order)"
       >
         <OrderCard
           :icon="order.icon"
@@ -25,7 +24,6 @@
           :timestamp="order.timestamp"
         />
       </div>
-      <PrimaryButton @click="goToTestResults">Show all results</PrimaryButton>
     </template>
   </div>
 </template>
@@ -33,7 +31,6 @@
 <script>
 import { mapState } from 'vuex'
 import OrderCard from '../../../components/OrderCard'
-import PrimaryButton from '../../../components/PrimaryButton'
 import localStorage from '../../../lib/local-storage'
 import router from '../../../router'
 
@@ -41,7 +38,6 @@ export default {
   name: 'TestResults',
   components: {
     OrderCard,
-    PrimaryButton,
   },
   computed: {
     ...mapState({
@@ -185,7 +181,7 @@ export default {
       return orders.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
     },
     goToTestResults() {
-      router.push(`/result-test-all`);
+      console.log('TODO: go to order history')
     },
     gotoResult(item) {
       router.push(`/result-test/${item.number}`);

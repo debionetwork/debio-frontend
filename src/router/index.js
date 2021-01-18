@@ -48,7 +48,7 @@ const routes = [
       {
         path: '/result-test/:number',
         name: 'result-test',
-        component: () => import(/* webpackChunkName */ '../views/Dashboard/TestHistory/result.vue')
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/TestResult/result.vue')
       },
       {
         path: '/request-test',
@@ -79,8 +79,17 @@ const routes = [
         path: '/lab/test/:number',
         name: 'lab-process-test',
         component: () => import(/* webpackChunkName */ '../views/Dashboard/Lab/result')
+      },
+      {
+        path: '/result-test-all',
+        name: 'all-test-result',
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/TestResult')
+      },
+      {
+        path: '/order-history-detail',
+        name: 'order-history-detail',
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/OrderHistoryDetail')
       }
-
     ]
   },
   {
@@ -141,7 +150,7 @@ router.beforeEach(async (to, from, next) => {
     next()
     return
   }
-  
+
   // If there's an error when getting user role, go back to login
   let role = null
   try {

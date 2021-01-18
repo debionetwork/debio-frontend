@@ -202,7 +202,6 @@ export default {
       }
     },
     gotoResult(item) {
-      console.log(item)
       router.push(`/result-test/${item.number}`);
     },
     showDialogInstruction(item) {
