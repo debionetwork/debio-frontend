@@ -1,4 +1,3 @@
-
 <template>
    <div>
     <v-container>
@@ -68,9 +67,7 @@
 <script>
 import { mapState } from 'vuex'
 import v from 'voca'
-import Wallet from '../../../lib/dgnx-wallet'
 import router from '../../../router'
-import sendTransaction from '../../../lib/send-transaction'
 import localStorage from '../../../lib/local-storage'
 import DataTable from '../../../components/DataTable'
 import SearchBar from '../../../components/DataTable/SearchBar'
@@ -109,13 +106,6 @@ export default {
     nextActions: [
       'Receive', 'Wetwork', 'Genome', 'Report', 'Send'
     ],
-    nextActionConditions: {
-      'Sending': 'Receive',
-      'Received': 'Wetwork',
-      'Wetwork': 'Genome',
-      'Genome': 'Report',
-      'Report': 'Send'
-    }
   }),
   computed: {
     ...mapState({
@@ -140,10 +130,25 @@ export default {
      * nextActionsAvailable
      * 
      * Determine the next actions available for the specimen
+     * 
+     * nextActionConditions: 
+     *   'Sending'  => 'Receive'
+     *   'Received' => 'Wetwork'
+     *   'Wetwork'  => 'Genome'
+     *   'Genome'   => 'Report'
+     *   'Report'   => 'Send'
+     *   'Reject'   => 'View'
+     *   'Succes'   => 'View'
+     * 
+     *  FIXME: Consider saving actions that are done in local storage.
+     *      for simpler logic of determining next actions
      */
     nextActionsAvailable(specimenStatus, specimenNumber) {
       if (specimenStatus == 'Sending') {
         return this.nextActions.map(action => ({ name: action, doneFileTypes: [] }))
+      }
+      if (specimenStatus == 'Reject') {
+        return [{ name: 'View', doneFileTypes: [] }]
       }
       // The specimenStatus on blockchain should now be 'Received'
       // need to manage next actions based on what has been done locally
@@ -172,10 +177,22 @@ export default {
      * Determine if processAction (Receive / Wetwork / Genome / Report / Send) is the next action
      * Based on specimen status
      * 
+     * nextActionConditions: 
+     *   'Sending'  => 'Receive'
+     *   'Received' => 'Wetwork'
+     *   'Wetwork'  => 'Genome'
+     *   'Genome'   => 'Report'
+     *   'Report'   => 'Send'
+     *   'Reject'   => 'View'
+     *   'Succes'   => 'View'
+     * 
      * @param {string} status
      * @return {boolean}
      */
     isNextAction(action, status) {
+      if (status == 'Succes' || status == 'Reject') {
+        return action.name == 'View'
+      }
       if (status == 'Sending') {
         return action.name == 'Receive'
       }
@@ -244,33 +261,7 @@ export default {
       }
     },
     gotoResult(item) {
-      console.log(item)
       router.push(`/lab/${item.number}`);
-    },
-    async acceptSpeciment() {
-      try {
-
-        // Retrieve wallet
-        console.log('decrypting Keystore...')
-        const degenicsContract = this.contractDegenics._address;
-        const keystore = localStorage.getKeystore()
-        const wallet = await Wallet.decrypt(keystore, this.password)
-        const abiData = this.contractDegenics.methods
-          .receiveSpecimen(this.selectedSpeciment.number, wallet.publicKey)
-          .encodeABI()
-        let tx = await sendTransaction(degenicsContract, wallet, abiData)
-        console.log(tx, wallet);
-        await this.loadDatatable();
-        this.dialog = false;
-      } catch (err) {
-        this.dialog = false;
-        console.log(err)
-      }
-    },
-    showDialog(item, dialogMode) {
-        this.dialog = true;
-        this.dialogMode = dialogMode;
-        this.selectedSpeciment = item;
     },
     async loadDatatable(){
       this.isLoading = true

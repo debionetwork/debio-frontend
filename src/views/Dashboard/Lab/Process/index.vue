@@ -26,13 +26,13 @@
               :escrowAddress="escrowAddress"
             />
             <ReceiveSpecimen
-              v-if="specimen && doneActions.length == 0"
+              v-if="specimen && doneActions.length == 0 && !isProcessed"
               :specimen="specimen"
               :wallet="wallet"
               @specimenReceived="onSpecimenReceived"
             />
             <CheckWetWorkDone
-              v-if="specimen && doneActions.includes('Received') && specimen.status != 'Succes'"
+              v-if="specimen && doneActions.includes('Received') && !isProcessed"
               :is-checked="doneActions.includes('Wetwork')"
               :disabled="specimen.status == 'Succes'"
               @check="onWetWorkDoneChecked"
@@ -48,13 +48,20 @@
             />
             <Finalize
               ref="finalize"
-              v-if="specimen && doneActions.includes('Wetwork') && specimen.status != 'Succes'"
+              v-if="specimen && doneActions.includes('Received') && !isProcessed"
               :wallet="wallet"
               :specimen="specimen"
               :can-send="canSend"
               @send="onSend"
               @reject="onReject"
             />
+            <!-- Show if specimen is already processed (Succes / Reject) -->
+            <template v-if="isProcessed">
+              <div class="my-4">
+                <RejectAlert v-if="specimen && specimen.status == 'Reject'" />
+                <SuccessAlert v-if="specimen && specimen.status == 'Succes'" />
+              </div>
+            </template>
           </v-col>
         </template>
       </v-row>
@@ -73,6 +80,8 @@ import UnlockWalletDialog from './UnlockWalletDialog'
 import CheckWetWorkDone from './CheckWetWorkDone'
 import FileManager from './FileManager'
 import Finalize from './Finalize'
+import RejectAlert from './RejectAlert'
+import SuccessAlert from './SuccessAlert'
 
 export default {
   name: 'Process',
@@ -84,6 +93,8 @@ export default {
     CheckWetWorkDone,
     FileManager,
     Finalize,
+    RejectAlert,
+    SuccessAlert,
   },
   data: () => ({
     unlockWalletDialog: false,
@@ -106,6 +117,9 @@ export default {
       // required actions == all actions except 'Sent'
       const requiredActions = this.actions.filter(action => action != 'Sent')
       return requiredActions.every(action => this.doneActions.includes(action))
+    },
+    isProcessed() {
+      return this.specimen.status == 'Succes' || this.specimen.status == 'Reject'
     }
   },
   async mounted() {
@@ -186,6 +200,10 @@ export default {
     setDoneActions() {
       if (this.specimen.status == 'Succes') {
         this.doneActions = [...this.actions]
+        return
+      }
+      if (this.specimen.status == 'Reject') {
+        this.doneActions = ['Received']
         return
       }
 

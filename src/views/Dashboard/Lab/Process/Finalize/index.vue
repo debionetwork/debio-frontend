@@ -151,6 +151,7 @@ export default {
 
         this.loading.reject = false
         this.$refs.rejectDialog.clearRemark()
+        this.rejectDialog = false
 
         this.$emit('reject')
 

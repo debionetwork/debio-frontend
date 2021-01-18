@@ -13,6 +13,7 @@
         :label="action"
         :value="action"
         readonly
+        :disabled="specimen.status == 'Succes' || specimen.status == 'Reject'"
         color="success"
         hide-details="true"
       ></v-checkbox>
