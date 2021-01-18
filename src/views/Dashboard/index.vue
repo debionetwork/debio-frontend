@@ -26,7 +26,7 @@
           <UserAccountMenu />
           <SettingsMenu dark />
           <!-- Menu For Development Purposes -->
-          <DevMenu dark />
+          <DevMenu v-if="isDevEnv" dark />
       </div>
     </v-app-bar>
 
@@ -53,6 +53,9 @@ export default {
   computed: {
     isLab() {
       return this.$route.path.indexOf('lab') > 0
+    },
+    isDevEnv() {
+      return process.env.NODE_ENV == 'development'
     }
   },
   methods: {

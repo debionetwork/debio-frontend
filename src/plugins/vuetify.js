@@ -19,6 +19,9 @@ export default new Vuetify({
         secondary: '#3F2040',
         light_primary: '#FDC0FF',
         success: '#6edaa8',
+        blue: '#63d0d5',
+        green: '#6edaa8',
+        yellow: '#EFC457'
       }
     }
   }
