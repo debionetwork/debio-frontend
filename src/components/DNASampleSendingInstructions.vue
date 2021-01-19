@@ -14,7 +14,7 @@
           <div v-html="item" class=""></div>
         </v-col>
       </v-row>
-      <v-row>
+      <v-row v-if="!hideOrderHistoryLink">
         <v-col cols="1" class="pl-6">
           <v-icon>mdi-numeric-{{instructions.length + 1}}-circle</v-icon>
         </v-col>
@@ -43,6 +43,7 @@ export default {
   props: {
     specimenNumber: String,
     lab: Object,
+    hideOrderHistoryLink: Boolean,
   },
   computed: {
     instructions() {

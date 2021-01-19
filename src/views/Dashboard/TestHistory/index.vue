@@ -8,6 +8,7 @@
                   <DNASampleSendingInstructions
                      :specimenNumber="selectedSpeciment.number"
                      :lab="selectedSpeciment.labData"
+                     hide-order-history-link
                   >
                      <template v-slot:button>
                         <v-btn
@@ -17,7 +18,7 @@
                            width="100%"
                            @click="() => (dialogInstruction = false)"
                         >
-                           Dismis
+                           Dismiss
                         </v-btn>
                      </template>
                   </DNASampleSendingInstructions>
@@ -34,7 +35,7 @@
                            width="100%"
                            @click="() => (dialogRejected = false)"
                         >
-                           Dismis
+                           Dismiss
                         </v-btn>
                      </template>
 
@@ -46,6 +47,8 @@
                   :headers="headers"
                   :items="speciments"
                   :search="search"
+                  :sort-by="['timestamp']"
+                  :sort-desc="[true]"
                   :loading="isLoading"
                   additional-class="laporan-table"
                >
@@ -55,17 +58,24 @@
                         @input="onSearchInput"
                      ></SearchBar>
                   </template>
+                  <template v-slot:[`item.number`]="{ item }">
+                    {{ item.number | specimenNumber }}
+                  </template>
+                  <template v-slot:[`item.timestamp`]="{ item }">
+                    {{ item.timestamp | timestampToDate }}
+                  </template>
 
-                  <template v-slot:item.actions="{ item }">
+                  <template v-slot:[`item.actions`]="{ item }">
                      <v-container
                         v-if="item.status == 'Sending' || item.status == 'Paid'"
                      >
                         <v-btn
                           class="btn-sending"
+                          dark
                            small
                            width="200"
                            @click="showDialogInstruction(item)"
-                           >Sending Instrunctions</v-btn
+                           >Sending Instructions</v-btn
                         >
                      </v-container>
                      <v-container v-if="item.status == 'Succes'">
@@ -81,6 +91,7 @@
                      <v-container v-if="item.status == 'Reject'">
                         <v-btn
                            class="Reject"
+                           dark
                            small
                            width="200"
                            @click="showDialogRejected(item)"
@@ -118,7 +129,8 @@ export default {
     headers: [
           { text: 'Lab Name', value: 'labData.name' },
           { text: 'Product Name', value: 'serviceName' },
-          { text: 'Speciments Num', value: 'number' },
+          { text: 'Specimen Number', value: 'number' },
+          { text: 'Date', value: 'timestamp' },
           { text: 'Status', value: 'status' },
           { text: 'Actions', value: 'actions', sortable: false, align: 'center', width: '5%' },
         ],
@@ -155,12 +167,12 @@ export default {
         const Labs = await this.getLabs(arrSpeciments);
         console.log(arrSpeciments, Labs)
         this.speciments = arrSpeciments.map(dt=>{
-          let { labAccount, owner, serviceCode, status, number } = dt;
+          let { labAccount, owner, serviceCode, status, number, timestamp } = dt;
           const labData = Labs.objLab.get(labAccount);
           const objServiceName = Labs.objService.get(labAccount).find(obj=>obj.code == serviceCode);
           const serviceName = objServiceName ? objServiceName.serviceName : "";
           console.log("SN: ", serviceName, serviceCode)
-          return { labAccount, owner, serviceCode, status, number, labData, serviceName };
+          return { labAccount, owner, serviceCode, status, number, labData, serviceName, timestamp };
           });
 
       } catch (error) {

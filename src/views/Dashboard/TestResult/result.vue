@@ -4,20 +4,22 @@
       <v-container>
          <v-row>
             <v-col cols="12" md="8">
-               <v-card width="100%">
+                <div class="secondary--text mb-2"><b>Test Result Report</b></div>
+                <v-card class="dg-card" width="100%">
                   <v-progress-linear
                      v-if="resultLoading"
                      indeterminate
                      color="primary"
                   ></v-progress-linear>
-                  <v-card-title>Result {{ serviceName }}</v-card-title>
+                  <v-card-title>{{ serviceName }} Report</v-card-title>
                   <v-card-text>
-                    {{result}}
+                    {{result ? result : 'Decrypting report..'}}
                   </v-card-text>
                </v-card>
             </v-col>
             <v-col cols="12" md="4">
-               <div v-for="(file, index) in files" :key="file.name">
+              <div class="secondary--text mb-2"><b>Test Result Files</b></div>
+               <div v-for="(file, index) in files" :key="file.name" class="mb-2">
                   <MenuCard
                      icon="mdi-file-document-multiple-outline"
                      :title="file.fileType"
@@ -29,7 +31,7 @@
                </div>
             </v-col>
          </v-row>
-         <v-dialog v-model="dialog" max-width="600px">
+         <v-dialog v-model="dialog" max-width="600px" persistent>
             <template>
                <v-card>
                   <v-card-title class="headline grey lighten-2">
