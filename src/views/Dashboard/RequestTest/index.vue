@@ -2,13 +2,6 @@
   <div>
     <v-container>
       <v-row>
-        <v-col cols="12">
-          <div class="text-h5 px-2 secondary--text text--lighten-2">
-            <b>Request a Test</b>
-          </div>
-        </v-col>
-      </v-row>
-      <v-row>
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-title class="px-8">

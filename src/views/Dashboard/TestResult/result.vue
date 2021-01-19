@@ -3,13 +3,6 @@
    <div>
       <v-container>
          <v-row>
-            <v-col cols="12">
-               <div class="text-h5 px-2 secondary--text text--lighten-2">
-                  <b>Test Result</b>
-               </div>
-            </v-col>
-         </v-row>
-         <v-row>
             <v-col cols="12" md="8">
                <v-card width="100%">
                   <v-progress-linear

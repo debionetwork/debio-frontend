@@ -1,13 +1,6 @@
 <template>
    <div>
     <v-container>
-      <v-row class="my-2">
-        <v-col cols="12">
-          <div class="text-h5 px-2 secondary--text text--lighten-2">
-            <b>Orders</b>
-          </div>
-        </v-col>
-      </v-row>
         <v-row>
           <v-col>
             <DataTable
