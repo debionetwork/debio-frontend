@@ -56,7 +56,7 @@ const routes = [
         component: () => import(/* webpackChunkName */ '../views/Dashboard/TestHistory')
       },
       {
-        path: '/order-history-detail',
+        path: '/order-history-detail/:number',
         name: 'order-history-detail',
         meta: {
           pageHeader: 'Order Detail',

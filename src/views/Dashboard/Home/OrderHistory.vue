@@ -180,7 +180,7 @@ export default {
         const labName = lab.name
 
         const order = {
-          icon, title, number, labName, timestamp, status,
+          icon, title, number, labName, timestamp, status, product, lab
         }
 
         orders.push(order)
@@ -192,9 +192,7 @@ export default {
       router.push(`/history-test`);
     },
     gotoDetailOrder(order) {
-      console.log(order);
-      const receipts = order
-      this.$router.push({ name: 'order-history-detail', params: { receipts } })
+      this.$router.push({ name: 'order-history-detail', params: { number: order.number } })
     }
   },
 }
