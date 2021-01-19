@@ -95,7 +95,7 @@ export default {
     privateKey: '',
     specimentNumberInput: '',
     ownerAddress: '',
-    files: [{"fileName":"genome.txt","fileType":"genome","ipfsPath":[{"seed":0,"data":{"path":"QmUNdNXeuGTJCmzAuhwRYfwEvcq8y6J46QXKHYYESZEqxF","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":10242820}},{"seed":1,"data":{"path":"QmYTTuYbv4kybg3c5ticzciD4vELpvBFHn3xpyhgmuGhvb","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":10242820}},{"seed":3,"data":{"path":"QmbtrPFsUhNnztVwmd7nWw5ZcDwFPXZKdfE3hnPqxZJyaY","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":2957467}},{"seed":2,"data":{"path":"QmeAzZ3TKW8cZtTqPQyMC7uCUM1HKctteg3f5hQgGD7cWQ","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":10242820}}]},{"fileName":"fd_zero_variants_notable_ethnicity.pdf","fileType":"result","ipfsPath":[{"seed":0,"data":{"path":"Qmdhxke3bRTRjRPEZ1iqRXdXc9mtkZmf97fpJgjxfevwPn","cid":{"version":0,"codec":"dag-pb","multihash":"[object Uint8Array]","multibaseName":"base58btc"},"size":2380479}}]}],
+    files: [],
     dialog: false,
     password: '',
     speciment: {},
@@ -193,7 +193,8 @@ export default {
     },
     async parseResult(privateKey){
       this.resultLoading = true;
-      let fileResult = this.files.find(o=> o.fileType == 'result' );
+      let fileResult = this.files.find(o=> o.fileType == 'report' );
+      console.log(this.files)
       if (!fileResult) return
       let fileList = fileResult.ipfsPath;
       const channel = new MessageChannel();

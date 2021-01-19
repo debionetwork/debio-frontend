@@ -183,7 +183,7 @@ export default {
     },
     /**
      * getFilesUploaded
-     * 
+     *
      * get the files reference from Blockchain
      * this will replace the local files state with the files state retrieved from Blockchain
      */
@@ -210,7 +210,7 @@ export default {
     },
     /**
      * getFilesFromTempStore
-     * 
+     *
      * Get the files store on localstorage
      * Files are stored here if the processing is not yet finalized on the blockchain
      */
@@ -268,7 +268,7 @@ export default {
 
       return new Promise((resolve, reject) => {
         try {
-          const publicKey = this.wallet.publicKey;
+          const publicKey = this.specimen.pubkey;
           const arrChunks = [];
           let chunksAmount;
 
@@ -318,7 +318,7 @@ export default {
             uploadedResultChunks.push(event.data)
             this.uploadProgress[fileType] =
               uploadedResultChunks.length / encryptedFileChunks.length * 100
-            
+
             if (uploadedResultChunks.length == encryptedFileChunks.length) {
               resolve({
                 fileName: fileName,
@@ -350,7 +350,7 @@ export default {
     },
     /**
      * finalize
-     * 
+     *
      * Save the specimen state in blockchain:
      * - Set files references
      * - Set specimen status == Success
