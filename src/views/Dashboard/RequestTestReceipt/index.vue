@@ -2,13 +2,6 @@
   <div>
     <v-container>
       <v-row>
-        <v-col cols="12">
-          <div class="text-h5 px-2 secondary--text text--lighten-2">
-            <b>Your Order Receipt</b>
-          </div>
-        </v-col>
-      </v-row>
-      <v-row>
         <v-col cols="12" lg="6" md="6" xl="5">
           <v-alert
             type="success"
@@ -157,6 +150,9 @@ export default {
   },
   mounted() {
     const { receipts } = this.$router.history.current.params
+    if (!receipts) {
+      this.$router.push('/')
+    }
     this.receipts = receipts
   },
   methods: {

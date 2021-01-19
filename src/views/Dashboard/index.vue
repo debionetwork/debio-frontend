@@ -31,15 +31,26 @@
     </v-app-bar>
 
     <v-main class="dg-dashboard-main">
+      <!-- Breadcrumbs and Header -->
+      <v-container>
+        <Breadcrumbs />
+        <div class="text-h5 secondary--text text--lighten-2">
+          <b>{{ pageHeader }}</b>
+        </div>
+      </v-container>
+
+      <!-- Page Contents -->
       <router-view></router-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
+import v from 'voca'
 import DevMenu from '../../components/DevMenu'
 import UserAccountMenu from '../../components/UserAccountMenu'
 import SettingsMenu from '../../components/SettingsMenu'
+import Breadcrumbs from './Breadcrumbs'
 
 export default {
   name: 'Dashboard',
@@ -47,6 +58,7 @@ export default {
     DevMenu,
     UserAccountMenu,
     SettingsMenu,
+    Breadcrumbs,
   },
   mounted() {
   },
@@ -56,6 +68,11 @@ export default {
     },
     isDevEnv() {
       return process.env.NODE_ENV == 'development'
+    },
+    pageHeader() {
+      return this.$route.meta.pageHeader
+        ? this.$route.meta.pageHeader
+        : v.titleCase(this.$route.name)
     }
   },
   methods: {

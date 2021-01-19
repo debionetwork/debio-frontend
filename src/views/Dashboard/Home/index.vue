@@ -3,7 +3,8 @@
     <v-container>
       <v-row>
         <v-col cols="12" md="4">
-          <div style="height: 31.3px;"></div>
+          <!-- <div style="height: 31.3px;"></div> -->
+          <div class="secondary--text mb-2"><b>Menu</b></div>
           <div class="mb-2">
             <MenuCard
               icon="mdi-test-tube"

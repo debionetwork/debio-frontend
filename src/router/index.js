@@ -38,58 +38,119 @@ const routes = [
       {
         path: '/',
         name: 'home',
+        meta: {
+          pageHeader: 'Home',
+        },
         component: () => import(/* webpackChunkName */ '../views/Dashboard/Home')
       },
       {
         path: '/history-test',
         name: 'history-test',
+        meta: {
+          pageHeader: 'Order history',
+          breadcrumbs: [
+            { text: 'Home', href: '/' },
+            { text: 'Order History', disabled: true }
+          ]
+        },
         component: () => import(/* webpackChunkName */ '../views/Dashboard/TestHistory')
+      },
+      {
+        path: '/order-history-detail',
+        name: 'order-history-detail',
+        meta: {
+          pageHeader: 'Order Detail',
+          breadcrumbs: [
+            { text: 'Home', href: '/' },
+            { text: 'Order History', href: '/history-test' },
+            { text: 'Order Detail', disabled: true },
+          ]
+        },
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/OrderHistoryDetail')
       },
       {
         path: '/result-test/:number',
         name: 'result-test',
+        meta: {
+          pageHeader: 'Test Result',
+          breadcrumbs: [
+            { text: 'Home', href: '/' },
+            { text: 'Order History', href: '/history-test' },
+            { text: 'Test Result', disabled: true }
+          ]
+        },
         component: () => import(/* webpackChunkName */ '../views/Dashboard/TestResult/result.vue')
       },
       {
         path: '/request-test',
         name: 'request-test',
+        meta: {
+          pageHeader: 'Request a Test',
+          breadcrumbs: [
+            { text: 'Home', href: '/' },
+            { text: 'Request a Test', disabled: true },
+          ]
+        },
         component: () => import(/* webpackChunkName */ '../views/Dashboard/RequestTest')
       },
       {
         path: '/request-test/checkout',
         name: 'request-test-checkout',
+        meta: {
+          pageHeader: 'Checkout',
+          breadcrumbs: [
+            { text: 'Home', href: '/' },
+            { text: 'Request a Test', href: '/request-test' },
+            { text: 'Checkout', disabled: true },
+          ]
+        },
         component: () => import(/* webpackChunkName */ '../views/Dashboard/RequestTestCheckout')
       },
       {
         path: '/request-test/receipt',
         name: 'request-test-receipt',
+        meta: {
+          pageHeader: 'Your Order Receipt',
+          breadcrumbs: [
+            { text: 'Home', href: '/' },
+            { text: 'Request a Test', href: '/request-test' },
+            { text: 'Receipt', disabled: true },
+          ]
+        },
         component: () => import(/* webpackChunkName */ '../views/Dashboard/RequestTestReceipt')
+      },
+      {
+        path: '/result-test-all',
+        name: 'all-test-result',
+        meta: {
+          pageHeader: 'Test Results',
+          breadcrumbs: [
+            { text: 'Home', href: '/' },
+            { text: 'Test Results', disabled: true },
+          ]
+        },
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/TestResult')
       },
       {
         path: '/lab',
         name: 'lab',
+        meta: {
+          pageHeader: 'Orders',
+        },
         component: () => import(/* webpackChunkName */ '../views/Dashboard/Lab')
       },
       {
         path: '/lab/:number',
         name: 'lab-process',
+        meta: {
+          pageHeader: 'Process Order',
+          breadcrumbs: [
+            { text: 'Orders', href: '/lab' },
+            { text: 'Process Order', disabled: true },
+          ]
+        },
         component: () => import(/* webpackChunkName */ '../views/Dashboard/Lab/Process')
       },
-      {
-        path: '/lab/test/:number',
-        name: 'lab-process-test',
-        component: () => import(/* webpackChunkName */ '../views/Dashboard/Lab/result')
-      },
-      {
-        path: '/result-test-all',
-        name: 'all-test-result',
-        component: () => import(/* webpackChunkName */ '../views/Dashboard/TestResult')
-      },
-      {
-        path: '/order-history-detail',
-        name: 'order-history-detail',
-        component: () => import(/* webpackChunkName */ '../views/Dashboard/OrderHistoryDetail')
-      }
     ]
   },
   {
