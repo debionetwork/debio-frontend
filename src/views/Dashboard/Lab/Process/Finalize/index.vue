@@ -140,10 +140,9 @@ export default {
         this.loading.reject = true
         this.error.reject = ''
 
-        console.log(remark)
         console.log('sending specimen reject')
         const abiData = this.degenicsContract.methods
-          .rejectSpecimen(this.specimen.number,  "Sucess")
+          .rejectSpecimen(this.specimen.number,  remark)
           .encodeABI()
         let tx = await sendTransaction(
           this.degenicsContract._address, this.wallet, abiData

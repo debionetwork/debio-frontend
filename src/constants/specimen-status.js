@@ -1,0 +1,5 @@
+export const SENDING = 'Sending'
+export const RECEIVED = 'Received'
+export const REJECTED = 'Rejected'
+export const SUCCESS = 'Success'
+export const REFUNDED = 'Refunded'

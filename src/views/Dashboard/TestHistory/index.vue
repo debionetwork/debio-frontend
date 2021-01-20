@@ -64,10 +64,13 @@
                   <template v-slot:[`item.timestamp`]="{ item }">
                     {{ item.timestamp | timestampToDate }}
                   </template>
+                  <template v-slot:[`item.status`]="{ item }">
+                    {{ item.status | customerSpecimenStatus }}
+                  </template>
 
                   <template v-slot:[`item.actions`]="{ item }">
                      <v-container
-                        v-if="item.status == 'Sending' || item.status == 'Paid'"
+                        v-if="item.status == SENDING"
                      >
                         <v-btn
                           class="btn-sending"
@@ -78,7 +81,19 @@
                            >Sending Instructions</v-btn
                         >
                      </v-container>
-                     <v-container v-if="item.status == 'Succes'">
+                     <v-container
+                        v-if="item.status == RECEIVED"
+                     >
+                        <v-btn
+                          class="Received"
+                          dark
+                           small
+                           width="200"
+                           @click="goToOrderDetail(item)"
+                           >View Order</v-btn
+                        >
+                     </v-container>
+                     <v-container v-if="item.status == SUCCESS">
                         <v-btn
                            class="success"
                            small
@@ -88,7 +103,7 @@
                         >
                      </v-container>
 
-                     <v-container v-if="item.status == 'Reject'">
+                     <v-container v-if="item.status == REJECTED">
                         <v-btn
                            class="Reject"
                            dark
@@ -116,6 +131,7 @@ import DataTable from '../../../components/DataTable'
 import SearchBar from '../../../components/DataTable/SearchBar'
 import DNASampleSendingInstructions from '../../../components/DNASampleSendingInstructions'
 import RejectedReasonDialog from '../../../components/RejectedReasonDialog'
+import { SENDING, RECEIVED, SUCCESS, REJECTED } from '@/constants/specimen-status'
 
 export default {
   name: 'history-test',
@@ -126,6 +142,7 @@ export default {
     RejectedReasonDialog,
   },
   data: () => ({
+    SENDING, RECEIVED, SUCCESS, REJECTED,
     headers: [
           { text: 'Lab Name', value: 'labData.name' },
           { text: 'Product Name', value: 'serviceName' },
@@ -213,6 +230,12 @@ export default {
       this.dialogInstruction = true;
       this.selectedSpeciment = item;
     },
+    goToOrderDetail(item) {
+      this.$router.push({
+        name: 'order-history-detail',
+        params: { number: item.number }
+      })
+    },
     showDialogRejected(item) {
       this.dialogRejected = true;
       this.selectedSpeciment = item;
@@ -246,6 +269,10 @@ export default {
 
 .Sending {
    background-color: $color-primary !important;
+}
+
+.Received {
+  background-color: $color-status-received !important;
 }
 
 .Succes {

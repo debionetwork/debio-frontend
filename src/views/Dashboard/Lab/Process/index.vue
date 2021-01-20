@@ -27,12 +27,12 @@
             <CheckWetWorkDone
               v-if="specimen && doneActions.includes('Received') && !isProcessed"
               :is-checked="doneActions.includes('Wetwork')"
-              :disabled="specimen.status == 'Succes'"
+              :disabled="specimen.status == SUCCESS"
               @check="onWetWorkDoneChecked"
             />
             <FileManager
               ref="fileManager"
-              v-if="specimen && doneActions.includes('Received') && specimen.status != 'Reject'"
+              v-if="specimen && doneActions.includes('Received') && specimen.status != REJECTED"
               :wallet="wallet"
               :specimen="specimen"
               :enabled="doneActions.includes('Wetwork')"
@@ -51,8 +51,8 @@
             <!-- Show if specimen is already processed (Succes / Reject) -->
             <template v-if="isProcessed">
               <div class="my-4">
-                <RejectAlert v-if="specimen && specimen.status == 'Reject'" />
-                <SuccessAlert v-if="specimen && specimen.status == 'Succes'" />
+                <RejectAlert v-if="specimen && specimen.status == REJECTED" />
+                <SuccessAlert v-if="specimen && specimen.status == SUCCESS" />
               </div>
             </template>
           </v-col>
@@ -75,6 +75,7 @@ import FileManager from './FileManager'
 import Finalize from './Finalize'
 import RejectAlert from './RejectAlert'
 import SuccessAlert from './SuccessAlert'
+import { SENDING, RECEIVED, SUCCESS, REJECTED } from '@/constants/specimen-status'
 
 export default {
   name: 'Process',
@@ -90,6 +91,7 @@ export default {
     SuccessAlert,
   },
   data: () => ({
+    SENDING, RECEIVED, SUCCESS, REJECTED,
     unlockWalletDialog: false,
     wallet: null,
     isLoading: false,
@@ -112,7 +114,7 @@ export default {
       return requiredActions.every(action => this.doneActions.includes(action))
     },
     isProcessed() {
-      return this.specimen.status == 'Succes' || this.specimen.status == 'Reject'
+      return this.specimen.status == SUCCESS || this.specimen.status == REJECTED
     }
   },
   async mounted() {
@@ -191,11 +193,11 @@ export default {
       return escrowAddress
     },
     setDoneActions() {
-      if (this.specimen.status == 'Succes') {
+      if (this.specimen.status == SUCCESS) {
         this.doneActions = [...this.actions]
         return
       }
-      if (this.specimen.status == 'Reject') {
+      if (this.specimen.status == REJECTED) {
         this.doneActions = ['Received']
         return
       }
@@ -237,7 +239,7 @@ export default {
         const tx = await this.$refs.finalize.setSpecimenSuccess(files)
         console.log('Set Specimen Success TX: ', tx)
 
-        this.specimen.status = 'Succes'
+        this.specimen.status = SUCCESS
         this.setDoneActions()
         
       } catch (err) {
@@ -245,7 +247,7 @@ export default {
       }
     },
     onReject() {
-      this.specimen.status = 'Reject'
+      this.specimen.status = REJECTED
     }
   }
 }

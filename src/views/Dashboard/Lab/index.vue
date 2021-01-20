@@ -28,7 +28,7 @@
               </template>
               <template v-slot:[`item.actions`]="{ item }">
                 <div class="py-4">
-                  <div v-if="item.status == 'Succes'">
+                  <div v-if="item.status == SUCCESS">
                     <router-link :to="`/lab/${item.number}`">
                       <b>View</b>
                     </router-link>
@@ -65,6 +65,7 @@ import localStorage from '../../../lib/local-storage'
 import DataTable from '../../../components/DataTable'
 import SearchBar from '../../../components/DataTable/SearchBar'
 import specimenFilesTempStore from '../../../lib/specimen-files-temp-store'
+import { SUCCESS, REJECTED, SENDING, RECEIVED } from '@/constants/specimen-status'
 
 export default {
   name: 'Lab',
@@ -73,6 +74,7 @@ export default {
     SearchBar,
   },
   data: () => ({
+    SUCCESS,
     testNumberInput: '',
     headers: [
       {
@@ -130,17 +132,17 @@ export default {
      *   'Wetwork'  => 'Genome'
      *   'Genome'   => 'Report'
      *   'Report'   => 'Send'
-     *   'Reject'   => 'View'
-     *   'Succes'   => 'View'
+     *   'Rejected'   => 'View'
+     *   'Success'   => 'View'
      *
      *  FIXME: Consider saving actions that are done in local storage.
      *      for simpler logic of determining next actions
      */
     nextActionsAvailable(specimenStatus, specimenNumber) {
-      if (specimenStatus == 'Sending') {
+      if (specimenStatus == SENDING) {
         return this.nextActions.map(action => ({ name: action, doneFileTypes: [] }))
       }
-      if (specimenStatus == 'Reject') {
+      if (specimenStatus == REJECTED) {
         return [{ name: 'View', doneFileTypes: [] }]
       }
       // The specimenStatus on blockchain should now be 'Received'
@@ -177,24 +179,31 @@ export default {
      *   'Genome'   => 'Report'
      *   'Report'   => 'Send'
      *   'Reject'   => 'View'
-     *   'Succes'   => 'View'
+     *   'Success'   => 'View'
      *
      * @param {string} status
      * @return {boolean}
      */
     isNextAction(action, status) {
-      if (status == 'Succes' || status == 'Reject') {
+      if (status == SUCCESS || status == REJECTED) {
         return action.name == 'View'
       }
-      if (status == 'Sending') {
+      if (status == SENDING) {
         return action.name == 'Receive'
       }
-      if (status == 'Received') {
+      if (status == RECEIVED) {
         if (action.doneFileTypes.length == 0) {
           return action.name == 'Wetwork'
         }
-        // Is next action if not yet in doneFileTypes (Genome, Report)
-        return !action.doneFileTypes.includes(action.name)
+        // Only 1 type of file have been uploaded
+        if (action.doneFileTypes.length == 1) {
+          // Is next action if not yet in doneFileTypes (Genome, Report)
+          return !action.doneFileTypes.includes(action.name) && action.name != 'Send'
+        }
+        // All files have been uploaded
+        if (action.doneFileTypes.length == 2) {
+          return action.name == 'Send'
+        }
       }
     },
     async getSpcimentCount() {

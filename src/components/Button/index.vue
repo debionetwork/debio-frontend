@@ -6,6 +6,7 @@
     width="100%"
     @click="onClick"
     :style="dark ? 'color:white' : ''"
+    :disabled="disabled"
   >
     <slot></slot>
   </v-btn>
@@ -17,6 +18,7 @@ export default {
   props: {
     color: String,
     dark: Boolean,
+    disabled: Boolean,
   },
   methods: {
     onClick() {

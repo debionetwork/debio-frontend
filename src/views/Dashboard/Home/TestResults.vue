@@ -36,6 +36,7 @@ import OrderCard from '../../../components/OrderCard'
 import PrimaryButton from '../../../components/PrimaryButton'
 import localStorage from '../../../lib/local-storage'
 import router from '../../../router'
+import { SUCCESS } from '@/constants/specimen-status'
 
 export default {
   name: 'TestResults',
@@ -94,7 +95,7 @@ export default {
           specimensPromises.push(promise)
         }
         const specimens = await Promise.all(specimensPromises)
-        const successSpecimens = specimens.filter(spec => spec.status == 'Succes')
+        const successSpecimens = specimens.filter(spec => spec.status == SUCCESS)
 
         return successSpecimens.slice(0, maxSpecimens)
       } catch (err) {
