@@ -10,6 +10,9 @@ import localStorage from './lib/local-storage'
 
 Vue.config.productionTip = false
 
+Vue.filter('customerSpecimenStatus', function(val) {
+  return val == 'Received' ? 'Received by Lab' : val
+})
 Vue.filter('specimenNumber', function(val) {
   return fmtSpecimenNumber(val)
 })

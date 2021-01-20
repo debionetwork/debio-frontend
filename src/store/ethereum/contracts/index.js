@@ -45,7 +45,7 @@ export default {
     initContracts({ commit, rootState }) {
       const { web3 } = rootState.ethereum
       const degenicsContract =  new web3.eth.Contract(Degenics, contractInfo.Degenics.address)
-      const degenicsLogContract = new web3.eth.Contract(DegenicsLog, contractInfo.Specimen.address)
+      const degenicsLogContract = new web3.eth.Contract(DegenicsLog, contractInfo.DegenicsLog.address)
       const locationContract =  new web3.eth.Contract(Location, contractInfo.Location.address)
       const labContract =  new web3.eth.Contract(Lab, contractInfo.Lab.address)
       const accountContract =  new web3.eth.Contract(Account, contractInfo.Account.address)

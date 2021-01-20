@@ -13,7 +13,7 @@
         :label="action"
         :value="action"
         readonly
-        :disabled="specimen.status == 'Succes' || specimen.status == 'Reject'"
+        :disabled="specimen.status == SUCCESS || specimen.status == REJECTED"
         color="success"
         hide-details="true"
       ></v-checkbox>
@@ -22,7 +22,10 @@
 </template>
 
 <script>
+import { SUCCESS, REJECTED } from '@/constants/specimen-status'
 export default {
+  SUCCESS,
+  REJECTED,
   name: 'Checklist',
   props: {
     specimen: Object,

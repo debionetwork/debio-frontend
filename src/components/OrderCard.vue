@@ -3,11 +3,11 @@
     <div class="dg-order-card d-flex align-center fill-height py-2 pr-4" style="width: 100%">
       <div class="my-3 ml-5">
         <v-icon
-          v-if="icon"
+          v-if="_icon"
           color="#BA8DBB"
           :size="48"
         >
-          {{ icon }}
+          {{ _icon }}
         </v-icon>
         <v-avatar v-else>
           <img src="../assets/degenics-logo.webp" />
@@ -28,14 +28,7 @@
             {{ timestamp | timestampToDate }}
           </div>
           <div v-if="status">
-            <v-chip
-              small
-              :color="statusColor"
-            >
-              <div class="text-caption white--text">
-                <b>{{ statusText }}</b>
-              </div>
-            </v-chip>
+            <StatusChip :status="status" />
           </div>
         </div>
       </div>
@@ -45,9 +38,14 @@
 
 <script>
 import CardButton from './CardButton'
+import StatusChip from './StatusChip'
 
 export default {
   name: 'OrderCard',
+  components: {
+    CardButton,
+    StatusChip,
+  },
   props: {
     icon: String,
     title: String,
@@ -56,32 +54,12 @@ export default {
     timestamp: String,
     status: String,
   },
-  components: {
-    CardButton,
-  },
   computed: {
-    statusText() {
-      return this.status == 'Succes' ? 'Success' : this.status
+    _icon() {
+      return this.icon && (this.icon.startsWith('mdi') || this.icon.startsWith('$'))
+        ? this.icon
+        : ''
     },
-    statusColor() {
-      const grey = '#a7919c'
-      const blue = '#63d0d5'
-      const green = '#6edaa8'
-      const yellow = '#EFC457'
-
-      switch(this.status) {
-        case 'Sending':
-          return grey
-        case 'Received':
-          return blue
-        case 'Reject':
-          return yellow
-        case 'Succes':
-          return green
-        default:
-          return grey
-      }
-    }
   },
   methods: {
     onClick() {

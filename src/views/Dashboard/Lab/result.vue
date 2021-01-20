@@ -354,7 +354,7 @@ export default {
         const speciment = await this.contractDegenics.methods.specimenByNumber(sn).call({from: address})
         this.publicKeyInput = speciment.pubkey
         this.ownerAddress = speciment.owner;
-        this.finalize = speciment.status == 'Succes' ? true : false;
+        this.finalize = speciment.status == SUCCESS ? true : false;
 
       } catch (error) {
         console.log(error)

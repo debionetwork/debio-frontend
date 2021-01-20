@@ -2,7 +2,7 @@
   <div class="py-4">
     <v-row>
       <v-col cols="12" md="6">
-        <template v-if="specimen.status == 'Succes'">
+        <template v-if="specimen.status == SUCCESS">
           <div class="secondary--text text-h6"><b>Genome Files</b></div>
         </template>
         <template v-else>
@@ -36,7 +36,7 @@
         </template>
       </v-col>
       <v-col cols="12" md="6">
-        <template v-if="specimen.status == 'Succes'">
+        <template v-if="specimen.status == SUCCESS">
           <div class="secondary--text text-h6"><b>Report Files</b></div>
         </template>
         <template v-else>
@@ -73,12 +73,12 @@
     <v-row>
       <v-col cols="12" md="6">
         <div v-for="(file, idx) in files.genome" :key="idx + '-' + file.fileName + '-' + file.fileType">
-          <FileCard :file="file" @delete="onFileDelete" :hideDelete="specimen.status == 'Succes'"/>
+          <FileCard :file="file" @delete="onFileDelete" :hideDelete="specimen.status == SUCCESS"/>
         </div>
       </v-col>
       <v-col cols="12" md="6">
         <div v-for="(file, idx) in files.report" :key="idx + '-' + file.fileName + '-' + file.fileType">
-          <FileCard :file="file" @delete="onFileDelete" :hideDelete="specimen.status == 'Succes'" />
+          <FileCard :file="file" @delete="onFileDelete" :hideDelete="specimen.status == SUCCESS" />
         </div>
       </v-col>
     </v-row>
@@ -93,6 +93,7 @@ import ipfsWorker from '../../../../../web-workers/ipfs-worker'
 import sendTransaction from '../../../../../lib/send-transaction'
 import specimenFilesTempStore from '../../../../../lib/specimen-files-temp-store'
 import FileCard from './FileCard'
+import { SENDING, RECEIVED, SUCCESS, REJECTED } from '@/constants/specimen-status'
 
 export default {
   name: 'FileManager',
@@ -119,6 +120,7 @@ export default {
     }
   },
   data: () => ({
+    SENDING, RECEIVED, SUCCESS, REJECTED,
     files: {
       genome: [],
       report: [],
@@ -163,7 +165,7 @@ export default {
     }
   },
   mounted() {
-    if (this.specimen.status == 'Succes') {
+    if (this.specimen.status == SUCCESS) {
       // Get files refernce from smart contract
       this.getFilesUploaded()
       return

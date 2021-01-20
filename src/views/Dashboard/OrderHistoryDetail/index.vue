@@ -81,7 +81,7 @@
             </v-card-text>
           </v-card>
           <!-- If order Success -->
-          <div v-if="specimen.status == 'Succes'" class="mt-2">
+          <div v-if="specimen.status == SUCCESS" class="mt-2">
             <Button color="green" @click="goToResult" dark>
               View Result
             </Button>
@@ -91,7 +91,7 @@
         <!-- If order is sending -->
         <v-col
           cols="12" lg="6" md="6" xl="5"
-          v-if="specimen.status == 'Sending'"
+          v-if="specimen.status == SENDING"
         >
           <DNASampleSendingInstructions
             :specimenNumber="specimen.number"
@@ -103,15 +103,15 @@
         <!-- If order is received -->
         <v-col
           cols="12" lg="6" md="6" xl="5"
-          v-if="specimen.status == 'Received'"
+          v-if="specimen.status == RECEIVED"
         >
-          <Refund :specimen="specimen" />
+          <Refund :specimen="specimen" :receivedLog="receivedLog" @refunded="onRefunded" />
         </v-col>
 
         <!-- If order is rejected -->
         <v-col
           cols="12" lg="6" md="6" xl="5"
-          v-if="specimen.status == 'Reject'"
+          v-if="specimen.status == REJECTED"
         >
           <v-card class="dg-card">
             <v-card-title class="px-8">
@@ -120,7 +120,7 @@
               </div>
             </v-card-title>
             <v-card-text class="px-8">
-              TODO: Rejection Reason
+              {{ rejectionReason }}
             </v-card-text>
           </v-card>
         </v-col>
@@ -136,6 +136,8 @@ import DNASampleSendingInstructions from '../../../components/DNASampleSendingIn
 import StatusChip from '../../../components/StatusChip'
 import Button from '../../../components/Button'
 import Refund from './Refund'
+import { SENDING, RECEIVED, SUCCESS, REJECTED, REFUNDED } from '@/constants/specimen-status'
+import { LOG_REJECTED, LOG_RECEIVED } from '@/constants/log-type'
 
 export default {
   name: 'RequestTestSuccess',
@@ -146,23 +148,33 @@ export default {
     Refund,
   },
   data: () => ({
+    SENDING, RECEIVED, SUCCESS, REJECTED, REFUNDED,
     isLoading: false,
     lab: null,
     product: null,
     specimen: null,
+    logs: []
   }),
   computed: {
     ...mapState({
-      degenicsContract: state => state.ethereum.contracts.contractDegenics
+      degenicsContract: state => state.ethereum.contracts.contractDegenics,
+      logContract: state => state.ethereum.contracts.contractDegenicsLog,
     }),
     // If we don't check if data exists, vue will complain 😦 
     dataLoaded() {
       return this.lab && this.product && this.specimen
+    },
+    rejectionReason() {
+      return this.logs.filter(l => l.logType == LOG_REJECTED)[0].log
+    },
+    receivedLog() {
+      return this.logs.filter(l => l.logType == LOG_RECEIVED)[0]
     }
   },
   async mounted() {
     this.isLoading = true
     await this.fetchOrderDetails()
+    await this.getLogs()
     this.isLoading = false
   },
   methods: {
@@ -227,9 +239,23 @@ export default {
 
       return product
     },
-    async getLogs(specimen) {
-      console.log(specimen)
-      // TODO: Get specimen logs to get status information
+    async getLogs() {
+      const ks = keystore.get()
+      const logCount = await this.logContract.methods
+        .countSpecimenLog(this.specimen.number).call({ from: ks.address })
+      
+      const logPromises = []
+      for (let i = 1; i <= logCount; i++) {
+        const promise = this.logContract.methods
+          .specimenLogByIndex(this.specimen.number, i).call()
+        logPromises.push(promise)
+      }
+      const logs = await Promise.all(logPromises)
+
+      this.logs = logs
+    },
+    onRefunded() {
+      this.specimen.status = REFUNDED
     }
   }
 }
