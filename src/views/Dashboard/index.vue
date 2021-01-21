@@ -23,6 +23,7 @@
           </div>
 
           <v-spacer></v-spacer>
+          <WalletBalance />
           <UserAccountMenu />
           <SettingsMenu dark />
           <!-- Menu For Development Purposes -->
@@ -50,6 +51,7 @@ import v from 'voca'
 import DevMenu from '../../components/DevMenu'
 import UserAccountMenu from '../../components/UserAccountMenu'
 import SettingsMenu from '../../components/SettingsMenu'
+import WalletBalance from '../../components/WalletBalance'
 import Breadcrumbs from './Breadcrumbs'
 
 export default {
@@ -59,6 +61,7 @@ export default {
     UserAccountMenu,
     SettingsMenu,
     Breadcrumbs,
+    WalletBalance,
   },
   mounted() {
   },

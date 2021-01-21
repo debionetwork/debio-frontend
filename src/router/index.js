@@ -44,8 +44,8 @@ const routes = [
         component: () => import(/* webpackChunkName */ '../views/Dashboard/Home')
       },
       {
-        path: '/history-test',
-        name: 'history-test',
+        path: '/order-history',
+        name: 'order-history',
         meta: {
           pageHeader: 'Order history',
           breadcrumbs: [
@@ -53,7 +53,7 @@ const routes = [
             { text: 'Order History', disabled: true }
           ]
         },
-        component: () => import(/* webpackChunkName */ '../views/Dashboard/TestHistory')
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/OrderHistory')
       },
       {
         path: '/order-history-detail/:number',
@@ -62,7 +62,7 @@ const routes = [
           pageHeader: 'Order Detail',
           breadcrumbs: [
             { text: 'Home', href: '/' },
-            { text: 'Order History', href: '/history-test' },
+            { text: 'Order History', href: '/order-history' },
             { text: 'Order Detail', disabled: true },
           ]
         },
@@ -75,7 +75,7 @@ const routes = [
           pageHeader: 'Test Result',
           breadcrumbs: [
             { text: 'Home', href: '/' },
-            { text: 'Order History', href: '/history-test' },
+            { text: 'Order History', href: '/order-history' },
             { text: 'Test Result', disabled: true }
           ]
         },

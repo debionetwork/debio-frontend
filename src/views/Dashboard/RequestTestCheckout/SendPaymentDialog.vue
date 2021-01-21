@@ -48,11 +48,11 @@
                 {{ totalPrice }}
               </span>
               <span class="primary--text text-caption">
-                DGNX
+                Wei
               </span>
             </div>
           </div>
-          <div class="d-flex align-center justify-space-between">
+          <!-- <div class="d-flex align-center justify-space-between">
             <div class="text-body-1">
               <b>Transaction Fee</b>
             </div>
@@ -64,7 +64,7 @@
                 Gwei
               </span>
             </div>
-          </div>
+          </div> -->
         </div>
 
         <!-- Prompt password to sign transaction -->

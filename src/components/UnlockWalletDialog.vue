@@ -23,7 +23,7 @@
       ></v-progress-linear>
     </template>
     <template v-slot:actions>
-      <div class="d-flex justify-space-between" style="width: 100%;">
+      <div v-if="cancellable" class="d-flex justify-space-between" style="width: 100%;">
         <div class="pr-1" style="flex: 1">
           <Button @click="onCancel" color="grey" dark>
             Cancel
@@ -35,6 +35,9 @@
           </Button>
         </div>
       </div>
+      <Button v-else @click="decryptWallet" color="primary" dark>
+        Unlock
+      </Button>
     </template>
   </Dialog>
 </template>
@@ -53,6 +56,12 @@ export default {
   },
   props: {
     show: Boolean,
+    cancellable: {
+      type: Boolean,
+      default: function() {
+        return true
+      }
+    }
   },
   data: () => ({
     showPassword: false,

@@ -38,15 +38,19 @@
 
 <script>
 import localStorage from '../lib/local-storage'
-import { mapActions } from 'vuex'
+import { mapActions, mapMutations } from 'vuex'
 
 export default {
   methods: {
     ...mapActions({
-      clearAuth: 'auth/clearAuth'
+      clearAuth: 'auth/clearAuth',
+    }),
+    ...mapMutations({
+      clearWallet: 'ethereum/CLEAR_WALLET',
     }),
     logOut() {
       this.clearAuth()
+      this.clearWallet()
       this.$router.push('/login')
     },
     downloadKeystore() {
