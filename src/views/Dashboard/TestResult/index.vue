@@ -20,9 +20,11 @@
             color="primary"
           ></v-progress-linear>
         </v-col>
-        <div v-if="testResults.length == 0 && !isLoadingTestResults">
-          No test results found
-        </div>
+        <v-col cols="12" class="px-4">
+          <div v-if="testResults.length == 0 && !isLoadingTestResults">
+            No test results found
+          </div>
+        </v-col>
         <template v-if="testResults.length > 0">
           <v-col
             cols="12"
@@ -54,6 +56,7 @@ import SearchBar from '../../../components/DataTable/SearchBar'
 import OrderCard from "../../../components/OrderCard";
 import localStorage from "../../../lib/local-storage";
 import router from "../../../router";
+import { SUCCESS } from '../../../constants/specimen-status'
 
 export default {
   name: "test-result-all",
@@ -134,7 +137,7 @@ export default {
         }
         const specimens = await Promise.all(specimensPromises);
         const successSpecimens = specimens.filter(
-          (spec) => spec.status == "Succes"
+          (spec) => spec.status == SUCCESS
         )
 
         return successSpecimens
@@ -242,9 +245,6 @@ export default {
       return orders.sort(
         (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
       );
-    },
-    goToTestResults() {
-      console.log("TODO: go to order history");
     },
     gotoResult(item) {
       router.push(`/result-test/${item.number}`);

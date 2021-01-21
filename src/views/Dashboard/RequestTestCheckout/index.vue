@@ -58,7 +58,7 @@
                     {{ product.price }}
                   </span>
                   <span class="primary--text text-caption">
-                    DGNX
+                    Wei
                   </span>
                 </div>
               </div>
@@ -80,7 +80,7 @@
                     {{ totalPrice }}
                   </span>
                   <span class="primary--text text-caption">
-                    DGNX
+                    Wei
                   </span>
                 </div>
               </div>

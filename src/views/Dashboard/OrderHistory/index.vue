@@ -78,7 +78,7 @@
                            small
                            width="200"
                            @click="showDialogInstruction(item)"
-                           >Sending Instructions</v-btn
+                           >View Instructions</v-btn
                         >
                      </v-container>
                      <v-container

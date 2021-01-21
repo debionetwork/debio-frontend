@@ -189,7 +189,7 @@ export default {
       return orders.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
     },
     goToOrderHistory() {
-      router.push(`/history-test`);
+      router.push(`/order-history`);
     },
     gotoDetailOrder(order) {
       this.$router.push({ name: 'order-history-detail', params: { number: order.number } })

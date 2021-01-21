@@ -4,12 +4,15 @@ import { hdkey } from 'ethereumjs-wallet'
 import localStorage from '../../lib/local-storage'
 import contracts from './contracts'
 import Wallet from '../../lib/dgnx-wallet'
+import getWalletBalance from '../../lib/get-wallet-balance'
 
 const defaultState = {
   web3: null,
   isLoadingWeb3: false,
   isLoadingWallet: false,
+  isLoadingWalletBalance: false,
   wallet: null,
+  walletBalance: '',
   walletAddress: '',
   walletPublicKey: '',
 }
@@ -29,6 +32,9 @@ export default {
     SET_LOADING_WALLET(state, isLoadingWallet) {
       state.isLoadingWallet = isLoadingWallet
     },
+    SET_LOADING_WALLET_BALANCE(state, isLoadingWalletBalance) {
+      state.isLoadingWalletBalance = isLoadingWalletBalance
+    },
     SET_WEB3(state, web3Instance) {
       state.web3 = web3Instance
     },
@@ -38,6 +44,9 @@ export default {
     SET_WALLET(state, wallet) {
       state.wallet = wallet
     },
+    SET_WALLET_BALANCE(state, balance) {
+      state.walletBalance = balance
+    },
     SET_WALLET_PUBLIC_KEY(state, publicKey) {
       state.walletPublicKey = publicKey
     },
@@ -46,6 +55,7 @@ export default {
     },
     CLEAR_WALLET(state) {
       state.wallet = null
+      state.walletBalance = ''
       state.walletAddress = ''
       state.walletPublicKey = ''
     },
@@ -90,7 +100,7 @@ export default {
      * 2. use web3 to create the account from the private key
      *   web3.eth.accounts.privateKeyToAccount(privateKey)
      */
-    async generateWalletFromMnemonic({ commit }, { mnemonic, password }) {
+    async generateWalletFromMnemonic({ commit, state }, { mnemonic, password }) {
       try {
         commit('SET_LOADING_WALLET', true)
 
@@ -113,6 +123,7 @@ export default {
         localStorage.setKeystore(keystoreStr)
 
         const wallet = Wallet.fromPrivateKey(hdWallet.getPrivateKeyString())
+        wallet.balance = await getWalletBalance(state.web3, wallet.address)
         
         commit('SET_WALLET_PUBLIC_KEY', wallet.getPublicKeyString())
         commit('SET_WALLET_ADDRESS', wallet.getAddressString())
@@ -128,7 +139,7 @@ export default {
         throw new Error(err)
       }
     },
-    async generateWalletFromPrivateKey({ commit }, { privateKey, password }) {
+    async generateWalletFromPrivateKey({ commit, state }, { privateKey, password }) {
       try {
         commit('SET_LOADING_WALLET', true)
         commit('CLEAR_WALLET')
@@ -139,6 +150,7 @@ export default {
         localStorage.setKeystore(keystoreStr)
 
         const wallet = Wallet.fromPrivateKey(privateKey)
+        wallet.balance = await getWalletBalance(state.web3, wallet.address)
 
         commit('SET_WALLET_PUBLIC_KEY', wallet.getPublicKeyString())
         commit('SET_WALLET_ADDRESS', wallet.getAddressString())
@@ -177,7 +189,7 @@ export default {
         commit('SET_LOADING_WALLET', false)
         return { success: false, error: err.message }
       }
-    }
+    },
   },
   getters: {
     getWeb3(state) {
@@ -194,5 +206,8 @@ export default {
         ? state.wallet.getPrivateKeyString()
         : ''
     },
+    getWalletBalance(state) {
+      return state.walletBalance
+    }
   }
 }
