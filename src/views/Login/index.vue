@@ -13,6 +13,7 @@
         />
       </div>
       <v-container>
+          <DemoLabAccounts />
           <v-card class="pb-10 pt-7 mt-10" style="max-width: 400px; margin: 0 auto; border-radius: 30px;">
             <v-row class="mt-0 ml-8">
               <v-col cols="12">
@@ -107,6 +108,7 @@ import AccessAccountMnemonicDialog from './AccessAccountMnemonicDialog'
 import ImportKeystoreDialog from './ImportKeystoreDialog'
 import UsePrivateKeyDialog from './UsePrivateKeyDialog'
 import SetKeystorePasswordDialog from './SetKeystorePasswordDialog'
+import DemoLabAccounts from './DemoLabAccounts'
 
 export default {
   name: 'Home',
@@ -119,6 +121,7 @@ export default {
     ImportKeystoreDialog,
     UsePrivateKeyDialog,
     SetKeystorePasswordDialog,
+    DemoLabAccounts,
   },
   data: () => ({
     generateAccountDialog: false,

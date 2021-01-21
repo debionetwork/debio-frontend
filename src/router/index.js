@@ -154,11 +154,6 @@ const routes = [
     ]
   },
   {
-    path: '/requestTest',
-    name: 'requestTest',
-    component: () => import(/* webpackChunkName */ '../views/RequestTest')
-  },
-  {
     path: '/login',
     name: 'login',
     meta: { public: true },
