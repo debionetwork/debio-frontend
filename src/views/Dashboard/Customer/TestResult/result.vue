@@ -82,10 +82,10 @@
 </template>
 
 <script>
-import MenuCard from '../../../components/MenuCard'
-import ipfsWorker from '../../../web-workers/ipfs-worker'
-import localStorage from '../../../lib/local-storage'
-import Wallet from '../../../lib/dgnx-wallet'
+import MenuCard from '@/components/MenuCard'
+import ipfsWorker from '@/web-workers/ipfs-worker'
+import localStorage from '@/lib/local-storage'
+import Wallet from '@/lib/dgnx-wallet'
 import { mapState } from 'vuex'
 
 export default {

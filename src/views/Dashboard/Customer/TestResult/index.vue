@@ -52,11 +52,11 @@
 import { mapState } from "vuex";
 import Fuse from 'fuse.js'
 import { format, fromUnixTime } from 'date-fns'
-import SearchBar from '../../../components/DataTable/SearchBar'
-import OrderCard from "../../../components/OrderCard";
-import localStorage from "../../../lib/local-storage";
-import router from "../../../router";
-import { SUCCESS } from '../../../constants/specimen-status'
+import SearchBar from '@/components/DataTable/SearchBar'
+import OrderCard from "@/components/OrderCard";
+import localStorage from "@/lib/local-storage";
+import router from "@/router";
+import { SUCCESS } from '@/constants/specimen-status'
 
 export default {
   name: "test-result-all",

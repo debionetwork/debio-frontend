@@ -111,10 +111,10 @@
 
 <script>
 /* eslint-disable */
-import Wallet from '../../../lib/dgnx-wallet'
+import Wallet from '@/lib/dgnx-wallet'
 import { mapState } from 'vuex'
-import sendTransaction from '../../../lib/send-transaction'
-import localStorage from '../../../lib/local-storage'
+import sendTransaction from '@/lib/send-transaction'
+import localStorage from '@/lib/local-storage'
 
 export default {
   name: 'SendPaymentDialog',

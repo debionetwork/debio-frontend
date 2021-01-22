@@ -41,7 +41,7 @@ const routes = [
         meta: {
           pageHeader: 'Home',
         },
-        component: () => import(/* webpackChunkName */ '../views/Dashboard/Home')
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/Customer/Home')
       },
       {
         path: '/order-history',
@@ -53,7 +53,7 @@ const routes = [
             { text: 'Order History', disabled: true }
           ]
         },
-        component: () => import(/* webpackChunkName */ '../views/Dashboard/OrderHistory')
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/Customer/OrderHistory')
       },
       {
         path: '/order-history-detail/:number',
@@ -66,7 +66,7 @@ const routes = [
             { text: 'Order Detail', disabled: true },
           ]
         },
-        component: () => import(/* webpackChunkName */ '../views/Dashboard/OrderHistoryDetail')
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/Customer/OrderHistoryDetail')
       },
       {
         path: '/result-test/:number',
@@ -79,7 +79,7 @@ const routes = [
             { text: 'Test Result', disabled: true }
           ]
         },
-        component: () => import(/* webpackChunkName */ '../views/Dashboard/TestResult/result.vue')
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/Customer/TestResult/result.vue')
       },
       {
         path: '/request-test',
@@ -91,7 +91,7 @@ const routes = [
             { text: 'Request a Test', disabled: true },
           ]
         },
-        component: () => import(/* webpackChunkName */ '../views/Dashboard/RequestTest')
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/Customer/RequestTest')
       },
       {
         path: '/request-test/checkout',
@@ -104,7 +104,7 @@ const routes = [
             { text: 'Checkout', disabled: true },
           ]
         },
-        component: () => import(/* webpackChunkName */ '../views/Dashboard/RequestTestCheckout')
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/Customer/RequestTestCheckout')
       },
       {
         path: '/request-test/receipt',
@@ -117,7 +117,7 @@ const routes = [
             { text: 'Receipt', disabled: true },
           ]
         },
-        component: () => import(/* webpackChunkName */ '../views/Dashboard/RequestTestReceipt')
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/Customer/RequestTestReceipt')
       },
       {
         path: '/result-test-all',
@@ -129,7 +129,19 @@ const routes = [
             { text: 'Test Results', disabled: true },
           ]
         },
-        component: () => import(/* webpackChunkName */ '../views/Dashboard/TestResult')
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/Customer/TestResult')
+      },
+      {
+        path: '/genome-files',
+        name: 'genome-files',
+        meta: {
+          pageHeader: 'Genome Files',
+          breadcrumbs: [
+            { text: 'Home', href: '/' },
+            { text: 'Genome Files', disabled: true },
+          ]
+        },
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/Customer/GenomeFiles')
       },
       {
         path: '/lab',

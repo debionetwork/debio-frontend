@@ -18,6 +18,7 @@
               icon="mdi-dna"
               title="Download Genome"
               sub-title="Download your genomic data"
+              @click="$router.push({ name: 'genome-files' })"
             ></MenuCard>
           </div>
         </v-col>
@@ -33,7 +34,7 @@
 </template>
 
 <script>
-import MenuCard from '../../../components/MenuCard'
+import MenuCard from '@/components/MenuCard'
 import OrderHistory from './OrderHistory'
 import TestResults from './TestResults'
 

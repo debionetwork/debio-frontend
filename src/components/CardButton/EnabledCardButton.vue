@@ -14,7 +14,7 @@
 
 <script>
 export default {
-  name: 'CardButton',
+  name: 'EnabledCardButton',
   methods: {
     onClick() {
       this.$emit('click')

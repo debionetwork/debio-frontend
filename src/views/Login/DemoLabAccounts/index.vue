@@ -44,7 +44,8 @@ export default {
     },
   },
   data: () => ({
-    password: 'degenics' // Hardcoded for demo account
+    password: 'degenics', // Hardcoded for demo account
+    isLoading: false,
   }),
   methods: {
     ...mapActions({

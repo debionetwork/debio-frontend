@@ -1,5 +1,5 @@
 <template>
-  <CardButton @click="onClick">
+  <CardButton :disabled="disabled" @click="onClick">
     <div class="dg-order-card d-flex align-center fill-height py-2 pr-4" style="width: 100%">
       <div class="my-3 ml-5">
         <v-icon
@@ -13,8 +13,8 @@
           <img src="../assets/degenics-logo.webp" />
         </v-avatar>
       </div>
-      <div class="ml-5" style="width: 100%;">
-        <div class="text-h6">
+      <div class="ml-5" style="width: 100%; overflow:hidden;">
+        <div class="text-h7 text-truncate" >
           <b>{{ title }}</b>
         </div>
         <div class="text-body-2 grey--text text--darken-1">
@@ -53,6 +53,7 @@ export default {
     labName: String,
     timestamp: String,
     status: String,
+    disabled: Boolean,
   },
   computed: {
     _icon() {
@@ -63,7 +64,7 @@ export default {
   },
   methods: {
     onClick() {
-      
+      this.$emit('click')
     }
   },
 }

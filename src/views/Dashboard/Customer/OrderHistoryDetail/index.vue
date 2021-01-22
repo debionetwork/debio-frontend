@@ -50,7 +50,7 @@
                     {{ product.icon }}
                     </v-icon>
                     <v-avatar v-else>
-                      <img src="../../../assets/degenics-logo.webp" />
+                      <img src="../../../../assets/degenics-logo.webp" />
                     </v-avatar>
                   </div>
                   <div class="ml-5">
@@ -131,10 +131,10 @@
 
 <script>
 import { mapState } from 'vuex'
-import keystore from '../../../lib/keystore'
-import DNASampleSendingInstructions from '../../../components/DNASampleSendingInstructions'
-import StatusChip from '../../../components/StatusChip'
-import Button from '../../../components/Button'
+import keystore from '@/lib/keystore'
+import DNASampleSendingInstructions from '@/components/DNASampleSendingInstructions'
+import StatusChip from '@/components/StatusChip'
+import Button from '@/components/Button'
 import Refund from './Refund'
 import { SENDING, RECEIVED, SUCCESS, REJECTED, REFUNDED } from '@/constants/specimen-status'
 import { LOG_REJECTED, LOG_RECEIVED } from '@/constants/log-type'
