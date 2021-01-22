@@ -54,7 +54,7 @@
                     {{ receipt.productDetail.icon }}
                     </v-icon>
                     <v-avatar v-else>
-                      <img src="../../../assets/degenics-logo.webp" />
+                      <img src="@/assets/degenics-logo.webp" />
                     </v-avatar>
                   </div>
                   <div class="ml-5">
@@ -128,7 +128,7 @@
 </template>
 
 <script>
-import DNASampleSendingInstructions from '../../../components/DNASampleSendingInstructions'
+import DNASampleSendingInstructions from '@/components/DNASampleSendingInstructions'
 
 export default {
   name: 'RequestTestSuccess',

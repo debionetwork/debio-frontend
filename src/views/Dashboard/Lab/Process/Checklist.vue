@@ -24,14 +24,16 @@
 <script>
 import { SUCCESS, REJECTED } from '@/constants/specimen-status'
 export default {
-  SUCCESS,
-  REJECTED,
   name: 'Checklist',
   props: {
     specimen: Object,
     actions: Array,
     doneActions: Array
   },
+  data: () => ({
+    SUCCESS,
+    REJECTED,
+  })
 }
 </script>
 

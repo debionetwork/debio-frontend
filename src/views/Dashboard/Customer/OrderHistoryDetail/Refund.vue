@@ -72,10 +72,10 @@
 <script>
 import { mapState } from 'vuex'
 import { format, fromUnixTime, addDays, isPast } from 'date-fns'
-import UnlockWalletDialog from '../../../components/UnlockWalletDialog'
-import Dialog from '../../../components/Dialog'
-import Button from '../../../components/Button'
-import sendTransaction from '../../../lib/send-transaction'
+import UnlockWalletDialog from '@/components/UnlockWalletDialog'
+import Dialog from '@/components/Dialog'
+import Button from '@/components/Button'
+import sendTransaction from '@/lib/send-transaction'
 
 export default {
   name: 'Refund',

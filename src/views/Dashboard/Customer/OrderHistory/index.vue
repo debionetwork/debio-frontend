@@ -125,12 +125,12 @@
 
 <script>
 import { mapState } from 'vuex'
-import router from '../../../router'
-import localStorage from '../../../lib/local-storage'
-import DataTable from '../../../components/DataTable'
-import SearchBar from '../../../components/DataTable/SearchBar'
-import DNASampleSendingInstructions from '../../../components/DNASampleSendingInstructions'
-import RejectedReasonDialog from '../../../components/RejectedReasonDialog'
+import router from '@/router'
+import localStorage from '@/lib/local-storage'
+import DataTable from '@/components/DataTable'
+import SearchBar from '@/components/DataTable/SearchBar'
+import DNASampleSendingInstructions from '@/components/DNASampleSendingInstructions'
+import RejectedReasonDialog from '@/components/RejectedReasonDialog'
 import { SENDING, RECEIVED, SUCCESS, REJECTED } from '@/constants/specimen-status'
 
 export default {
@@ -261,7 +261,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../../styles/variables.scss";
+@import "../../../../styles/variables.scss";
 
 .btn-sending {
    background-color: $color-primary !important;

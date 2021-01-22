@@ -125,7 +125,7 @@
 <script>
 import _ from 'lodash'
 import { mapState, mapMutations } from 'vuex'
-import SelectableMenuCard from '../../../components/SelectableMenuCard'
+import SelectableMenuCard from '@/components/SelectableMenuCard'
 
 export default {
   name: 'RequestTest',

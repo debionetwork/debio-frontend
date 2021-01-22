@@ -33,10 +33,10 @@
 
 <script>
 import { mapState } from 'vuex'
-import OrderCard from '../../../components/OrderCard'
-import PrimaryButton from '../../../components/PrimaryButton'
-import localStorage from '../../../lib/local-storage'
-import router from '../../../router'
+import OrderCard from '@/components/OrderCard'
+import PrimaryButton from '@/components/PrimaryButton'
+import localStorage from '@/lib/local-storage'
+import router from '@/router'
 
 export default {
   name: 'OrderHistory',
