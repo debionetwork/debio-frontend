@@ -43,7 +43,8 @@ export default {
     },
   },
   data: () => ({
-    LOG_REJECTED
+    LOG_REJECTED,
+    logs: [],
   }),
   mounted() {
     this.getLogs() 
