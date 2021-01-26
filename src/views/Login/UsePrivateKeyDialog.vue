@@ -55,7 +55,13 @@ export default {
   data: () => ({
     formValid: true,
     privateKey: '',
-    privateKeyRules: [],
+    privateKeyRules: [
+      value => {
+        const pattern = /^(0x)?[0-9a-fA-F]{64}$/
+        return pattern.test(value)
+          || 'Invalid private key'
+      }
+    ],
   }),
   computed: {
     _show: {

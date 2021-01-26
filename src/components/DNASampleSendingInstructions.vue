@@ -24,7 +24,7 @@
       </v-row>
       <v-row>
         <v-col class="pl-8">
-        <b>You do not need to mention your name anywhere, address, or any personal information anywhere</b>
+        <b>You do not need to mention your name, address, or any personal information </b>
         </v-col>
       </v-row>
     </v-card-text>
