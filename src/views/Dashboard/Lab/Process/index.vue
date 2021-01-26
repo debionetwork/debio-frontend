@@ -51,7 +51,10 @@
             <!-- Show if specimen is already processed (Succes / Reject) -->
             <template v-if="isProcessed">
               <div class="my-4">
-                <RejectAlert v-if="specimen && specimen.status == REJECTED" />
+                <RejectAlert
+                  v-if="specimen && specimen.status == REJECTED"
+                  :specimen="specimen"
+                />
                 <SuccessAlert v-if="specimen && specimen.status == SUCCESS" />
               </div>
             </template>
