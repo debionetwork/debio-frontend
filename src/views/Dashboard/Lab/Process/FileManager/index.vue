@@ -113,10 +113,10 @@ export default {
       degenicsContract: state => state.ethereum.contracts.contractDegenics
     }),
     genomeFiles() {
-      return [...this.files.genome]
+      return this.files.genome ?  [...this.files.genome] : []
     },
     reportFiles() {
-      return [...this.files.report]
+      return this.files.report ? [...this.files.report] : []
     }
   },
   data: () => ({
@@ -144,7 +144,7 @@ export default {
   }),
   watch: {
     genomeFiles(newState, oldState) {
-      console.log(newState, oldState)
+      if (!newState) return
       if (oldState.length == 0 && newState.length > 0) {
         this.$emit('actionDone', 'Genome')
         return
@@ -154,7 +154,7 @@ export default {
       }
     },
     reportFiles(newState, oldState) {
-      console.log(newState, oldState)
+      if (!newState) return
       if (oldState.length == 0 && newState.length > 0) {
         this.$emit('actionDone', 'Report')
         return

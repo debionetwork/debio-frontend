@@ -32,8 +32,8 @@ Vue.filter('timestampToDate', function(val) {
  * this will set web3 and smart contracts to store
  */
 async function setupAppDependencies() {
-  const LOCAL_RPC_URL = 'http://34.101.243.127:8545'
-  let rpcUrl = localStorage.getRpcUrl() || LOCAL_RPC_URL
+  const DEFAULT_RPC_URL = 'http://34.101.116.238:8545'
+  let rpcUrl = localStorage.getRpcUrl() || DEFAULT_RPC_URL
   await store.dispatch('ethereum/initWeb3', rpcUrl)
   store.dispatch('ethereum/contracts/initContracts')
   return
