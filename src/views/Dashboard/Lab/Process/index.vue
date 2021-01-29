@@ -113,8 +113,19 @@ export default {
     canSend() {
       // Can send processed specimen to blockchain if every required actions are done
       // required actions == all actions except 'Sent'
-      const requiredActions = this.actions.filter(action => action != 'Sent')
-      return requiredActions.every(action => this.doneActions.includes(action))
+      const requiredActionsSets = [
+        this.actions.filter(action => action != 'Sent'),
+        this.actions.filter(action => action != 'Sent' && action != 'Genome'),
+        this.actions.filter(action => action != 'Sent' && action != 'Report'),
+      ]
+      let can = false
+      requiredActionsSets.forEach(set => {
+        const conditionFulfilled = set.every(action => this.doneActions.includes(action))
+        if (conditionFulfilled) {
+          can = true
+        }
+      })
+      return can
     },
     isProcessed() {
       return this.specimen.status == SUCCESS || this.specimen.status == REJECTED
@@ -197,7 +208,18 @@ export default {
     },
     setDoneActions() {
       if (this.specimen.status == SUCCESS) {
-        this.doneActions = [...this.actions]
+        // If this.$refs.fileManager exists
+        // it means that doneActions is called at onSend()
+        let doneFiles = []
+        if (this.$refs.fileManager) {
+          if (this.$refs.fileManager.files.genome.length > 0) {
+            doneFiles.push('Genome')
+          }
+          if (this.$refs.fileManager.files.report.length > 0) {
+            doneFiles.push('Report')
+          }
+        }
+        this.doneActions = ['Received', 'Wetwork', ...doneFiles, 'Sent']
         return
       }
       if (this.specimen.status == REJECTED) {

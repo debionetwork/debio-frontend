@@ -13,7 +13,7 @@
                   ></v-progress-linear>
                   <v-card-title>{{ serviceName }} Report</v-card-title>
                   <v-card-text>
-                    {{result ? result : 'Decrypting report..'}}
+                    {{ reportResult }}
                   </v-card-text>
                </v-card>
             </v-col>
@@ -116,7 +116,7 @@ export default {
     await this.getLabServices(this.speciment.labAccount)
     this.ownerAddress = JSON.parse(localStorage.getKeystore())['address'];
     await this.getFileUploaded()
-    await this.decryptWallet('result')
+    await this.decryptWallet()
     this.serviceName = this.services.find(o=> o.code == this.speciment.serviceCode).serviceName;
   },
   methods: {
@@ -197,13 +197,15 @@ export default {
       this.resultLoading = true;
       let fileResult = this.files.find(o=> o.fileType == 'report' );
       console.log(this.files)
-      if (!fileResult) return
+      if (!fileResult) {
+        this.resultLoading = false
+        return 
+      }
       let fileList = fileResult.ipfsPath;
       const channel = new MessageChannel();
       channel.port1.onmessage = ipfsWorker.workerDownload;
       ipfsWorker.workerDownload.postMessage({file: fileList, privateKey}, [channel.port2]);
       ipfsWorker.workerDownload.onmessage = event => {
-        console.log("masuk sini")
         // const blob = new Blob([ event.data ], {type: 'text/plain'})
         this.result = event.data;
         //window.URL.createObjectURL(blob)
@@ -222,6 +224,15 @@ export default {
     ...mapState({
       contractDegenics: state => state.ethereum.contracts.contractDegenics,
     }),
+    reportResult() {
+      if (this.dialog) {
+        return ''
+      }
+      if (this.resultLoading) {
+        return 'Decrypting report..'
+      }
+      return this.result ? this.result : 'No report available for this result'
+    }
   }
 }
 
