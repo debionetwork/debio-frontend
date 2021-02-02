@@ -19,7 +19,7 @@
           <v-icon>mdi-numeric-{{instructions.length + 1}}-circle</v-icon>
         </v-col>
         <v-col class="pl-4">
-          <div>You can see the status of your order <router-link to="/history-test">here</router-link></div>
+          <div>You can see the status of your order <router-link to="/order-history">here</router-link></div>
         </v-col>
       </v-row>
       <v-row>
