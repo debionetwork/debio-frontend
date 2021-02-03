@@ -6,9 +6,22 @@
       </div>
     </v-card-title>
     <v-card-text>
+      <v-row>
+        <v-col cols="1" class="pl-6">
+          <BulletPoint>1</BulletPoint>
+        </v-col>
+        <v-col class="pl-4">
+          <div>
+            Follow the instructions to collect your DNA sample
+            <router-link :to="`/order-history-detail/${specimenNumber}/dna-collection-instructions`">
+              here
+            </router-link>.
+          </div>
+        </v-col>
+      </v-row>
       <v-row v-for="(item, i) in instructions" :key="i" class="mb-2">
         <v-col cols="1" class="pl-6">
-          <v-icon>mdi-numeric-{{i + 1}}-circle</v-icon>
+          <BulletPoint>{{i + 2}}</BulletPoint>
         </v-col>
         <v-col class="pl-4">
           <div v-html="item" class=""></div>
@@ -16,10 +29,10 @@
       </v-row>
       <v-row v-if="!hideOrderHistoryLink">
         <v-col cols="1" class="pl-6">
-          <v-icon>mdi-numeric-{{instructions.length + 1}}-circle</v-icon>
+          <BulletPoint>{{instructions.length + 2}}</BulletPoint>
         </v-col>
         <v-col class="pl-4">
-          <div>You can see the status of your order <router-link to="/order-history">here</router-link></div>
+          <div>You can see the status of your order <router-link to="/order-history">here</router-link>.</div>
         </v-col>
       </v-row>
       <v-row>
@@ -36,10 +49,14 @@
 </template>
 
 <script>
+import BulletPoint from '@/components/BulletPoint'
 import { fmtSpecimenNumber } from '../lib/string-format'
 
 export default {
   name: 'DNASampleSendingInstructions',
+  components: {
+    BulletPoint
+  },
   props: {
     specimenNumber: String,
     lab: Object,
@@ -48,7 +65,6 @@ export default {
   computed: {
     instructions() {
       return [
-        'Follow the instructions attached to your test kit to collect saliva, epithelial, or hair sample.',
         `Write down the specimen number <b>${fmtSpecimenNumber(this.specimenNumber)}</b> on the sample's container.`,
         `Write down the specimen number <b>${fmtSpecimenNumber(this.specimenNumber)}</b> on the sample's envelope.`,
         ` Send the envelope (without return address for maximum privacy), to

@@ -69,6 +69,20 @@ const routes = [
         component: () => import(/* webpackChunkName */ '../views/Dashboard/Customer/OrderHistoryDetail')
       },
       {
+        path: '/order-history-detail/:number/dna-collection-instructions',
+        name: 'dna-collection-instructions',
+        meta: {
+          pageHeader: 'DNA Collection Instructions',
+          breadcrumbs: [
+            { text: 'Home', href: '/' },
+            { text: 'Order History', href: '/order-history' },
+            { text: 'Order Detail', href: '/order-history-detail/:number' },
+            { text: 'DNA Collection Instructions', disabled: true },
+          ]
+        },
+        component: () => import(/* webpackChunkName */ '../views/Dashboard/Customer/DnaCollectionInstructions')
+      },
+      {
         path: '/result-test/:number',
         name: 'result-test',
         meta: {
