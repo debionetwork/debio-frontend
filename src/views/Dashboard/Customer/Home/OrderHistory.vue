@@ -17,14 +17,31 @@
         class="mb-2"
         @click="gotoDetailOrder(order)"
       >
-        <OrderCard
-          :icon="order.icon"
-          :title="order.title"
-          :specimenNumber="order.number"
-          :labName="order.labName"
-          :timestamp="order.timestamp"
-          :status="order.status"
-        />
+        <v-tooltip top v-if="order.status == 'Sending'">
+          <template v-slot:activator="{ on, attrs }">
+            <div v-on="on" v-bind="attrs">
+              <OrderCard
+                :icon="order.icon"
+                :title="order.title"
+                :specimenNumber="order.number"
+                :labName="order.labName"
+                :timestamp="order.timestamp"
+                :status="order.status"
+              />
+            </div>
+          </template>
+          <span>Click to view sending instructions</span>
+        </v-tooltip>
+        <template v-else>
+          <OrderCard
+            :icon="order.icon"
+            :title="order.title"
+            :specimenNumber="order.number"
+            :labName="order.labName"
+            :timestamp="order.timestamp"
+            :status="order.status"
+          />
+        </template>
       </div>
       <PrimaryButton @click="goToOrderHistory">Show all order history</PrimaryButton>
     </template>

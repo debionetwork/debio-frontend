@@ -8,7 +8,7 @@
     <v-main class="login-main">
       <div class="d-flex justify-center">
         <v-img
-          src="@/assets/degenics-logo.webp"
+          src="@/assets/degenics-logo.png"
           max-width="150px"
         />
       </div>

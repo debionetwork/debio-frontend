@@ -13,9 +13,10 @@
         <v-col class="pl-4">
           <div>
             Follow the instructions to collect your DNA sample
-            <router-link :to="`/order-history-detail/${specimenNumber}/dna-collection-instructions`">
+            <a :href="$router.resolve({name: 'dna-collection-instructions', params: {number: specimenNumber}}).href" target="_blank">
               here
-            </router-link>.
+            </a>
+            .
           </div>
         </v-col>
       </v-row>
@@ -32,12 +33,7 @@
           <BulletPoint>{{instructions.length + 2}}</BulletPoint>
         </v-col>
         <v-col class="pl-4">
-          <div>You can see the status of your order <router-link to="/order-history">here</router-link>.</div>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col class="pl-8">
-        <b>You do not need to mention your name, address, or any personal information </b>
+          <div>You can see the status of your orders <router-link to="/order-history">here</router-link>.</div>
         </v-col>
       </v-row>
     </v-card-text>
@@ -65,12 +61,13 @@ export default {
   computed: {
     instructions() {
       return [
-        `Write down the specimen number <b>${fmtSpecimenNumber(this.specimenNumber)}</b> on the sample's container.`,
+        `Write down the specimen number <b>${fmtSpecimenNumber(this.specimenNumber)}</b> on the sample's tube.`,
         `Write down the specimen number <b>${fmtSpecimenNumber(this.specimenNumber)}</b> on the sample's envelope.`,
         ` Send the envelope (without return address for maximum privacy), to
           <div><b>${this.lab.name}</b></div>
           <div><b>${this.lab.address ?? ''}</b></div>
           <div><b>${this.lab.city}, ${this.lab.country}</b></div>
+          <div style="margin-top: 12px; text-decoration: underline;"><b>You do not need to mention your name, address, or any personal information</b></div>
         `,
       ]
     }

@@ -12,7 +12,7 @@
               alt="Vuetify Logo"
               class="shrink mr-2"
               contain
-              src="@/assets/degenics-logo.webp"
+              src="@/assets/degenics-logo.png"
               transition="scale-transition"
               width="40"
             />

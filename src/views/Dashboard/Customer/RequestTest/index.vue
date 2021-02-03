@@ -98,7 +98,16 @@
               :is-selected="isProductSelected(product)"
               :disabled="isProductDisabled(product)"
               @click="selectOneProduct(product)"
-            ></SelectableMenuCard>
+            >
+              <template v-slot:footer>
+                <span class="text-h6">
+                  {{ product.price }}
+                </span>
+                <span class="primary--text text-caption">
+                  Wei
+                </span>
+              </template>
+            </SelectableMenuCard>
           </v-col>
         </v-row>
 
