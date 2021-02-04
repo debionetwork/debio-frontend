@@ -70,6 +70,7 @@
         ></v-progress-circular>
       </div>
 
+
       <template v-if="labAccount && !isLoadingProducts">
         <v-row class="mt-4">
           <v-col cols="12">
@@ -77,14 +78,35 @@
               <div class="text-h5 secondary--text text--lighten-2">
                 <b>{{ selectedLab.name }}</b>
               </div>
-              <div class="mt-2 text-h6">
+            </div>
+          </v-col>
+        </v-row>
+
+        <v-row class="mt-2">
+          <v-col cols="12" md="8">
+            <div class="text-h6 px-2">
+              <b>DNA Sample Collection Requirements</b>
+            </div>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col cols="12" md="8">
+            <DnaCollectionRequirements />
+          </v-col>
+        </v-row>
+
+        <v-row class="mt-2">
+          <v-col cols="12">
+            <div class="px-2">
+              <div class="text-h6">
                 <b>Select Product</b>
               </div>
             </div>
           </v-col>
         </v-row>
 
-        <v-row>
+        <v-row class="pt-1">
           <v-col
             v-for="(product) in productsSelection"
             :key="product.serviceName"
@@ -135,11 +157,13 @@
 import _ from 'lodash'
 import { mapState, mapMutations } from 'vuex'
 import SelectableMenuCard from '@/components/SelectableMenuCard'
+import DnaCollectionRequirements from './DnaCollectionRequirements'
 
 export default {
   name: 'RequestTest',
   components: {
     SelectableMenuCard,
+    DnaCollectionRequirements
   },
   async mounted() {
     await this.getCountries()
