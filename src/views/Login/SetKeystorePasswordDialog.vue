@@ -102,7 +102,8 @@ export default {
       }
     },
     ...mapState({
-      isLoading: state => state.ethereum.isLoading,
+      isLoading: state => state.ethereum.isLoadingWallet,
+      wallet: state => state.ethereum.wallet,
     })
   },
   methods: {

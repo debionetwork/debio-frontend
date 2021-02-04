@@ -50,7 +50,7 @@
                     {{ product.icon }}
                     </v-icon>
                     <v-avatar v-else>
-                      <img src="../../../../assets/degenics-logo.webp" />
+                      <img src="../../../../assets/degenics-logo.png" />
                     </v-avatar>
                   </div>
                   <div class="ml-5">

@@ -13,7 +13,11 @@
       :sub-title="subTitle"
       @click="onClick"
       :disabled="disabled"
-    ></MenuCard>
+    >
+      <template v-slot:footer>
+        <slot name="footer"></slot>
+      </template>
+    </MenuCard>
   </v-badge>
 </template>
 
