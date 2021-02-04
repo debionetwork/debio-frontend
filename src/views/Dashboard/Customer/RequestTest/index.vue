@@ -110,7 +110,7 @@
           <v-col
             v-for="(product) in productsSelection"
             :key="product.serviceName"
-            cols="12" xl="3" lg="4" md='4'
+            cols="12" xl="4" lg="4" md='4'
             :class="$vuetify.breakpoint.smAndDown ? 'py-0' : 'py-1'"
           >
             <SelectableMenuCard
