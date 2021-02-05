@@ -1,5 +1,5 @@
 <template>
-   <component v-bind:is="cardComponent" @click="onClick">
+   <component v-bind:is="cardComponent" @click="onClick" :height="height">
       <v-progress-linear
          v-if="loading"
          indeterminate
@@ -58,7 +58,7 @@
                      </div>
                   </div>
                </div>
-               <div style="text-align: end;">
+               <div v-if="$slots.footer" style="text-align: end;">
                   <slot name="footer"></slot>
                </div>
             </div>
@@ -80,6 +80,7 @@ export default {
     subTitle: String,
     disabled: Boolean,
     loading: Boolean,
+    height: Number,
   },
   components: {
     EnabledMenuCard,

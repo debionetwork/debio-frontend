@@ -7,6 +7,7 @@
           <div class="secondary--text mb-2"><b>Menu</b></div>
           <div class="mb-2">
             <MenuCard
+              height="120"
               icon="mdi-test-tube"
               title="Request Test"
               sub-title="Get your DNA samples tested"
@@ -15,6 +16,7 @@
           </div>
           <div class="mb-2">
             <MenuCard
+              height="120"
               icon="mdi-dna"
               title="Download Genome"
               sub-title="Download your genomic data"
