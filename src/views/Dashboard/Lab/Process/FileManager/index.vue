@@ -90,7 +90,6 @@ import { mapState } from 'vuex'
 import v from 'voca'
 import cryptWorker from '../../../../../web-workers/crypt-worker'
 import ipfsWorker from '../../../../../web-workers/ipfs-worker'
-import sendTransaction from '../../../../../lib/send-transaction'
 import specimenFilesTempStore from '../../../../../lib/specimen-files-temp-store'
 import FileCard from './FileCard'
 import { SENDING, RECEIVED, SUCCESS, REJECTED } from '@/constants/specimen-status'
@@ -162,6 +161,9 @@ export default {
       if (oldState.length > 0 && newState.length == 0) {
         this.$emit('actionUnDone', 'Report')
       }
+    },
+    isLoading(val) {
+      this.$emit('loading', val)
     }
   },
   mounted() {
@@ -350,38 +352,6 @@ export default {
 
       specimenFilesTempStore.set(this.specimen.number, this.files)
     },
-    /**
-     * finalize
-     *
-     * Save the specimen state in blockchain:
-     * - Set files references
-     * - Set specimen status == Success
-     */
-    async finalize() {
-      try {
-        this.isLoading = true
-
-        let files = []
-        for (const [_, _files] of Object.entries(this.files)) {
-          _
-          files = files.concat(_files)
-        }
-
-        const abiData = this.degenicsContract.methods
-          .analysisSucces(this.specimen.number, JSON.stringify(files), "Sucess")
-          .encodeABI()
-        let tx = await sendTransaction(
-          this.degenicsContract._address, this.wallet, abiData
-        )
-
-        this.isLoading = false
-        return { files, tx }
-      } catch (err) {
-        console.log('Error on finalizing to blockchain', err.message)
-        this.isLoading = false
-        throw new Error(err.message)
-      }
-    }
   }
 }
 </script>

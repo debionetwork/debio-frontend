@@ -38,9 +38,11 @@
               :enabled="doneActions.includes('Wetwork')"
               @actionDone="onActionDone"
               @actionUnDone="onActionUnDone"
+              @loading="isFileManagerLoading = $event"
             />
             <Finalize
               ref="finalize"
+              :is-file-manager-loading="isFileManagerLoading"
               v-if="specimen && doneActions.includes('Received') && !isProcessed"
               :wallet="wallet"
               :specimen="specimen"
@@ -98,6 +100,7 @@ export default {
     unlockWalletDialog: false,
     wallet: null,
     isLoading: false,
+    isFileManagerLoading: false,
     lab: null,
     product: null,
     specimen: null,
