@@ -30,29 +30,41 @@
             </div>
          </div>
       </div> -->
-      <div class="d-flex flex-column justify-space-around fill-height pr-4 py-2">
-         <div class="d-flex align-center">
-            <div class="my-3 ml-5">
-               <v-icon v-if="icon" color="#BA8DBB" :size="48">
-                  {{ icon }}
-               </v-icon>
-               <v-avatar v-else>
-                  <img src="../../assets/degenics-logo.png" />
-               </v-avatar>
-            </div>
-            <div class="ml-5 pr-2" style="width: 100%;">
-               <div class="text-h6">
-                  <b>{{ title }}</b>
+      <v-tooltip top max-width="350">
+         <template v-slot:activator="{ on, attrs }">
+            <div v-on="on" v-bind="attrs" class="d-flex flex-column justify-space-around fill-height pr-4 py-2">
+               <div class="d-flex align-center">
+                  <div class="my-3 ml-5">
+                     <v-icon v-if="icon" color="#BA8DBB" :size="48">
+                        {{ icon }}
+                     </v-icon>
+                     <v-avatar v-else>
+                        <img src="../../assets/degenics-logo.png" />
+                     </v-avatar>
+                  </div>
+                  <div class="ml-5" style="width: 100%;">
+                     <div class="text-h6">
+                        <b>{{ title }}</b>
+                     </div>
+                     <div
+                        class="text-caption grey--text text--darken-1"
+                        style="max-height: 60px;
+                           overflow: hidden;
+                           display: -webkit-box;
+                           -webkit-line-clamp: 3;
+                           -webkit-box-orient: vertical;"
+                     >
+                        {{ subTitle }}
+                     </div>
+                  </div>
                </div>
-               <div class="text-caption grey--text text--darken-1">
-                  {{ subTitle }}
+               <div style="text-align: end;">
+                  <slot name="footer"></slot>
                </div>
             </div>
-         </div>
-         <div style="text-align: end;">
-            <slot name="footer"></slot>
-         </div>
-      </div>
+         </template>
+         {{ subTitle }}
+      </v-tooltip>
    </component>
 </template>
 
@@ -88,7 +100,7 @@ export default {
 
 <style lang="scss" scoped>
 .dg-menu-card {
-   height: 120px;
+   height: 150px;
    width: 100%;
 }
 </style>
