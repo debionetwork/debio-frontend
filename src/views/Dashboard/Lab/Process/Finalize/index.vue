@@ -63,10 +63,11 @@ export default {
     wallet: Object,
     specimen: Object,
     canSend: Boolean,
+    isFileManagerLoading: Boolean,
   },
   computed: {
     isLoading() {
-      return this.loading.send || this.loading.reject
+      return this.loading.send || this.loading.reject || this.isFileManagerLoading
     },
     ...mapState({
       degenicsContract: state => state.ethereum.contracts.contractDegenics
