@@ -6,7 +6,7 @@
       :elevation="hover ? 2 : 0"
       @click="onClick"
       outlined
-      style="border-radius: 10px;"
+      :style="`border-radius: 10px; ${height ? 'height:' + height + 'px' : ''}`"
       :ripple="false"
     >
       <slot></slot>
@@ -17,6 +17,9 @@
 <script>
 export default {
   name: 'EnabledMenuCard',
+  props: {
+    height: Number,
+  },
   methods: {
     onClick() {
       this.$emit('click')
