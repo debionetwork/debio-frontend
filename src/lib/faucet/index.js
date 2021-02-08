@@ -6,7 +6,7 @@ import axios from 'axios'
  */
 export async function getEthFromFaucet(walletAddress) {
   console.log('getting eth from faucet')
-  const faucetEndpoint = 'http://34.101.116.238:3000'
+  const faucetEndpoint = process.env.VUE_APP_DEGENICS_BACKEND_URL
   const request = `${faucetEndpoint}?address=${walletAddress}`
   try {
     const resp = await axios.get(request)

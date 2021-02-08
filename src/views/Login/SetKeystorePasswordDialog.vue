@@ -47,6 +47,12 @@
           >
           </v-text-field>
         </v-form>
+        <div class="d-flex justify-center mb-4">
+          <VueRecaptcha
+            @verify="onVerifyRecaptcha"
+            :sitekey="sitekey"
+          ></VueRecaptcha>
+        </div>
         <v-progress-linear
           v-if="isLoading"
           indeterminate
@@ -60,7 +66,7 @@
           large
           width="100%"
           @click="onPasswordSet"
-          :disabled="!passwordsValid || isLoading"
+          :disabled="!passwordsValid || !recaptchaVerified || isLoading"
           :loading="isLoading"
         >
           Set Password
@@ -75,9 +81,14 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
+import VueRecaptcha from 'vue-recaptcha'
+import axios from 'axios'
 
 export default {
   name: 'SetKeystorePasswordDialog',
+  components: {
+    VueRecaptcha,
+  },
   props: {
     secretType: String,
     secret: String,
@@ -90,7 +101,8 @@ export default {
     showPassword: false,
     showPasswordConfirm: false,
     passwordRule: val => !!val || 'Password is required',
-    passwordConfirmRule: password => val => !!password && password == val || 'Passwords must match.'
+    passwordConfirmRule: password => val => !!password && password == val || 'Passwords must match.',
+    recaptchaVerified: false,
   }),
   computed: {
     _show: {
@@ -101,16 +113,35 @@ export default {
         this.$emit('toggle', val)
       }
     },
+    sitekey() {
+      return process.env.VUE_APP_RECAPTCHA_SITE_KEY
+    },
     ...mapState({
       isLoading: state => state.ethereum.isLoadingWallet,
       wallet: state => state.ethereum.wallet,
     })
+  },
+  mounted() {
+    let recaptchaScript = document.createElement('script')
+    const recaptchaSrc = 'https://www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit'
+    recaptchaScript.setAttribute('src', recaptchaSrc)
+    recaptchaScript.setAttribute('async', true)
+    recaptchaScript.setAttribute('defer', true)
+    document.head.appendChild(recaptchaScript)
   },
   methods: {
     ...mapActions({
       generateWalletFromMnemonic: 'ethereum/generateWalletFromMnemonic',
       generateWalletFromPrivateKey: 'ethereum/generateWalletFromPrivateKey',
     }),
+    async onVerifyRecaptcha(response) {
+      const recaptchaBackendUrl = `${process.env.VUE_APP_DEGENICS_BACKEND_URL}/recaptcha`
+      const result = await axios.post(recaptchaBackendUrl, { response })
+
+      if (result.data.success) {
+        this.recaptchaVerified = true
+      }
+    },
     async onPasswordSet() {
       try {
         if (this.secretType == 'mnemonic') {
