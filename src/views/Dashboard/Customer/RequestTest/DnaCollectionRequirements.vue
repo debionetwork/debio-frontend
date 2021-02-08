@@ -27,7 +27,7 @@ export default {
   },
   data: () => ({
     requirements: [
-      'Buccal Swab',
+      'Cotton Bud',
       'Collection Tube',
       'Gloves (Optional)',
       'Envelope'
