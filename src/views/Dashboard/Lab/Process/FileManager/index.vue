@@ -351,6 +351,10 @@ export default {
       this.files = {...this.files, [fileType]: tempFiles }
 
       specimenFilesTempStore.set(this.specimen.number, this.files)
+
+      if (this.files.genome.length == 0 && this.files.report.length == 0) {
+        specimenFilesTempStore.remove(this.specimen.number)
+      }
     },
   }
 }

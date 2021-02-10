@@ -148,7 +148,8 @@ export default {
       // The specimenStatus on blockchain should now be 'Received'
       // need to manage next actions based on what has been done locally
       const files = specimenFilesTempStore.get(specimenNumber)
-      if (!files) { // no files, nextActions start from Wetwork
+      // no files, nextActions start from Wetwork
+      if (!files) { 
         return this.nextActions.slice(1).map(action => ({ name: action, doneFileTypes: [] }))
       }
       const doneFileTypes = []
