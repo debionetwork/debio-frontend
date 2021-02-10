@@ -13,6 +13,7 @@
       :sub-title="subTitle"
       @click="onClick"
       :disabled="disabled"
+      :hover-text="hoverText"
     >
       <template v-slot:footer>
         <slot name="footer"></slot>
@@ -32,6 +33,7 @@ export default {
     icon: String,
     title: String,
     subTitle: String,
+    hoverText: String,
     isSelected: Boolean,
     disabled: Boolean,
   },

@@ -63,7 +63,7 @@
                </div>
             </div>
          </template>
-         {{ subTitle }}
+         {{ hoverText ? hoverText : subTitle }}
       </v-tooltip>
    </component>
 </template>
@@ -78,6 +78,7 @@ export default {
     icon: String,
     title: String,
     subTitle: String,
+    hoverText: String,
     disabled: Boolean,
     loading: Boolean,
     height: Number,

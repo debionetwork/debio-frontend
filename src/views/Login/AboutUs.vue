@@ -45,8 +45,6 @@
           <a href="https://www.degenics.com/" target="_blank">www.degenics.com</a>
         </div>
       </v-card-text>
-      <v-card-action>
-      </v-card-action>
     </v-card>
   </v-menu>
 </template>
