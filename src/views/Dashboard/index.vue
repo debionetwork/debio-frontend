@@ -7,20 +7,21 @@
       class="dg-app-bar"
     >
       <div class="dg-app-bar-items-container">
-          <div class="d-flex align-center">
-            <v-img
-              alt="Vuetify Logo"
-              class="shrink mr-2"
-              contain
-              src="@/assets/degenics-logo.png"
-              transition="scale-transition"
-              width="40"
-            />
-
-            <div class="text-h6 font-weight-bold light_primary--text">
-              Degenics {{ isLab ? 'Lab' : '' }}
+          <a href="https://www.degenics.com/" target="_blank" style="text-decoration: none;">
+            <div class="d-flex align-center">
+              <v-img
+                alt="Vuetify Logo"
+                class="shrink mr-2"
+                contain
+                src="@/assets/degenics-logo.png"
+                transition="scale-transition"
+                width="40"
+              />
+              <div class="text-h6 font-weight-bold light_primary--text">
+                Degenics {{ isLab ? 'Lab' : '' }}
+              </div>
             </div>
-          </div>
+          </a>
 
           <v-spacer></v-spacer>
           <WalletBalance />
