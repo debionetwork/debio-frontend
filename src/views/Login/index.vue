@@ -3,18 +3,18 @@
     <v-app-bar app flat color="transparent" dense>
       <v-spacer></v-spacer>
       <SettingsMenu />
-      <DevMenu />
+      <DevMenu v-if="isDevEnv"/>
     </v-app-bar>
     <v-main class="login-main">
       <div class="d-flex justify-center">
-        <v-img
-          src="@/assets/degenics-logo.png"
-          max-width="150px"
-        />
+        <a href="https://www.degenics.com/" target="_blank">
+          <v-img src="@/assets/degenics-logo.png" max-width="150px" />
+        </a>
       </div>
+      <AboutUs />
       <v-container>
           <DemoLabAccounts />
-          <v-card class="pb-10 pt-7 mt-10" style="max-width: 400px; margin: 0 auto; border-radius: 30px;">
+          <v-card class="pb-7 pt-2 mt-10" style="max-width: 400px; margin: 0 auto; border-radius: 30px;">
             <v-row class="mt-0 ml-8">
               <v-col cols="12">
                 <div class="text-h5 grey--text text--darken-2">
@@ -47,7 +47,7 @@
               </div>
             </div>
           </v-card>
-          <v-card class="pb-10 pt-7 mt-10" style="max-width: 400px; margin: 0 auto; border-radius: 30px;">
+          <v-card class="pb-7 pt-2 mt-10" style="max-width: 400px; margin: 0 auto; border-radius: 30px;">
             <v-row class="mt-0">
               <v-col cols="12">
                 <div class="text-h5 text-center grey--text text--darken-2">
@@ -109,6 +109,7 @@ import ImportKeystoreDialog from './ImportKeystoreDialog'
 import UsePrivateKeyDialog from './UsePrivateKeyDialog'
 import SetKeystorePasswordDialog from './SetKeystorePasswordDialog'
 import DemoLabAccounts from './DemoLabAccounts'
+import AboutUs from './AboutUs'
 
 export default {
   name: 'Home',
@@ -122,6 +123,12 @@ export default {
     UsePrivateKeyDialog,
     SetKeystorePasswordDialog,
     DemoLabAccounts,
+    AboutUs
+  },
+  computed: {
+    isDevEnv() {
+      return process.env.NODE_ENV == 'development'
+    }
   },
   data: () => ({
     generateAccountDialog: false,
@@ -164,7 +171,7 @@ export default {
 
 <style lang="scss" scoped>
 .login-main {
-  background: rgb(0,0,0);
+  background: rgba(0,0,0, 0.5);
   background: linear-gradient(25deg, rgba(0,0,0,1) 0%, rgba(63,32,64,1) 24%, rgba(253,192,255,1) 74%, rgba(255,255,255,1) 96%);
 }
 .card-hover {

@@ -117,6 +117,7 @@
               :icon="product.icon"
               :title="product.serviceName"
               :sub-title="product.description"
+              :hover-text="product.longDescription ? product.longDescription : product.description"
               :is-selected="isProductSelected(product)"
               :disabled="isProductDisabled(product)"
               @click="selectOneProduct(product)"

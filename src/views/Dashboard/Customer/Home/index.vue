@@ -31,6 +31,17 @@
           <TestResults />
         </v-col>
       </v-row>
+      <div class="d-flex justify-end" style="margin-top: 50px;">
+        <v-alert
+          border="top"
+          color="#ff56e0"
+          colored-border
+          icon="mdi-information"
+          max-width="500"
+        >
+          After making a test request you can process the request by logging out (top navigation bar) and logging back in using one of the demo lab accounts
+        </v-alert>
+      </div>
     </v-container>
   </div>
 </template>
