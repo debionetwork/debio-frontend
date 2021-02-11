@@ -37,12 +37,18 @@
             Unlock Wallet
           </v-btn>
         </v-card-actions>
+        <v-card-actions v-if="role == 'lab'" class="px-6 pb-4">
+          <div class="text-body-2">
+            Use <b class="primary--text">{{ passwordForDemoLabAccounts }}</b> for the demo lab account password
+          </div>
+        </v-card-actions>
       </v-card>
     </v-dialog>
   
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import Wallet from '@/lib/dgnx-wallet'
 import keystore from '@/lib/keystore'
 
@@ -50,6 +56,14 @@ export default {
   name: 'UnlockWalletDialog',
   props: {
     show: Boolean,
+  },
+  computed: {
+    ...mapGetters({
+      role: 'auth/getRole'
+    }),
+    passwordForDemoLabAccounts() {
+      return 'degenics'
+    }
   },
   data: () => ({
     password: '',
