@@ -46,11 +46,12 @@ export default {
       clearAuth: 'auth/clearAuth',
     }),
     ...mapMutations({
-      clearWallet: 'ethereum/CLEAR_WALLET',
+      clearWallet: 'substrate/CLEAR_WALLET',
     }),
     logOut() {
       this.clearAuth()
       this.clearWallet()
+      localStorage.clearWallet()
       this.$router.push('/login')
     },
     downloadKeystore() {

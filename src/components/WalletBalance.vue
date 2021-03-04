@@ -2,21 +2,20 @@
   <div class="d-flex align-center mr-4">
     <v-icon class="mr-2">mdi-wallet</v-icon>
     <div v-if="isLoading">Loading..</div>
-    <div v-else class="text-body-1 light_primary--text"><b>{{ walletBalance }}</b> Eth</div>
+    <div v-else class="text-body-1 light_primary--text"><b>{{ walletBalance }}</b></div>
   </div>
 </template>
 
 <script>
 import { mapState, mapMutations } from 'vuex'
-import keystore from '../lib/keystore'
-import getWalletBalance from '../lib/get-wallet-balance'
 
 export default {
   name: 'WalletBalance',
   computed: {
     ...mapState({
-      web3: state => state.ethereum.web3,
-      walletBalance: state => state.ethereum.walletBalance,
+      walletBalance: state => state.substrate.walletBalance,
+      api: state => state.substrate.api,
+      wallet: state => state.substrate.wallet
     }),
   },
   data: () => ({
@@ -24,22 +23,32 @@ export default {
   }),
   methods: {
     ...mapMutations({
-      setWalletBalance: 'ethereum/SET_WALLET_BALANCE'
-    })
-  },
-  async mounted() {
-    if (!this.walletBalance) {
+      setWalletBalance: 'substrate/SET_WALLET_BALANCE',
+    }),
+    async fetchWalletBalance() {
       try {
         this.isLoading = true
-        const ks = keystore.get()
-        const balance = await getWalletBalance(this.web3, ks.address)
-        this.setWalletBalance(balance)
+        console.log('address', this.wallet.address)
+        const { nonce, data: balance  } = await this.api.query.system.account(this.wallet.address);
+        console.log('nonce', nonce)
+        console.log('balance', balance.free.toHuman())
+        this.setWalletBalance(balance.free.toHuman())
         this.isLoading = false
       } catch (err) {
         console.log(err)
         this.isLoading = false
       }
     }
+  },
+  watch: {
+    async wallet(val) {
+      if (val) {
+        await this.fetchWalletBalance()
+      }
+    }
+  },
+  async mounted() {
+    await this.fetchWalletBalance()
   }
 }
 </script>

@@ -49,12 +49,13 @@ Your private key isn't stored anywhere. It never leaves your device and must rem
 </template>
 
 <script>
-import * as bip39 from 'bip39'
+const { /*cryptoWaitReady,*/ mnemonicGenerate  } = require('@polkadot/util-crypto')
 
 export default {
   name: 'GenerateAccountDialog',
   props: {
-    show: Boolean
+    show: Boolean,
+    role: String,
   },
   data: () => ({
     mnemonic: '',
@@ -72,14 +73,14 @@ export default {
   watch: {
     _show(isShow) {
       if (isShow) {
-        this.mnemonic = bip39.generateMnemonic()
+        this.mnemonic = mnemonicGenerate()
       }
     }
   },
   methods: {
     onMnemonicSaved() {
       this._show = false
-      this.$emit('mnemonic-generated', this.mnemonic)
+      this.$emit('mnemonic-generated', { mnemonic: this.mnemonic, role: this.role })
       this.mnemonic = ''
     },
     closeDialog() {

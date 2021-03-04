@@ -7,123 +7,100 @@
     </v-app-bar>
     <v-main class="login-main">
       <div class="d-flex justify-center">
-        <a href="https://www.degenics.com/" target="_blank">
-          <v-img src="@/assets/degenics-logo.png" max-width="150px" />
-        </a>
+        <!-- <a href="https://www.degenics.com/" target="_blank"> -->
+          <v-img src="@/assets/degenics-logo-words.png" max-width="300"/>
+        <!-- </a> -->
       </div>
-      <AboutUs />
       <v-container>
-          <DemoLabAccounts />
-          <v-card class="pb-7 pt-2 mt-10" style="max-width: 400px; margin: 0 auto; border-radius: 30px;">
-            <v-row class="mt-0 ml-8">
-              <v-col cols="12">
-                <div class="text-h5 grey--text text--darken-2">
-                  <b>Access Your Account</b>
-                </div>
-              </v-col>
-            </v-row>
-            <div class="d-flex justify-center mt-4">
-              <div class="d-flex flex-column" style="min-width: 320px; max-width: 400px;">
-                <LoginOptionBtn
-                  icon="mdi-script-text"
-                  text="Input Mnemonic Phrase"
-                  @click="onUseMnemonic"
-                ></LoginOptionBtn>
+        <v-row justify="center">
+          <v-col cols="12" md="5" sm="8">
+            <Card>
+              <template v-slot:title_icon>
+                <v-icon color="#373737">mdi-account-multiple</v-icon>
+              </template>
+              <template v-slot:title>
+                Customers
+              </template>
 
-                <LoginOptionBtn
-                  icon="mdi-file-key"
-                  text="Import JSON Keystore"
-                  warning="Less secure"
-                  @click="onImportKeystore"
-                >
-                </LoginOptionBtn>
-
-                <LoginOptionBtn
-                  icon="mdi-key-variant"
-                  text="Input Private Key"
-                  warning="Less secure"
-                  @click="onUsePrivateKey"
-                ></LoginOptionBtn>
-              </div>
-            </div>
-          </v-card>
-          <v-card class="pb-7 pt-2 mt-10" style="max-width: 400px; margin: 0 auto; border-radius: 30px;">
-            <v-row class="mt-0">
-              <v-col cols="12">
-                <div class="text-h5 text-center grey--text text--darken-2">
-                  <b>Create an Account</b>
+              <template v-slot:text>
+                <div class="mb-3">
+                  <Button color="primary" @click="onLogin('customer')">
+                    Login
+                  </Button>
                 </div>
-              </v-col>
-            </v-row>
-            <div class="d-flex justify-center mt-4">
-              <div class="d-flex flex-column" style="min-width: 320px; max-width: 400px;">
-                <LoginOptionBtn
-                  icon="mdi-key-chain"
-                  text="Generate Account"
-                  @click="onGenerateAccount"
-                ></LoginOptionBtn>
-              </div>
-            </div>
-          </v-card>
+                <div class="mb-3">
+                  <Button color="primary" outlined @click="onGenerateAccount('customer')">
+                    Generate Account
+                  </Button>
+                </div>
+              </template>
+            </Card>
+          </v-col>
+        </v-row>
+
+        <v-row justify="center">
+          <v-col cols="12" md="5" sm="8">
+            <Card>
+              <template v-slot:title_icon>
+                <v-icon color="#373737">mdi-microscope</v-icon>
+              </template>
+              <template v-slot:title>
+                Labs
+              </template>
+
+              <template v-slot:text>
+                <div class="mb-3">
+                  <Button color="secondary" @click="onLogin('lab')">
+                    Login
+                  </Button>
+                </div>
+                <div class="mb-3">
+                  <Button color="secondary" outlined @click="onGenerateAccount('lab')">
+                    Generate Account
+                  </Button>
+                </div>
+              </template>
+            </Card>
+          </v-col>
+        </v-row>
       </v-container>
 
       <GenerateAccountDialog
         :show="generateAccountDialog"
+        :role="role"
         @toggle="generateAccountDialog = $event"
-        @mnemonic-generated="(mnemonic) => setKeyStorePassword('generateAccountDialog', 'mnemonic', mnemonic)"
+        @mnemonic-generated="({ mnemonic, role }) => onAccountGenerated(mnemonic, role)"
       ></GenerateAccountDialog>
       <AccessAccountMnemonicDialog
         :show="accessAccountMnemonicDialog"
+        :role="role"
         @toggle="accessAccountMnemonicDialog = $event"
-        @mnemonic-input="(mnemonic) => setKeyStorePassword('accessAccountMnemonicDialog', 'mnemonic', mnemonic)"
+        @mnemonic-input="({ mnemonic, role }) => onMnemonicValidated(mnemonic, role)"
       ></AccessAccountMnemonicDialog>
-      <ImportKeystoreDialog
-        :show="importKeystoreDialog"
-        @toggle="importKeystoreDialog = $event"
-      ></ImportKeystoreDialog>
-      <UsePrivateKeyDialog
-        :show="usePrivateKeyDialog"
-        @toggle="usePrivateKeyDialog = $event"
-        @private-key-input="(privateKey) => setKeyStorePassword('usePrivateKeyDialog', 'privateKey', privateKey)"
-      ></UsePrivateKeyDialog>
-      <SetKeystorePasswordDialog
-        :secretType="secretType"
-        :secret="secret"
-        :show="setKeystorePasswordDialog"
-        @toggle="setKeystorePasswordDialog = $event"
-        @key-store-set="clearSecret"
-        @key-store-set-cancelled="clearSecret"
-      ></SetKeystorePasswordDialog>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapMutations } from 'vuex'
+import Card from '@/components/Card'
 import DevMenu from '../../components/DevMenu'
 import SettingsMenu from '../../components/SettingsMenu'
-import LoginOptionBtn from './LoginOptionBtn'
 import GenerateAccountDialog from './GenerateAccountDialog'
 import AccessAccountMnemonicDialog from './AccessAccountMnemonicDialog'
-import ImportKeystoreDialog from './ImportKeystoreDialog'
-import UsePrivateKeyDialog from './UsePrivateKeyDialog'
-import SetKeystorePasswordDialog from './SetKeystorePasswordDialog'
-import DemoLabAccounts from './DemoLabAccounts'
-import AboutUs from './AboutUs'
+import Button from '@/components/Button'
+import { Wallet } from '@/lib/substrate'
+import localStorage from '@/lib/local-storage'
 
 export default {
   name: 'Home',
   components: {
+    Card,
     DevMenu,
     SettingsMenu,
-    LoginOptionBtn,
     GenerateAccountDialog,
     AccessAccountMnemonicDialog,
-    ImportKeystoreDialog,
-    UsePrivateKeyDialog,
-    SetKeystorePasswordDialog,
-    DemoLabAccounts,
-    AboutUs
+    Button,
   },
   computed: {
     isDevEnv() {
@@ -133,38 +110,41 @@ export default {
   data: () => ({
     generateAccountDialog: false,
     accessAccountMnemonicDialog: false,
-    importKeystoreDialog: false,
-    usePrivateKeyDialog: false,
     setKeystorePasswordDialog: false,
-    secretType: '', // mnemonic or privateKey
-    secret: '', // mnemonic or privateKey string
+    role: '',
   }),
   methods: {
-    ...mapActions({
-      generateMnemonic: 'ethereum/generateMnemonic'
+    ...mapMutations({
+      setWallet: 'substrate/SET_WALLET'
     }),
-    onGenerateAccount() {
+    onGenerateAccount(role) {
+      this.role = role
       this.generateAccountDialog = true
     },
-    onUseMnemonic() {
+    onLogin(role) {
+      this.role = role
       this.accessAccountMnemonicDialog = true
     },
-    onImportKeystore() {
-      this.importKeystoreDialog = true
+    onAccountGenerated(mnemonic, role) {
+      const wallet = new Wallet(mnemonic)
+      if (role == 'lab') {
+        // TODO: if role is lab, registerLab in blockchain
+        role
+      }
+      this.setWallet(wallet)
+      localStorage.setWallet(JSON.stringify(wallet))
+      this.$router.push('/')
     },
-    onUsePrivateKey() {
-      this.usePrivateKeyDialog = true
+    onMnemonicValidated(mnemonic, role) {
+      const wallet = new Wallet(mnemonic)
+      if (role == 'lab') {
+        // TODO: if role is lab, check if address is registered as lab in blockchain
+        role
+      }
+      this.setWallet(wallet)
+      localStorage.setWallet(JSON.stringify(wallet))
+      this.$router.push('/')
     },
-    setKeyStorePassword(previousDialog, secretType, secret) {
-      this.secretType = secretType // mnemonic or privateKey
-      this.secret = secret // mnemonic or privateKey string
-      this[previousDialog] = false // Hide previous dialog
-      this.setKeystorePasswordDialog = true
-    },
-    clearSecret() {
-      this.secretType = ''
-      this.secret = ''
-    }
   }
 }
 </script>

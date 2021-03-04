@@ -1,36 +1,42 @@
 <template>
   <div id="app">
-    <div v-if="isLoading">Loading..</div>
+    <div v-if="isLoadingSubstrateApi">Loading..</div>
     <router-view v-else />
   </div>
 </template>
 
 <script>
-// import localStorage from './lib/local-storage'
-import { mapState, mapActions } from 'vuex'
+import localStorage from './lib/local-storage'
+import { mapState, mapActions, mapMutations } from 'vuex'
 
 export default {
   name: 'App',
   components: {
   },
-  data: () => ({
-  }),
   computed: {
-    isLoading() {
-      return this.isLoadingWeb3
-    },
     ...mapState({
-      web3: state => state.ethereum.web3,
-      isLoadingWeb3: state => state.ethereum.isLoadingWeb3,
+      substrateApi: state => state.substrate.api,
+      isLoadingSubstrateApi: state => state.substrate.isLoadingApi
     }),
   },
   async mounted() {
+    await this.connectSubstrate()
+
+    // Check if wallet in localStorage
+    try {
+      const wallet = JSON.parse(localStorage.getWallet())
+      this.setWallet(wallet)
+    } catch (err) {
+      console.log(err)
+    }
   },
   methods: {
     ...mapActions({
-      initWeb3: 'ethereum/initWeb3',
-      initContracts: 'ethereum/contracts/initContracts'
-    })
+      connectSubstrate: 'substrate/connect'
+    }),
+    ...mapMutations({
+      setWallet: 'substrate/SET_WALLET'
+    }),
   }
 };
 </script>

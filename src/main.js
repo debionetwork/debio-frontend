@@ -5,7 +5,7 @@ import App from './App.vue'
 import vuetify from './plugins/vuetify';
 import { fmtSpecimenNumber } from './lib/string-format'
 import { format, fromUnixTime } from 'date-fns'
-import localStorage from './lib/local-storage'
+// import localStorage from './lib/local-storage'
 
 
 Vue.config.productionTip = false
@@ -31,6 +31,7 @@ Vue.filter('timestampToDate', function(val) {
  * Wait for web3 and smart contracts to load
  * this will set web3 and smart contracts to store
  */
+/*
 async function setupAppDependencies() {
   const DEFAULT_RPC_URL = 'http://34.101.116.238:8545'
   let rpcUrl = localStorage.getRpcUrl() || DEFAULT_RPC_URL
@@ -38,15 +39,11 @@ async function setupAppDependencies() {
   store.dispatch('ethereum/contracts/initContracts')
   return
 }
+*/
 
-setupAppDependencies()
-  .then(() => {
-
-    new Vue({
-      vuetify,
-      router,
-      store,
-      render: h => h(App)
-    }).$mount('#app')
-
-  })
+new Vue({
+  vuetify,
+  router,
+  store,
+  render: h => h(App)
+}).$mount('#app')

@@ -1,7 +1,8 @@
 <template>
   <v-btn
     :outlined="outlined"
-    color="primary"
+    :dark="dark"
+    :color="color"
     depressed
     large
     width="100%"
@@ -13,9 +14,17 @@
 
 <script>
 export default {
-  name: 'PrimaryButton',
+  name: 'Button',
   props: {
     outlined: Boolean,
+    color: {
+      type: String,
+      default: 'primary'
+    },
+    dark: {
+      type: Boolean,
+      default: true,
+    },
   },
   methods: {
     onClick() {
