@@ -5,14 +5,18 @@ import localStorage from '../lib/local-storage'
 
 Vue.use(VueRouter)
 
-function hasKeystore() {
-  const keystore = localStorage.getKeystore()
-  return !!keystore
+function hasWallet() {
+  const wallet = localStorage.getWallet()
+  return !!wallet
 }
 
-// eslint-disable-next-line no-unused-vars
 function checkIsLoggedIn(to, from, next) {
-  const isLoggedIn = hasKeystore()
+  to, from, next;
+ // const wallet = store.getters['substrate/wallet'] 
+ // const isLoggedIn = !!wallet
+
+  const isLoggedIn = hasWallet()
+
   if (!isLoggedIn && to.path != '/login') {
     next('/login')
     return
@@ -207,6 +211,7 @@ const router = new VueRouter({
  *
  * Get user role from account smart contract
  * */
+// eslint-disable-next-line no-unused-vars
 async function getUserRole() {
   try {
     let role = store.getters['auth/getRole']
@@ -234,6 +239,7 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // If there's an error when getting user role, go back to login
+  /*
   let role = null
   try {
     role = await getUserRole()
@@ -258,6 +264,7 @@ router.beforeEach(async (to, from, next) => {
       return
     }
   }
+  */
 
   next()
 })

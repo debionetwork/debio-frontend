@@ -1,8 +1,11 @@
 <template>
   <v-card class="dg-card pb-0" elevation="0" outlined>
     <v-card-title v-if="$slots.title" class="px-8">
-      <div class="text-h6">
-        <slot name="title"></slot>
+      <div class="d-flex">
+        <slot name="title_icon"></slot>
+        <div class="text-h6" :class="{ 'ml-2': $slots.title_icon }" style="color: #373737;">
+          <slot name="title"></slot>
+        </div>
       </div>
     </v-card-title>
     <v-card-text class="px-8 pb-2">

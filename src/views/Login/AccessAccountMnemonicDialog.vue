@@ -48,7 +48,8 @@
 export default {
   name: 'AccessAccountMnemonicDialog',
   props: {
-    show: Boolean
+    show: Boolean,
+    role: String,
   },
   data: () => ({
     formValid: true,
@@ -76,7 +77,7 @@ export default {
         return
       }
       this._show = false
-      this.$emit('mnemonic-input', this.mnemonic)
+      this.$emit('mnemonic-input', { mnemonic: this.mnemonic, role: this.role })
       this.$refs.form.reset()
     },
     closeDialog() {
