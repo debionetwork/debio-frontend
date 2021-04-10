@@ -1,4 +1,4 @@
-import localStorage from '../local-storage'
+import localStorage from './local-storage'
 
 class Keystore {
   get() {
