@@ -8,6 +8,12 @@ const authRoutes = [
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "" */ '../../views/Login')
   },
+  {
+    path: '/register',
+    name: 'register',
+    meta: { public: true },
+    component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Register')
+  }
 ]
 
 export default authRoutes
