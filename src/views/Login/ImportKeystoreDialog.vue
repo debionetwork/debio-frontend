@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import localStorage from '../lib/local-storage'
+import localStorage from '../../lib/local-storage'
 import { mapActions, mapState } from 'vuex'
 
 export default {

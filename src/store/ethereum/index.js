@@ -1,4 +1,6 @@
 import Web3 from 'web3'
+import * as bip39 from 'bip39'
+import { hdkey } from 'ethereumjs-wallet'
 import localStorage from '../../lib/local-storage'
 import contracts from './contracts'
 import Wallet from '../../lib/dgnx-wallet'
@@ -99,41 +101,41 @@ export default {
      * 2. use web3 to create the account from the private key
      *   web3.eth.accounts.privateKeyToAccount(privateKey)
      */
-    async generateWalletFromMnemonic({ commit }) {
+    async generateWalletFromMnemonic({ commit, state }, { mnemonic, password }) {
       try {
         commit('SET_LOADING_WALLET', true)
 
         commit('CLEAR_WALLET')
 
-        // // Convert mnemonic to seed buffer
-        // const seedBuffer = await bip39.mnemonicToSeed(mnemonic)
-        // // HD Key
-        // const HDKey = hdkey.fromMasterSeed(seedBuffer)
-        // // Derivation path
-        // const derivationPath = "m/44'/60'/0'/0/"
+        // Convert mnemonic to seed buffer
+        const seedBuffer = await bip39.mnemonicToSeed(mnemonic)
+        // HD Key
+        const HDKey = hdkey.fromMasterSeed(seedBuffer)
+        // Derivation path
+        const derivationPath = "m/44'/60'/0'/0/"
 
-        // // For now only create 1 account which is the 0th account in terms of derivation path
-        // const walletHDPath = derivationPath + '0' 
-        // const hdWallet = HDKey.derivePath(walletHDPath).getWallet()
+        // For now only create 1 account which is the 0th account in terms of derivation path
+        const walletHDPath = derivationPath + '0' 
+        const hdWallet = HDKey.derivePath(walletHDPath).getWallet()
 
-        // // Create keystore and store it in localStorage
-        // const keystore = Wallet.encrypt(hdWallet.getPrivateKeyString(), password)
-        // const keystoreStr = JSON.stringify(keystore)
-        // localStorage.setKeystore(keystoreStr)
+        // Create keystore and store it in localStorage
+        const keystore = Wallet.encrypt(hdWallet.getPrivateKeyString(), password)
+        const keystoreStr = JSON.stringify(keystore)
+        localStorage.setKeystore(keystoreStr)
 
-        // const wallet = Wallet.fromPrivateKey(hdWallet.getPrivateKeyString())
+        const wallet = Wallet.fromPrivateKey(hdWallet.getPrivateKeyString())
         
-        // // FIXME: For hackathon
-        // await getEthFromFaucet(wallet.address)
+        // FIXME: For hackathon
+        await getEthFromFaucet(wallet.address)
 
-        // wallet.balance = await getWalletBalance(state.web3, wallet.address)
+        wallet.balance = await getWalletBalance(state.web3, wallet.address)
         
-        // commit('SET_WALLET_PUBLIC_KEY', wallet.getPublicKeyString())
-        // commit('SET_WALLET_ADDRESS', wallet.getAddressString())
+        commit('SET_WALLET_PUBLIC_KEY', wallet.getPublicKeyString())
+        commit('SET_WALLET_ADDRESS', wallet.getAddressString())
 
-        // commit('SET_WALLET', wallet) // FIXME: simpen untuk dev
+        commit('SET_WALLET', wallet) // FIXME: simpen untuk dev
 
-        // commit('SET_LOADING_WALLET', false)
+        commit('SET_LOADING_WALLET', false)
       } catch (err) {
         console.log(err)
         commit('CLEAR_WALLET')

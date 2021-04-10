@@ -11,8 +11,9 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.12.5",
-    "@polkadot/api": "^4.4.1",
+    "@polkadot/api": "^3.11.1",
     "axios": "^0.21.1",
+    "bip39": "^3.0.3",
     "core-js": "^3.6.5",
     "date-fns": "^2.16.1",
     "eth-crypto": "^1.8.0",

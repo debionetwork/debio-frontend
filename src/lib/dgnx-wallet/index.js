@@ -1,4 +1,4 @@
-import store from '../store'
+import store from '../../store'
 import privateKeyToPublicKey from 'ethereum-private-key-to-public-key'
 
 /**

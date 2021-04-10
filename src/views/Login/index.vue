@@ -84,12 +84,13 @@
 <script>
 import { mapMutations } from 'vuex'
 import Card from '@/components/Card'
-import DevMenu from '@/components/DevMenu'
-import SettingsMenu from '@/components/SettingsMenu'
-import GenerateAccountDialog from '@/components/GenerateAccountDialog'
-import AccessAccountMnemonicDialog from '@/components/AccessAccountMnemonicDialog'
-import Wallet from '@/lib/substrate/wallet'
+import DevMenu from '../../components/DevMenu'
+import SettingsMenu from '../../components/SettingsMenu'
+import GenerateAccountDialog from './GenerateAccountDialog'
+import AccessAccountMnemonicDialog from './AccessAccountMnemonicDialog'
 import Button from '@/components/Button'
+import { Wallet } from '@/lib/substrate'
+import localStorage from '@/lib/local-storage'
 
 export default {
   name: 'Home',
