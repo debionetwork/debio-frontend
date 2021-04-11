@@ -6,7 +6,8 @@
 </template>
 
 <script>
-import localStorage from './lib/local-storage'
+//import localStorage from './lib/local-storage'
+import globalFunctions from './lib/functions'
 import { mapState, mapActions, mapMutations } from 'vuex'
 
 export default {
@@ -20,19 +21,20 @@ export default {
     }),
   },
   async mounted() {
+    globalFunctions.checkIsLoggedIn();
     await this.connectSubstrate()
-
+    
     // Check if wallet in localStorage
-    try {
-      const wallet = JSON.parse(localStorage.getWallet())
-      this.setWallet(wallet)
-    } catch (err) {
-      console.log(err)
-    }
+    // try {
+    //   const wallet = JSON.parse(localStorage.getWallet())
+    //   this.setWallet(wallet)
+    // } catch (err) {
+    //   console.log(err)
+    // }
   },
   methods: {
     ...mapActions({
-      connectSubstrate: 'substrate/connect'
+      connectSubstrate: 'substrate/connect',
     }),
     ...mapMutations({
       setWallet: 'substrate/SET_WALLET'

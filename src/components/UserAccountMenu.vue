@@ -50,8 +50,8 @@ export default {
     }),
     logOut() {
       this.clearAuth()
-      this.clearWallet()
-      localStorage.clearWallet()
+      //this.clearWallet()
+      localStorage.clear()
       this.$router.push('/login')
     },
     downloadKeystore() {
