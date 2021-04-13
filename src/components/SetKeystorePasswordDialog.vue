@@ -1,29 +1,21 @@
 <template>
-  <v-dialog
-    :value="_show"
-    width="500"
-    persistent
-  >
+  <v-dialog :value="_show" width="500" persistent>
     <v-card>
       <v-app-bar flat dense color="white">
-        <v-toolbar-title class="title">
-          Set Password
-        </v-toolbar-title>
+        <v-toolbar-title class="title"> Set Password </v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn
-          icon
-          @click="closeDialog"
-        >
+        <v-btn icon @click="closeDialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-app-bar>
       <v-card-text class="mt-4 pb-0 text-subtitle-1">
         <p>
-          You will need to input this password later when making transactions with this account
+          You will need to input this password later when making transactions
+          with this account
         </p>
         <v-form v-model="passwordsValid" ref="passwordForm">
           <v-text-field
-            :append-icon="showPassword? 'mdi-eye' : 'mdi-eye-off'"
+            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
             @click:append="showPassword = !showPassword"
             outlined
             :type="showPassword ? 'text' : 'password'"
@@ -80,102 +72,109 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
-import VueRecaptcha from 'vue-recaptcha'
-import axios from 'axios'
+import { mapActions, mapState } from "vuex";
+import VueRecaptcha from "vue-recaptcha";
+import axios from "axios";
 
 export default {
-  name: 'SetKeystorePasswordDialog',
+  name: "SetKeystorePasswordDialog",
   components: {
     VueRecaptcha,
   },
   props: {
     secretType: String,
     secret: String,
-    show: Boolean
+    show: Boolean,
   },
   data: () => ({
     passwordsValid: false,
-    password: '',
-    passwordConfirm: '',
+    password: "",
+    passwordConfirm: "",
     showPassword: false,
     showPasswordConfirm: false,
-    passwordRule: val => !!val || 'Password is required',
-    passwordConfirmRule: password => val => !!password && password == val || 'Passwords must match.',
+    passwordRule: (val) => !!val || "Password is required",
+    passwordConfirmRule: (password) => (val) =>
+      (!!password && password == val) || "Passwords must match.",
     recaptchaVerified: false,
   }),
   computed: {
     _show: {
       get() {
-        return this.show
+        return this.show;
       },
       set(val) {
-        this.$emit('toggle', val)
-      }
+        this.$emit("toggle", val);
+      },
     },
     sitekey() {
-      return process.env.VUE_APP_RECAPTCHA_SITE_KEY
+      return process.env.VUE_APP_RECAPTCHA_SITE_KEY;
     },
     ...mapState({
-      isLoading: state => state.ethereum.isLoadingWallet,
-      wallet: state => state.ethereum.wallet,
-    })
+      substrateApi: (state) => state.substrate.api,
+      isLoading: (state) => state.substrate.isLoadingApi,
+      // isLoading: state => state.ethereum.isLoadingWallet,
+      // wallet: state => state.ethereum.wallet,
+    }),
   },
   mounted() {
-    let recaptchaScript = document.createElement('script')
-    const recaptchaSrc = 'https://www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit'
-    recaptchaScript.setAttribute('src', recaptchaSrc)
-    recaptchaScript.setAttribute('async', true)
-    recaptchaScript.setAttribute('defer', true)
-    document.head.appendChild(recaptchaScript)
+    let recaptchaScript = document.createElement("script");
+    const recaptchaSrc =
+      "https://www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit";
+    recaptchaScript.setAttribute("src", recaptchaSrc);
+    recaptchaScript.setAttribute("async", true);
+    recaptchaScript.setAttribute("defer", true);
+    document.head.appendChild(recaptchaScript);
   },
   methods: {
     ...mapActions({
-      generateWalletFromMnemonic: 'ethereum/generateWalletFromMnemonic',
-      generateWalletFromPrivateKey: 'ethereum/generateWalletFromPrivateKey',
+      registerMnemonic: "substrate/registerMnemonic",
     }),
     async onVerifyRecaptcha(response) {
-      const recaptchaBackendUrl = `${process.env.VUE_APP_DEGENICS_BACKEND_URL}/recaptcha`
-      const result = await axios.post(recaptchaBackendUrl, { response })
+      const recaptchaBackendUrl = `${process.env.VUE_APP_DEGENICS_BACKEND_URL}/recaptcha`;
+      const result = await axios.post(recaptchaBackendUrl, { response });
 
       if (result.data.success) {
-        this.recaptchaVerified = true
+        this.recaptchaVerified = true;
       }
     },
     async onPasswordSet() {
       try {
-        if (this.secretType == 'mnemonic') {
-          await this.generateWalletFromMnemonic({
+        if (this.secretType == "mnemonic") {
+          const result = await this.registerMnemonic({
             mnemonic: this.secret,
-            password: this.password
-          })
+            password: this.password,
+          });
+          if (result.success) {
+            this._show = false;
+            this.$emit("key-store-set");
+            this.$router.push("/");
+            return;
+          }
         }
 
-        if (this.secretType == 'privateKey') {
+        if (this.secretType == "privateKey") {
           await this.generateWalletFromPrivateKey({
             privateKey: this.secret,
-            password: this.password
-          })
+            password: this.password,
+          });
+          this._show = false;
+          this.$emit("key-store-set");
+          this.$router.push("/");
+          return;
         }
-        this._show = false
-        this.$emit('key-store-set')
-        this.$router.push('/')
-
       } catch (err) {
-        console.log(err)
+        console.log(err);
       }
-
     },
     closeDialog() {
-      this._show = false
-      this.$emit('key-store-set-cancelled')
-      this.$refs.passwordForm.reset()
-    }
-  }
-}
+      this._show = false;
+      this.$emit("key-store-set-cancelled");
+      this.$refs.passwordForm.reset();
+    },
+  },
+};
 </script>
 
 <style>
-
 </style>
 

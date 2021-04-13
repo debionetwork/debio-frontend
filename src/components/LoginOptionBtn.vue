@@ -9,15 +9,17 @@
     >
       <div class="d-flex align-center">
         <div class="my-3 ml-5">
-          <v-icon
+          <v-img v-bind:src="require('../assets/'+img)" width="48" />
+          <!-- <v-icon
             :color="hover ? 'primary' : ''"
             :size="48"
           >
             {{ icon }}
-          </v-icon>
+          </v-icon> -->
         </div>
+        
         <div>
-          <div class="ml-10 text-center" :class="hover ? 'primary--text' : ''">
+          <div class="ml-10 text-left" :class="hover ? 'primary--text' : ''">
             {{ text }}
           </div>
           <div v-if="warning" class="ml-10 red--text" style="font-size: 14px;">
@@ -33,7 +35,7 @@
 export default {
   name: 'LoginOptionBtn',
   props: {
-    icon: String,
+    img: String,
     text: String,
     warning: String,
   },

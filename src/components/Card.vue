@@ -1,5 +1,5 @@
 <template>
-  <v-card class="dg-card pb-0" elevation="0" outlined>
+  <v-card class="dg-card pb-5 pt-2 mt-5" elevation="0" outlined>
     <v-card-title v-if="$slots.title" class="px-8">
       <div class="d-flex">
         <slot name="title_icon"></slot>
