@@ -160,7 +160,6 @@ import DevMenu from "@/components/DevMenu";
 import SettingsMenu from "@/components/SettingsMenu";
 import GenerateAccountDialog from "@/components/GenerateAccountDialog";
 import AccessAccountMnemonicDialog from "@/components/AccessAccountMnemonicDialog";
-import Wallet from "@/lib/substrate/wallet";
 import ImportKeystoreDialog from '@/components/ImportKeystoreDialog';
 import SetKeystorePasswordDialog from '@/components/SetKeystorePasswordDialog'
 //import Button from "@/components/Button";
@@ -194,7 +193,6 @@ export default {
   }),
   methods: {
     ...mapMutations({
-      setWallet: "substrate/SET_WALLET",
     }),
     onGenerateAccount() {
       this.generateAccountDialog = true
@@ -215,34 +213,6 @@ export default {
     clearSecret() {
       this.secretType = ''
       this.secret = ''
-    },
-    // onGenerateAccount(role) {
-    //   this.role = role;
-    //   this.generateAccountDialog = true;
-    // },
-    onLogin(role) {
-      this.role = role;
-      this.accessAccountMnemonicDialog = true;
-    },
-    onAccountGenerated(mnemonic, role) {
-      const wallet = new Wallet(mnemonic);
-      if (role == "lab") {
-        // TODO: if role is lab, registerLab in blockchain
-        role;
-      }
-      this.setWallet(wallet);
-      localStorage.setWallet(JSON.stringify(wallet));
-      this.$router.push("/");
-    },
-    onMnemonicValidated(mnemonic, role) {
-      const wallet = new Wallet(mnemonic);
-      if (role == "lab") {
-        // TODO: if role is lab, check if address is registered as lab in blockchain
-        role;
-      }
-      this.setWallet(wallet);
-      localStorage.setWallet(JSON.stringify(wallet));
-      this.$router.push("/");
     },
   },
 };
