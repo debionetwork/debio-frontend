@@ -1,19 +1,12 @@
 <template>
-  <v-dialog
-    :value="_show"
-    width="500"
-    persistent
-  >
+  <v-dialog :value="_show" width="500" persistent>
     <v-card>
       <v-app-bar flat dense color="white">
         <v-toolbar-title class="title">
           Import Keystore JSON File
         </v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn
-          icon
-          @click="closeDialog"
-        >
+        <v-btn icon @click="closeDialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-app-bar>
@@ -75,93 +68,91 @@
 </template>
 
 <script>
-import localStorage from '../lib/local-storage'
-import { mapActions, mapState } from 'vuex'
+import localStorage from "../lib/local-storage";
+import { mapActions, mapState } from "vuex";
 
 export default {
-  name: 'ImportKeystoreDialog',
-  data: () =>  ({
-    keystore: '',
-    password: '',
-    fileName: '',
-    keystoreInputErrors: []
+  name: "ImportKeystoreDialog",
+  data: () => ({
+    keystore: "",
+    password: "",
+    fileName: "",
+    keystoreInputErrors: [],
   }),
   props: {
-    show: Boolean
+    show: Boolean,
   },
   computed: {
     _show: {
       get() {
-        return this.show
+        return this.show;
       },
       set(val) {
-        this.$emit('toggle', val)
-      }
+        this.$emit("toggle", val);
+      },
     },
     ...mapState({
-      isLoading: state => state.ethereum.isLoading,
+      isLoading: (state) => state.ethereum.isLoading,
     }),
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     ...mapActions({
-      decryptKeystore: 'ethereum/decryptKeystore'
+      restoreAccountKeystore: "substrate/restoreAccountKeystore",
     }),
     setKeystoreFileInputListener() {
-      const context = this
-      this.$refs.keystoreFileInput.addEventListener('change', function() {
-        const file = this.files[0]
-        context.fileName = file.name
-        const fr = new FileReader()
-        fr.onload = async function() {
+      const context = this;
+      this.$refs.keystoreFileInput.addEventListener("change", function () {
+        const file = this.files[0];
+        context.fileName = file.name;
+        const fr = new FileReader();
+        fr.onload = async function () {
           // TODO: Validate if valid keystore
-          context.keystore = fr.result
-        }
-        fr.readAsText(file)
-      })
+          context.keystore = fr.result;
+        };
+        fr.readAsText(file);
+      });
     },
     onSelectKeystoreFile() {
       // Cannot set file input listener on mounted,
       // Because for some reason the element ref is undefined so set it on click
-      this.setKeystoreFileInputListener()
-      this.$refs.keystoreFileInput.click()
+      this.setKeystoreFileInputListener();
+      this.$refs.keystoreFileInput.click();
     },
     saveKeystoreToLocalStorage(keystore) {
-      localStorage.setKeystore(keystore)
+      localStorage.setKeystore(keystore);
     },
     closeDialog() {
-      this._show = false
-      this.clearInput()
+      this._show = false;
+      this.clearInput();
     },
     clearInput() {
-     this.keystore = '',
-     this.password = '',
-     this.fileName = '',
-     this.keystoreInputErrors = []
+      (this.keystore = ""),
+        (this.password = ""),
+        (this.fileName = ""),
+        (this.keystoreInputErrors = []);
     },
     async onPasswordInput() {
-      this.keystoreInputErrors = []
+      this.keystoreInputErrors = [];
 
-      const keystore = JSON.parse(this.keystore)
-      const result = await this.decryptKeystore({
-        keystore,
-        password: this.password
-      })
+      const keystore = JSON.parse(this.keystore);
+      const result = await this.restoreAccountKeystore({
+        file: keystore,
+        password: this.password,
+      });
 
       if (result.success) {
-        this._show = false
-        this.clearInput()
-        this.$router.push('/')
-        return
+        this._show = false;
+        this.clearInput();
+        this.$router.push("/");
+        return;
       }
-    
-      this.keystoreInputErrors.push(result.error)
-    }
-  }
-}
+
+      // this.keystoreInputErrors.push(result.error);
+    },
+  },
+};
 </script>
 
 <style>
-
 </style>
