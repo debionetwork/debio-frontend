@@ -49,80 +49,34 @@
             </Card>
           </v-col>
         </v-row>
-        <!-- <v-row justify="center">
-          <v-col cols="12" md="5" sm="8">
-            <Card>
-              <template v-slot:title_icon>
-                <v-icon color="#373737">mdi-account-multiple</v-icon>
-              </template>
-              <template v-slot:title> Customers </template>
-
-              <template v-slot:text>
-                <div class="mb-3">
-                  <Button color="primary" @click="onLogin('customer')">
-                    Login
-                  </Button>
-                </div>
-                <div class="mb-3">
-                  <Button
-                    color="primary"
-                    outlined
-                    @click="onGenerateAccount('customer')"
-                  >
-                    Generate Account
-                  </Button>
-                </div>
-              </template>
-            </Card>
-          </v-col>
-        </v-row> -->
-
-        <!-- <v-row justify="center">
-          <v-col cols="12" md="5" sm="8">
-            <Card>
-              <template v-slot:title_icon>
-                <v-icon color="#373737">mdi-microscope</v-icon>
-              </template>
-              <template v-slot:title> Labs </template>
-
-              <template v-slot:text>
-                <div class="mb-3">
-                  <Button color="secondary" @click="onLogin('lab')">
-                    Login
-                  </Button>
-                </div>
-                <div class="mb-3">
-                  <Button
-                    color="secondary"
-                    outlined
-                    @click="onGenerateAccount('lab')"
-                  >
-                    Generate Account
-                  </Button>
-                </div>
-              </template>
-            </Card>
-          </v-col>
-        </v-row> -->
       </v-container>
-
-      <GenerateAccountDialog
-        :show="generateAccountDialog"
-        @toggle="generateAccountDialog = $event"
-        @mnemonic-generated="(mnemonic) => setKeyStorePassword('generateAccountDialog', 'mnemonic', mnemonic)"
-      ></GenerateAccountDialog>
-
-      <AccessAccountMnemonicDialog
-        :show="accessAccountMnemonicDialog"
-        @toggle="accessAccountMnemonicDialog = $event"
-        @mnemonic-input="(mnemonic) => setKeyStorePassword('accessAccountMnemonicDialog', 'mnemonic', mnemonic)"
-      ></AccessAccountMnemonicDialog>
 
       <ImportKeystoreDialog
         :show="importKeystoreDialog"
         @toggle="importKeystoreDialog = $event"
       ></ImportKeystoreDialog>
-      
+
+      <GenerateAccountDialog
+        :show="generateAccountDialog"
+        @toggle="generateAccountDialog = $event"
+        @terms-agreed="showSecretBackupPhraseDialog()"
+      ></GenerateAccountDialog>
+
+      <SecretBackupPhraseDialog
+        :show="secretBackupPhraseDialog"
+        :role="role"
+        @toggle="secretBackupPhraseDialog = $event"
+        @mnemonic-generated="({ mnemonic, role }) => showVerifyRecoveryPhraseDialog(mnemonic, role)"
+      ></SecretBackupPhraseDialog>
+
+      <VerifyRecoveryPhraseDialog
+        :show="verifyRecoveryPhraseDialog"
+        :role="role"
+        :mnemonic="mnemonic"
+        @toggle="verifyRecoveryPhraseDialog = $event"
+        @mnemonic-and-role="({ mnemonic, role }) => showSetKeystorePasswordDialog(mnemonic, role)"
+      ></VerifyRecoveryPhraseDialog>
+
       <SetKeystorePasswordDialog
         :secretType="secretType"
         :secret="secret"
@@ -132,14 +86,6 @@
         @key-store-set-cancelled="clearSecret"
       ></SetKeystorePasswordDialog>
 
-      <!-- <GenerateAccountDialog
-        :show="generateAccountDialog"
-        :role="role"
-        @toggle="generateAccountDialog = $event"
-        @mnemonic-generated="
-          ({ mnemonic, role }) => onAccountGenerated(mnemonic, role)
-        "
-      ></GenerateAccountDialog>
       <AccessAccountMnemonicDialog
         :show="accessAccountMnemonicDialog"
         :role="role"
@@ -153,16 +99,17 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
-import Card from "@/components/Card";
-import LoginOptionBtn from "@/components/LoginOptionBtn";
-import DevMenu from "@/components/DevMenu";
-import SettingsMenu from "@/components/SettingsMenu";
-import GenerateAccountDialog from "@/components/GenerateAccountDialog";
-import AccessAccountMnemonicDialog from "@/components/AccessAccountMnemonicDialog";
-import ImportKeystoreDialog from '@/components/ImportKeystoreDialog';
-import SetKeystorePasswordDialog from '@/components/SetKeystorePasswordDialog'
-//import Button from "@/components/Button";
+import { mapMutations } from "vuex"
+import Card from "@/components/Card"
+import DevMenu from "@/components/DevMenu"
+import SettingsMenu from "@/components/SettingsMenu"
+import LoginOptionBtn from "@/components/LoginOptionBtn"
+import ImportKeystoreDialog from "@/components/ImportKeystoreDialog"
+import GenerateAccountDialog from "@/components/GenerateAccountDialog"
+import SecretBackupPhraseDialog from "@/components/SecretBackupPhraseDialog"
+import SetKeystorePasswordDialog from "@/components/SetKeystorePasswordDialog"
+import VerifyRecoveryPhraseDialog from "@/components/VerifyRecoveryPhraseDialog"
+import AccessAccountMnemonicDialog from "@/components/AccessAccountMnemonicDialog"
 
 export default {
   name: "Home",
@@ -171,11 +118,12 @@ export default {
     LoginOptionBtn,
     DevMenu,
     SettingsMenu,
-    GenerateAccountDialog,
-    AccessAccountMnemonicDialog,
     ImportKeystoreDialog,
+    GenerateAccountDialog,
+    SecretBackupPhraseDialog,
     SetKeystorePasswordDialog,
-    //Button,
+    VerifyRecoveryPhraseDialog,
+    AccessAccountMnemonicDialog,
   },
   computed: {
     isDevEnv() {
@@ -183,13 +131,16 @@ export default {
     },
   },
   data: () => ({
-    generateAccountDialog: false,
-    accessAccountMnemonicDialog: false,
-    setKeystorePasswordDialog: false,
-    importKeystoreDialog: false,
     role: "",
-    secretType: '',
-    secret: '',
+    secret: "",
+    mnemonic: "",
+    secretType: "",
+    importKeystoreDialog: false,
+    generateAccountDialog: false,
+    secretBackupPhraseDialog: false,
+    setKeystorePasswordDialog: false,
+    verifyRecoveryPhraseDialog: false,
+    accessAccountMnemonicDialog: false,
   }),
   methods: {
     ...mapMutations({
@@ -203,10 +154,23 @@ export default {
     onImportKeystore() {
       this.importKeystoreDialog = true
     },
+    showSecretBackupPhraseDialog(){
+      this.secretBackupPhraseDialog = true
+    },
+    showVerifyRecoveryPhraseDialog(mnemonic, role) {
+      this.mnemonic = mnemonic
+      this.role = role
+      this.verifyRecoveryPhraseDialog = true
+    },
+    showSetKeystorePasswordDialog(mnemonic, role) {
+      this.secret = mnemonic
+      this.secretType = "mnemonic"
+      this.role = role
+      this.setKeystorePasswordDialog = true
+    },
     setKeyStorePassword(previousDialog, secretType, secret) {
       this.secretType = secretType // mnemonic or privateKey
       this.secret = secret.mnemonic // mnemonic or privateKey string
-      console.log(this.secret)
       this[previousDialog] = false // Hide previous dialog
       this.setKeystorePasswordDialog = true
     },
