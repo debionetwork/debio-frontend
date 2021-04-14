@@ -111,10 +111,18 @@ export default {
       this._show = false
       this.$emit('mnemonic-and-role', { mnemonic: this.mnemonicData, role: this.role })
       this.mnemonicData = ''
+      this.shuffledMnemonic = []
+      this.mnemonicCollection = []
+      this.mnemonicCollectionTextbox = []
+      this.correctMnemonicCollection = []
     },
     closeDialog() {
       this._show = false
       this.mnemonicData = ''
+      this.shuffledMnemonic = []
+      this.mnemonicCollection = []
+      this.mnemonicCollectionTextbox = []
+      this.correctMnemonicCollection = []
     }
   }
 }
