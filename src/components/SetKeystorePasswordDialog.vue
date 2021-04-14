@@ -61,7 +61,13 @@
           :disabled="!passwordsValid || !recaptchaVerified || isLoading"
           :loading="isLoading"
         >
-          Set Password
+          <v-progress-circular
+            v-if="isLoading"
+            :size="20"
+            color="white"
+            indeterminate
+          ></v-progress-circular>
+          <div v-else>Set Password</div>
           <template v-slot:loader>
             <span>Setting Up Account</span>
           </template>
@@ -72,7 +78,7 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapState, mapMutations } from "vuex";
 import VueRecaptcha from "vue-recaptcha";
 import axios from "axios";
 
@@ -111,9 +117,7 @@ export default {
     },
     ...mapState({
       substrateApi: (state) => state.substrate.api,
-      isLoading: (state) => state.substrate.isLoadingApi,
-      // isLoading: state => state.ethereum.isLoadingWallet,
-      // wallet: state => state.ethereum.wallet,
+      isLoading: (state) => state.substrate.isLoadingWallet,
     }),
   },
   mounted() {
@@ -129,6 +133,9 @@ export default {
     ...mapActions({
       registerMnemonic: "substrate/registerMnemonic",
     }),
+    ...mapMutations({
+      setIsLoading: 'substrate/SET_LOADING_WALLET'
+    }),
     async onVerifyRecaptcha(response) {
       const recaptchaBackendUrl = `${process.env.VUE_APP_DEGENICS_BACKEND_URL}/recaptcha`;
       const result = await axios.post(recaptchaBackendUrl, { response });
@@ -140,6 +147,7 @@ export default {
     async onPasswordSet() {
       try {
         if (this.secretType == "mnemonic") {
+          this.setIsLoading(true);
           const result = await this.registerMnemonic({
             mnemonic: this.secret,
             password: this.password,

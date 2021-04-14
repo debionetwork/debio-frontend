@@ -29,7 +29,7 @@
           <v-progress-linear
             v-if="isLoading"
             indeterminate
-            color="primary"
+            color="red"
           ></v-progress-linear>
         </v-card-text>
         <v-card-actions class="px-6 pb-4">
@@ -40,8 +40,14 @@
             width="100%"
             :disabled="!password"
             @click="onPasswordInput"
-          >
-            Access Account
+          > 
+            <v-progress-circular
+              v-if="isLoading"
+              :size="20"
+              color="white"
+              indeterminate
+            ></v-progress-circular>
+            <div v-else >Access Account</div>
           </v-btn>
         </v-card-actions>
       </template>
@@ -69,8 +75,7 @@
 
 <script>
 import localStorage from "../lib/local-storage";
-import { mapActions, mapState } from "vuex";
-
+import { mapActions, mapState, mapMutations } from "vuex";
 export default {
   name: "ImportKeystoreDialog",
   data: () => ({
@@ -92,13 +97,16 @@ export default {
       },
     },
     ...mapState({
-      isLoading: (state) => state.ethereum.isLoading,
+      isLoading: state => state.substrate.isLoadingWallet
     }),
   },
   mounted() {},
   methods: {
     ...mapActions({
       restoreAccountKeystore: "substrate/restoreAccountKeystore",
+    }),
+    ...mapMutations({
+      setIsLoading: 'substrate/SET_LOADING_WALLET'
     }),
     setKeystoreFileInputListener() {
       const context = this;
@@ -133,8 +141,8 @@ export default {
         (this.keystoreInputErrors = []);
     },
     async onPasswordInput() {
+      this.setIsLoading(true);
       this.keystoreInputErrors = [];
-
       const keystore = JSON.parse(this.keystore);
       const result = await this.restoreAccountKeystore({
         file: keystore,
@@ -147,8 +155,6 @@ export default {
         this.$router.push("/");
         return;
       }
-
-      // this.keystoreInputErrors.push(result.error);
     },
   },
 };

@@ -107,6 +107,7 @@ export default {
     },
     async restoreAccountKeystore({ commit }, { file, password }) {
       try {
+        commit('SET_LOADING_WALLET', true)
         const pair = keyring.restoreAccount(file, password);
         localStorage.setKeystore(JSON.stringify(file))
         commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
