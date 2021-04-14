@@ -72,9 +72,11 @@ export default {
     onAgreeTerms() {
       this._show = false
       this.$emit('terms-agreed')
+      this.agreeTerms = false
     },
     closeDialog() {
       this._show = false
+      this.agreeTerms = false
     }
   }
 }
