@@ -88,12 +88,9 @@
 
       <AccessAccountMnemonicDialog
         :show="accessAccountMnemonicDialog"
-        :role="role"
         @toggle="accessAccountMnemonicDialog = $event"
-        @mnemonic-input="
-          ({ mnemonic, role }) => onMnemonicValidated(mnemonic, role)
-        "
-      ></AccessAccountMnemonicDialog> -->
+        @mnemonic-input="(mnemonic) => setKeyStorePassword('accessAccountMnemonicDialog', 'mnemonic', mnemonic)"
+      ></AccessAccountMnemonicDialog>
     </v-main>
   </v-app>
 </template>
