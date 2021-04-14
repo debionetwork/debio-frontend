@@ -7,7 +7,7 @@
     <v-card>
       <v-app-bar flat dense color="white">
         <v-toolbar-title class="title">
-          Secret Backup Phrase
+          Backup Your Account !
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn
@@ -19,29 +19,28 @@
       </v-app-bar>
       <v-card-text class="pb-0 text-subtitle-1">
         <p>
-        This sentence is a way to input your private key: a secret code that makes sure nobody can access your data without your permission.
+        We will give you 12 words that allows you to recover an account
         </p>
 
         <p>
-Your private key isn't stored anywhere. It never leaves your device and must remain absolutely secret.
+          <b>You need to carefully save that words. Copy-paste it, screenshot it, write it down, and keep it safe -if you lose it, we won't be able to help you recover it.</b>
         </p>
 
-        <p>
-<b>For this reason, you need to carefully save this sentence. Copy-paste it, screenshot it, write it down, and keep it safe -if you lose it, we won't be able to help you recover it. </b>
-        </p>
-        <v-card outlined class="grey--text text--darken-3 text-h5 text-center px-5 py-5">
-          {{ mnemonic }}
-        </v-card>
+        <v-checkbox
+          v-model="agreeTerms"
+          label="I understand that if I lose my recovery words, I will not be able to access my account"
+        ></v-checkbox>
       </v-card-text>
       <v-card-actions class="px-6 pb-4">
         <v-btn
+          :disabled="agreeTerms == false"
           depressed
           color="primary"
           large
           width="100%"
-          @click="onMnemonicSaved"
+          @click="onAgreeTerms"
         >
-          I Wrote Down My Mnemonic Phrase
+          Continue
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -49,7 +48,6 @@ Your private key isn't stored anywhere. It never leaves your device and must rem
 </template>
 
 <script>
-const { /*cryptoWaitReady,*/ mnemonicGenerate  } = require('@polkadot/util-crypto')
 
 export default {
   name: 'GenerateAccountDialog',
@@ -58,7 +56,7 @@ export default {
     role: String,
   },
   data: () => ({
-    mnemonic: '',
+    agreeTerms: false,
   }),
   computed: {
     _show: {
@@ -70,22 +68,13 @@ export default {
       }
     },
   },
-  watch: {
-    _show(isShow) {
-      if (isShow) {
-        this.mnemonic = mnemonicGenerate()
-      }
-    }
-  },
   methods: {
-    onMnemonicSaved() {
+    onAgreeTerms() {
       this._show = false
-      this.$emit('mnemonic-generated', { mnemonic: this.mnemonic, role: this.role })
-      this.mnemonic = ''
+      this.$emit('terms-agreed')
     },
     closeDialog() {
       this._show = false
-      this.mnemonic = ''
     }
   }
 }
