@@ -5,18 +5,6 @@
   "HashOf": "H256",
   "CountryStr": "Text",
   "CityStr": "Text",
-  "Lab": {
-    "account_id": "AccountId",
-    "services": "Vec<H256>",
-    "name": "Text",
-    "country": "Text",
-    "city": "Text",
-    "address": "Text",
-    "latitude": "Option<Text>",
-    "longitude": "Option<Text>",
-    "profile_image": "Option<Text>"
-  },
-  "LabOf": "Lab",
   "LabInfo": {
     "name": "Text",
     "country": "Text",
@@ -26,9 +14,16 @@
     "longitude": "Option<Text>",
     "profile_image": "Option<Text>"
   },
+  "Lab": {
+    "account_id": "AccountId",
+    "services": "Vec<H256>",
+    "info": "LabInfo"
+  },
+  "LabOf": "Lab",
   "ServiceInfo": {
     "name": "Text",
     "price": "u128",
+    "category": "Text",
     "description": "Text",
     "long_description": "Option<Text>",
     "image": "Option<Text>"
@@ -49,19 +44,59 @@
       "Refunded"
     ]
   },
+  "Moment": "u64",
+  "MomentOf": "Moment",
   "Order": {
     "id": "H256",
     "service_id": "H256",
     "customer_id": "AccountId",
-    "lab_id": "AccountId",
-    "escrow_id": "AccountId",
+    "seller_id": "AccountId",
+    "dna_sample_tracking_id": "Text",
+    "status": "OrderStatus",
     "created_at": "u64",
-    "updated_at": "u64",
-    "status": "OrderStatus"
+    "updated_at": "u64"
   },
-  "MomentOf": "u64",
   "OrderOf": "Order",
   "OrderIdsOf": "Vec<H256>",
+  "DnaSampleStatus": {
+    "_enum": [
+      "Sending",
+      "Received",
+      "Rejected",
+      "Processing",
+      "Processed"
+    ]
+  },
+  "DnaSample": {
+    "tracking_id": "Text",
+    "lab_id": "AccountId",
+     "owner_id": "AccountId",
+    "status": "DnaSampleStatus"
+  },
+  "DnaSampleOf": "DnaSample",
+  "DnaTestResultStatus": {
+    "_enum": [
+     "Success",
+     "Failed"
+    ]
+  },
+  "DnaTestResult": {
+    "dna_sample_tracking_id": "Text",
+    "lab_id": "AccountId",
+    "owner_id": "AccountId",
+    "status": "DnaTestResultStatus",
+    "comments": "Option<Text>",
+    "result_link": "Option<Text>",
+    "report_link": "Option<Text>",
+    "genetic_token_id": "Option<Hash>"
+  },
+  "DnaTestResultOf": "DnaTestResult",
+  "DnaTestResultSubmission": {
+    "status": "DnaTestResultStatus",
+    "comments": "Option<Text>",
+    "result_link": "Option<Text>",
+    "report_link": "Option<Text>"
+  },
   "Escrow": {
     "account_id": "AccountId",
     "order_id": "H256",
@@ -70,27 +105,6 @@
     "expires_at": "u64"
   },
   "EscrowOf": "Escrow",
-  "SpecimenStatus": {
-    "_enum": [
-      "Sending",
-      "Received",
-      "Rejected",
-      "Processed"
-    ]
-  },
-  "Specimen": {
-    "order_id": "H256",
-    "service_id": "H256",
-    "owner_id": "AccountId",
-    "lab_id": "AccountId",
-    "status": "SpecimenStatus",
-    "created_at": "u64",
-    "updated_at": "u64",
-    "result_file": "Option<Text>",
-    "result_report": "Option<Text>",
-    "comments": "Option<Text>"
-  },
-  "SpecimenOf": "Specimen",
   "Role": {
     "_enum": [
       "Customer",
