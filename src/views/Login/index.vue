@@ -150,7 +150,7 @@ export default {
     forgotAddress: "",
     dialogAlert: false,
     alertTextBtn: "",
-    alertImgPath: "",
+    alertImgPath: "warning.png",
     alertTextAlert: "",
     successLogin: false,
     typelogin: "",
