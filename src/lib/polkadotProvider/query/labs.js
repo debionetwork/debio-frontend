@@ -1,7 +1,11 @@
 import { Keyring } from '@polkadot/keyring'
+import { Lab } from '@/lib/polkadotProvider/domain/lab'
 
 export async function queryLabsById(api, labId){
-    return await api.query.labs.labs(labId)
+    const res = await api.query.labs.labs(labId)
+    let lab = new Lab()
+    lab.parseMap(res.value)
+    return lab
 }
 
 export async function queryLabsByCountryCity(api, country, city){
