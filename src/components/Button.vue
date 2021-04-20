@@ -6,6 +6,7 @@
     depressed
     large
     width="100%"
+    :elevation="elevation"
     @click="onClick"
   >
     <slot></slot>
@@ -21,6 +22,7 @@ export default {
       type: String,
       default: 'primary'
     },
+    elevation: String,
     dark: {
       type: Boolean,
       default: true,

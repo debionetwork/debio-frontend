@@ -155,7 +155,7 @@ export default {
           if (result.success) {
             this._show = false;
             this.$emit("key-store-set");
-            this.$router.push("/");
+            //this.$router.push("/");
             return;
           }
         }
@@ -167,7 +167,7 @@ export default {
           });
           this._show = false;
           this.$emit("key-store-set");
-          this.$router.push("/");
+          //this.$router.push("/");
           return;
         }
       } catch (err) {

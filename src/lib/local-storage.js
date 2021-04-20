@@ -5,6 +5,7 @@ const localStorage = {
   DEGENICS_KS: 'DEGENICS_KS',
   DEGENICS_RPC_URL: 'DEGENICS_RPC_URL',
   DEGENICS_CONFIG: 'DEGENICS_CONFIG',
+  DEGENICS_ADDRESS_LOGIN: 'DEGENICS_ADDRESS_LOGIN',
   /**
    * getter setters
    */
@@ -30,10 +31,20 @@ const localStorage = {
     return window.localStorage.getItem(this.DEGENICS_CONFIG)
   },
   clear() {
-    window.localStorage.removeItem(this.DEGENICS_KS)
+    //window.localStorage.removeItem(this.DEGENICS_KS)
+    window.localStorage.removeItem(this.DEGENICS_ADDRESS_LOGIN)
     window.localStorage.removeItem(this.DEGENICS_RPC_URL)
     window.localStorage.removeItem(this.DEGENICS_CONFIG)
-  }
+  },
+  setAddress(address) {
+    window.localStorage.setItem(this.DEGENICS_ADDRESS_LOGIN, address)
+  },
+  getAddress() {
+    return window.localStorage.getItem(this.DEGENICS_ADDRESS_LOGIN) 
+  },
+  removeAddress() {
+    window.localStorage.removeItem(this.DEGENICS_ADDRESS_LOGIN)
+  },
 }
 
 export default localStorage
