@@ -7,7 +7,8 @@
     <v-card>
       <v-app-bar flat dense color="white">
         <v-toolbar-title class="title">
-          Use Mnemonic Phrase
+          <!-- Use Mnemonic Phrase -->
+          Forgot Password
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn
@@ -17,6 +18,7 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-app-bar>
+      <hr>
       <v-card-text class="mt-4 pb-0 text-subtitle-1">
         <v-form ref="form" v-model="formValid">
           <v-textarea
@@ -37,7 +39,7 @@
           @click="onContinue"
           :disabled="!formValid"
         >
-          Continue
+          Submit
         </v-btn>
       </v-card-actions>
     </v-card>

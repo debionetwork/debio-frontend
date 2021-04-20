@@ -1,60 +1,49 @@
 <template>
   <v-app>
-    <v-app-bar app flat color="transparent" dense>
+    <!-- <v-app-bar app flat color="transparent" dense>
       <v-spacer></v-spacer>
       <SettingsMenu />
       <DevMenu v-if="isDevEnv" />
-    </v-app-bar>
+    </v-app-bar> -->
     <v-main class="login-main">
-      <div class="d-flex justify-center">
-        <!-- <a href="https://www.degenics.com/" target="_blank"> -->
-        <v-img src="@/assets/debio-logo.png" max-width="150" />
-        <!-- </a> -->
-      </div>
-      <v-container>
+      <v-container fill-height>
+        <div>
+          <div class="d-flex justify-center">
+            <!-- <a href="https://www.degenics.com/" target="_blank"> -->
+            <v-img src="@/assets/degenics-logo-words.png" max-width="40%" />
+            <!-- </a> -->
+          </div>
 
-        <v-row justify="center" style="margin: 0 auto;">
-          <v-col cols="12" md="5" sm="8">
-            <Card>
-              <template v-slot:title> Access Your Account </template>
-              <template v-slot:text>
-                <LoginOptionBtn
-                img="icon-button-login.png"
-                text="Input Mnemonic Phrase"
-                @click="onUseMnemonic"
-              ></LoginOptionBtn>
+          <div class="d-flex justify-center white--text text-lg-h6 mt-3">
+            The Privacy-First Platform for Personal Genetic Testing
+          </div>
 
-              <LoginOptionBtn
-                img="icon-button-login.png"
-                text="Import JSON Keystore"
-                warning="Less secure"
-                @click="onImportKeystore"
+          <div class="d-flex justify-center mt-10">
+            <v-col lg="3" md="5" sm="8">
+              <Button
+                color="white"
+                elevation="2"
+                @click="onGenerateAccount"
+                dark
               >
-              </LoginOptionBtn>
-              </template>
-            </Card>
-          </v-col>
-        </v-row>
-        <v-row justify="center" style="margin: 0 auto;">
-          <v-col cols="12" md="5" sm="8">
-            <Card>
-              <template v-slot:title> Create an Account </template>
-              <template v-slot:text>
-                <LoginOptionBtn
-                  img="icon-button-login.png"
-                  text="Generate Account"
-                  @click="onGenerateAccount"
-                ></LoginOptionBtn>
-              </template>
-            </Card>
-          </v-col>
-        </v-row>
+                <div class="primary--text">Create Account</div>
+              </Button>
+            </v-col>
+            <v-col lg="3" md="5" sm="8">
+              <Button @click="openSignIn" elevation="2" dark> Sign In </Button>
+            </v-col>
+          </div>
+        </div>
       </v-container>
 
-      <ImportKeystoreDialog
-        :show="importKeystoreDialog"
-        @toggle="importKeystoreDialog = $event"
-      ></ImportKeystoreDialog>
+      <DialogSelectUserLogin
+        :show="dialogSelectUserLogin"
+        @toggle="dialogSelectUserLogin = $event"
+        @forgot-password="
+          ({ status, address }) => onUseMnemonic(status, address)
+        "
+        @key-store-set="successLoginAction"
+      ></DialogSelectUserLogin>
 
       <GenerateAccountDialog
         :show="generateAccountDialog"
@@ -66,7 +55,9 @@
         :show="secretBackupPhraseDialog"
         :role="role"
         @toggle="secretBackupPhraseDialog = $event"
-        @mnemonic-generated="({ mnemonic, role }) => showVerifyRecoveryPhraseDialog(mnemonic, role)"
+        @mnemonic-generated="
+          ({ mnemonic, role }) => showVerifyRecoveryPhraseDialog(mnemonic, role)
+        "
       ></SecretBackupPhraseDialog>
 
       <VerifyRecoveryPhraseDialog
@@ -74,7 +65,9 @@
         :role="role"
         :mnemonic="mnemonic"
         @toggle="verifyRecoveryPhraseDialog = $event"
-        @mnemonic-and-role="({ mnemonic, role }) => showSetKeystorePasswordDialog(mnemonic, role)"
+        @mnemonic-and-role="
+          ({ mnemonic, role }) => showSetKeystorePasswordDialog(mnemonic, role)
+        "
       ></VerifyRecoveryPhraseDialog>
 
       <SetKeystorePasswordDialog
@@ -82,45 +75,61 @@
         :secret="secret"
         :show="setKeystorePasswordDialog"
         @toggle="setKeystorePasswordDialog = $event"
-        @key-store-set="clearSecret"
+        @key-store-set="successLoginAction"
         @key-store-set-cancelled="clearSecret"
       ></SetKeystorePasswordDialog>
 
       <AccessAccountMnemonicDialog
         :show="accessAccountMnemonicDialog"
         @toggle="accessAccountMnemonicDialog = $event"
-        @mnemonic-input="(mnemonic) => setKeyStorePassword('accessAccountMnemonicDialog', 'mnemonic', mnemonic)"
+        @mnemonic-input="
+          (mnemonic) =>
+            checkForgotPassword(
+              'accessAccountMnemonicDialog',
+              'mnemonic',
+              mnemonic
+            )
+        "
       ></AccessAccountMnemonicDialog>
+
+      <DialogAlert
+        :show="dialogAlert"
+        :btnText="alertTextBtn"
+        :textAlert="alertTextAlert"
+        :imgPath="alertImgPath"
+        @toggle="dialogAlert = $event"
+        @close="actionAlert()"
+      ></DialogAlert>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import { mapMutations } from "vuex"
-import Card from "@/components/Card"
-import DevMenu from "@/components/DevMenu"
-import SettingsMenu from "@/components/SettingsMenu"
-import LoginOptionBtn from "@/components/LoginOptionBtn"
-import ImportKeystoreDialog from "@/components/ImportKeystoreDialog"
-import GenerateAccountDialog from "@/components/GenerateAccountDialog"
-import SecretBackupPhraseDialog from "@/components/SecretBackupPhraseDialog"
-import SetKeystorePasswordDialog from "@/components/SetKeystorePasswordDialog"
-import VerifyRecoveryPhraseDialog from "@/components/VerifyRecoveryPhraseDialog"
-import AccessAccountMnemonicDialog from "@/components/AccessAccountMnemonicDialog"
+import { mapMutations, mapActions } from "vuex";
+//import DevMenu from "@/components/DevMenu";
+//import SettingsMenu from "@/components/SettingsMenu";
+import Button from "@/components/Button";
+import DialogSelectUserLogin from "@/components/DialogSelectUserLogin";
+import GenerateAccountDialog from "@/components/GenerateAccountDialog";
+import SecretBackupPhraseDialog from "@/components/SecretBackupPhraseDialog";
+import SetKeystorePasswordDialog from "@/components/SetKeystorePasswordDialog";
+import VerifyRecoveryPhraseDialog from "@/components/VerifyRecoveryPhraseDialog";
+import AccessAccountMnemonicDialog from "@/components/AccessAccountMnemonicDialog";
+import DialogAlert from "@/components/Dialog/DialogAlert";
 
 export default {
   name: "Home",
   components: {
-    Card,
-    LoginOptionBtn,
-    DevMenu,
-    SettingsMenu,
-    ImportKeystoreDialog,
+    Button,
+    //DevMenu,
+    //SettingsMenu,
+    DialogSelectUserLogin,
     GenerateAccountDialog,
     SecretBackupPhraseDialog,
     SetKeystorePasswordDialog,
     VerifyRecoveryPhraseDialog,
     AccessAccountMnemonicDialog,
+    DialogAlert,
   },
   computed: {
     isDevEnv() {
@@ -132,48 +141,99 @@ export default {
     secret: "",
     mnemonic: "",
     secretType: "",
-    importKeystoreDialog: false,
+    dialogSelectUserLogin: false,
     generateAccountDialog: false,
     secretBackupPhraseDialog: false,
     setKeystorePasswordDialog: false,
     verifyRecoveryPhraseDialog: false,
     accessAccountMnemonicDialog: false,
+    forgotAddress: "",
+    dialogAlert: false,
+    alertTextBtn: "",
+    alertImgPath: "",
+    alertTextAlert: "",
+    successLogin: false,
+    typelogin: "",
   }),
   methods: {
-    ...mapMutations({
+    ...mapActions({
+      checkMnemonicSomeAddress: "substrate/checkMnemonicSomeAddress",
     }),
+    ...mapMutations({}),
     onGenerateAccount() {
-      this.generateAccountDialog = true
+      this.generateAccountDialog = true;
+      this.typelogin = "register";
     },
-    onUseMnemonic() {
-      this.accessAccountMnemonicDialog = true
+    onUseMnemonic(status, address) {
+      if (status) {
+        this.forgotAddress = address;
+        this.accessAccountMnemonicDialog = true;
+      }
     },
-    onImportKeystore() {
-      this.importKeystoreDialog = true
+    openSignIn() {
+      this.dialogSelectUserLogin = true;
+      this.typelogin = "login";
     },
-    showSecretBackupPhraseDialog(){
-      this.secretBackupPhraseDialog = true
+    showSecretBackupPhraseDialog() {
+      this.secretBackupPhraseDialog = true;
     },
     showVerifyRecoveryPhraseDialog(mnemonic, role) {
-      this.mnemonic = mnemonic
-      this.role = role
-      this.verifyRecoveryPhraseDialog = true
+      this.mnemonic = mnemonic;
+      this.role = role;
+      this.verifyRecoveryPhraseDialog = true;
     },
     showSetKeystorePasswordDialog(mnemonic, role) {
-      this.secret = mnemonic
-      this.secretType = "mnemonic"
-      this.role = role
-      this.setKeystorePasswordDialog = true
+      this.secret = mnemonic;
+      this.secretType = "mnemonic";
+      this.role = role;
+      this.setKeystorePasswordDialog = true;
+    },
+    async checkForgotPassword(previousDialog, secretType, secret) {
+      const result = await this.checkMnemonicSomeAddress({
+        mnemonic: secret.mnemonic,
+        accountAddress: this.forgotAddress,
+      });
+
+      if (result.success) {
+        this.setKeyStorePassword(previousDialog, secretType, secret);
+      } else {
+        this.alertTextBtn = "OKE";
+        this.alertImgPath = "warning.png";
+        this.alertTextAlert =
+          "forgot account password is not the same as mnemonic phrase.";
+        this.dialogAlert = true;
+      }
     },
     setKeyStorePassword(previousDialog, secretType, secret) {
-      this.secretType = secretType // mnemonic or privateKey
-      this.secret = secret.mnemonic // mnemonic or privateKey string
-      this[previousDialog] = false // Hide previous dialog
-      this.setKeystorePasswordDialog = true
+      this.secretType = secretType; // mnemonic or privateKey
+      this.secret = secret.mnemonic; // mnemonic or privateKey string
+      this[previousDialog] = false; // Hide previous dialog
+      this.setKeystorePasswordDialog = true;
     },
     clearSecret() {
-      this.secretType = ''
-      this.secret = ''
+      this.secretType = "";
+      this.secret = "";
+      this.successLogin = false;
+      this.typelogin = "";
+    },
+    actionAlert() {
+      if (this.successLogin) {
+        this.clearSecret();
+        this.$router.push("/");
+      } else {
+        this.clearSecret();
+      }
+    },
+    successLoginAction() {
+      this.successLogin = true;
+      this.alertTextBtn = "Continue";
+      this.alertImgPath = "success.png";
+      if (this.typelogin == "login") {
+        this.alertTextAlert = "Login is successful";
+      } else {
+        this.alertTextAlert = "Register is successful";
+      }
+      this.dialogAlert = true;
     },
   },
 };

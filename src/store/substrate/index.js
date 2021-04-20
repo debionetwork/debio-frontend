@@ -1,4 +1,5 @@
 import keyring from '@polkadot/ui-keyring';
+import { Keyring } from '@polkadot/keyring';
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import types from './types.json'
 import localStorage from '@/lib/local-storage'
@@ -87,11 +88,12 @@ export default {
 
         const { pair, json } = keyring.addUri(mnemonic, password, { name: 'mnemonic acc' })
         localStorage.setKeystore(JSON.stringify(json))
+        localStorage.setAddress(pair.address)
         commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
         commit('SET_WALLET_ADDRESS', pair.address)
         commit('SET_WALLET', pair) // FIXME: simpen untuk dev
         commit('SET_LOADING_WALLET', false)
-       
+
         const seed = mnemonicToMiniSecret(mnemonic)
         const { publicKey, secretKey } = naclKeypairFromSeed(seed)
         console.log(u8aToHex(publicKey))
@@ -110,6 +112,22 @@ export default {
         commit('SET_LOADING_WALLET', true)
         const pair = keyring.restoreAccount(file, password);
         localStorage.setKeystore(JSON.stringify(file))
+        localStorage.setAddress(pair.address)
+        commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
+        commit('SET_WALLET_ADDRESS', pair.address)
+        commit('SET_WALLET', pair) // FIXME: simpen untuk dev
+        commit('SET_LOADING_WALLET', false)
+        return { success: true }
+      } catch (err) {
+        commit('CLEAR_WALLET')
+        commit('SET_LOADING_WALLET', false)
+        return { success: false, error: err.message }
+      }
+    },
+    async getAkun({ commit }, { address }) {
+      try {
+        commit('SET_LOADING_WALLET', true)
+        const pair = keyring.getPair(address);
         commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
         commit('SET_WALLET_ADDRESS', pair.address)
         commit('SET_WALLET', pair) // FIXME: simpen untuk dev
@@ -120,6 +138,23 @@ export default {
         commit('CLEAR_WALLET')
         commit('SET_LOADING_WALLET', false)
         return { success: false, error: err.message }
+      }
+    },
+    async checkMnemonicSomeAddress({ commit },{ mnemonic, accountAddress }) {
+      try {
+        const keyringX = new Keyring({ type: 'ed25519', ss58Format: 42 });
+        const pair = keyringX.addFromUri(mnemonic, { name: 'first pair' }, 'ed25519');
+        commit('SET_LOADING_WALLET', false)
+        if (accountAddress == pair.address) {
+          console.log(accountAddress);
+          console.log(pair.address);
+          return { success: true }
+        } else {
+          return { success: false }
+        }
+        
+      } catch (err) {
+        return { success: false }
       }
     },
   },

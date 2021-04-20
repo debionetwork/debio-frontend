@@ -7,44 +7,44 @@
 
 <script>
 //import localStorage from './lib/local-storage'
-import globalFunctions from './lib/functions'
-import { mapState, mapActions, mapMutations } from 'vuex'
+import globalFunctions from "./lib/functions";
+import { mapState, mapActions, mapMutations } from "vuex";
 
 export default {
-  name: 'App',
-  components: {
-  },
+  name: "App",
+  components: {},
   computed: {
     ...mapState({
-      substrateApi: state => state.substrate.api,
-      isLoadingSubstrateApi: state => state.substrate.isLoadingApi
+      substrateApi: (state) => state.substrate.api,
+      isLoadingSubstrateApi: (state) => state.substrate.isLoadingApi,
     }),
   },
+  data: () => ({
+    address: "",
+  }),
   async mounted() {
-    globalFunctions.checkIsLoggedIn();
-    await this.connectSubstrate()
-    
-    // Check if wallet in localStorage
-    // try {
-    //   const wallet = JSON.parse(localStorage.getWallet())
-    //   this.setWallet(wallet)
-    // } catch (err) {
-    //   console.log(err)
-    // }
+    this.address = await globalFunctions.checkIsLoggedIn();
+    await this.connectSubstrate();
+    if (this.address != "") {
+      await this.getAkun({
+        address: this.address,
+      });
+    }
   },
   methods: {
     ...mapActions({
-      connectSubstrate: 'substrate/connect',
+      connectSubstrate: "substrate/connect",
+      getAkun: "substrate/getAkun",
     }),
     ...mapMutations({
-      setWallet: 'substrate/SET_WALLET'
+      setWallet: "substrate/SET_WALLET",
     }),
-  }
+  },
 };
 </script>
 
 <style lang="scss">
-@import './styles/variables.scss';
+@import "./styles/variables.scss";
 
 @media screen and (min-width: 1904px) {
   .container {

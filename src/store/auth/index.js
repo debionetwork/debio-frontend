@@ -36,7 +36,7 @@ export default {
       }
     },
     clearAuth({ commit }) {
-      localStorage.removeKeystore()
+      localStorage.removeAddress()
       commit('CLEAR')
     }
   },
