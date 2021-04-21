@@ -1,11 +1,10 @@
 const customerRoutes = [{
   path: '/customer',
-  name: 'customer',
   component: () => import(/* webpackChunkName */ '../../../views/Dashboard'),
   children: [
     {
       path: '/',
-      name: 'home',
+      name: 'customer-home',
       meta: {
         pageHeader: 'Home',
       },

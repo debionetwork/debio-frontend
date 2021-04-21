@@ -33,32 +33,10 @@
       </div>
     </v-app-bar>
 
-    <v-navigation-drawer 
-      app
-      clipped
-      fixed 
-      permanent
+    <NavigationDrawer 
       width="200"
-      class="mr-10 dg-raleway-font"
-    >
-      <v-toolbar flat></v-toolbar>
-      <v-toolbar flat class="mt-10 text-h7 secondary--text ">
-        <v-flex>
-          <v-container>
-            <b>Home</b>
-          </v-container>
-          <v-container>
-            <b>Account</b>
-          </v-container>
-          <v-container>
-            <b>Orders</b>
-          </v-container>
-          <v-container>
-            <b>Services</b>
-          </v-container>
-        </v-flex>
-      </v-toolbar>
-    </v-navigation-drawer>
+      :sideButtons="this.sideButtons"
+    />
 
     <v-main class="dg-dashboard-main ml-5">
       <!-- Breadcrumbs and Header -->
@@ -81,6 +59,7 @@ import DevMenu from '@/components/DevMenu'
 import UserAccountMenu from '@/components/UserAccountMenu'
 import SettingsMenu from '@/components/SettingsMenu'
 import WalletBalance from '@/components/WalletBalance'
+import NavigationDrawer from '@/components/NavigationDrawer'
 import Breadcrumbs from '@/views/Dashboard/Breadcrumbs'
 
 export default {
@@ -91,9 +70,16 @@ export default {
     SettingsMenu,
     Breadcrumbs,
     WalletBalance,
+    NavigationDrawer,
   },
-  mounted() {
-  },
+  data: () => ({
+    sideButtons: [
+      { text: "Dashboard", disabled: false },
+      { text: "Account", disabled: true },
+      { text: "Services", disabled: true },
+      { text: "Order", disabled: true },
+    ]
+  }),
   computed: {
     isLab() {
       return this.$route.path.indexOf('lab') > 0
@@ -141,8 +127,5 @@ export default {
 }
 .dg-dashboard-main {
   background: #e5e5e5;
-}
-.dg-raleway-font{
-  font-family: 'Raleway', sans-serif;
 }
 </style>
