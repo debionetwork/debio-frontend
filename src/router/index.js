@@ -53,14 +53,14 @@ const router = new VueRouter({
 
 router.beforeEach(async (to, from, next) => {
   // If this is removed, it will cause infinite loop
-  if (to.path == '/login') {
-    next()
-    return
-  }
-  if (to.path == '/register') {
-    next()
-    return
-  }
+  // if (to.path == '/login') {
+  //   next()
+  //   return
+  // }
+  // if (to.path == '/register') {
+  //   next()
+  //   return
+  // }
 
   // If there's an error when getting user role, go back to login
   // let role = null
