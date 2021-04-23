@@ -23,13 +23,8 @@
               </div>
             </div>
           </a>
-
           <v-spacer></v-spacer>
-          <WalletBalance />
           <UserAccountMenu />
-          <SettingsMenu dark />
-          <!-- Menu For Development Purposes -->
-          <DevMenu v-if="isDevEnv" dark />
       </div>
     </v-app-bar>
 
@@ -55,21 +50,15 @@
 
 <script>
 import v from 'voca'
-import DevMenu from '@/components/DevMenu'
 import UserAccountMenu from '@/components/UserAccountMenu'
-import SettingsMenu from '@/components/SettingsMenu'
-import WalletBalance from '@/components/WalletBalance'
 import NavigationDrawer from '@/components/NavigationDrawer'
 import Breadcrumbs from '@/views/Dashboard/Breadcrumbs'
 
 export default {
   name: 'Dashboard',
   components: {
-    DevMenu,
     UserAccountMenu,
-    SettingsMenu,
     Breadcrumbs,
-    WalletBalance,
     NavigationDrawer,
   },
   data: () => ({

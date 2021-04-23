@@ -1,7 +1,7 @@
 const labDashboardRoutes = [
     {
       path: '/lab/dashboard',
-      component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/Dashboard'),
+      component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/NavigationLayout'),
       children:[
         {
           path: '/',
@@ -20,7 +20,7 @@ const labDashboardRoutes = [
               { text: 'Account', disabled: true }
             ]
           },
-          component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/Dashboard/Account')
+          component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/Account')
         },
       ]
     },
