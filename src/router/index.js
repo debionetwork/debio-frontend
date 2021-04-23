@@ -20,7 +20,7 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes,
-  scrollBehavior () {
+  scrollBehavior() {
     return { x: 0, y: 0 }
   }
 })
@@ -52,7 +52,14 @@ const router = new VueRouter({
 // }
 
 router.beforeEach(async (to, from, next) => {
+  next()
+  
   // If this is removed, it will cause infinite loop
+  // if (from.path == '/') {
+  //   next(to.path)
+  //   return
+  // }
+ 
   // if (to.path == '/login') {
   //   next()
   //   return
@@ -87,8 +94,7 @@ router.beforeEach(async (to, from, next) => {
   //     return
   //   }
   // }
-
-  next()
+  //next()
 })
 
 export default router
