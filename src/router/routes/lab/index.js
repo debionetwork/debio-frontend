@@ -1,7 +1,7 @@
 const labRoutes = [ 
     {
         path: '/lab',
-        component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/Dashboard'),
+        component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/NavigationLayout'),
         children: [
             {
                 path: '/',
