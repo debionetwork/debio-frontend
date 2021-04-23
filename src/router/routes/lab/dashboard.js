@@ -10,18 +10,6 @@ const labDashboardRoutes = [
             pageHeader: 'Home',
           },
         },
-        {
-          path: '/lab/dashboard/account',
-          name: 'lab-dashboard-account',
-          meta: {
-            pageHeader: 'Account',
-            breadcrumbs: [
-              { text: 'Home', href: '/lab/dashboard' },
-              { text: 'Account', disabled: true }
-            ]
-          },
-          component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/Account')
-        },
       ]
     },
 ]

@@ -35,21 +35,24 @@
                 placeholder="Profile Image"
                 prepend-icon="mdi-image"
                 outlined
-                ></v-file-input>
+                v-model="profileImage"
+              ></v-file-input>
 
               <v-text-field
                 dense
                 label="Email"
                 placeholder="Email"
                 outlined
-                ></v-text-field>
+                v-model="email"
+              ></v-text-field>
               
               <v-text-field
                 dense
                 label="Lab Name"
                 placeholder="Lab Name"
                 outlined
-                ></v-text-field>
+                v-model="labName"
+              ></v-text-field>
 
               <v-select
                 dense
@@ -75,12 +78,15 @@
                 label="Address"
                 placeholder="Address"
                 outlined
+                v-model="address"
                 ></v-text-field>
 
                 <v-btn
-                    color="primary"
-                    block
-                    large>Submit</v-btn>
+                  color="primary"
+                  block
+                  large
+                  @click="updateLab"
+                >Submit</v-btn>
             </v-card-text>
           </v-card>
         </v-col>
@@ -90,15 +96,20 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
+import { updateLab } from '@/lib/polkadotProvider/command/labs';
 
 export default {
-  name: 'Lab Account',
+  name: 'LabAccount',
   async mounted() {
     await this.getCountries()
     await this.getCities()
   },
   computed: {
+    ...mapGetters({
+      api: 'substrate/getAPI',
+      pair: 'substrate/wallet',
+    }),
     ...mapState({
       locationContract: state => state.ethereum.contracts.contractLocation,
       degenicsContract: state => state.ethereum.contracts.contractDegenics,
@@ -110,8 +121,12 @@ export default {
     }
   },
   data: () => ({
-    country: '',
-    city: '',
+    email: "",
+    labName: "",
+    address: "",
+    profileImage: "",
+    country: "",
+    city: "",
     countries: [],
     cities: [],
   }),
@@ -152,6 +167,21 @@ export default {
     },
     onCityChange(selectedCity) {
       this.city = selectedCity
+    },
+    updateLab(){
+      updateLab(
+        this.api,
+        this.pair,
+        {
+          name: this.labName,
+          address: this.address,
+          country: this.country,
+          city: this.city,
+        }
+      )
+      .then((address) => {
+        alert(address)
+      })
     }
   }
 }

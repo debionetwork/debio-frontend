@@ -5,11 +5,23 @@ const labRoutes = [
         children: [
             {
                 path: '/',
-                name: 'lab-orders',
+                name: 'lab-dashboard',
                 meta: {
-                    pageHeader: 'Orders',
+                    pageHeader: 'Lab Dashboard',
                 },
                 component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab')
+            },
+            {
+              path: '/lab/account',
+              name: 'lab-dashboard-account',
+              meta: {
+                pageHeader: 'Account',
+                breadcrumbs: [
+                  { text: 'Home', href: '/lab' },
+                  { text: 'Account', disabled: true }
+                ]
+              },
+              component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/Account')
             },
             {
                 path: '/lab/registration',
