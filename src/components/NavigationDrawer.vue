@@ -14,9 +14,10 @@
             v-for="(item, key) in drawerButtons" :key="key"
           >
             <v-btn 
-              class="font-weight-bold sidebar-text"
+              :class="item.active ? 'font-weight-bold sidebar-text primary--text':'font-weight-bold sidebar-text'"
               text
-              :disabled="item.disabled"
+              @click="goLink(item.route)"
+              :disabled="item.disabled != false"
             >{{ item.text }}</v-btn>
           </v-container>
         </v-flex>
@@ -29,6 +30,13 @@ export default {
   name: 'NavigationDrawer',
   props: {
     width: String,
+  },
+  methods: {
+    goLink(route){
+      if(route != undefined && route.name != this.$route.name){
+        this.$router.push(route)
+      }
+    }
   },
   computed: {
     drawerButtons() {
