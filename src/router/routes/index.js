@@ -1,6 +1,9 @@
+import globalFunctions from "@/lib/functions";
+
 const indexRoutes = [{
     path: '/',
     name: 'selectrole',
+    beforeEnter: globalFunctions.checkIsLoggedIn,
       meta: {
         pageHeader: 'SelectRoleGroup',
       },

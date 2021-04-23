@@ -1,6 +1,10 @@
+import globalFunctions from "@/lib/functions";
+
+// globalFunctions.checkIsLoggedIn
 const customerRoutes = [{
   path: '/customer',
-  component: () => import(/* webpackChunkName */ '../../../views/Dashboard'),
+  component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/Dashboard'),
+  beforeEnter: globalFunctions.checkIsLoggedIn,
   children: [
     {
       path: '/',
@@ -63,7 +67,7 @@ const customerRoutes = [{
       component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/TestResult/result.vue')
     },
     {
-      path: '/request-test',
+      path: '/customer/request-test',
       name: 'request-test',
       meta: {
         pageHeader: 'Request a Test',

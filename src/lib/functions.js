@@ -1,28 +1,54 @@
 import localStorage from '../lib/local-storage'
-import router from '../router'
+import store from '@/store/index'
 
 const globalFunctions = {
   hasStatusLogin() {
     const keystore = localStorage.getAddress()
     return !!keystore
   },
-  async checkIsLoggedIn() {
-    const isLoggedIn = this.hasStatusLogin();
+  async checkIsLoggedIn(to, from, next) {
+    console.log(from);
+    let api = store.getters['substrate/getAPI'];
+    if (api == null) {
+      await store.dispatch('substrate/connect');
+    }
+
+    let wallet = store.getters['substrate/wallet'];
+    const keystore = localStorage.getAddress()
+    const isLoggedIn = !!keystore;
     const address = localStorage.getAddress();
-    if (!isLoggedIn && window.location.pathname != '/login') {
-      router.push('/login')
-      return ""
+    if (to.path == '/login') {
+      if (isLoggedIn) {
+        if (wallet == null) {
+          if (address != "") {
+            await store.dispatch('substrate/getAkun', {
+              address: address
+            })
+          }
+        }
+        next('/')
+        return address;
+      } else {
+        next()
+        return ""
+      }
+    } else {
+      if (isLoggedIn) {
+        if (wallet == null) {
+          if (address != "") {
+            await store.dispatch('substrate/getAkun', {
+              address: address
+            })
+          }
+        }
+        next()
+        return address;
+      } else {
+        next('/login')
+        return ""
+      }
     }
-
-    if (isLoggedIn && window.location.pathname == '/login') {
-      router.push('/')
-      return address;
-    }
-
-    // is logged in, continue
-    router.push(window.location.pathname)
-    return address
-  }
+  },
 }
 
 export default globalFunctions

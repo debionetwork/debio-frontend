@@ -6,9 +6,7 @@
 </template>
 
 <script>
-//import localStorage from './lib/local-storage'
-import globalFunctions from "./lib/functions";
-import { mapState, mapActions, mapMutations } from "vuex";
+import { mapState } from "vuex";
 
 export default {
   name: "App",
@@ -22,23 +20,9 @@ export default {
   data: () => ({
     address: "",
   }),
-  async mounted() {
-    this.address = await globalFunctions.checkIsLoggedIn();
-    await this.connectSubstrate();
-    if (this.address != "") {
-      await this.getAkun({
-        address: this.address,
-      });
-    }
+  mounted() {
   },
   methods: {
-    ...mapActions({
-      connectSubstrate: "substrate/connect",
-      getAkun: "substrate/getAkun",
-    }),
-    ...mapMutations({
-      setWallet: "substrate/SET_WALLET",
-    }),
   },
 };
 </script>
