@@ -11,7 +11,7 @@
         <v-flex>
           <v-container
             class="pt-1 pb-1"
-            v-for="(item, key) in sideButtons" :key="key"
+            v-for="(item, key) in drawerButtons" :key="key"
           >
             <v-btn 
               class="font-weight-bold sidebar-text"
@@ -29,7 +29,14 @@ export default {
   name: 'NavigationDrawer',
   props: {
     width: String,
-    sideButtons: Array,
+  },
+  computed: {
+    drawerButtons() {
+      if (this.$route.meta && this.$route.meta.drawerButtons) {
+        return this.$route.meta.drawerButtons
+      }
+      return []
+    },
   }
 }
 </script>
