@@ -11,13 +11,13 @@
         <v-flex>
           <v-container
             class="pt-1 pb-1"
-            v-for="sideButton in sideButtons" :key="sideButton"
+            v-for="(item, key) in sideButtons" :key="key"
           >
             <v-btn 
               class="font-weight-bold sidebar-text"
               text
-              :disabled="sideButton.disabled"
-            >{{ sideButton.text }}</v-btn>
+              :disabled="item.disabled"
+            >{{ item.text }}</v-btn>
           </v-container>
         </v-flex>
       </v-toolbar>
