@@ -10,6 +10,7 @@
                 label="Email"
                 placeholder="Email"
                 outlined
+                v-model="email"
                 ></v-text-field>
               
               <v-text-field
@@ -17,6 +18,7 @@
                 label="Lab Name"
                 placeholder="Lab Name"
                 outlined
+                v-model="labName"
                 ></v-text-field>
 
               <v-select
@@ -43,6 +45,7 @@
                 label="Address"
                 placeholder="Address"
                 outlined
+                v-model="address"
                 ></v-text-field>
                 
               
@@ -52,12 +55,15 @@
                 placeholder="Profile Image"
                 prepend-icon="mdi-image"
                 outlined
+                v-model="profileImage"
                 ></v-file-input>
 
                 <v-btn
-                    color="primary"
-                    block
-                    large>Submit</v-btn>
+                  color="primary"
+                  block
+                  large
+                  @click="registerLab"
+                >Submit</v-btn>
             </v-card-text>
           </v-card>
         </v-col>
@@ -67,15 +73,30 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
+import { registerLab } from '@/lib/polkadotProvider/command/labs';
 
 export default {
-  name: 'Lab Registration',
+  name: 'LabRegistration',
+  data: () => ({
+    email: "",
+    labName: "",
+    address: "",
+    profileImage: "",
+    country: "",
+    city: "",
+    countries: [],
+    cities: [],
+  }),
   async mounted() {
-    await this.getCountries()
-    await this.getCities()
+    // await this.getCountries()
+    // await this.getCities()
   },
   computed: {
+    ...mapGetters({
+      api: 'substrate/getAPI',
+      pair: 'substrate/wallet',
+    }),
     ...mapState({
       locationContract: state => state.ethereum.contracts.contractLocation,
       degenicsContract: state => state.ethereum.contracts.contractDegenics,
@@ -86,12 +107,6 @@ export default {
         .map(c => ({ value: c.city, text: c.city, country: c.country }))
     }
   },
-  data: () => ({
-    country: '',
-    city: '',
-    countries: [],
-    cities: [],
-  }),
   methods: {
     async getCountries() {
       const countryCount = await this.locationContract.methods.countCountry().call()
@@ -129,6 +144,21 @@ export default {
     },
     onCityChange(selectedCity) {
       this.city = selectedCity
+    },
+    registerLab(){
+      registerLab(
+        this.api,
+        this.pair,
+        {
+          name: this.labName,
+          address: this.address,
+          country: this.country,
+          city: this.city,
+        }
+      )
+      .then((address) => {
+        alert(address)
+      })
     }
   }
 }
