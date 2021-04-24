@@ -1,6 +1,5 @@
 import globalFunctions from "@/lib/functions";
 
-// globalFunctions.checkIsLoggedIn
 const customerRoutes = [{
   path: '/customer',
   component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/Dashboard'),

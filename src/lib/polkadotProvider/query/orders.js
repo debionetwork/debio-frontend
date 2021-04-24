@@ -4,7 +4,7 @@ export async function ordersByCustomer(api, address) {
   return res.toHuman()
 }
 
-export async function orders(api, orderId) {
+export async function getOrdersDetail(api, orderId) {
   const res = await api.query.orders.orders(orderId)
   return res.toHuman()
 }
