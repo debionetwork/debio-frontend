@@ -1,7 +1,8 @@
 import { Keyring } from '@polkadot/keyring'
 
 export async function queryServicesById(api, serviceId){
-    return await api.query.services.services(serviceId)
+    const res = await api.query.services.services(serviceId)
+    return res.toHuman()
 }
 
 export async function queryServicesByCountryCity(api, country, city){
