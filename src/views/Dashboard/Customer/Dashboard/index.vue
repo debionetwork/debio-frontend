@@ -29,7 +29,7 @@
       </div>
     </v-app-bar>
 
-    <NavigationDrawer width="200" :sideButtons="this.sideButtons" />
+    <NavigationDrawer width="200" />
 
     <v-main class="dg-dashboard-main">
       <!-- Breadcrumbs and Header -->
@@ -61,14 +61,6 @@ export default {
     NavigationDrawer,
     HeaderUserInfo,
   },
-  data: () => ({
-    sideButtons: [
-      { text: "Dashboard", disabled: false },
-      { text: "Request Test", disabled: true },
-      { text: "Test Result", disabled: true },
-      { text: "Order History", disabled: true },
-    ],
-  }),
   mounted() {},
   computed: {
     isLab() {

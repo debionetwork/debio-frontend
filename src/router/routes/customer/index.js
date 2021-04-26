@@ -1,6 +1,5 @@
 import globalFunctions from "@/lib/functions";
 
-// globalFunctions.checkIsLoggedIn
 const customerRoutes = [{
   path: '/customer',
   component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/Dashboard'),
@@ -11,6 +10,12 @@ const customerRoutes = [{
       name: 'customer-home',
       meta: {
         pageHeader: 'Home',
+        drawerButtons: [
+          { text: "Dashboard", disabled: false },
+          { text: "Request Test", disabled: true },
+          { text: "Test Result", disabled: true },
+          { text: "Order History", disabled: true },
+        ]
       },
       component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/Home')
     },
@@ -22,6 +27,12 @@ const customerRoutes = [{
         breadcrumbs: [
           { text: 'Home', href: '/' },
           { text: 'Order History', disabled: true }
+        ],
+        drawerButtons: [
+          { text: "Dashboard", disabled: false },
+          { text: "Request Test", disabled: true },
+          { text: "Test Result", disabled: true },
+          { text: "Order History", disabled: true },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/OrderHistory')
@@ -35,6 +46,12 @@ const customerRoutes = [{
           { text: 'Home', href: '/' },
           { text: 'Order History', href: '/order-history' },
           { text: 'Order Detail', disabled: true },
+        ],
+        drawerButtons: [
+          { text: "Dashboard", disabled: false },
+          { text: "Request Test", disabled: true },
+          { text: "Test Result", disabled: true },
+          { text: "Order History", disabled: true },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/OrderHistoryDetail')
@@ -49,6 +66,12 @@ const customerRoutes = [{
           { text: 'Order History', href: '/order-history' },
           { text: 'Order Detail', href: '/order-history-detail/:number' },
           { text: 'DNA Collection Instructions', disabled: true },
+        ],
+        drawerButtons: [
+          { text: "Dashboard", disabled: false },
+          { text: "Request Test", disabled: true },
+          { text: "Test Result", disabled: true },
+          { text: "Order History", disabled: true },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/DnaCollectionInstructions')
@@ -62,6 +85,12 @@ const customerRoutes = [{
           { text: 'Home', href: '/' },
           { text: 'Order History', href: '/order-history' },
           { text: 'Test Result', disabled: true }
+        ],
+        drawerButtons: [
+          { text: "Dashboard", disabled: false },
+          { text: "Request Test", disabled: true },
+          { text: "Test Result", disabled: true },
+          { text: "Order History", disabled: true },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/TestResult/result.vue')
@@ -74,6 +103,12 @@ const customerRoutes = [{
         breadcrumbs: [
           { text: 'Home', href: '/' },
           { text: 'Request a Test', disabled: true },
+        ],
+        drawerButtons: [
+          { text: "Dashboard", disabled: false },
+          { text: "Request Test", disabled: true },
+          { text: "Test Result", disabled: true },
+          { text: "Order History", disabled: true },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/RequestTest')
@@ -87,6 +122,12 @@ const customerRoutes = [{
           { text: 'Home', href: '/' },
           { text: 'Request a Test', href: '/request-test' },
           { text: 'Checkout', disabled: true },
+        ],
+        drawerButtons: [
+          { text: "Dashboard", disabled: false },
+          { text: "Request Test", disabled: true },
+          { text: "Test Result", disabled: true },
+          { text: "Order History", disabled: true },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/RequestTestCheckout')
@@ -100,6 +141,12 @@ const customerRoutes = [{
           { text: 'Home', href: '/' },
           { text: 'Request a Test', href: '/request-test' },
           { text: 'Receipt', disabled: true },
+        ],
+        drawerButtons: [
+          { text: "Dashboard", disabled: false },
+          { text: "Request Test", disabled: true },
+          { text: "Test Result", disabled: true },
+          { text: "Order History", disabled: true },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/RequestTestReceipt')
@@ -112,6 +159,12 @@ const customerRoutes = [{
         breadcrumbs: [
           { text: 'Home', href: '/' },
           { text: 'Test Results', disabled: true },
+        ],
+        drawerButtons: [
+          { text: "Dashboard", disabled: false },
+          { text: "Request Test", disabled: true },
+          { text: "Test Result", disabled: true },
+          { text: "Order History", disabled: true },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/TestResult')
@@ -124,6 +177,12 @@ const customerRoutes = [{
         breadcrumbs: [
           { text: 'Home', href: '/' },
           { text: 'Genome Files', disabled: true },
+        ],
+        drawerButtons: [
+          { text: "Dashboard", disabled: false },
+          { text: "Request Test", disabled: true },
+          { text: "Test Result", disabled: true },
+          { text: "Order History", disabled: true },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/GenomeFiles')

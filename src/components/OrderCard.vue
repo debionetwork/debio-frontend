@@ -25,7 +25,7 @@
         </div>
         <div class="d-flex align-center justify-space-between fill-height" style="margin-top: -4px;">
           <div class="text-body-2 grey--text text--darken-1">
-            {{ timestamp | timestampToDate }}
+            {{ timestamp }}
           </div>
           <div v-if="status">
             <StatusChip :status="status" />
