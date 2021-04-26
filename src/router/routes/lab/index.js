@@ -91,6 +91,43 @@ const labRoutes = [
                 component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/Registration/Verification')
             },
             {
+              path: '/lab/services',
+              name: 'lab-dashboard-services',
+              meta: {
+                pageHeader: 'Services',
+                breadcrumbs: [
+                  { text: 'Lab', href: '/lab' },
+                  { text: 'Services', disabled: true }
+                ],
+                drawerButtons: [
+                    { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
+                    { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
+                    { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-account" } },
+                    { text: "Order", disabled: false, route: { name: "lab-dashboard" } },
+                ]
+              },
+              component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/Services')
+            },
+            {
+              path: '/lab/services/detail',
+              name: 'lab-dashboard-services-detail',
+              meta: {
+                pageHeader: 'Services Detail',
+                breadcrumbs: [
+                  { text: 'Lab', href: '/lab' },
+                  { text: 'Services', href: '/lab/services' },
+                  { text: 'Services Detail', disabled: true }
+                ],
+                drawerButtons: [
+                    { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
+                    { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
+                    { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-account" } },
+                    { text: "Order", disabled: false, route: { name: "lab-dashboard" } },
+                ]
+              },
+              component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/Services/Detail')
+            },
+            {
                 path: '/lab/:number',
                 name: 'lab-process',
                 meta: {
