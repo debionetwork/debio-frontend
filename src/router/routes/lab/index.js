@@ -103,7 +103,7 @@ const labRoutes = [
                     { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
                     { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
                     { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-services" } },
-                    { text: "Order", disabled: false, route: { name: "lab-dashboard" } },
+                    { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
                 ]
               },
               component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/Services')
@@ -122,7 +122,7 @@ const labRoutes = [
                     { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
                     { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
                     { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-services" } },
-                    { text: "Order", disabled: false, route: { name: "lab-dashboard" } },
+                    { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
                 ]
               },
               component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/Services/Add')
@@ -141,10 +141,28 @@ const labRoutes = [
                     { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
                     { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
                     { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-services" } },
-                    { text: "Order", disabled: false, route: { name: "lab-dashboard" } },
+                    { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
                 ]
               },
               component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/Services/Detail')
+            },
+            {
+              path: '/lab/orders',
+              name: 'lab-dashboard-order-history',
+              meta: {
+                pageHeader: 'Order History',
+                breadcrumbs: [
+                  { text: 'Lab', href: '/lab' },
+                  { text: 'Orders', disabled: true }
+                ],
+                drawerButtons: [
+                    { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
+                    { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
+                    { text: "Services", disabled: false, route: { name: "lab-dashboard-services" } },
+                    { text: "Order", active: true, disabled: false, route: { name: "lab-dashboard-order-history" } },
+                ]
+              },
+              component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/OrderHistory')
             },
             {
                 path: '/lab/:number',

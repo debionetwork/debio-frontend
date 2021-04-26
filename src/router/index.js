@@ -4,14 +4,12 @@ import indexRoutes from './routes'
 import authRoutes from './routes/auth'
 import labRoutes from './routes/lab'
 import customerRoutes from './routes/customer'
-import labDashboardRoutes from './routes/lab/dashboard'
 
 Vue.use(VueRouter)
 
 const routes = [
   ...indexRoutes,
   ...labRoutes,
-  ...labDashboardRoutes,
   ...authRoutes,
   ...customerRoutes,
 ]
