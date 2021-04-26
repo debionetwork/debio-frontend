@@ -26,3 +26,8 @@ export async function queryLabCount(api){
 export async function queryLabsCountByCoutryCity(api, country, city){
     return await api.query.labs.labsCountByCoutryCity(country, city)
 }
+
+export async function queryLabsByIdNew(api, labId){
+    const res = await api.query.labs.labs(labId)
+    return res.toHuman()
+  }
