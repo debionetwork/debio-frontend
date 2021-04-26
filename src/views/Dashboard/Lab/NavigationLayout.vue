@@ -30,6 +30,9 @@
 
     <NavigationDrawer width="200" />
 
+    <!-- <v-main class="main">
+      <router-view></router-view>
+    </v-main> -->
 
     <v-main class="dg-dashboard-main ml-5">
       <v-container>
@@ -57,14 +60,6 @@ export default {
     Breadcrumbs,
     NavigationDrawer,
   },
-  data: () => ({
-    sideButtons: [
-      { text: "Dashboard", disabled: false },
-      { text: "Account", disabled: true },
-      { text: "Services", disabled: true },
-      { text: "Order", disabled: true },
-    ]
-  }),
   computed: {
     isLab() {
       return this.$route.path.indexOf('lab') > 0
@@ -112,5 +107,13 @@ export default {
 }
 .dg-dashboard-main {
   background: #e5e5e5;
+}
+.main {
+  background: rgba(0, 0, 0, 0.5);
+  background: linear-gradient(
+    150deg,
+    rgb(115, 46, 117) 0%,
+    rgba(0, 0, 0, 1) 96%
+  );
 }
 </style>
