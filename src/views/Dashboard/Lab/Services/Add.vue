@@ -3,21 +3,6 @@
     <v-container>
       <v-row>
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
-            <v-container
-                class="d-flex flex-row-reverse"
-            >
-                <v-btn
-                    color="light-blue"
-                    class="mb-5 white--text"
-                >
-                    <v-icon 
-                      inline
-                      color="white"
-                      :size="20"
-                    >mdi-delete</v-icon>
-                    Delete
-                </v-btn>
-            </v-container>
             <v-card class="dg-card" elevation="0" outlined>
                 <v-card-text class="px-8 pb-8 pt-10">              
                     <v-text-field
@@ -76,7 +61,7 @@
 
 <script>
 export default {
-  name: 'LabAddServices',
+  name: 'LabServicesDetail',
 }
 </script>
 

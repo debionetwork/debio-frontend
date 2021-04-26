@@ -102,11 +102,30 @@ const labRoutes = [
                 drawerButtons: [
                     { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
                     { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
-                    { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-account" } },
+                    { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-services" } },
                     { text: "Order", disabled: false, route: { name: "lab-dashboard" } },
                 ]
               },
               component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/Services')
+            },
+            {
+              path: '/lab/services/add',
+              name: 'lab-dashboard-add-services',
+              meta: {
+                pageHeader: 'Add Services',
+                breadcrumbs: [
+                  { text: 'Lab', href: '/lab' },
+                  { text: 'Services', href: '/lab/services' },
+                  { text: 'Add Services', disabled: true }
+                ],
+                drawerButtons: [
+                    { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
+                    { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
+                    { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-services" } },
+                    { text: "Order", disabled: false, route: { name: "lab-dashboard" } },
+                ]
+              },
+              component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Lab/Services/Add')
             },
             {
               path: '/lab/services/detail',
@@ -121,7 +140,7 @@ const labRoutes = [
                 drawerButtons: [
                     { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
                     { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
-                    { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-account" } },
+                    { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-services" } },
                     { text: "Order", disabled: false, route: { name: "lab-dashboard" } },
                 ]
               },

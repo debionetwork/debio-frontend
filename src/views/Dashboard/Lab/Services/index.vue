@@ -10,6 +10,7 @@
                     <v-btn
                         color="primary"
                         class="mb-5"
+                        @click="$router.push({name:'lab-dashboard-add-services'})"
                     > 
                         <v-icon 
                         inline
