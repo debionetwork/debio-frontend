@@ -28,21 +28,17 @@
       </div>
     </v-app-bar>
 
-    <NavigationDrawer 
-      width="200"
-      :sideButtons="this.sideButtons"
-    />
+    <NavigationDrawer width="200" />
+
 
     <v-main class="dg-dashboard-main ml-5">
-      <!-- Breadcrumbs and Header -->
       <v-container>
         <Breadcrumbs />
         <div class="text-h5 secondary--text text--lighten-2">
           <b>{{ pageHeader }}</b>
         </div>
       </v-container>
-
-      <!-- Page Contents -->
+      
       <router-view></router-view>
     </v-main>
   </v-app>
