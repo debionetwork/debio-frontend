@@ -55,7 +55,6 @@ import { mapState } from "vuex";
 import OrderCard from "@/components/OrderCard";
 import PrimaryButton from "@/components/PrimaryButton";
 import localStorage from "@/lib/local-storage";
-import router from "@/router";
 import {
   ordersByCustomer,
   getOrdersDetail,
@@ -92,10 +91,11 @@ export default {
       this.isLoadingOrderHistory = true;
       try {
         this.orderHistory = [];
-        // 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        //const address = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
+        const address = this.wallet.address;
         const listOrderId = await ordersByCustomer(
           this.api,
-          this.wallet.address
+          address,
         );
 
         var lengthMax = 3;
@@ -156,7 +156,9 @@ export default {
       this.orderHistory.push(order);
     },
     goToOrderHistory() {
-      router.push(`/order-history`);
+      this.$router.push({
+        name: "order-history",
+      });
     },
     gotoDetailOrder(order) {
       this.$router.push({
