@@ -1,6 +1,5 @@
 import globalFunctions from "@/lib/functions";
 
-// globalFunctions.checkIsLoggedIn
 const customerRoutes = [{
   path: '/customer',
   component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/Dashboard'),
@@ -15,7 +14,7 @@ const customerRoutes = [{
       component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/Home')
     },
     {
-      path: '/order-history',
+      path: '/customer/order-history',
       name: 'order-history',
       meta: {
         pageHeader: 'Order history',
@@ -27,13 +26,13 @@ const customerRoutes = [{
       component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/OrderHistory')
     },
     {
-      path: '/order-history-detail/:number',
+      path: '/customer/order-history-detail/:number',
       name: 'order-history-detail',
       meta: {
         pageHeader: 'Order Detail',
         breadcrumbs: [
           { text: 'Home', href: '/' },
-          { text: 'Order History', href: '/order-history' },
+          { text: 'Order History', href: '/customer/order-history' },
           { text: 'Order Detail', disabled: true },
         ]
       },

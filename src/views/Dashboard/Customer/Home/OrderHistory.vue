@@ -12,7 +12,7 @@
     ></v-progress-linear>
     <template v-if="orderHistory.length > 0">
       <div
-        v-for="(order) in orderHistory"
+        v-for="order in orderHistory"
         :key="order.number"
         class="mb-2"
         @click="gotoDetailOrder(order)"
@@ -23,9 +23,9 @@
               <OrderCard
                 :icon="order.icon"
                 :title="order.title"
-                :specimenNumber="order.number"
+                :specimenNumber="order.dna_sample_tracking_id"
                 :labName="order.labName"
-                :timestamp="order.timestamp"
+                :timestamp="order.dateOrder"
                 :status="order.status"
               />
             </div>
@@ -36,41 +36,51 @@
           <OrderCard
             :icon="order.icon"
             :title="order.title"
-            :specimenNumber="order.number"
+            :specimenNumber="order.dna_sample_tracking_id"
             :labName="order.labName"
-            :timestamp="order.timestamp"
+            :timestamp="order.dateOrder"
             :status="order.status"
           />
         </template>
       </div>
-      <PrimaryButton @click="goToOrderHistory">Show all order history</PrimaryButton>
+      <PrimaryButton @click="goToOrderHistory"
+        >Show all order history</PrimaryButton
+      >
     </template>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import OrderCard from '@/components/OrderCard'
-import PrimaryButton from '@/components/PrimaryButton'
-import localStorage from '@/lib/local-storage'
-import router from '@/router'
+import { mapState } from "vuex";
+import OrderCard from "@/components/OrderCard";
+import PrimaryButton from "@/components/PrimaryButton";
+import localStorage from "@/lib/local-storage";
+import {
+  ordersByCustomer,
+  getOrdersDetail,
+} from "@/lib/polkadotProvider/query/orders";
+import { queryLabsByIdNew } from "@/lib/polkadotProvider/query/labs";
+import { queryServicesById } from "@/lib/polkadotProvider/query/services";
+import moment from "moment";
 
 export default {
-  name: 'OrderHistory',
+  name: "OrderHistory",
   components: {
     OrderCard,
     PrimaryButton,
   },
   computed: {
     ...mapState({
-      degenicsContract: state => state.ethereum.contracts.contractDegenics
+      walletBalance: (state) => state.substrate.walletBalance,
+      api: (state) => state.substrate.api,
+      wallet: (state) => state.substrate.wallet,
     }),
     userAddress() {
-      return JSON.parse(localStorage.getKeystore())['address']
-    }
+      return JSON.parse(localStorage.getKeystore())["address"];
+    },
   },
   mounted() {
-    this.getOrderHistory()
+    this.getOrderHistory();
   },
   data: () => ({
     orderHistory: [],
@@ -78,143 +88,88 @@ export default {
   }),
   methods: {
     async getOrderHistory() {
-      this.isLoadingOrderHistory = true
+      this.isLoadingOrderHistory = true;
       try {
-        const maxOrderHistory = 3
-        // Get specimens
-        const specimens = await this.getSpecimens(maxOrderHistory)
-        // Get labs
-        const labAccounts = specimens.map(item => item.labAccount)
-            .filter((value, index, self) => self.indexOf(value) === index)
-        let labs = await this.getLabs(labAccounts)
-        labs = await this.fillLabServices(labs)
+        this.orderHistory = [];
+        // 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        //const address = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
+        const address = this.wallet.address;
+        const listOrderId = await ordersByCustomer(
+          this.api,
+          address,
+        );
 
-        const orders = this.prepareOrderData(specimens, labs)
-        this.orderHistory = orders
-
-        this.isLoadingOrderHistory = false
-      } catch (err) {
-
-        console.log(err)
-        this.isLoadingOrderHistory = false
-      }
-    },
-    async getSpecimens(numSpecimens) {
-      try {
-        const specimenCount = await this.degenicsContract.methods
-          .specimenCount().call({ from: this.userAddress })
-
-        const specimensPromises = []
-        for (let i = specimenCount; i > 0; i--) {
-          const promise = this.degenicsContract.methods
-            .specimenByIndex(i).call({ from: this.userAddress })
-
-          specimensPromises.push(promise)
-
-          if (specimensPromises.length == numSpecimens) {
-            break
+        var lengthMax = 3;
+        if (listOrderId != null) {
+          if (listOrderId.length < lengthMax) {
+            lengthMax = listOrderId.length;
           }
-        }
-        const specimens = await Promise.all(specimensPromises)
 
-        return specimens
+          for (let i = 0; i < lengthMax; i++) {
+            const detailOrder = await getOrdersDetail(this.api, listOrderId[i]);
+            const detaillab = await queryLabsByIdNew(
+              this.api,
+              detailOrder.seller_id
+            );
+            const detailService = await queryServicesById(
+              this.api,
+              detailOrder.service_id
+            );
+            this.prepareOrderData(detailOrder, detaillab, detailService);
+          }
+
+          this.orderHistory.sort(
+            (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
+          );
+        }
+
+        this.isLoadingOrderHistory = false;
       } catch (err) {
-        console.log(err)
-        throw new Error('Error in getting specimens: ' + err.message)
+        console.log(err);
+        this.isLoadingOrderHistory = false;
       }
     },
-    async getLabs(labAccounts) {
-      try {
-        const labPromises = []
-        for (let i = 0; i < labAccounts.length; i++) {
-          const promise = await this.degenicsContract.methods.labByAccount(labAccounts[i]).call()
-          labPromises.push(promise)
-        }
-        let labs = await Promise.all(labPromises)
-
-        return labs
-      } catch (err) {
-        console.log(err)
-        throw new Error('Error in getting labs: ' + err.message)
+    prepareOrderData(detailOrder, detaillab, detailService) {
+      const title = detailService.info.name;
+      const labName = detaillab.info.name;
+      let icon = "mdi-needle";
+      if (detailService.info.image != null) {
+        icon = detailService.info.image;
       }
-    },
-    async fillLabServices(labs) {
-      try {
-        const labWithServicePromises = []
-        for (let i = 0; i < labs.length; i++) {
-          let lab = labs[i]
-          const { labAccount } = lab
 
-          const promise = this.degenicsContract.methods
-            .serviceCount(labAccount).call()
-              .then(async serviceCount => {
-                const getServicePromises = []
-                for (let i = 1; i <= serviceCount; i++) {
-                  const promise = await this.degenicsContract.methods.serviceByIndex(labAccount, i).call()
-                  getServicePromises.push(promise)
-                }
-                const services = await Promise.all(getServicePromises)
-                lab.services = services
-                return lab
-              })
-          labWithServicePromises.push(promise)
-        }
-        const labWithServices = await Promise.all(labWithServicePromises)
+      const number = detailOrder.id;
+      var timestamp = detailOrder.created_at.replace(/,/g, "") / 1000;
+      const dateOrder = moment.unix(timestamp).format("MMMM Do YYYY, h:mm");
+      const status = detailOrder.status;
+      const dna_sample_tracking_id = detailOrder.dna_sample_tracking_id;
 
-        return labWithServices
-      } catch (err) {
-        console.log(err)
-        throw new Error('Error in getting lab products: ' + err.message)
-      }
-    },
-    /**
-    * prepareOrderData
-    *
-    * @param {Array} specimens
-    * @param {Array} labs
-    * @returns {Array} productData -- specimen data that includes lab name and product name
-    */
-    prepareOrderData(specimens, labs) {
-      /*
-      specimen:
-        - date (timestamp) - specimenNumber - status
-      lab:
-        - labName
-      lab product:
-        - icon - title
-      */
-      const orders = []
-      specimens.forEach(spec => {
-        const { number, timestamp, status, labAccount, serviceCode } = spec
-        const lab = labs.filter(l => l.labAccount == labAccount)[0]
-        const product = lab.services.filter(serv => serv.code == serviceCode)[0]
-        const productAdditionalData = product.additionalData
-          ? JSON.parse(product.additionalData)
-          : {}
+      const order = {
+        icon,
+        title,
+        number,
+        labName,
+        timestamp,
+        dateOrder,
+        status,
+        dna_sample_tracking_id,
+      };
 
-        const icon = productAdditionalData.icon ? productAdditionalData.icon : ''
-        const title = product.serviceName
-        const labName = lab.name
-
-        const order = {
-          icon, title, number, labName, timestamp, status, product, lab
-        }
-
-        orders.push(order)
-      })
-
-      return orders.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
+      this.orderHistory.push(order);
     },
     goToOrderHistory() {
-      router.push(`/order-history`);
+      this.$router.push({
+        name: "order-history",
+      });
     },
     gotoDetailOrder(order) {
-      this.$router.push({ name: 'order-history-detail', params: { number: order.number } })
-    }
+      this.$router.push({
+        name: "order-history-detail",
+        params: { number: order.number },
+      });
+    },
   },
-}
+};
 </script>
 
 <style>
-
 </style>
