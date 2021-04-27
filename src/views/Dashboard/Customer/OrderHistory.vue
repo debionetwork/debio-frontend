@@ -57,7 +57,7 @@
               {{ item.dna_sample_tracking_id | specimenNumber }}
             </template>
             <template v-slot:[`item.timestamp`]="{ item }">
-              {{ item.timestamp | timestampToDate }}
+              {{ item.timestamp | timestampToDateTime }}
             </template>
             <template v-slot:[`item.status`]="{ item }">
               {{ item.status | customerSpecimenStatus }}
@@ -251,7 +251,7 @@ export default {
       }
 
       const number = detailOrder.id;
-      var timestamp = detailOrder.created_at.replace(/,/g, "") / 1000;
+      const timestamp = (detailOrder.created_at.replace(/,/g, "") / 1000).toString();
       const status = detailOrder.status;
       const dna_sample_tracking_id = detailOrder.dna_sample_tracking_id;
 
