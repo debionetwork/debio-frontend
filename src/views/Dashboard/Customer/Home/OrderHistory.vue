@@ -38,7 +38,7 @@
             :title="order.title"
             :specimenNumber="order.dna_sample_tracking_id"
             :labName="order.labName"
-            :timestamp="order.dateOrder"
+            :timestamp="order.timestamp"
             :status="order.status"
           />
         </template>
@@ -61,7 +61,6 @@ import {
 } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsByIdNew } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
-import moment from "moment";
 
 export default {
   name: "OrderHistory",
@@ -137,8 +136,7 @@ export default {
       }
 
       const number = detailOrder.id;
-      var timestamp = detailOrder.created_at.replace(/,/g, "") / 1000;
-      const dateOrder = moment.unix(timestamp).format("MMMM Do YYYY, h:mm");
+      const timestamp = (detailOrder.created_at.replace(/,/g, "") / 1000).toString();
       const status = detailOrder.status;
       const dna_sample_tracking_id = detailOrder.dna_sample_tracking_id;
 
@@ -148,7 +146,6 @@ export default {
         number,
         labName,
         timestamp,
-        dateOrder,
         status,
         dna_sample_tracking_id,
       };

@@ -24,6 +24,14 @@ Vue.filter('timestampToDate', function(val) {
     return ''
   }
 })
+Vue.filter('timestampToDateTime', function(val) {
+  try {
+    return format(fromUnixTime(val), 'MMMM dd yyyy hh:mm')
+  } catch (err) {
+    console.log(err)
+    return ''
+  }
+})
 
 /**
  * setupAppDependencies
