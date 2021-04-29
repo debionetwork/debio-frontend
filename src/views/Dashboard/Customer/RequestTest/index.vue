@@ -5,15 +5,14 @@
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-title class="px-8">
-              <div class="text-h6">
-                Select a Lab
-              </div>
+              <div class="text-h6">Select a Lab</div>
             </v-card-title>
             <v-card-text class="px-8">
               <v-select
                 dense
                 :items="countries"
-                :value="country"
+                item-text="name"
+                item-value="alpha-2"
                 @change="onCountryChange"
                 label="Select Country"
                 outlined
@@ -21,8 +20,9 @@
 
               <v-select
                 dense
-                :items="citiesSelection"
-                :value="city"
+                :items="cities"
+                item-text="1"
+                item-value="0"
                 @change="onCityChange"
                 label="Select City"
                 :disabled="!country"
@@ -31,8 +31,9 @@
 
               <v-select
                 dense
-                :items="labsSelection"
-                :value="labAccount"
+                :items="labs"
+                item-value="labData"
+                item-text="labName"
                 @change="onLabChange"
                 menu-props="auto"
                 label="Select Lab"
@@ -52,7 +53,8 @@
             </v-toolbar>
             <v-card-text class="white--text pt-2 px-5 text-body">
               <div class="mb-2">
-                Please select a lab that is as close to your location as possible.
+                Please select a lab that is as close to your location as
+                possible.
               </div>
               <div>
                 You need to do this because dna samples have limited shelf life.
@@ -70,13 +72,12 @@
         ></v-progress-circular>
       </div>
 
-
       <template v-if="labAccount && !isLoadingProducts">
         <v-row class="mt-4">
           <v-col cols="12">
             <div class="px-2">
               <div class="text-h5 secondary--text text--lighten-2">
-                <b>{{ selectedLab.name }}</b>
+                <b>{{ labAccount.info.name }}</b>
               </div>
             </div>
           </v-col>
@@ -108,16 +109,23 @@
 
         <v-row class="pt-1">
           <v-col
-            v-for="(product) in productsSelection"
+            v-for="product in products"
             :key="product.serviceName"
-            cols="12" xl="4" lg="4" md='6'
+            cols="12"
+            xl="4"
+            lg="4"
+            md="6"
             :class="$vuetify.breakpoint.smAndDown ? 'py-0' : 'py-1'"
           >
             <SelectableMenuCard
               :icon="product.icon"
               :title="product.serviceName"
-              :sub-title="product.description"
-              :hover-text="product.longDescription ? product.longDescription : product.description"
+              :sub-title="product.serviceData.info.description"
+              :hover-text="
+                product.serviceData.info.longDescription
+                  ? product.serviceData.info.longDescription
+                  : product.serviceData.info.description
+              "
               :is-selected="isProductSelected(product)"
               :disabled="isProductDisabled(product)"
               @click="selectOneProduct(product)"
@@ -126,9 +134,7 @@
                 <span class="text-h6">
                   {{ product.price }}
                 </span>
-                <span class="primary--text text-caption">
-                  Wei
-                </span>
+                <span class="primary--text text-caption"> DOT </span>
               </template>
             </SelectableMenuCard>
           </v-col>
@@ -155,57 +161,63 @@
 </template>
 
 <script>
-import _ from 'lodash'
-import { mapState, mapMutations } from 'vuex'
-import SelectableMenuCard from '@/components/SelectableMenuCard'
-import DnaCollectionRequirements from './DnaCollectionRequirements'
+import _ from "lodash";
+import { mapState, mapMutations } from "vuex";
+import SelectableMenuCard from "@/components/SelectableMenuCard";
+import DnaCollectionRequirements from "./DnaCollectionRequirements";
+import countryData from "@/assets/json/country.json";
+import cityData from "@/assets/json/city.json";
+import {
+  queryLabsByCountryCity,
+  queryLabsByIdNew,
+} from "@/lib/polkadotProvider/query/labs";
+import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 
 export default {
-  name: 'RequestTest',
+  name: "RequestTest",
   components: {
     SelectableMenuCard,
-    DnaCollectionRequirements
+    DnaCollectionRequirements,
   },
   async mounted() {
-    await this.getCountries()
-    await this.getCities()
-    await this.getLabs()
+    await this.getCountries();
   },
   computed: {
     ...mapState({
-      locationContract: state => state.ethereum.contracts.contractLocation,
-      degenicsContract: state => state.ethereum.contracts.contractDegenics,
+      api: (state) => state.substrate.api,
+      wallet: (state) => state.substrate.wallet,
     }),
     citiesSelection() {
       return this.cities
-        .filter(c => c.country == this.country)
-        .map(c => ({ value: c.city, text: c.city, country: c.country }))
+        .filter((c) => c.country == this.country)
+        .map((c) => ({ value: c.city, text: c.city, country: c.country }));
     },
     labsSelection() {
       return this.labs
-        .filter(lab => lab.country == this.country && lab.city == this.city)
-        .map(lab => ({ value: lab.labAccount, text: lab.name }))
+        .filter((lab) => lab.country == this.country && lab.city == this.city)
+        .map((lab) => ({ value: lab.labAccount, text: lab.name }));
     },
     productsSelection() {
-      return this.products
-        .map(prod => {
-          try {
-            const additionalData = JSON.parse(prod.additionalData)
-            return { ...prod, ...additionalData }
-          } catch (err) {
-            return prod
-          }
-        })
+      return this.products.map((prod) => {
+        try {
+          const additionalData = JSON.parse(prod.additionalData);
+          return { ...prod, ...additionalData };
+        } catch (err) {
+          return prod;
+        }
+      });
     },
     selectedLab() {
-      if (!this.labAccount) { return }
-      return this.labs.filter(l => l.labAccount == this.labAccount)[0]
-    }
+      if (!this.labAccount) {
+        return;
+      }
+      return this.labs.filter((l) => l.labAccount == this.labAccount)[0];
+    },
   },
   data: () => ({
-    country: '',
-    city: '',
-    labAccount: '',
+    country: "",
+    city: "",
+    labAccount: "",
     selectedProducts: [],
     isLoadingProducts: false,
     countries: [],
@@ -215,134 +227,140 @@ export default {
   }),
   methods: {
     ...mapMutations({
-      setLabToRequest: 'testRequest/SET_LAB',
-      setProductsToRequest: 'testRequest/SET_PRODUCTS'
+      setLabToRequest: "testRequest/SET_LAB",
+      setProductsToRequest: "testRequest/SET_PRODUCTS",
     }),
     async getCountries() {
-      const countryCount = await this.locationContract.methods.countCountry().call()
-
-      const getCountryPromises = []
-      for (let i = 1; i <= countryCount; i++) {
-        getCountryPromises.push(
-          this.locationContract.methods.countryByIndex(i).call()
-        )
-      }
-      const countries = await Promise.all(getCountryPromises)
-
-      this.countries = countries
-    },
-    async getCities() {
-      if (!this.countries) { return }
-
-      const getCitiesPromises = []
-      for (let country of this.countries) {
-        const cityCount = await this.locationContract.methods.countCity(country).call()
-        for(let i = 1; i <= cityCount; i++) {
-          const promise = this.locationContract.methods
-            .cityByIndex(country, i).call()
-            .then(city => ({ country, city }))
-
-          getCitiesPromises.push(promise)
-        }
-      }
-      const cities = await Promise.all(getCitiesPromises)
-
-      this.cities = cities
-    },
-    async getLabs() {
-      if (!this.cities) { return }
-
-      const getLabsPromises = []
-      for (let cityObj of this.cities) {
-        const { country, city } = cityObj
-        const labCount = await this.degenicsContract.methods.labCount(country, city).call()
-
-        for (let i = 1; i <= labCount; i++) {
-          const promise = this.degenicsContract.methods
-            .labByIndex(country, city, i).call()
-            .then(lab => {
-              try {
-                const additionalData = JSON.parse(lab['additionalData'])
-                return { ...lab, ...additionalData }
-              } catch (err) {
-                return lab
-              }
-            })
-          
-          getLabsPromises.push(promise)
-        }
-      }
-
-      const labs = await Promise.all(getLabsPromises)
-
-      this.labs = labs
-    },
-    async getLabProducts() {
-      this.isLoadingProducts = true
-
-      try {
-        const serviceCount = await this.degenicsContract.methods.serviceCount(this.labAccount).call()     
-        const getServicePromises = []
-        for (let i = 1; i <= serviceCount; i++) {
-          const promise = await this.degenicsContract.methods.serviceByIndex(this.labAccount, i).call()
-          getServicePromises.push(promise)
-        }
-
-        const services = await Promise.all(getServicePromises)
-
-        this.products = services
-      } catch (err) {
-        this.products = []
-      }
-
-      this.isLoadingProducts = false
+      this.countries = countryData;
     },
     onCountryChange(selectedCountry) {
-      this.country = selectedCountry
+      this.country = selectedCountry;
+      this.cities = Object.entries(cityData[this.country].divisions);
     },
     onCityChange(selectedCity) {
-      this.city = selectedCity
+      this.city = selectedCity;
+      this.getLabs();
+    },
+    async getLabs() {
+      if (!this.cities) {
+        return;
+      }
+      //"Indonesia",
+      //"Jakarta"
+      // this.country,
+      //   this.city
+      const listLabID = await queryLabsByCountryCity(
+        this.api,
+        this.country,
+        this.city
+      );
+      if (listLabID != null) {
+        for (let i = 0; i < listLabID.length; i++) {
+          const detaillab = await queryLabsByIdNew(this.api, listLabID[i]);
+
+          if (detaillab != null) {
+            const labName = detaillab.info.name;
+            const accountId = detaillab.account_id;
+            const address = detaillab.info.address;
+            const labData = detaillab;
+
+            const lab = {
+              accountId,
+              labName,
+              address,
+              labData,
+            };
+
+            this.labs.push(lab);
+          }
+        }
+      }
     },
     async onLabChange(labAccount) {
-      this.labAccount = labAccount
-      await this.getLabProducts()
+      this.labAccount = labAccount;
+      await this.getLabProducts();
+    },
+    async getLabProducts() {
+      this.isLoadingProducts = true;
+      this.products = [];
+
+      try {
+        if (this.labAccount != null) {
+          for (let i = 0; i < this.labAccount.services.length; i++) {
+            const detailService = await queryServicesById(
+              this.api,
+              this.labAccount.services[i]
+            );
+
+            if (detailService != null) {
+              const serviceName = detailService.info.name;
+              let icon = "mdi-needle";
+              if (detailService.info.image != null) {
+                icon = detailService.info.image;
+              }
+              const accountId = this.labAccount.services[i];
+              const serviceData = detailService;
+              const price = detailService.info.price;
+
+              const product = {
+                accountId,
+                serviceName,
+                icon,
+                serviceData,
+                price,
+              };
+
+              this.products.push(product);
+            }
+          }
+        }
+      } catch (err) {
+        this.products = [];
+      }
+      this.isLoadingProducts = false;
     },
     isProductSelected(product) {
-      return this.selectedProducts.filter(p => p.code == product.code).length > 0
+      return (
+        this.selectedProducts.filter((p) => p.code == product.code).length > 0
+      );
     },
     isProductDisabled(product) {
       if (this.selectedProducts.length == 0) {
-        return false
+        return false;
       }
-      return this.selectedProducts[0].code != product.code
+      return this.selectedProducts[0].code != product.code;
     },
     selectProduct(product) {
       // deselect
       if (_.includes(this.selectedProducts, product)) {
-        this.selectedProducts = this.selectedProducts.filter(p => p.code != product.code)
-        return
+        this.selectedProducts = this.selectedProducts.filter(
+          (p) => p.code != product.code
+        );
+        return;
       }
       // select
-      this.selectedProducts = [...this.selectedProducts, product]
+      this.selectedProducts = [...this.selectedProducts, product];
     },
     selectOneProduct(product) {
       if (this.selectedProducts.length == 0) {
-        this.selectedProducts = [product]
-        return
+        this.selectedProducts = [product];
+        return;
       }
-      if (this.selectedProducts.length > 0 && this.selectedProducts[0].code == product.code) {
-        this.selectedProducts = []
+      if (
+        this.selectedProducts.length > 0 &&
+        this.selectedProducts[0].code == product.code
+      ) {
+        this.selectedProducts = [];
       }
     },
     onContinue() {
-      this.setLabToRequest(this.selectedLab)
-      this.setProductsToRequest(this.selectedProducts)
-      this.$router.push({ name: 'request-test-checkout', })
-    }
-  }
-}
+      this.setLabToRequest(this.labAccount);
+      this.setProductsToRequest(this.selectedProducts);
+      this.$router.push({ name: "request-test-checkout" });
+    },
+  },
+};
 </script>
 
 <style lang="scss">
-
 </style>

@@ -1,44 +1,31 @@
 <template>
-  <v-dialog
-    :value="_show"
-    width="500"
-    persistent
-  >
+  <v-dialog :value="_show" width="500" persistent>
     <v-card>
       <v-app-bar flat dense color="white">
-        <v-toolbar-title class="title">
-          Send Payment
-        </v-toolbar-title>
+        <v-toolbar-title class="title"> Send Payment </v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn
-          icon
-          @click="closeDialog"
-        >
+        <v-btn icon @click="closeDialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-app-bar>
       <v-card-text class="mt-4 pb-0 text-subtitle-1">
         <!-- Lab Recipient Details -->
         <div v-if="lab">
-          <div class="text-h5">
-            Payment Recipient
-          </div>
+          <div class="text-h5">Payment Recipient</div>
           <div class="text-body-1 mt-4">
-            <b>{{ lab.name }}</b>
+            <b>{{ lab.info.name }}</b>
           </div>
-          <div v-if="lab.address" class="text-body-2">
-            {{ lab.address }}
+          <div v-if="lab.info.address" class="text-body-2">
+            {{ lab.info.address }}
           </div>
           <div class="text-body-2">
-            {{ lab.city }}, {{ lab.country }}
+            {{ lab.info.city }}, {{ lab.info.country }}
           </div>
         </div>
 
         <!-- Payment Details -->
         <div class="mt-6">
-          <div class="text-h5">
-            Payment Details
-          </div>
+          <div class="text-h5">Payment Details</div>
           <div class="d-flex align-center justify-space-between mt-4">
             <div class="text-body-1">
               <b>Total Price</b>
@@ -47,9 +34,7 @@
               <span class="text-h6">
                 {{ totalPrice }}
               </span>
-              <span class="primary--text text-caption">
-                Wei
-              </span>
+              <span class="primary--text text-caption"> DOT </span>
             </div>
           </div>
           <!-- <div class="d-flex align-center justify-space-between">
@@ -79,12 +64,7 @@
           :disabled="isLoading"
         >
         </v-text-field>
-        <v-alert
-          v-if="error"
-          dense
-          text
-          type="error"
-        >
+        <v-alert v-if="error" dense text type="error">
           {{ error }}
         </v-alert>
         <v-progress-linear
@@ -111,13 +91,13 @@
 
 <script>
 /* eslint-disable */
-import Wallet from '@/lib/dgnx-wallet'
-import { mapState } from 'vuex'
-import sendTransaction from '@/lib/send-transaction'
-import localStorage from '@/lib/local-storage'
+import Wallet from "@/lib/dgnx-wallet";
+import { mapState } from "vuex";
+import sendTransaction from "@/lib/send-transaction";
+import localStorage from "@/lib/local-storage";
 
 export default {
-  name: 'SendPaymentDialog',
+  name: "SendPaymentDialog",
   props: {
     show: Boolean,
     lab: Object,
@@ -125,153 +105,174 @@ export default {
     products: Array,
   },
   data: () => ({
-    password: '',
+    password: "",
     isLoading: false,
-    transactionFee: 'TODO',
-    error: '',
+    transactionFee: "TODO",
+    error: "",
   }),
   computed: {
     _show: {
       get() {
-        return this.show
+        return this.show;
       },
       set(val) {
-        this.$emit('toggle', val)
-      }
+        this.$emit("toggle", val);
+      },
     },
     ...mapState({
-      web3: state => state.ethereum.web3,
-      degenicsContract: state => state.ethereum.contracts.contractDegenics,
+      web3: (state) => state.ethereum.web3,
+      degenicsContract: (state) => state.ethereum.contracts.contractDegenics,
     }),
   },
   methods: {
     async onSubmit() {
-      this.isLoading = true
-      this.error = ''
+      this.isLoading = true;
+      this.error = "";
 
       try {
         // registerSpecimen params
-        const labAccount = this.lab.labAccount
-        const specimensToProcess = this.products.map(p => ({
+        const labAccount = this.lab.labAccount;
+        const specimensToProcess = this.products.map((p) => ({
           labAccount,
           serviceCode: p.code,
           price: p.price,
           productDetail: p,
-        }))
+        }));
 
         // Retrieve wallet
-        const keystore = localStorage.getKeystore()
-        const wallet = await Wallet.decrypt(keystore, this.password)
+        const keystore = localStorage.getKeystore();
+        const wallet = await Wallet.decrypt(keystore, this.password);
 
-        const receipts = []
+        const receipts = [];
         for (let specimen of specimensToProcess) {
-          const { labAccount, serviceCode, price, productDetail } = specimen
+          const { labAccount, serviceCode, price, productDetail } = specimen;
 
-          const specimenNumber = await this.registerSpecimen(labAccount, serviceCode, wallet)
-          const txReceipt = await this.paySpecimen(specimenNumber, price, wallet)
+          const specimenNumber = await this.registerSpecimen(
+            labAccount,
+            serviceCode,
+            wallet
+          );
+          const txReceipt = await this.paySpecimen(
+            specimenNumber,
+            price,
+            wallet
+          );
 
           // FIXME: set specimen status to Sending here, for current prototype
-          await this.sendSpecimen(specimenNumber, wallet)
+          await this.sendSpecimen(specimenNumber, wallet);
 
-          receipts.push({ txReceipt, specimenNumber, productDetail, lab: this.lab })
+          receipts.push({
+            txReceipt,
+            specimenNumber,
+            productDetail,
+            lab: this.lab,
+          });
         }
 
-        this.isLoading = false
-        this.password = ''
-        this.$emit('payment-sent', receipts)
-
+        this.isLoading = false;
+        this.password = "";
+        this.$emit("payment-sent", receipts);
       } catch (err) {
-        console.log(err)
-        this.isLoading = false
-        this.password = ''
-        this.error = err.message
+        console.log(err);
+        this.isLoading = false;
+        this.password = "";
+        this.error = err.message;
       }
-
     },
     closeDialog() {
-      this._show = false
-      this.password = ''
-      this.error = ''
+      this._show = false;
+      this.password = "";
+      this.error = "";
     },
     /**
-    * registerSpecimen
-    *
-    * @param    {String} labAccount
-    * @param    {String} serviceCode
-    * @returns  {Number} specimenNumber
-    */
+     * registerSpecimen
+     *
+     * @param    {String} labAccount
+     * @param    {String} serviceCode
+     * @returns  {Number} specimenNumber
+     */
     async registerSpecimen(labAccount, serviceCode, userWallet) {
       console.log(userWallet);
       try {
         const abiData = this.degenicsContract.methods
           .registerSpecimen(labAccount, serviceCode, userWallet.publicKey)
-          .encodeABI()
-        await sendTransaction(this.degenicsContract._address, userWallet, abiData)
+          .encodeABI();
+        await sendTransaction(
+          this.degenicsContract._address,
+          userWallet,
+          abiData
+        );
 
         const specimenNumber = await this.degenicsContract.methods
           .getLastNumber()
-          .call({ from: userWallet.getAddressString() })
+          .call({ from: userWallet.getAddressString() });
 
-        return specimenNumber
-
+        return specimenNumber;
       } catch (error) {
-        console.log(error)
-        throw new Error('Error on registering specimen: ' + error.message)
+        console.log(error);
+        throw new Error("Error on registering specimen: " + error.message);
       }
     },
     /**
-    * paySpecimen
-    *
-    * @param {String} specimenNumber
-    * @param {String} price
-    * @param {Wallet} userWallet
-    * @returns {String} txHash
-    */
+     * paySpecimen
+     *
+     * @param {String} specimenNumber
+     * @param {String} price
+     * @param {Wallet} userWallet
+     * @returns {String} txHash
+     */
     async paySpecimen(specimenNumber, price, userWallet) {
-      console.log('Paying for specimen')
+      console.log("Paying for specimen");
       try {
         // Get escrow address
         const escrowAddress = await this.degenicsContract.methods
           .getEscrow(specimenNumber)
-          .call({ from: userWallet.getAddressString() })
+          .call({ from: userWallet.getAddressString() });
 
-        const txReceipt = await sendTransaction(escrowAddress, userWallet, null, price)
+        const txReceipt = await sendTransaction(
+          escrowAddress,
+          userWallet,
+          null,
+          price
+        );
 
-        return txReceipt
-
+        return txReceipt;
       } catch (err) {
-        console.log(err)
-        throw new Error('Error on paying for specimen' + err.message)
+        console.log(err);
+        throw new Error("Error on paying for specimen" + err.message);
       }
     },
     /**
-    * sendSpecimen
-    *
-    * set specimen status to "Sending"
-    *
-    * @param {String} specimenNumber
-    * @param {Wallet} userWallet
-    */
+     * sendSpecimen
+     *
+     * set specimen status to "Sending"
+     *
+     * @param {String} specimenNumber
+     * @param {Wallet} userWallet
+     */
     async sendSpecimen(specimenNumber, userWallet) {
       try {
-        const remark = ''
+        const remark = "";
         const abiData = this.degenicsContract.methods
           .sendSpecimen(specimenNumber, remark)
-          .encodeABI()
-        const res = await sendTransaction(this.degenicsContract._address, userWallet, abiData)
+          .encodeABI();
+        const res = await sendTransaction(
+          this.degenicsContract._address,
+          userWallet,
+          abiData
+        );
 
-        console.log(res)
+        console.log(res);
       } catch (err) {
-        console.log(err)
-        throw new Error('Error on sendSpecimen' + err.message)
+        console.log(err);
+        throw new Error("Error on sendSpecimen" + err.message);
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style>
-
 </style>
 
 
