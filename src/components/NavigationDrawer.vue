@@ -1,3 +1,14 @@
+<style lang="scss">
+.sidebar-text{
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-size: 13pt !important;
+}
+.dg-raleway-font{
+  font-family: 'Raleway', sans-serif;
+}
+</style>
+
 <template>
     <v-navigation-drawer 
       app
@@ -48,14 +59,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-.sidebar-text{
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 13pt !important;
-}
-.dg-raleway-font{
-  font-family: 'Raleway', sans-serif;
-}
-</style>
