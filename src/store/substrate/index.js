@@ -38,9 +38,14 @@ export default {
     SET_LOADING_API(state, isLoading) {
       state.isLoadingApi = isLoading
     },
-
     SET_WALLET(state, wallet) {
       state.wallet = wallet
+    },
+    SET_LAB_ACCOUNT(state, labAccount) {
+      state.labAccount = labAccount
+    },
+    SET_IS_LAB_ACCOUNT_EXIST(state, isLabAccountExist) {
+      state.isLabAccountExist = isLabAccountExist
     },
     SET_LOADING_WALLET(state, isLoadingWallet) {
       state.isLoadingWallet = isLoadingWallet
@@ -93,6 +98,9 @@ export default {
         commit('SET_WALLET_ADDRESS', pair.address)
         commit('SET_WALLET', pair) // FIXME: simpen untuk dev
         commit('SET_LOADING_WALLET', false)
+        
+        commit('SET_LAB_ACCOUNT', pair)
+        commit('SET_IS_LAB_ACCOUNT_EXIST', false)
 
         const seed = mnemonicToMiniSecret(mnemonic)
         const { publicKey, secretKey } = naclKeypairFromSeed(seed)
@@ -116,7 +124,11 @@ export default {
         commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
         commit('SET_WALLET_ADDRESS', pair.address)
         commit('SET_WALLET', pair) // FIXME: simpen untuk dev
-        commit('SET_LOADING_WALLET', false)
+        commit('SET_LOADING_WALLET', false)        
+        
+        commit('SET_LAB_ACCOUNT', pair)
+        commit('SET_IS_LAB_ACCOUNT_EXIST', false)
+
         return { success: true }
       } catch (err) {
         commit('CLEAR_WALLET')
@@ -161,6 +173,12 @@ export default {
   getters: {
     wallet(state) {
       return state.wallet
+    },
+    labAccount(state) {
+      return state.labAccount
+    },
+    isLabAccountExist(state) {
+      return state.isLabAccountExist
     },
     getAPI(state) {
       return state.api

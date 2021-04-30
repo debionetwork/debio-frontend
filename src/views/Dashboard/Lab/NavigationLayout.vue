@@ -30,11 +30,11 @@
 
     <NavigationDrawer width="200" />
 
-    <!-- <v-main class="main">
+    <v-main class="main" v-if="!isLabAccountExist && isLabDashboard">
       <router-view></router-view>
-    </v-main> -->
+    </v-main>
 
-    <v-main class="dg-dashboard-main ml-5">
+    <v-main class="dg-dashboard-main ml-5" v-else>
       <v-container>
         <Breadcrumbs />
         <div class="text-h5 secondary--text text--lighten-2">
@@ -52,6 +52,7 @@ import v from 'voca'
 import UserAccountMenu from '@/components/UserAccountMenu'
 import NavigationDrawer from '@/components/NavigationDrawer'
 import Breadcrumbs from '@/views/Dashboard/Breadcrumbs'
+import { mapState } from 'vuex'
 
 export default {
   name: 'Dashboard',
@@ -61,11 +62,14 @@ export default {
     NavigationDrawer,
   },
   computed: {
+    ...mapState({
+      isLabAccountExist: (state) => state.substrate.isLabAccountExist,
+    }),
     isLab() {
       return this.$route.path.indexOf('lab') > 0
     },
-    isDevEnv() {
-      return process.env.NODE_ENV == 'development'
+    isLabDashboard() {
+      return this.$route.path === "/lab" || this.$route.path === "/lab/"
     },
     pageHeader() {
       return this.$route.meta.pageHeader
@@ -73,8 +77,6 @@ export default {
         : v.titleCase(this.$route.name)
     }
   },
-  methods: {
-  }
 }
 </script>
 
