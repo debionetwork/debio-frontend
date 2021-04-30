@@ -24,7 +24,9 @@
             </div>
           </a>
           <v-spacer></v-spacer>
-          <UserAccountMenu />
+          <HeaderUserInfo />
+          <!-- Menu For Development Purposes -->
+          <MenuChangeRole />
       </div>
     </v-app-bar>
 
@@ -49,17 +51,19 @@
 
 <script>
 import v from 'voca'
-import UserAccountMenu from '@/components/UserAccountMenu'
 import NavigationDrawer from '@/components/NavigationDrawer'
 import Breadcrumbs from '@/views/Dashboard/Breadcrumbs'
 import { mapState } from 'vuex'
+import MenuChangeRole from "@/components/MenuChangeRole"
+import HeaderUserInfo from "@/components/HeaderUserInfo"
 
 export default {
   name: 'Dashboard',
   components: {
-    UserAccountMenu,
     Breadcrumbs,
     NavigationDrawer,
+    MenuChangeRole,
+    HeaderUserInfo
   },
   computed: {
     ...mapState({
