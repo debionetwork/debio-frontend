@@ -114,15 +114,14 @@ const customerRoutes = [{
       meta: {
         pageHeader: 'Checkout',
         breadcrumbs: [
-          { text: 'Home', href: '/customer' },
           { text: 'Request a Test', href: '/customer/request-test' },
           { text: 'Checkout', disabled: true },
         ],
         drawerButtons: [
-          { text: "Dashboard", disabled: false },
-          { text: "Request Test", disabled: true },
-          { text: "Test Result", disabled: true },
-          { text: "Order History", disabled: true },
+          { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
+          { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
+          { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
+          { text: "Order History", disabled: false, route: { name: "order-history" } },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/RequestTestCheckout')
