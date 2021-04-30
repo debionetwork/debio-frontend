@@ -3,7 +3,7 @@
     <v-container>
       <v-row>
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
-          <v-card class="dg-card mb-10" elevation="0" outlined>
+          <!-- <v-card class="dg-card mb-10" elevation="0" outlined>
             <div class="secondary--text mt-5 ml-8"><b>Your Account is not verified</b></div>
             <v-card-text class="px-8">
                 <p class="black--text">
@@ -21,7 +21,7 @@
                     block
                     medium>Verify Account</v-btn>
             </v-card-text>
-          </v-card>
+          </v-card> -->
 
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-text class="px-8 mt-5">
