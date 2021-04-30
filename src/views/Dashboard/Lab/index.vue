@@ -28,7 +28,7 @@
           <MenuCard
               :height="120"
               class="mb-2"
-              icon="mdi-test-tube"
+              icon="mdi-microscope"
               title="Request Test"
               sub-title="Get your DNA samples tested"
               @click="$router.push({ name: 'request-test' })"
