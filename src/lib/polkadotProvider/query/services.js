@@ -1,19 +1,11 @@
-import { Keyring } from '@polkadot/keyring'
-
 export async function queryServicesById(api, serviceId){
     const res = await api.query.services.services(serviceId)
     return res.toHuman()
 }
 
 export async function queryServicesByCountryCity(api, country, city){
-    const keyring = new Keyring()
-    const res = (await api.query.services.servicesByCountryCity(country, city)).value
-
-    let services = []
-    for(let i = 0; i < res.length; i++){
-        services.push(keyring.encodeAddress(res[i], 42))
-    }
-    return services
+    const res = await api.query.services.servicesByCountryCity(country, city)
+    return res.toHuman()
 }
 
 export async function queryServicesCount(api){

@@ -1,10 +1,6 @@
-import { Lab } from '@/lib/polkadotProvider/domain/lab'
-
 export async function queryLabsById(api, labId){
     const res = await api.query.labs.labs(labId)
-    let lab = new Lab()
-    lab.parseMap(res.value)
-    return lab
+    return res.toHuman()
 }
 
 export async function queryLabsByCountryCity(api, country, city){
