@@ -12,7 +12,7 @@
               {{ name }}
             </div>
             <div class="ml-3 light_primary--text" style="font-size: 14px">
-              {{ balance }} DOT
+              {{ balance }}
             </div>
           </div>
         </div>
@@ -69,13 +69,16 @@ export default {
     }),
     async fetchWalletBalance() {
       try {
-        console.log(this.wallet);
         this.isLoading = true;
         const { nonce, data: balance } = await this.api.query.system.account(
           this.wallet.address
         );
 
         this.balance = balance.free.toHuman();
+        if (this.balance == "0"){
+          this.balance = "0 DBIO";
+        } 
+
         this.name = this.wallet.meta.name;
         console.log("nonce", nonce);
         this.setWalletBalance(balance.free.toHuman());

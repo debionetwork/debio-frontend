@@ -2,7 +2,7 @@ import globalFunctions from "@/lib/functions";
 
 const customerRoutes = [{
   path: '/customer',
-  component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer'),
+  component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer'),
   beforeEnter: globalFunctions.checkIsLoggedIn,
   children: [
     {
@@ -17,7 +17,7 @@ const customerRoutes = [{
           { text: "Order History", disabled: false, route: { name: "order-history" } },
         ]
       },
-      component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/Home')
+      component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/Home')
     },
     {
       path: '/customer/order-history',
@@ -31,7 +31,7 @@ const customerRoutes = [{
           { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
         ]
       },
-      component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/OrderHistory.vue')
+      component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/OrderHistory.vue')
     },
     {
       path: '/customer/order-history-detail/:number',
@@ -49,7 +49,7 @@ const customerRoutes = [{
           { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
         ]
       },
-      component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/OrderHistoryDetail')
+      component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/OrderHistoryDetail')
     },
     {
       path: '/customer/order-history-detail/:number/dna-collection-instructions',
@@ -69,7 +69,7 @@ const customerRoutes = [{
           { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
         ]
       },
-      component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/DnaCollectionInstructions.vue')
+      component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/DnaCollectionInstructions.vue')
     },
     {
       path: '/customer/result-test/:number',
@@ -88,7 +88,7 @@ const customerRoutes = [{
           { text: "Order History", disabled: false, route: { name: "order-history" } },
         ]
       },
-      component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/TestResult/result.vue')
+      component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/TestResult/result.vue')
     },
     {
       path: '/customer/request-test',
@@ -106,7 +106,7 @@ const customerRoutes = [{
           { text: "Order History", disabled: false, route: { name: "order-history" } },
         ]
       },
-      component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/RequestTest')
+      component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/RequestTest')
     },
     {
       path: '/customer/request-test/checkout',
@@ -124,7 +124,7 @@ const customerRoutes = [{
           { text: "Order History", disabled: false, route: { name: "order-history" } },
         ]
       },
-      component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/RequestTestCheckout')
+      component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/RequestTestCheckout')
     },
     {
       path: '/customer/request-test/receipt',
@@ -143,7 +143,7 @@ const customerRoutes = [{
           { text: "Order History", disabled: true },
         ]
       },
-      component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/RequestTestReceipt.vue')
+      component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/RequestTestReceipt.vue')
     },
     {
       path: '/customer/result-test-all',
@@ -161,7 +161,7 @@ const customerRoutes = [{
           { text: "Order History", disabled: false, route: { name: "order-history" } },
         ]
       },
-      component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/TestResult')
+      component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/TestResult')
     },
     {
       path: '/customer/genome-files',
@@ -179,7 +179,7 @@ const customerRoutes = [{
           { text: "Order History", disabled: true },
         ]
       },
-      component: () => import(/* webpackChunkName */ '../../../views/Dashboard/Customer/GenomeFiles.vue')
+      component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/GenomeFiles.vue')
     },
   ]
 },
