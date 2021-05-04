@@ -16,7 +16,7 @@
                   {{ lab.info.address }}
                 </div>
                 <div class="text-body-2">
-                  {{ lab.info.city }}, {{ lab.info.country }}
+                  {{ city }}, {{ country }}
                 </div>
               </template>
             </v-card-text>
@@ -112,6 +112,7 @@
 <script>
 import { mapState, mapMutations } from "vuex";
 import SendPaymentDialog from "./SendPaymentDialog";
+import cityData from "@/assets/json/city.json";
 
 export default {
   components: {
@@ -119,6 +120,8 @@ export default {
   },
   data: () => ({
     sendPaymentDialog: false,
+    country: "",
+    city: "",
   }),
   computed: {
     ...mapState({
@@ -133,8 +136,7 @@ export default {
     },
   },
   mounted() {
-    console.log(this.lab);
-    console.log(this.products);
+    this.checkingData();
   },
   methods: {
     ...mapMutations({
@@ -150,6 +152,14 @@ export default {
       this.$router.push({ name: "request-test-receipt", params: { receipts } });
 
       console.log("Receipt in RequestTestCheckout", receipts);
+    },
+    checkingData() {
+      if (this.lab == null){
+        this.$router.push({ name: "request-test" });
+      } else {
+        this.country = cityData[this.lab.info.country].name;
+        this.city = cityData[this.lab.info.country].divisions[this.lab.info.city];
+      }
     },
   },
 };

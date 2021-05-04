@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 import indexRoutes from './routes'
 import authRoutes from './routes/auth'
 import labRoutes from './routes/lab'
-import customerRoutes from './routes/customer'
+import customerRoutes from './routes/customer.js'
 
 Vue.use(VueRouter)
 
