@@ -59,7 +59,7 @@ import {
   ordersByCustomer,
   getOrdersDetail,
 } from "@/lib/polkadotProvider/query/orders";
-import { queryLabsByIdNew } from "@/lib/polkadotProvider/query/labs";
+import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 
 export default {
@@ -105,7 +105,7 @@ export default {
 
           for (let i = 0; i < lengthMax; i++) {
             const detailOrder = await getOrdersDetail(this.api, listOrderId[i]);
-            const detaillab = await queryLabsByIdNew(
+            const detaillab = await queryLabsById(
               this.api,
               detailOrder.seller_id
             );
