@@ -169,7 +169,7 @@ import countryData from "@/assets/json/country.json";
 import cityData from "@/assets/json/city.json";
 import {
   queryLabsByCountryCity,
-  queryLabsByIdNew,
+  queryLabsById,
 } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 
@@ -256,7 +256,7 @@ export default {
       );
       if (listLabID != null) {
         for (let i = 0; i < listLabID.length; i++) {
-          const detaillab = await queryLabsByIdNew(this.api, listLabID[i]);
+          const detaillab = await queryLabsById(this.api, listLabID[i]);
 
           if (detaillab != null) {
             const labName = detaillab.info.name;

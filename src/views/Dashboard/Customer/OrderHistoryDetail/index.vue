@@ -129,7 +129,7 @@ import {
 } from "@/constants/specimen-status";
 //import { LOG_REJECTED, LOG_RECEIVED } from "@/constants/log-type";
 import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
-import { queryLabsByIdNew } from "@/lib/polkadotProvider/query/labs";
+import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 
 export default {
@@ -179,7 +179,7 @@ export default {
     async fetchOrderDetails() {
       const orderId = this.$route.params.number;
       this.order = await getOrdersDetail(this.api, orderId);
-      this.lab = await queryLabsByIdNew(this.api, this.order.seller_id);
+      this.lab = await queryLabsById(this.api, this.order.seller_id);
       this.service = await queryServicesById(this.api, this.order.service_id);
 
       console.log(this.order);
