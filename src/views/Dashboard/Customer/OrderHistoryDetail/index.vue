@@ -59,7 +59,7 @@
                     <span class="text-h6">
                       {{ service.info.price }}
                     </span>
-                    <span class="primary--text text-caption"> DOT </span>
+                    <span class="primary--text text-caption"> DBIO </span>
                   </div>
                 </div>
                 <div>
