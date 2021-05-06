@@ -12,9 +12,9 @@ export async function updateService(api, pair, data){
     return result.toHuman()
 }
 
-export async function deleteService(api, pair, data){
+export async function deleteService(api, pair, serviceId){
     const result = await api.tx.services
-        .deleteService(data)
+        .deleteService(serviceId)
         .signAndSend(pair)
     return result.toHuman()
 }
