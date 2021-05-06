@@ -18,9 +18,7 @@
           <div v-if="lab.info.address" class="text-body-2">
             {{ lab.info.address }}
           </div>
-          <div class="text-body-2">
-            {{ lab.info.city }}, {{ lab.info.country }}
-          </div>
+          <div class="text-body-2">{{ city }}, {{ country }}</div>
         </div>
 
         <!-- Payment Details -->
@@ -34,7 +32,7 @@
               <span class="text-h6">
                 {{ totalPrice }}
               </span>
-              <span class="primary--text text-caption"> DOT </span>
+              <span class="primary--text text-caption"> DBIO </span>
             </div>
           </div>
           <!-- <div class="d-flex align-center justify-space-between">
@@ -91,10 +89,10 @@
 
 <script>
 /* eslint-disable */
-import Wallet from "@/lib/dgnx-wallet";
-import { mapState } from "vuex";
-import sendTransaction from "@/lib/send-transaction";
-import localStorage from "@/lib/local-storage";
+import { mapState, mapActions } from "vuex";
+import cityData from "@/assets/json/city.json";
+import { createOrder } from "@/lib/polkadotProvider/command/orders";
+//import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
 
 export default {
   name: "SendPaymentDialog",
@@ -109,6 +107,9 @@ export default {
     isLoading: false,
     transactionFee: "TODO",
     error: "",
+    country: "",
+    city: "",
+    receipts: [],
   }),
   computed: {
     _show: {
@@ -120,58 +121,66 @@ export default {
       },
     },
     ...mapState({
-      web3: (state) => state.ethereum.web3,
-      degenicsContract: (state) => state.ethereum.contracts.contractDegenics,
+      api: (state) => state.substrate.api,
+      wallet: (state) => state.substrate.wallet,
     }),
   },
+  mounted() {
+    if (this.lab != null) {
+      console.log(this.products);
+      this.country = cityData[this.lab.info.country].name;
+      this.city = cityData[this.lab.info.country].divisions[this.lab.info.city];
+    }
+  },
+  watch: {
+    receipts() {
+      if (this.products.length == this.receipts.length) {
+        console.log("masuk");
+        this.isLoading = false;
+        this.password = "";
+        this.$emit("payment-sent", this.receipts);
+      }
+    },
+  },
   methods: {
+    ...mapActions({
+      restoreAccountKeystore: "substrate/restoreAccountKeystore",
+    }),
     async onSubmit() {
       this.isLoading = true;
       this.error = "";
-
       try {
-        // registerSpecimen params
-        const labAccount = this.lab.labAccount;
-        const specimensToProcess = this.products.map((p) => ({
-          labAccount,
-          serviceCode: p.code,
-          price: p.price,
-          productDetail: p,
-        }));
-
-        // Retrieve wallet
-        const keystore = localStorage.getKeystore();
-        const wallet = await Wallet.decrypt(keystore, this.password);
-
-        const receipts = [];
-        for (let specimen of specimensToProcess) {
-          const { labAccount, serviceCode, price, productDetail } = specimen;
-
-          const specimenNumber = await this.registerSpecimen(
-            labAccount,
-            serviceCode,
-            wallet
-          );
-          const txReceipt = await this.paySpecimen(
-            specimenNumber,
-            price,
-            wallet
-          );
-
-          // FIXME: set specimen status to Sending here, for current prototype
-          await this.sendSpecimen(specimenNumber, wallet);
-
-          receipts.push({
-            txReceipt,
-            specimenNumber,
-            productDetail,
-            lab: this.lab,
-          });
+        this.wallet.decodePkcs8(this.password);
+        for (let i = 0; i < this.products.length; i++) {
+          const productDetail = this.products[i];
+          await this.api.tx.orders
+            .createOrder(this.products[i].accountId)
+            .signAndSend(this.wallet, ({ events = [], status }) => {
+              if (status.isFinalized) {
+                // Loop through Vec<EventRecord> to display all events
+                events.forEach(
+                  ({ phase, event: { data, method, section } }) => {
+                    console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
+                    if (section == "orders") {
+                      if (method == "OrderCreated") {
+                        const result = JSON.parse(data.toString());
+                        console.log(result);
+                        const specimenNumber = result[0].dna_sample_tracking_id;
+                        const dataOrder = result[0];
+                        this.receipts.push({
+                          dataOrder,
+                          specimenNumber,
+                          productDetail,
+                          lab: this.lab,
+                        });
+                      }
+                    }
+                  }
+                );
+                process.exit(0);
+              }
+            });
         }
-
-        this.isLoading = false;
-        this.password = "";
-        this.$emit("payment-sent", receipts);
       } catch (err) {
         console.log(err);
         this.isLoading = false;
@@ -183,90 +192,6 @@ export default {
       this._show = false;
       this.password = "";
       this.error = "";
-    },
-    /**
-     * registerSpecimen
-     *
-     * @param    {String} labAccount
-     * @param    {String} serviceCode
-     * @returns  {Number} specimenNumber
-     */
-    async registerSpecimen(labAccount, serviceCode, userWallet) {
-      console.log(userWallet);
-      try {
-        const abiData = this.degenicsContract.methods
-          .registerSpecimen(labAccount, serviceCode, userWallet.publicKey)
-          .encodeABI();
-        await sendTransaction(
-          this.degenicsContract._address,
-          userWallet,
-          abiData
-        );
-
-        const specimenNumber = await this.degenicsContract.methods
-          .getLastNumber()
-          .call({ from: userWallet.getAddressString() });
-
-        return specimenNumber;
-      } catch (error) {
-        console.log(error);
-        throw new Error("Error on registering specimen: " + error.message);
-      }
-    },
-    /**
-     * paySpecimen
-     *
-     * @param {String} specimenNumber
-     * @param {String} price
-     * @param {Wallet} userWallet
-     * @returns {String} txHash
-     */
-    async paySpecimen(specimenNumber, price, userWallet) {
-      console.log("Paying for specimen");
-      try {
-        // Get escrow address
-        const escrowAddress = await this.degenicsContract.methods
-          .getEscrow(specimenNumber)
-          .call({ from: userWallet.getAddressString() });
-
-        const txReceipt = await sendTransaction(
-          escrowAddress,
-          userWallet,
-          null,
-          price
-        );
-
-        return txReceipt;
-      } catch (err) {
-        console.log(err);
-        throw new Error("Error on paying for specimen" + err.message);
-      }
-    },
-    /**
-     * sendSpecimen
-     *
-     * set specimen status to "Sending"
-     *
-     * @param {String} specimenNumber
-     * @param {Wallet} userWallet
-     */
-    async sendSpecimen(specimenNumber, userWallet) {
-      try {
-        const remark = "";
-        const abiData = this.degenicsContract.methods
-          .sendSpecimen(specimenNumber, remark)
-          .encodeABI();
-        const res = await sendTransaction(
-          this.degenicsContract._address,
-          userWallet,
-          abiData
-        );
-
-        console.log(res);
-      } catch (err) {
-        console.log(err);
-        throw new Error("Error on sendSpecimen" + err.message);
-      }
     },
   },
 };

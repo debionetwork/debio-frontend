@@ -20,12 +20,23 @@
 
               <v-select
                 dense
+                :items="regions"
+                item-text="1"
+                item-value="0"
+                @change="onRegionChange"
+                label="Select Region"
+                :disabled="!country"
+                outlined
+              ></v-select>
+
+              <v-select
+                dense
                 :items="cities"
                 item-text="1"
                 item-value="0"
                 @change="onCityChange"
                 label="Select City"
-                :disabled="!country"
+                :disabled="!region"
                 outlined
               ></v-select>
 
@@ -134,7 +145,7 @@
                 <span class="text-h6">
                   {{ product.price }}
                 </span>
-                <span class="primary--text text-caption"> DOT </span>
+                <span class="primary--text text-caption"> DBIO </span>
               </template>
             </SelectableMenuCard>
           </v-col>
@@ -168,7 +179,7 @@ import DnaCollectionRequirements from "./DnaCollectionRequirements";
 import countryData from "@/assets/json/country.json";
 import cityData from "@/assets/json/city.json";
 import {
-  queryLabsByCountryCity,
+  queryLabsByCountryRegionCity,
   queryLabsById,
 } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
@@ -217,11 +228,13 @@ export default {
   data: () => ({
     country: "",
     city: "",
+    region: "",
     labAccount: "",
     selectedProducts: [],
     isLoadingProducts: false,
     countries: [],
     cities: [],
+    regions: [],
     labs: [],
     products: [],
   }),
@@ -235,6 +248,10 @@ export default {
     },
     onCountryChange(selectedCountry) {
       this.country = selectedCountry;
+      this.regions = Object.entries(cityData[this.country].divisions);
+    },
+    onRegionChange(selectedRegion) {
+      this.region = selectedRegion;
       this.cities = Object.entries(cityData[this.country].divisions);
     },
     onCityChange(selectedCity) {
@@ -245,13 +262,10 @@ export default {
       if (!this.cities) {
         return;
       }
-      //"Indonesia",
-      //"Jakarta"
-      // this.country,
-      //   this.city
-      const listLabID = await queryLabsByCountryCity(
+      
+      const listLabID = await queryLabsByCountryRegionCity(
         this.api,
-        this.country,
+        this.country+"-"+this.region,
         this.city
       );
       if (listLabID != null) {

@@ -131,7 +131,7 @@ export default {
 
         return { success: true }
       } catch (err) {
-        commit('CLEAR_WALLET')
+        //commit('CLEAR_WALLET')
         commit('SET_LOADING_WALLET', false)
         return { success: false, error: err.message }
       }

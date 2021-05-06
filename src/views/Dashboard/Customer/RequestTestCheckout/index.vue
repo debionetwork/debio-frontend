@@ -61,7 +61,7 @@
                   <span class="text-h6">
                     {{ product.price }}
                   </span>
-                  <span class="primary--text text-caption"> DOT </span>
+                  <span class="primary--text text-caption"> DBIO </span>
                 </div>
               </div>
             </v-card-text>
@@ -79,7 +79,7 @@
                   <span class="text-h6">
                     {{ totalPrice }}
                   </span>
-                  <span class="primary--text text-caption"> DOT </span>
+                  <span class="primary--text text-caption"> DBIO </span>
                 </div>
               </div>
             </v-card-text>
