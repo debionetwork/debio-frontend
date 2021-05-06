@@ -3,6 +3,15 @@ export async function queryServicesById(api, serviceId){
     return res.toHuman()
 }
 
+export async function queryServicesInfoIdList(api, serviceIdList){
+    let servicesData = []
+    for(let i=0; i<serviceIdList.length; i++){
+        let res = await queryServicesById(api, serviceIdList[i])
+        servicesData.push(res.info)
+    }
+    return servicesData
+}
+
 export async function queryServicesCount(api){
     return await api.query.services.servicesCount()
 }

@@ -99,7 +99,7 @@ export default {
         commit('SET_WALLET', pair) // FIXME: simpen untuk dev
         commit('SET_LOADING_WALLET', false)
         
-        commit('SET_LAB_ACCOUNT', pair)
+        commit('SET_LAB_ACCOUNT', null)
         commit('SET_IS_LAB_ACCOUNT_EXIST', false)
 
         const seed = mnemonicToMiniSecret(mnemonic)
