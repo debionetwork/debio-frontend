@@ -3,8 +3,8 @@ export async function queryLabsById(api, labId){
     return res.toHuman()
 }
 
-export async function queryLabsByCountryCity(api, country, city){
-    const res = await api.query.labs.labsByCountryCity(country, city)
+export async function queryLabsByCountryRegionCity(api, countryRegion, city){
+    const res = await api.query.labs.labsByCountryRegionCity(countryRegion, city)
     return res.toHuman()
 }
 
@@ -12,8 +12,8 @@ export async function queryLabCount(api){
     return await api.query.labs.labCount()
 }
 
-export async function queryLabsCountByCoutryCity(api, country, city){
-    const res = await api.query.labs.labCountByCountryCity(country, city)
+export async function queryLabsCountByCountryRegionCity(api, countryRegion, city){
+    const res = await api.query.labs.labCountByCountryRegionCity(countryRegion, city)
     return res.toHuman()
 }
 

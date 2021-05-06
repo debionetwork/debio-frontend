@@ -12,9 +12,9 @@ export async function updateLab(api, pair, data){
     return result.toHuman()
 }
 
-export async function deregisterLab(api, pair, data){
+export async function deregisterLab(api, pair){
     const result = await api.tx.labs
-        .deregisterLab(data)
+        .deregisterLab()
         .signAndSend(pair)
     return result.toHuman()
 }
