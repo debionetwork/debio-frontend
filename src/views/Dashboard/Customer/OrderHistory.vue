@@ -203,7 +203,6 @@ export default {
   },
   async mounted() {
     this.address = this.wallet.address;
-    //this.address = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
   },
   methods: {
     async getOrderHistory() {
@@ -214,9 +213,8 @@ export default {
 
         var lengthMax = 3;
         if (listOrderId != null) {
-          if (listOrderId.length < lengthMax) {
-            lengthMax = listOrderId.length;
-          }
+          listOrderId.reverse();
+          lengthMax = listOrderId.length;
 
           for (let i = 0; i < lengthMax; i++) {
             const detailOrder = await getOrdersDetail(this.api, listOrderId[i]);
@@ -251,7 +249,9 @@ export default {
       }
 
       const number = detailOrder.id;
-      const timestamp = (detailOrder.created_at.replace(/,/g, "") / 1000).toString();
+      const timestamp = (
+        detailOrder.created_at.replace(/,/g, "") / 1000
+      ).toString();
       const status = detailOrder.status;
       const dna_sample_tracking_id = detailOrder.dna_sample_tracking_id;
 
