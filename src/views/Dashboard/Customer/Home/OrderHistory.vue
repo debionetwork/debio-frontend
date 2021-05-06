@@ -90,7 +90,6 @@ export default {
       this.isLoadingOrderHistory = true;
       try {
         this.orderHistory = [];
-        //const address = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
         const address = this.wallet.address;
         const listOrderId = await ordersByCustomer(
           this.api,
@@ -99,6 +98,7 @@ export default {
 
         var lengthMax = 3;
         if (listOrderId != null) {
+          listOrderId.reverse();
           if (listOrderId.length < lengthMax) {
             lengthMax = listOrderId.length;
           }
