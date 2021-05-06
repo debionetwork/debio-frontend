@@ -1,4 +1,3 @@
-// next
 <template>
   <div>
     <v-container>
@@ -14,36 +13,27 @@
           </v-alert>
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-title class="px-8">
-              <div class="text-h6">
-                Order Receipt
-              </div>
+              <div class="text-h6">Order Receipt</div>
             </v-card-title>
             <v-card-text class="px-8">
-              <div class="text-h5">
-                Lab Details
-              </div>
+              <div class="text-h5">Lab Details</div>
               <div v-if="lab">
                 <div class="text-subtitle-1">
-                  <b>{{ lab.name }}</b>
+                  <b>{{ lab.info.name }}</b>
                 </div>
                 <div class="text-body-2">
-                  {{ lab.address }}
+                  {{ lab.info.address }}
                 </div>
-                <div class="text-body-2">
-                  {{ lab.city }}, {{ lab.country }}
-                </div>
+                <div class="text-body-2">{{ city }}, {{ country }}</div>
                 <!-- <div v-if="lab.phone" class="text-body-2"> -->
-                  <!-- Phone: {{ lab.phone }} -->
+                <!-- Phone: {{ lab.phone }} -->
                 <!-- </div> -->
               </div>
-              <div class="my-8">
-              </div>
-              <div class="text-h5">
-                Product Details
-              </div>
+              <div class="my-8"></div>
+              <div class="text-h5">Product Details</div>
               <div
-                v-for="(receipt) in receipts"
-                :key="receipt.txReceipt.transactionHash"
+                v-for="receipt in receipts"
+                :key="receipt.productDetail.accountId"
               >
                 <div class="d-flex align-center fill-height mb-2">
                   <div class="my-3 ml-0">
@@ -52,7 +42,7 @@
                       color="#BA8DBB"
                       :size="48"
                     >
-                    {{ receipt.productDetail.icon }}
+                      {{ receipt.productDetail.icon }}
                     </v-icon>
                     <v-avatar v-else>
                       <img src="@/assets/degenics-logo.png" />
@@ -63,7 +53,7 @@
                       <b>{{ receipt.productDetail.serviceName }}</b>
                     </div>
                     <div class="text-caption grey--text text--darken-1">
-                      {{ receipt.productDetail.description }}
+                      {{ receipt.productDetail.serviceData.info.description }}
                     </div>
                   </div>
                   <v-spacer></v-spacer>
@@ -71,22 +61,19 @@
                     <span class="text-h6">
                       {{ receipt.productDetail.price }}
                     </span>
-                    <span class="primary--text text-caption">
-                      Wei
-                    </span>
+                    <span class="primary--text text-caption"> DBIO </span>
                   </div>
                 </div>
-                <div :key="receipt.txReceipt.transactionHash">
-                  <div> <b>Tx Hash:</b> </div>
+                <div :key="receipt.dataOrder.id">
+                  <div><b>Order ID:</b></div>
                   <div class="grey--text text--darken-1">
-                     {{ receipt.txReceipt.transactionHash }}
+                    {{ receipt.dataOrder.id }}
                   </div>
                   <div><b>Specimen Number:</b></div>
                   <div class="grey--text text--darken-1">
-                     {{ receipt.specimenNumber | specimenNumber }}
+                    {{ receipt.specimenNumber | specimenNumber }}
                   </div>
                 </div>
-
               </div>
             </v-card-text>
           </v-card>
@@ -108,7 +95,7 @@
           <DNASampleSendingInstructions
             v-if="receipts.length > 0"
             :specimenNumber="specimenNumber"
-            :lab=receipts[0].lab
+            :lab="receipts[0].lab"
           >
             <template v-slot:button>
               <v-btn
@@ -129,44 +116,50 @@
 </template>
 
 <script>
-import DNASampleSendingInstructions from '@/components/DNASampleSendingInstructions'
+import DNASampleSendingInstructions from "@/components/DNASampleSendingInstructions";
+import cityData from "@/assets/json/city.json";
 
 export default {
-  name: 'RequestTestSuccess',
+  name: "RequestTestSuccess",
   components: {
-    DNASampleSendingInstructions
+    DNASampleSendingInstructions,
   },
   data: () => ({
     receipts: [],
+    country: "",
+    city: "",
   }),
   computed: {
     specimenNumber() {
-      const { receipts } = this.$router.history.current.params
-      return receipts[0].specimenNumber
+      const { receipts } = this.$router.history.current.params;
+      return receipts[0].specimenNumber;
     },
     lab() {
-      const { receipts } = this.$router.history.current.params
-      return receipts[0].lab
-    }
+      const { receipts } = this.$router.history.current.params;
+      return receipts[0].lab;
+    },
   },
   mounted() {
-    const { receipts } = this.$router.history.current.params
+    const { receipts } = this.$router.history.current.params;
     if (!receipts) {
-      this.$router.push('/')
+      this.goToHome();
     }
-    this.receipts = receipts
+    this.receipts = receipts;
+    if (this.lab != null) {
+      this.country = cityData[this.lab.info.country].name;
+      this.city = cityData[this.lab.info.country].divisions[this.lab.info.city];
+    }
   },
   methods: {
     isValidIcon(icon) {
-      return icon && (icon.startsWith('mdi') || icon.startsWith('$'))
+      return icon && (icon.startsWith("mdi") || icon.startsWith("$"));
     },
     goToHome() {
-      this.$router.push('/')
-    }
-  }
-}
+      this.$router.push({ name: "customer-home" });
+    },
+  },
+};
 </script>
 
 <style>
-
 </style>
