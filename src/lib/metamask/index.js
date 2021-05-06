@@ -17,7 +17,7 @@ export async function handleChainChanged(newChainId){
 export async function connectToMetamask() {
     try{
         let accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
-        let currentAccount = handleAccountsChanged(accounts, null)
+        let currentAccount = await handleAccountsChanged(accounts, null)
 
         window.ethereum.on('accountsChanged', (accounts) => {
             handleAccountsChanged(accounts, null)
