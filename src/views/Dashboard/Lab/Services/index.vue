@@ -35,16 +35,6 @@
                         @input="onSearchInput"
                      ></SearchBar>
                   </template>
-                  <template v-slot:[`item.number`]="{ item }">
-                    {{ item.number | specimenNumber }}
-                  </template>
-                  <template v-slot:[`item.timestamp`]="{ item }">
-                    {{ item.timestamp | timestampToDate }}
-                  </template>
-                  <template v-slot:[`item.status`]="{ item }">
-                    {{ item.status | customerSpecimenStatus }}
-                  </template>
-
                   <template v-slot:[`item.actions`]="{ item }">
                      <v-container
                      >
@@ -70,6 +60,9 @@
 <script>
 import DataTable from '@/components/DataTable'
 import SearchBar from '@/components/DataTable/SearchBar'
+import { queryServicesInfoIdList } from '@/lib/polkadotProvider/query/services'
+import { queryLabsById } from '@/lib/polkadotProvider/query/labs'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'LabServices',
@@ -80,15 +73,33 @@ export default {
   data: () => ({
     headers: [
         { text: 'Image', value: 'image' },
-        { text: 'Name', value: 'service' },
+        { text: 'Name', value: 'name' },
         { text: 'Description', value: 'description' },
         { text: 'Price', value: 'price' },
         { text: 'Action', value: 'actions', sortable: false, align: 'center', width: '10%' },
     ],
-    services: [],
+    services: [{
+       name: 'name',
+       image: 'image',
+       description: 'description',
+       price: 'price',
+       action: 'action'
+    }],
     search: '',
     isLoading: false,
   }),
+  async mounted(){
+     console.log(this.api)
+     console.log(this.pair)
+     let labData = await queryLabsById(this.api, this.pair.address)
+     this.services = await queryServicesInfoIdList(this.api, labData.services)
+  },
+  computed:{
+    ...mapGetters({
+      api: 'substrate/getAPI',
+      pair: 'substrate/wallet',
+    }),
+  }
 }
 
 
