@@ -1,12 +1,14 @@
+import Web3 from 'web3'
+import abi from './usdt/abi.json'
+import { usdtAddress } from './usdt'
+
 export async function getBalance(address) {
-    let balance = await window.ethereum.request({ 
-        method: 'eth_getBalance',
-        params: [
-            address,
-            'latest'
-        ]
-    })
-    return parseInt(balance, 16) 
+  const web3 = new Web3('https://mainnet.infura.io/v3/undefined')
+  const tokenContract = new web3.eth.Contract(abi, usdtAddress())
+  const balance = await tokenContract.methods
+    .balanceOf(address)
+    .call()
+  return balance
 }
 
 export async function changeChain(){
@@ -14,32 +16,20 @@ export async function changeChain(){
       method: 'wallet_addEthereumChain',
       params: [
         {
-          chainId: '0x97',
-          chainName: 'Smart Chain Testnet',
-          nativeCurrency:
-          {
-            name: 'BNB',
-            symbol: 'BNB',
-            decimals: 18
-          },
-          rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
-          blockExplorerUrls: ['https://testnet.bscscan.com'],
+            chainId: '0x3',
+            chainName: 'Ethereum Testnet',
+            nativeCurrency: {
+            name: 'Ethereum',
+            symbol: 'ETH',
+            decimals: 18,
+            },
+            rpcUrls: [
+                'https://ropsten.infura.io/v3/undefined'
+            ],
+            blockExplorerUrls: [
+                'https://ropsten.etherscan.io'
+            ],
         }
-        // {
-        //     chainId: '0x3',
-        //     chainName: 'Ethereum Testnet',
-        //     nativeCurrency: {
-        //     name: 'Ethereum',
-        //     symbol: 'ETH',
-        //     decimals: 18,
-        //     },
-        //     rpcUrls: [
-        //         'https://ropsten.infura.io/v3/undefined'
-        //     ],
-        //     blockExplorerUrls: [
-        //         'https://ropsten.etherscan.io'
-        //     ],
-        // }
       ],
     });
 }
