@@ -1,45 +1,87 @@
+import abi from './usdt/abi.json'
+import { usdtAddress } from './usdt'
+import store from '../../store'
+
 export async function getBalance(address) {
-    let balance = await window.ethereum.request({ 
-        method: 'eth_getBalance',
-        params: [
-            address,
-            'latest'
-        ]
-    })
-    return parseInt(balance, 16) 
+  const web3 = store.getters['ethereum/getWeb3']
+  const tokenContract = new web3.eth.Contract(abi, usdtAddress())
+  const balance = await tokenContract.methods
+    .balanceOf(address)
+    .call()
+  return balance
 }
+
+export function sendTransaction(from, to, value) {
+  const web3 = store.getters['ethereum/getWeb3']
+  const tokenContract = new web3.eth.Contract(abi, usdtAddress())
+  return await tokenContract.methods.sendTransaction({
+    from: from,
+    to: to,
+    value: value
+  })
+}
+
+/**
+ * sendTransaction
+ *
+ * @param {String} contractAddress -> the contractAddress to send transaction to
+ * @param {Wallet} senderAddress -> the transaction sender's ethereum-js Wallet object
+ * @param {String} data -> The encoded ABI byte code to send via a transaction or call.
+ *                          Example: myContract.methods.myMethod(123).encodeABI();
+ * @param {String} value -> amount of ether to transfer
+ * */
+//  async function sendTransaction(contractAddress, senderWallet, data, value) {
+//   const web3 = store.getters['ethereum/getWeb3']
+
+//   let nonce = await web3.eth.getTransactionCount(senderWallet.getAddressString())
+
+//   // Create transaction
+//   const rawTx = {
+//     nonce: web3.utils.toHex(nonce),
+//     gasLimit: web3.utils.toHex(appConfig.getGasLimit()),
+//     gasPrice: web3.utils.toHex(appConfig.getGasPrice()),
+//     from: senderWallet.getAddressString(),
+//     to: contractAddress,
+//     data
+//   }
+
+//   if (value) {
+//     rawTx.value = web3.utils.toHex(value)
+//   }
+//   const tx = new Transaction(rawTx)
+
+//   // Sign transaction
+//   const privateKeyBuffer = EthUtil.toBuffer(senderWallet.getPrivateKeyString())
+//   tx.sign(privateKeyBuffer)
+
+//   // Serialize transaction
+//   const serializedTx = tx.serialize().toString('hex')
+
+//   // Send transaction
+//   const txReceipt = await web3.eth.sendSignedTransaction('0x' + serializedTx)
+
+//   return txReceipt
+// }
 
 export async function changeChain(){
     await window.ethereum.request({
       method: 'wallet_addEthereumChain',
       params: [
         {
-          chainId: '0x97',
-          chainName: 'Smart Chain Testnet',
-          nativeCurrency:
-          {
-            name: 'BNB',
-            symbol: 'BNB',
-            decimals: 18
-          },
-          rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
-          blockExplorerUrls: ['https://testnet.bscscan.com'],
+            chainId: '0x3',
+            chainName: 'Ethereum Testnet',
+            nativeCurrency: {
+            name: 'Ethereum',
+            symbol: 'ETH',
+            decimals: 18,
+            },
+            rpcUrls: [
+                'https://ropsten.infura.io/v3/undefined'
+            ],
+            blockExplorerUrls: [
+                'https://ropsten.etherscan.io'
+            ],
         }
-        // {
-        //     chainId: '0x3',
-        //     chainName: 'Ethereum Testnet',
-        //     nativeCurrency: {
-        //     name: 'Ethereum',
-        //     symbol: 'ETH',
-        //     decimals: 18,
-        //     },
-        //     rpcUrls: [
-        //         'https://ropsten.infura.io/v3/undefined'
-        //     ],
-        //     blockExplorerUrls: [
-        //         'https://ropsten.etherscan.io'
-        //     ],
-        // }
       ],
     });
 }
