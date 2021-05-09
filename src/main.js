@@ -10,13 +10,13 @@ import { format, fromUnixTime } from 'date-fns'
 
 Vue.config.productionTip = false
 
-Vue.filter('customerSpecimenStatus', function(val) {
+Vue.filter('customerSpecimenStatus', function (val) {
   return val == 'Received' ? 'Received by Lab' : val
 })
-Vue.filter('specimenNumber', function(val) {
+Vue.filter('specimenNumber', function (val) {
   return fmtSpecimenNumber(val)
 })
-Vue.filter('timestampToDate', function(val) {
+Vue.filter('timestampToDate', function (val) {
   try {
     return format(fromUnixTime(val), 'MMMM dd yyyy')
   } catch (err) {
@@ -24,7 +24,7 @@ Vue.filter('timestampToDate', function(val) {
     return ''
   }
 })
-Vue.filter('timestampToDateTime', function(val) {
+Vue.filter('timestampToDateTime', function (val) {
   try {
     return format(fromUnixTime(val), 'MMMM dd yyyy hh:mm')
   } catch (err) {
@@ -49,9 +49,24 @@ async function setupAppDependencies() {
 }
 */
 
-new Vue({
-  vuetify,
-  router,
-  store,
-  render: h => h(App)
-}).$mount('#app')
+async function setupAppDependencies() {
+  const DEFAULT_RPC_URL = 'http://testnet.theapps.dev:8545'
+  //let rpcUrl = localStorage.getRpcUrl() || DEFAULT_RPC_URL
+  await store.dispatch('metamask/initWeb3', DEFAULT_RPC_URL)
+  store.dispatch('metamask/contracts/initContracts')
+  return
+}
+
+
+
+setupAppDependencies()
+  .then(() => {
+
+    new Vue({
+      vuetify,
+      router,
+      store,
+      render: h => h(App)
+    }).$mount('#app')
+
+  })

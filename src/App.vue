@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 
 export default {
   name: "App",
@@ -15,14 +15,19 @@ export default {
     ...mapState({
       substrateApi: (state) => state.substrate.api,
       isLoadingSubstrateApi: (state) => state.substrate.isLoadingApi,
+      web3: (state) => state.metamask.web3,
     }),
   },
   data: () => ({
     address: "",
   }),
-  mounted() {
+  async mounted() {
   },
   methods: {
+    ...mapActions({
+      initWeb3: "metamask/initWeb3",
+      initContracts: "metamask/contracts/initContracts",
+    }),
   },
 };
 </script>

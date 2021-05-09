@@ -1,0 +1,44 @@
+{
+  "Escrow20": {
+    "name": "Escrow20",
+    "address": "0x8858E40ab8eFd7694610b0B65bA3BAe3AdaCAB06",
+    "updated": true,
+    "lastUpdate": "2021-02-10T07:25:08.487Z"
+  },
+  "Escrow20Basic": {
+    "name": "Escrow20Basic",
+    "address": "0x8858E40ab8eFd7694610b0B65bA3BAe3AdaCAB06",
+    "updated": true,
+    "lastUpdate": "2021-02-10T07:25:08.487Z"
+  },
+  "SingleEscrow": {
+    "name": "SingleEscrow",
+    "address": "0x8858E40ab8eFd7694610b0B65bA3BAe3AdaCAB06",
+    "updated": true,
+    "lastUpdate": "2021-02-10T07:25:08.487Z"
+  },
+  "EscrowFactory": {
+    "name": "EscrowFactory",
+    "address": "0x3C755c4aD3efE570CdaF34F7DCC19A2C1363B059",
+    "updated": true,
+    "lastUpdate": "2021-02-10T07:25:08.487Z"
+  },
+  "ERC20Interface": {
+    "name": "ERC20Interface",
+    "address": "0x8858E40ab8eFd7694610b0B65bA3BAe3AdaCAB06",
+    "updated": true,
+    "lastUpdate": "2021-02-10T07:25:08.487Z"
+  },
+  "SimpleEscrow": {
+    "name": "SimpleEscrow",
+    "address": "0x8858E40ab8eFd7694610b0B65bA3BAe3AdaCAB06",
+    "updated": true,
+    "lastUpdate": "2021-02-10T07:25:08.487Z"
+  },
+  "USDTTokenAddress": {
+    "name": "USDTTokenAddress",
+    "address": "0xaf622dd428F0e35f6CC48A0756A93E32441060a8",
+    "updated": true,
+    "lastUpdate": "2021-02-10T07:25:08.487Z"
+  }
+}
