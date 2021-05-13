@@ -18,7 +18,7 @@ export async function connectToMetamask() {
     try{
         let accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
         let currentAccount = await handleAccountsChanged(accounts, null)
-
+       
         window.ethereum.on('accountsChanged', (accounts) => {
             handleAccountsChanged(accounts, null)
         })

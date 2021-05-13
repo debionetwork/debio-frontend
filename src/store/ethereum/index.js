@@ -2,7 +2,7 @@ import Web3 from 'web3'
 import localStorage from '../../lib/local-storage'
 import contracts from './contracts'
 import Wallet from '../../lib/dgnx-wallet'
-import getWalletBalance from '../../lib/get-wallet-balance'
+// import getWalletBalance from '../../lib/get-wallet-balance'
 import { getEthFromFaucet } from '../../lib/faucet'
 
 const defaultState = {
@@ -142,8 +142,9 @@ export default {
         throw new Error(err)
       }
     },
-    async generateWalletFromPrivateKey({ commit, state }, { privateKey, password }) {
+    async generateWalletFromPrivateKey({ commit }, { privateKey, password }) {
       try {
+        // state
         commit('SET_LOADING_WALLET', true)
         commit('CLEAR_WALLET')
 
@@ -157,7 +158,7 @@ export default {
         // FIXME: For hackathon
         await getEthFromFaucet(wallet.address)
 
-        wallet.balance = await getWalletBalance(state.web3, wallet.address)
+        // wallet.balance = await getWalletBalance(state.web3, wallet.address)
 
         commit('SET_WALLET_PUBLIC_KEY', wallet.getPublicKeyString())
         commit('SET_WALLET_ADDRESS', wallet.getAddressString())

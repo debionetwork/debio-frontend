@@ -91,8 +91,12 @@
 /* eslint-disable */
 import { mapState, mapActions } from "vuex";
 import cityData from "@/assets/json/city.json";
-//import { createOrder } from "@/lib/polkadotProvider/command/orders";
-//import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
+import { startApp } from "@/lib/metamask";
+import {
+  getBalance,
+  transfer,
+  addTokenUsdt,
+} from "@/lib/metamask/wallet.js";
 
 export default {
   name: "SendPaymentDialog",
@@ -110,6 +114,7 @@ export default {
     country: "",
     city: "",
     receipts: [],
+    metamaskStatus: false,
   }),
   computed: {
     _show: {
@@ -146,11 +151,23 @@ export default {
     ...mapActions({
       restoreAccountKeystore: "substrate/restoreAccountKeystore",
     }),
+    async openMetamask() {
+      await startApp();
+      // let balance = await getBalance();
+      // console.log(balance);
+      //addTokenUsdt();
+      let txreceipts = await transfer({
+        seller: "0xfab109b490F8FedAD00625E8E055DB1d2FF325d4",
+        amount: this.totalPrice,
+      });
+      console.log(txreceipts);
+    },
     async onSubmit() {
       this.isLoading = true;
       this.error = "";
       try {
         this.wallet.decodePkcs8(this.password);
+        this.openMetamask();
         for (let i = 0; i < this.products.length; i++) {
           const productDetail = this.products[i];
           await this.api.tx.orders
