@@ -186,6 +186,25 @@ const labRoutes = [
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/OrderHistory')
             },
             {
+              path: '/lab/orders/process',
+              name: 'lab-dashboard-process-order',
+              meta: {
+                pageHeader: 'Process Order',
+                breadcrumbs: [
+                  { text: 'Lab', href: '/lab' },
+                  { text: 'Orders', href: '/lab/orders' },
+                  { text: 'Process Order', disabled: true }
+                ],
+                drawerButtons: [
+                    { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
+                    { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
+                    { text: "Services", disabled: false, route: { name: "lab-dashboard-services" } },
+                    { text: "Order", active: true, disabled: false, route: { name: "lab-dashboard-order-history" } },
+                ]
+              },
+              component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/OrderHistory/ProcessOrder')
+            },
+            {
                 path: '/lab/:number',
                 name: 'lab-process',
                 meta: {
