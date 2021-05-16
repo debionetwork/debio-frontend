@@ -76,6 +76,22 @@ export default {
           provider: wsProvider,
           types: types
         })
+
+        // Example of how to subscribe to events via storage
+        api.query.system.events((events) => {
+          console.log(`\nReceived ${events.length} events:`)
+
+          events.forEach((record) => {
+            const { event, phase } = record
+
+            // Show what we are busy with
+            if(event.section === 'orders' && event.method === 'OrderPaid'){
+              console.log(`Received an OrderPaid event`)
+              console.log(`Phase: ${phase.toString()}`)
+            }
+          })
+        })
+
         await api.isReady
         console.log(api)
         commit('SET_API', api)
