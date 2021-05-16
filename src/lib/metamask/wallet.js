@@ -6,15 +6,15 @@ export async function changeChain() {
     method: 'wallet_addEthereumChain',
     params: [
       {
-        chainId: '0x3',
-        chainName: 'Ethereum Testnet',
+        chainId: '0x7E5',
+        chainName: 'Debio Testnet',
         nativeCurrency: {
-          name: 'Ethereum',
-          symbol: 'ETH',
+          name: 'DEBIO',
+          symbol: 'USDT',
           decimals: 18,
         },
         rpcUrls: [
-          'https://ropsten.infura.io/v3/undefined'
+          'http://34.101.116.238:8545'
         ],
         blockExplorerUrls: [
           'https://ropsten.etherscan.io'

@@ -49,10 +49,13 @@ export default {
         commit('SET_WEB3', null)
         commit('SET_LOADING_WEB3', true)
 
-        const web3 = new Web3()
-        web3.setProvider(new Web3.providers.HttpProvider(rpcUrl))
+        
+        const web3 = new Web3(rpcUrl);
+        //const web3 = new Web3()
+        //web3.setProvider(new Web3.providers.HttpProvider(rpcUrl))
         const isConnected = await web3.eth.net.isListening()
         if (isConnected) {
+          //const xx = web3.utils.toHex('2021');
           console.log(isConnected)
           commit('SET_WEB3', web3)
         }
