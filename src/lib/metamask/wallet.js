@@ -14,7 +14,7 @@ export async function changeChain() {
           decimals: 18,
         },
         rpcUrls: [
-          'http://34.101.116.238:8545'
+          'https://testnet.theapps.dev/rpc'
         ],
         blockExplorerUrls: [
           'https://ropsten.etherscan.io'
