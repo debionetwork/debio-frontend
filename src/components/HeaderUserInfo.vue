@@ -84,7 +84,7 @@ export default {
         this.setWalletBalance(balance.free.toHuman());
         this.isLoading = false;
       } catch (err) {
-        console.log(err);
+        console.error(err);
         this.isLoading = false;
       }
     },

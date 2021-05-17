@@ -177,8 +177,8 @@ export default {
     async getKeyStoreLocal() {
       try {
         this.loading = true;
-        this.dataAccount = JSON.parse(localStorage.getKeystore());
         this.dataAccountJson = localStorage.getKeystore();
+        this.dataAccount = JSON.parse(this.dataAccountJson);
         const { nonce, data: balance } = await this.api.query.system.account(
           this.dataAccount.address
         );
@@ -191,8 +191,8 @@ export default {
       }
     },
     setKeystore() {
-      this.keystore = this.dataAccountJson;
-      this.fileName = "keytore";
+      this.keystore = this.dataAccountJson
+      this.fileName = "keystore"
     },
     setKeystoreFileInputListener() {
       const context = this;
