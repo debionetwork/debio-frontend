@@ -5,7 +5,7 @@ import types from './types.json'
 import localStorage from '@/lib/local-storage'
 // u8aToString, stringToU8a
 import { u8aToHex } from '@polkadot/util'
-import { queryLabsById } from '@/lib/polkadotProvider/query/labs'
+import { queryEntireLabDataById } from '@/lib/polkadotProvider/query/labs'
 
 const {
   // mnemonicToMiniSecret,
@@ -151,8 +151,7 @@ export default {
 
         commit('SET_LAB_ACCOUNT', null)
         commit('SET_IS_LAB_ACCOUNT_EXIST', false)
-        const labAccount = await queryLabsById(state.api, address)
-        console.log(labAccount)
+        const labAccount = await queryEntireLabDataById(state.api, address)
         if(labAccount){
           commit('SET_LAB_ACCOUNT', labAccount)
           commit('SET_IS_LAB_ACCOUNT_EXIST', true)
