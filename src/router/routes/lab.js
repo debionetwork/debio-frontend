@@ -1,9 +1,11 @@
 import store from '../../store'
+import globalFunctions from "@/lib/functions"
 
 const labRoutes = [ 
     {
         path: '/lab',
         component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/NavigationLayout'),
+        beforeEnter: globalFunctions.checkIsLoggedIn,
         children: [
             {
               path: '/',
