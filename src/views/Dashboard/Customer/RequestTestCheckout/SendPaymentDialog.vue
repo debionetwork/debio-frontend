@@ -92,11 +92,13 @@
 import { mapState, mapActions } from "vuex";
 import cityData from "@/assets/json/city.json";
 import { startApp } from "@/lib/metamask";
+import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
 import {
-  getBalance,
-  transfer,
-  addTokenUsdt,
-} from "@/lib/metamask/wallet.js";
+  lastOrderByCustomer,
+  getOrdersDetail,
+} from "@/lib/polkadotProvider/query/orders";
+import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile";
+import { getBalance, transfer, addTokenUsdt } from "@/lib/metamask/wallet.js";
 
 export default {
   name: "SendPaymentDialog",
@@ -115,6 +117,8 @@ export default {
     city: "",
     receipts: [],
     metamaskStatus: false,
+    ethSellerAddress: null,
+    ethAccount: null,
   }),
   computed: {
     _show: {
@@ -132,7 +136,7 @@ export default {
   },
   mounted() {
     if (this.lab != null) {
-      console.log(this.products);
+      console.log(this.lab);
       this.country = cityData[this.lab.info.country].name;
       this.city = cityData[this.lab.info.country].divisions[this.lab.info.city];
     }
@@ -152,12 +156,9 @@ export default {
       restoreAccountKeystore: "substrate/restoreAccountKeystore",
     }),
     async openMetamask() {
-      await startApp();
-      // let balance = await getBalance();
-      // console.log(balance);
-      //addTokenUsdt();
+      await addTokenUsdt();
       let txreceipts = await transfer({
-        seller: "0xfab109b490F8FedAD00625E8E055DB1d2FF325d4",
+        seller: this.ethSellerAddress,
         amount: this.totalPrice,
       });
       console.log(txreceipts);
@@ -167,36 +168,86 @@ export default {
       this.error = "";
       try {
         this.wallet.decodePkcs8(this.password);
-        this.openMetamask();
-        for (let i = 0; i < this.products.length; i++) {
-          const productDetail = this.products[i];
-          await this.api.tx.orders
-            .createOrder(this.products[i].accountId)
-            .signAndSend(this.wallet, ({ events = [], status }) => {
-              if (status.isFinalized) {
-                // Loop through Vec<EventRecord> to display all events
-                events.forEach(
-                  ({ phase, event: { data, method, section } }) => {
-                    console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
-                    if (section == "orders") {
-                      if (method == "OrderCreated") {
-                        const result = JSON.parse(data.toString());
-                        console.log(result);
-                        const specimenNumber = result[0].dna_sample_tracking_id;
-                        const dataOrder = result[0];
-                        this.receipts.push({
-                          dataOrder,
-                          specimenNumber,
-                          productDetail,
-                          lab: this.lab,
-                        });
-                      }
-                    }
-                  }
-                );
-                process.exit(0);
+
+        // Checking seller ready eth Address
+        this.ethSellerAddress = await ethAddressByAccountId(
+          this.api,
+          this.lab.account_id
+        );
+        if (this.ethSellerAddress == null) {
+          this.isLoading = false;
+          this.password = "";
+          this.error = "The seller has no ETH Address.";
+        } else {
+          const lastOrder = await lastOrderByCustomer(
+            this.api,
+            this.wallet.address
+          );
+          let sendOrder = false;
+          if (lastOrder == null) {
+            sendOrder = true;
+          } else {
+            const detailOrder = await getOrdersDetail(this.api, lastOrder);
+            if (detailOrder != null) {
+              if (detailOrder.status != "Unpaid") {
+                sendOrder = true;
               }
-            });
+            }
+          }
+
+          if (sendOrder) {
+            this.ethAccount = await startApp();
+            const ethRegisterAddress = await ethAddressByAccountId(
+              this.api,
+              this.wallet.address
+            );
+            if (ethRegisterAddress == null) {
+              const addResult = await setEthAddress(
+                this.api,
+                this.wallet,
+                this.ethAccount.currentAccount
+              );
+              console.log(addResult);
+            }
+            for (let i = 0; i < this.products.length; i++) {
+              const productDetail = this.products[i];
+              await this.api.tx.orders
+                .createOrder(this.products[i].accountId)
+                .signAndSend(this.wallet, ({ events = [], status }) => {
+                  if (status.isFinalized) {
+                    // Loop through Vec<EventRecord> to display all events
+                    events.forEach(
+                      ({ phase, event: { data, method, section } }) => {
+                        console.log(
+                          `\t' ${phase}: ${section}.${method}:: ${data}`
+                        );
+                        if (section == "orders") {
+                          if (method == "OrderCreated") {
+                            const result = JSON.parse(data.toString());
+                            console.log(result);
+                            const specimenNumber =
+                              result[0].dna_sample_tracking_id;
+                            const dataOrder = result[0];
+                            this.receipts.push({
+                              dataOrder,
+                              specimenNumber,
+                              productDetail,
+                              lab: this.lab,
+                            });
+                            this.openMetamask();
+                          }
+                        }
+                      }
+                    );
+                    process.exit(0);
+                  }
+                });
+            }
+          } else {
+            this.isLoading = false;
+            this.password = "";
+            this.error = "You still have unpaid orders.";
+          }
         }
       } catch (err) {
         console.log(err);

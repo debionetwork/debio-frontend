@@ -18,3 +18,8 @@ export async function escrowKey(api) {
   const res = await api.query.orders.escrowKey()
   return res.toHuman()
 }
+
+export async function lastOrderByCustomer(api, address) {
+  const res = await api.query.orders.lastOrderByCustomer(address)
+  return res.toHuman()
+}
