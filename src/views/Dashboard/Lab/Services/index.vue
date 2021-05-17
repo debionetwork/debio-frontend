@@ -52,7 +52,7 @@
                            color="transparent"  
                            @click="gotoDetails(item)"
                         >
-                           <v-icon>
+                           <v-icon dark>
                               mdi-eye
                            </v-icon>
                         </v-btn>
@@ -61,7 +61,7 @@
                            color="transparent"
                            @click="gotoDetails(item)"
                         >
-                           <v-icon>
+                           <v-icon dark>
                               mdi-pencil
                            </v-icon>
                         </v-btn>
