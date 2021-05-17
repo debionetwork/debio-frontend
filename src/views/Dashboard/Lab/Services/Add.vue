@@ -87,7 +87,7 @@ export default {
           name: this.name,
           price: this.price,
           description: this.description,
-          longDescription: this.longDescription
+          long_description: this.longDescription
         }
       )
       // Wait for transaction to finish before refreshing Vuex store

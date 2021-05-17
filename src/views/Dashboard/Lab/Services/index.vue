@@ -46,16 +46,25 @@
                      </v-container>
                   </template>
                   <template v-slot:[`item.actions`]="{ item }">
-                     <v-container
-                     >
+                     <v-container class="d-flex">
                         <v-btn
-                          class="btn-sending"
-                          dark
-                           small
-                           width="200"
-                           @click="showDialogInstruction(item)"
-                           >View Instructions</v-btn
+                           elevation="0"
+                           color="transparent"  
+                           @click="gotoDetails(item)"
                         >
+                           <v-icon>
+                              mdi-eye
+                           </v-icon>
+                        </v-btn>
+                        <v-btn
+                           elevation="0"
+                           color="transparent"
+                           @click="gotoDetails(item)"
+                        >
+                           <v-icon>
+                              mdi-pencil
+                           </v-icon>
+                        </v-btn>
                      </v-container>
                   </template>
 
@@ -87,6 +96,7 @@ export default {
         { text: 'Action', value: 'actions', sortable: false, align: 'center', width: '10%' },
     ],
     services: [{
+       serviceId: 'serviceId',
        name: 'name',
        image: 'image',
        description: 'description',
@@ -101,10 +111,12 @@ export default {
      const labServices = this.labAccount.services
      for(let i = 0; i < labServices.length; i++){
         let s = {}
+        s["serviceId"] = labServices[i].id
         s["name"] = labServices[i].info.name
         s["image"] = labServices[i].info.image
         s["price"] = labServices[i].info.price
         s["description"] = labServices[i].info.description
+        s["longDescription"] = labServices[i].info.long_description
         s["action"] = 'action'
         this.services.push(s)
      }
@@ -118,6 +130,9 @@ export default {
    onSearchInput(val) {
       this.search = val
    },
+   gotoDetails(item){
+      this.$router.push({ name: 'lab-dashboard-services-detail', params: { item: item }})
+   }
   },
 }
 
@@ -126,10 +141,6 @@ export default {
 
 <style lang="scss">
 @import "../../../../styles/variables.scss";
-
-.btn-sending {
-   background-color: $color-primary !important;
-}
 
 .Sending {
    background-color: $color-primary !important;

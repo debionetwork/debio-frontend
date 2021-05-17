@@ -5,9 +5,9 @@ export async function createService(api, pair, data){
     return result.toHuman()
 }
 
-export async function updateService(api, pair, data){
+export async function updateService(api, pair, id, data){
     const result = await api.tx.services
-        .updateService(data)
+        .updateService(id, data)
         .signAndSend(pair, { nonce: -1 })
     return result.toHuman()
 }

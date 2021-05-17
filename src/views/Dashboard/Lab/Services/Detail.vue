@@ -25,7 +25,7 @@
                         label="Service Name"
                         placeholder="Service Name"
                         outlined
-                        v-model="serviceName"
+                        v-model="name"
                     ></v-text-field>
                     
                     <v-text-field
@@ -57,14 +57,14 @@
                         placeholder="Image"
                         prepend-icon="mdi-image"
                         outlined
-                        v-model="profileImage"
+                        v-model="files"
                     ></v-file-input>
 
                     <v-btn
                     color="primary"
                     block
                     large
-                    @click="updateLab"
+                    @click="updateService"
                     >Submit</v-btn>
                 </v-card-text>
             </v-card>
@@ -75,8 +75,56 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+import { updateService } from '@/lib/polkadotProvider/command/services'
+
 export default {
   name: 'LabAddServices',
+  data: () => ({
+    id: '',
+    name: '',
+    price: '',
+    description: '',
+    longDescription: '',
+    files: [],
+  }),
+  mounted(){
+    const item = this.$route.params.item
+    this.id = item.id
+    this.name = item.name
+    this.price = item.price
+    this.description = item.description
+    this.longDescription = item.longDescription
+  },
+  computed: {
+    ...mapGetters({
+      api: 'substrate/getAPI',
+      pair: 'substrate/wallet',
+    }),
+  },
+  methods: {
+    async updateService() {
+      try{
+        await updateService(
+          this.api,
+          this.pair,
+          this.id,
+          {
+            name: this.name,
+            price: this.price,
+            description: this.description,
+            long_description: this.longDescription
+          }
+        )
+        // Wait for transaction to finish before refreshing Vuex store
+        await this.$store.dispatch('substrate/getLabAccount')
+        this.$router.push('/lab/services')
+      }
+      catch(err){
+        console.error(err)
+      }
+    },
+  },
 }
 </script>
 
