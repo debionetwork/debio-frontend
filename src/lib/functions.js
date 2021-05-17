@@ -7,7 +7,6 @@ const globalFunctions = {
     return !!keystore
   },
   async checkIsLoggedIn(to, from, next) {
-    console.log(from);
     let api = store.getters['substrate/getAPI'];
     if (api == null) {
       await store.dispatch('substrate/connect');

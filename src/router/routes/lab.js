@@ -13,9 +13,9 @@ const labRoutes = [
               meta: {
                   pageHeader: 'Lab Dashboard',
                   drawerButtons: [
-                    { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
+                    { text: "Dashboard", active: true, disabled: false, route: { name: "lab-dashboard" } },
                     { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
-                    { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-services" } },
+                    { text: "Services", disabled: false, route: { name: "lab-dashboard-services" } },
                     { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
                   ]
               },
@@ -43,8 +43,8 @@ const labRoutes = [
                 ],
                 drawerButtons: [
                   { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
-                  { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
-                  { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-services" } },
+                  { text: "Account", active: true, disabled: false, route: { name: "lab-dashboard-account" } },
+                  { text: "Services", disabled: false, route: { name: "lab-dashboard-services" } },
                   { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
                 ]
               },

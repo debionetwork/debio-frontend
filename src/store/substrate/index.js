@@ -5,6 +5,7 @@ import types from './types.json'
 import localStorage from '@/lib/local-storage'
 // u8aToString, stringToU8a
 import { u8aToHex } from '@polkadot/util'
+import { queryLabsById } from '@/lib/polkadotProvider/query/labs'
 
 const {
   // mnemonicToMiniSecret,
@@ -22,8 +23,6 @@ const defaultState = {
   isLoadingWallet: false,
   wallet: null,
   walletBalance: null,
-  walletAddress: '',
-  walletPublicKey: '',
   labAccount: null,
   isLabAccountExist: false,
 }
@@ -55,15 +54,7 @@ export default {
     },
     SET_WALLET_BALANCE(state, balance) {
       state.walletBalance = balance
-      console.log(state.walletBalance)
     },
-    SET_WALLET_PUBLIC_KEY(state, publicKey) {
-      state.walletPublicKey = publicKey
-    },
-    SET_WALLET_ADDRESS(state, walletAddress) {
-      state.walletAddress = walletAddress
-    },
-
     CLEAR_WALLET(state) {
       state.wallet = null
       state.walletBalance = null
@@ -96,7 +87,6 @@ export default {
         })
 
         await api.isReady
-        console.log('API is ready:', api)
         commit('SET_API', api)
 
         commit('SET_LOADING_API', false)
@@ -115,13 +105,9 @@ export default {
         localStorage.setKeystore(JSON.stringify(json))
         localStorage.setAddress(pair.address)
         commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
-        commit('SET_WALLET_ADDRESS', pair.address)
         console.log('Is pair locked?', pair.isLocked)
         commit('SET_WALLET', pair) // FIXME: simpen untuk dev
         commit('SET_LOADING_WALLET', false)
-        
-        commit('SET_LAB_ACCOUNT', null)
-        commit('SET_IS_LAB_ACCOUNT_EXIST', false)
 
         // const seed = mnemonicToMiniSecret(mnemonic)
         // const { publicKey, secretKey } = naclKeypairFromSeed(seed)
@@ -144,13 +130,9 @@ export default {
         localStorage.setKeystore(JSON.stringify(file))
         localStorage.setAddress(pair.address)
         commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
-        commit('SET_WALLET_ADDRESS', pair.address)
         console.log('Is pair locked?', pair.isLocked)
         commit('SET_WALLET', pair) // FIXME: simpen untuk dev
-        commit('SET_LOADING_WALLET', false)        
-        
-        commit('SET_LAB_ACCOUNT', pair)
-        commit('SET_IS_LAB_ACCOUNT_EXIST', false)
+        commit('SET_LOADING_WALLET', false)
 
         return { success: true }
       } catch (err) {
@@ -159,14 +141,23 @@ export default {
         return { success: false, error: err.message }
       }
     },
-    async getAkun({ commit }, { address }) {
+    async getAkun({ commit,state }, { address }) {
       try {
         commit('SET_LOADING_WALLET', true)
         const pair = keyring.getPair(address);
         commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
-        commit('SET_WALLET_ADDRESS', pair.address)
         commit('SET_WALLET', pair) // FIXME: simpen untuk dev
         commit('SET_LOADING_WALLET', false)
+
+        commit('SET_LAB_ACCOUNT', null)
+        commit('SET_IS_LAB_ACCOUNT_EXIST', false)
+        const labAccount = await queryLabsById(state.api, address)
+        console.log(labAccount)
+        if(labAccount){
+          commit('SET_LAB_ACCOUNT', labAccount)
+          commit('SET_IS_LAB_ACCOUNT_EXIST', true)
+        }
+
         return { success: true }
       } catch (err) {
         console.log(err)
