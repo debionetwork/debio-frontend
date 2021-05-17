@@ -7,8 +7,8 @@ import localStorage from '@/lib/local-storage'
 import { u8aToHex } from '@polkadot/util'
 
 const {
-  mnemonicToMiniSecret,
-  naclKeypairFromSeed,
+  // mnemonicToMiniSecret,
+  // naclKeypairFromSeed,
   cryptoWaitReady,
 } = require('@polkadot/util-crypto');
 
@@ -24,6 +24,8 @@ const defaultState = {
   walletBalance: null,
   walletAddress: '',
   walletPublicKey: '',
+  labAccount: null,
+  isLabAccountExist: false,
 }
 
 export default {
@@ -43,6 +45,7 @@ export default {
     },
     SET_LAB_ACCOUNT(state, labAccount) {
       state.labAccount = labAccount
+      state.isLabAccountExist = true
     },
     SET_IS_LAB_ACCOUNT_EXIST(state, isLabAccountExist) {
       state.isLabAccountExist = isLabAccountExist
@@ -93,7 +96,7 @@ export default {
         })
 
         await api.isReady
-        console.log(api)
+        console.log('API is ready:', api)
         commit('SET_API', api)
 
         commit('SET_LOADING_API', false)
@@ -108,20 +111,22 @@ export default {
         commit('CLEAR_WALLET')
 
         const { pair, json } = keyring.addUri(mnemonic, password, { name: 'mnemonic acc' })
+        pair.unlock(password)
         localStorage.setKeystore(JSON.stringify(json))
         localStorage.setAddress(pair.address)
         commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
         commit('SET_WALLET_ADDRESS', pair.address)
+        console.log('Is pair locked?', pair.isLocked)
         commit('SET_WALLET', pair) // FIXME: simpen untuk dev
         commit('SET_LOADING_WALLET', false)
         
         commit('SET_LAB_ACCOUNT', null)
         commit('SET_IS_LAB_ACCOUNT_EXIST', false)
 
-        const seed = mnemonicToMiniSecret(mnemonic)
-        const { publicKey, secretKey } = naclKeypairFromSeed(seed)
-        console.log(u8aToHex(publicKey))
-        console.log(u8aToHex(secretKey))
+        // const seed = mnemonicToMiniSecret(mnemonic)
+        // const { publicKey, secretKey } = naclKeypairFromSeed(seed)
+        // console.log(u8aToHex(publicKey))
+        // console.log(u8aToHex(secretKey))
 
         return { success: true }
       } catch (err) {
@@ -135,10 +140,12 @@ export default {
       try {
         commit('SET_LOADING_WALLET', true)
         const pair = keyring.restoreAccount(file, password);
+        pair.unlock(password)
         localStorage.setKeystore(JSON.stringify(file))
         localStorage.setAddress(pair.address)
         commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
         commit('SET_WALLET_ADDRESS', pair.address)
+        console.log('Is pair locked?', pair.isLocked)
         commit('SET_WALLET', pair) // FIXME: simpen untuk dev
         commit('SET_LOADING_WALLET', false)        
         

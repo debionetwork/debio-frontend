@@ -68,7 +68,7 @@
                 placeholder="Profile Image"
                 prepend-icon="mdi-image"
                 outlined
-                v-model="profileImage"
+                v-model="files"
                 ></v-file-input>
 
                 <v-btn
@@ -87,7 +87,10 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex'
+import { queryLabsById } from '@/lib/polkadotProvider/query/labs'
 import { registerLab } from '@/lib/polkadotProvider/command/labs'
+import { setEthAddress } from '@/lib/polkadotProvider/command/userProfile'
+import { getWalletAddress } from '@/lib/metamask/wallet'
 import countryData from "@/assets/json/country.json"
 import cityData from "@/assets/json/city.json"
 
@@ -95,6 +98,7 @@ export default {
   name: 'LabRegistration',
   data: () => ({
     country: "",
+    region: "",
     city: "",
     countries: [],
     cities: [],
@@ -102,15 +106,19 @@ export default {
     email: "",
     labName: "",
     address: "",
-    profileImage: "",
+    files: [],
   }),
   async mounted() {
+    console.log('Is pair locked?', this.pair.isLocked)
+    console.log(this.pair.address)
     await this.getCountries();
   },
   computed: {
     ...mapGetters({
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
+      labAccount: 'substrate/labAccount',
+      isLabAccountExist: 'substrate/isLabAccountExist',
     }),
     ...mapState({
       locationContract: state => state.ethereum.contracts.contractLocation,
@@ -129,6 +137,10 @@ export default {
     },
   },
   methods: {
+    setLabAccount(labAccount) {
+      this.$store.state.substrate.labAccount = labAccount
+      this.$store.state.substrate.isLabAccountExist = true
+    },
     async getCountries() {
       this.countries = countryData;
     },
@@ -142,20 +154,34 @@ export default {
     },
     onCityChange(selectedCity) {
       this.city = selectedCity;
-      this.getLabs();
     },
     async registerLab(){
-      const address = await registerLab(
-        this.api,
-        this.pair,
-        {
-          name: this.labName,
-          address: this.address,
-          country: this.country,
-          city: this.city,
-        }
-      )
-      alert(address)
+      try{
+        const ethAddress = await getWalletAddress()
+        await registerLab(
+          this.api,
+          this.pair,
+          {
+            name: this.labName,
+            address: this.address,
+            country: this.country,
+            city: this.city,
+          }
+        )
+        
+        await setEthAddress(
+          this.api,
+          this.pair,
+          ethAddress
+        )
+        
+        const labAccount = await queryLabsById(this.api, this.pair.address)
+        this.setLabAccount(labAccount)
+        this.$router.push('/lab')
+      }
+      catch(e){
+        console.error(e)
+      }
     }
   }
 }
