@@ -32,7 +32,18 @@
                   <template v-slot:search-bar>
                      <SearchBar
                         label="Search"
+                        @input="onSearchInput"
                      ></SearchBar>
+                  </template>
+                  <template v-slot:[`item.image`]="{ item }">
+                     <v-container rounded>
+                        <v-img 
+                           :src="item.image" 
+                           :alt="item.name" 
+                           max-height="100px"
+                           max-width="100px"
+                        ></v-img>
+                     </v-container>
                   </template>
                   <template v-slot:[`item.actions`]="{ item }">
                      <v-container
@@ -102,7 +113,12 @@ export default {
     ...mapGetters({
       labAccount: 'substrate/labAccount',
     }),
-  }
+  },
+  methods:{
+   onSearchInput(val) {
+      this.search = val
+   },
+  },
 }
 
 
