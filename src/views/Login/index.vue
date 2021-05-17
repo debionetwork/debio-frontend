@@ -216,9 +216,11 @@ export default {
       this.successLogin = false;
       this.typelogin = "";
     },
-    actionAlert() {
+    async actionAlert() {
       if (this.successLogin) {
         this.clearSecret();
+        await this.$store.dispatch('substrate/connect')
+        await this.$store.dispatch('substrate/getLabAccount')
         this.$router.push("/");
       } else {
         this.clearSecret();

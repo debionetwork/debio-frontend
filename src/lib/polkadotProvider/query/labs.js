@@ -7,6 +7,11 @@ export async function queryLabsById(api, labId){
 
 export async function queryEntireLabDataById(api, labId){
     const res = (await api.query.labs.labs(labId)).toHuman()
+
+    // if null return
+    if(!res) return res
+
+    // If not null continue
     const servicesDetailedList = []
     for(let i = 0; i < res.services.length; i++){
         let serviceDetail = await queryServicesById(api, res.services[i])
