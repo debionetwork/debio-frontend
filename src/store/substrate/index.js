@@ -23,6 +23,7 @@ const defaultState = {
   isLoadingWallet: false,
   wallet: null,
   walletBalance: null,
+  walletPublicKey: '',
   labAccount: null,
   isLabAccountExist: false,
 }
@@ -54,6 +55,9 @@ export default {
     },
     SET_WALLET_BALANCE(state, balance) {
       state.walletBalance = balance
+    },
+    SET_WALLET_PUBLIC_KEY(state, publicKey) {
+      state.walletPublicKey = publicKey
     },
     CLEAR_WALLET(state) {
       state.wallet = null
