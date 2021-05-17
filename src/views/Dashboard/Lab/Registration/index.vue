@@ -163,6 +163,7 @@ export default {
           this.pair,
           {
             name: this.labName,
+            email: this.email,
             address: this.address,
             country: this.country,
             city: this.city,

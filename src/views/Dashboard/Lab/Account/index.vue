@@ -35,7 +35,7 @@
                 placeholder="Profile Image"
                 prepend-icon="mdi-image"
                 outlined
-                v-model="profileImage"
+                v-model="files"
               ></v-file-input>
 
               <v-text-field
@@ -54,24 +54,40 @@
                 v-model="labName"
               ></v-text-field>
 
-              <v-select
+              <v-autocomplete
                 dense
                 :items="countries"
-                :value="country"
+                item-text="name"
+                item-value="alpha-2"
                 @change="onCountryChange"
                 label="Select Country"
+                v-model="country"
                 outlined
-              ></v-select>
+              ></v-autocomplete>
 
-              <v-select
+              <v-autocomplete
                 dense
-                :items="citiesSelection"
-                :value="city"
+                :items="regions"
+                item-text="1"
+                item-value="0"
+                @change="onRegionChange"
+                label="Select Region"
+                :disabled="!country"
+                v-model="region"
+                outlined
+              ></v-autocomplete>
+
+              <v-autocomplete
+                dense
+                :items="cities"
+                item-text="1"
+                item-value="0"
                 @change="onCityChange"
                 label="Select City"
-                :disabled="!country"
+                :disabled="!region"
+                v-model="city"
                 outlined
-              ></v-select>
+              ></v-autocomplete>
               
               <v-text-field
                 dense
@@ -96,92 +112,82 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
-import { updateLab } from '@/lib/polkadotProvider/command/labs';
+import { mapGetters } from 'vuex'
+import { updateLab } from '@/lib/polkadotProvider/command/labs'
+import countryData from "@/assets/json/country.json"
+import cityData from "@/assets/json/city.json"
 
 export default {
   name: 'LabAccount',
   async mounted() {
+    const labInfo = this.labAccount.info
+    this.email = labInfo.email
+    this.labName = labInfo.name
+    this.address = labInfo.address
+    
     await this.getCountries()
-    await this.getCities()
-  },
-  computed: {
-    ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
-    }),
-    ...mapState({
-      locationContract: state => state.ethereum.contracts.contractLocation,
-      degenicsContract: state => state.ethereum.contracts.contractDegenics,
-    }),
-    citiesSelection() {
-      return this.cities
-        .filter(c => c.country == this.country)
-        .map(c => ({ value: c.city, text: c.city, country: c.country }))
-    }
+    this.country = labInfo.country
+    this.regions = Object.entries(cityData[labInfo.country].divisions)
+    this.cities = Object.entries(cityData[labInfo.country].divisions)
+    this.region = labInfo.city
+    this.city = labInfo.city
   },
   data: () => ({
     email: "",
     labName: "",
     address: "",
-    profileImage: "",
     country: "",
+    region: "",
     city: "",
     countries: [],
+    regions: [],
     cities: [],
+    files: [],
   }),
+  computed: {
+    ...mapGetters({
+      api: 'substrate/getAPI',
+      pair: 'substrate/wallet',
+      labAccount: 'substrate/labAccount',
+    }),
+    citiesSelection() {
+      return this.cities
+        .filter((c) => c.country == this.country)
+        .map((c) => ({ value: c.city, text: c.city, country: c.country }));
+    },
+  },
   methods: {
     async getCountries() {
-      const countryCount = await this.locationContract.methods.countCountry().call()
-
-      const getCountryPromises = []
-      for (let i = 1; i <= countryCount; i++) {
-        getCountryPromises.push(
-          this.locationContract.methods.countryByIndex(i).call()
-        )
-      }
-      const countries = await Promise.all(getCountryPromises)
-
-      this.countries = countries
-    },
-    async getCities() {
-      if (!this.countries) { return }
-
-      const getCitiesPromises = []
-      for (let country of this.countries) {
-        const cityCount = await this.locationContract.methods.countCity(country).call()
-        for(let i = 1; i <= cityCount; i++) {
-          const promise = this.locationContract.methods
-            .cityByIndex(country, i).call()
-            .then(city => ({ country, city }))
-
-          getCitiesPromises.push(promise)
-        }
-      }
-      const cities = await Promise.all(getCitiesPromises)
-
-      this.cities = cities
+      this.countries = countryData;
     },
     onCountryChange(selectedCountry) {
-      this.country = selectedCountry
+      this.country = selectedCountry;
+      this.regions = Object.entries(cityData[this.country].divisions);
+    },
+    onRegionChange(selectedRegion) {
+      this.region = selectedRegion;
+      this.cities = Object.entries(cityData[this.country].divisions);
     },
     onCityChange(selectedCity) {
-      this.city = selectedCity
+      this.city = selectedCity;
     },
-    updateLab(){
-      updateLab(
-        this.api,
-        this.pair,
-        {
-          name: this.labName,
-          address: this.address,
-          country: this.country,
-          city: this.city,
-        }
-      )
-      .then((address) => {
-        alert(address)
-      })
+    async updateLab(){
+      try{
+        await updateLab(
+          this.api,
+          this.pair,
+          {
+            name: this.labName,
+            email: this.email,
+            address: this.address,
+            country: this.country,
+            city: this.city,
+          }
+        )
+      }
+      catch(err){
+        console.error(err)
+      }
     }
   }
 }
