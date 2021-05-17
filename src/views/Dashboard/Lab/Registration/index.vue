@@ -21,24 +21,37 @@
                 v-model="labName"
                 ></v-text-field>
 
-              <v-select
+              <v-autocomplete
                 dense
                 :items="countries"
-                :value="country"
+                item-text="name"
+                item-value="alpha-2"
                 @change="onCountryChange"
                 label="Select Country"
                 outlined
-              ></v-select>
+              ></v-autocomplete>
 
-              <v-select
+              <v-autocomplete
                 dense
-                :items="citiesSelection"
-                :value="city"
-                @change="onCityChange"
-                label="Select City"
+                :items="regions"
+                item-text="1"
+                item-value="0"
+                @change="onRegionChange"
+                label="Select Region"
                 :disabled="!country"
                 outlined
-              ></v-select>
+              ></v-autocomplete>
+
+              <v-autocomplete
+                dense
+                :items="cities"
+                item-text="1"
+                item-value="0"
+                @change="onCityChange"
+                label="Select City"
+                :disabled="!region"
+                outlined
+              ></v-autocomplete>
               
               <v-text-field
                 dense
@@ -74,23 +87,25 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex'
-import { registerLab } from '@/lib/polkadotProvider/command/labs';
+import { registerLab } from '@/lib/polkadotProvider/command/labs'
+import countryData from "@/assets/json/country.json"
+import cityData from "@/assets/json/city.json"
 
 export default {
   name: 'LabRegistration',
   data: () => ({
-    email: "",
-    labName: "",
-    address: "",
-    profileImage: "",
     country: "",
     city: "",
     countries: [],
     cities: [],
+    regions: [],
+    email: "",
+    labName: "",
+    address: "",
+    profileImage: "",
   }),
   async mounted() {
-    // await this.getCountries()
-    // await this.getCities()
+    await this.getCountries();
   },
   computed: {
     ...mapGetters({
@@ -103,50 +118,34 @@ export default {
     }),
     citiesSelection() {
       return this.cities
-        .filter(c => c.country == this.country)
-        .map(c => ({ value: c.city, text: c.city, country: c.country }))
-    }
+        .filter((c) => c.country == this.country)
+        .map((c) => ({ value: c.city, text: c.city, country: c.country }));
+    },
+    selectedLab() {
+      if (!this.labAccount) {
+        return;
+      }
+      return this.labs.filter((l) => l.labAccount == this.labAccount)[0];
+    },
   },
   methods: {
     async getCountries() {
-      const countryCount = await this.locationContract.methods.countCountry().call()
-
-      const getCountryPromises = []
-      for (let i = 1; i <= countryCount; i++) {
-        getCountryPromises.push(
-          this.locationContract.methods.countryByIndex(i).call()
-        )
-      }
-      const countries = await Promise.all(getCountryPromises)
-
-      this.countries = countries
-    },
-    async getCities() {
-      if (!this.countries) { return }
-
-      const getCitiesPromises = []
-      for (let country of this.countries) {
-        const cityCount = await this.locationContract.methods.countCity(country).call()
-        for(let i = 1; i <= cityCount; i++) {
-          const promise = this.locationContract.methods
-            .cityByIndex(country, i).call()
-            .then(city => ({ country, city }))
-
-          getCitiesPromises.push(promise)
-        }
-      }
-      const cities = await Promise.all(getCitiesPromises)
-
-      this.cities = cities
+      this.countries = countryData;
     },
     onCountryChange(selectedCountry) {
-      this.country = selectedCountry
+      this.country = selectedCountry;
+      this.regions = Object.entries(cityData[this.country].divisions);
+    },
+    onRegionChange(selectedRegion) {
+      this.region = selectedRegion;
+      this.cities = Object.entries(cityData[this.country].divisions);
     },
     onCityChange(selectedCity) {
-      this.city = selectedCity
+      this.city = selectedCity;
+      this.getLabs();
     },
-    registerLab(){
-      registerLab(
+    async registerLab(){
+      const address = await registerLab(
         this.api,
         this.pair,
         {
@@ -156,9 +155,7 @@ export default {
           city: this.city,
         }
       )
-      .then((address) => {
-        alert(address)
-      })
+      alert(address)
     }
   }
 }

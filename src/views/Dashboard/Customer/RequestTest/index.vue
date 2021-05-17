@@ -8,7 +8,7 @@
               <div class="text-h6">Select a Lab</div>
             </v-card-title>
             <v-card-text class="px-8">
-              <v-select
+              <v-autocomplete
                 dense
                 :items="countries"
                 item-text="name"
@@ -16,9 +16,9 @@
                 @change="onCountryChange"
                 label="Select Country"
                 outlined
-              ></v-select>
+              ></v-autocomplete>
 
-              <v-select
+              <v-autocomplete
                 dense
                 :items="regions"
                 item-text="1"
@@ -27,9 +27,9 @@
                 label="Select Region"
                 :disabled="!country"
                 outlined
-              ></v-select>
+              ></v-autocomplete>
 
-              <v-select
+              <v-autocomplete
                 dense
                 :items="cities"
                 item-text="1"
@@ -38,7 +38,7 @@
                 label="Select City"
                 :disabled="!region"
                 outlined
-              ></v-select>
+              ></v-autocomplete>
 
               <v-select
                 dense
