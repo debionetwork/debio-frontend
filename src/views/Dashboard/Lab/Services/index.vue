@@ -32,7 +32,6 @@
                   <template v-slot:search-bar>
                      <SearchBar
                         label="Search"
-                        @input="onSearchInput"
                      ></SearchBar>
                   </template>
                   <template v-slot:[`item.actions`]="{ item }">
@@ -60,8 +59,6 @@
 <script>
 import DataTable from '@/components/DataTable'
 import SearchBar from '@/components/DataTable/SearchBar'
-import { queryServicesInfoIdList } from '@/lib/polkadotProvider/query/services'
-import { queryLabsById } from '@/lib/polkadotProvider/query/labs'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -89,15 +86,21 @@ export default {
     isLoading: false,
   }),
   async mounted(){
-     console.log(this.api)
-     console.log(this.pair)
-     let labData = await queryLabsById(this.api, this.pair.address)
-     this.services = await queryServicesInfoIdList(this.api, labData.services)
+     this.services.pop()
+     const labServices = this.labAccount.services
+     for(let i = 0; i < labServices.length; i++){
+        let s = {}
+        s["name"] = labServices[i].info.name
+        s["image"] = labServices[i].info.image
+        s["price"] = labServices[i].info.price
+        s["description"] = labServices[i].info.description
+        s["action"] = 'action'
+        this.services.push(s)
+     }
   },
   computed:{
     ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
+      labAccount: 'substrate/labAccount',
     }),
   }
 }
