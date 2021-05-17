@@ -11,7 +11,7 @@ export async function queryEntireLabDataById(api, labId){
     for(let i = 0; i < res.services.length; i++){
         let serviceDetail = await queryServicesById(api, res.services[i])
         if(serviceDetail.info.image == null){
-            serviceDetail.info.image = "https://www.azutura.com/media/catalog/product/cache/47/image/650x/040ec09b1e35df139433887a97daa66f/W/S/WS-45551_WP.jpg"
+            serviceDetail.info.image = "https://images.unsplash.com/photo-1578496779937-3815e442abed?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&q=80"
         }
         servicesDetailedList.push(serviceDetail)
     }
