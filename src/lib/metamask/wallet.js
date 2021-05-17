@@ -1,6 +1,11 @@
 import store from '../../store'
 import appConfig from '@/lib/app-config'
 
+export async function getWalletAddress(){
+  const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
+  return accounts[0]
+}
+
 export async function changeChain() {
   await window.ethereum.request({
     method: 'wallet_addEthereumChain',
