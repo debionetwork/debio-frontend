@@ -165,6 +165,20 @@ export default {
         return { success: false, error: err.message }
       }
     },
+    async getLabAccount({ commit, state }) {
+      try {
+        const labAccount = await queryEntireLabDataById(state.api, state.wallet.address)
+        if(labAccount){
+          commit('SET_LAB_ACCOUNT', labAccount)
+          commit('SET_IS_LAB_ACCOUNT_EXIST', true)
+        }
+
+        return { success: true }
+      } catch (err) {
+        console.log(err)
+        return { success: false, error: err.message }
+      }
+    },
     async checkMnemonicSomeAddress({ commit },{ mnemonic, accountAddress }) {
       try {
         const keyringX = new Keyring({ type: 'ed25519', ss58Format: 42 });
