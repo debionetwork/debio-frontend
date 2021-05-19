@@ -24,7 +24,9 @@
                 <div class="text-body-2">
                   {{ lab.info.address }}
                 </div>
-                <div class="text-body-2">{{ lab.info.city }}, {{ lab.info.country }}</div>
+                <div class="text-body-2">
+                  {{ lab.info.city }}, {{ lab.info.country }}
+                </div>
                 <div v-if="lab.info.email" class="text-body-2">
                   Email: {{ lab.info.email }}
                 </div>
@@ -57,9 +59,9 @@
                   <v-spacer></v-spacer>
                   <div class="align-self-end pb-2">
                     <span class="text-h6">
-                      {{ service.info.price }}
+                      {{ priceOrder }}
                     </span>
-                    <span class="primary--text text-caption"> DBIO </span>
+                    <span class="primary--text text-caption"> USDT </span>
                   </div>
                 </div>
                 <div>
@@ -79,10 +81,74 @@
           </div>
         </v-col>
 
+        <!-- If Order Unpaid -->
+        <v-col
+          cols="12"
+          lg="6"
+          md="6"
+          xl="5"
+          v-if="order.status == ORDER_UNPAID"
+        >
+          <v-card class="dg-card pb-3" elevation="0" outlined>
+            <v-card-title class="px-8">
+              <div class="text-h6">Order</div>
+            </v-card-title>
+            <v-card-text class="px-8">
+              <div class="d-flex justify-space-between">
+                <div class="text-h6">Total Price</div>
+                <div>
+                  <span class="text-h6">
+                    {{ priceOrder }}
+                  </span>
+                  <span class="primary--text text-caption"> USDT </span>
+                </div>
+              </div>
+            </v-card-text>
+            <v-card-actions class="px-8">
+              <v-btn
+                depressed
+                color="primary"
+                large
+                width="100%"
+                @click="openMetamask"
+              >
+                PAY
+              </v-btn>
+            </v-card-actions>
+            <v-card-actions class="px-8">
+              <v-btn
+                depressed
+                color="orange"
+                large
+                width="100%"
+                @click="showDialogCancelOrder"
+              >
+                CANCEL
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+          <DialogConfirmWithPassword
+            :show="confirmDeleteOrder"
+            :title="'Cancel Order Request'"
+            :contentText="'Are you sure you want to cancel this order request?'"
+            :buttonTitle="'Cancel Order'"
+            @toggle="confirmDeleteOrder = $event"
+            @status-confirm="({ status }) => cancelOrderRequest(status)"
+          ></DialogConfirmWithPassword>
+        </v-col>
+        <DialogAlert
+          :show="dialogAlert"
+          :btnText="alertTextBtn"
+          :textAlert="alertTextAlert"
+          :imgPath="alertImgPath"
+          @toggle="dialogAlert = $event"
+          @close="actionAlert()"
+        ></DialogAlert>
+
         <!-- If order is sending -->
-        <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == SENDING">
+        <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == ORDER_PAID">
           <DNASampleSendingInstructions
-            :specimenNumber="order.number"
+            :specimenNumber="order.dna_sample_tracking_id"
             :lab="lab"
           >
           </DNASampleSendingInstructions>
@@ -115,41 +181,60 @@
 
 <script>
 import { mapState } from "vuex";
-//import keystore from "@/lib/keystore";
 import DNASampleSendingInstructions from "@/components/DNASampleSendingInstructions";
+import DialogConfirmWithPassword from "@/components/Dialog/DialogConfirmWithPassword";
+import DialogAlert from "@/components/Dialog/DialogAlert";
 import StatusChip from "@/components/StatusChip";
 import Button from "@/components/Button";
 import Refund from "./Refund";
 import {
+  ORDER_UNPAID,
+  ORDER_PAID,
+  ORDER_CANCEL,
   SENDING,
   RECEIVED,
   SUCCESS,
   REJECTED,
-  REFUNDED,
+  ORDER_REFUNDED,
 } from "@/constants/specimen-status";
-//import { LOG_REJECTED, LOG_RECEIVED } from "@/constants/log-type";
 import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
+import { transfer } from "@/lib/metamask/wallet.js";
+import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
+import { cancelOrder } from "@/lib/polkadotProvider/command/orders";
+import { startApp } from "@/lib/metamask";
 
 export default {
   name: "RequestTestSuccess",
   components: {
     DNASampleSendingInstructions,
+    DialogConfirmWithPassword,
+    DialogAlert,
     StatusChip,
     Button,
     Refund,
   },
   data: () => ({
+    ORDER_UNPAID,
+    ORDER_PAID,
+    ORDER_CANCEL,
     SENDING,
     RECEIVED,
     SUCCESS,
     REJECTED,
-    REFUNDED,
+    ORDER_REFUNDED,
     isLoading: false,
     lab: null,
     service: null,
     order: null,
+    confirmDeleteOrder: false,
+    dialogAlert: false,
+    priceOrder: "",
+    alertType: "",
+    alertTextBtn: "Close",
+    alertImgPath: "warning.png",
+    alertTextAlert: "",
     logs: [],
   }),
   computed: {
@@ -157,31 +242,120 @@ export default {
       walletBalance: (state) => state.substrate.walletBalance,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      lastEventData: (state) => state.substrate.lastEventData,
     }),
-    // If we don't check if data exists, vue will complain 😦
     dataLoaded() {
       return this.lab && this.service && this.order;
     },
-    // rejectionReason() {
-    //   return this.logs.filter((l) => l.logType == LOG_REJECTED)[0].log;
-    // },
-    // receivedLog() {
-    //   return this.logs.filter((l) => l.logType == LOG_RECEIVED)[0];
-    // },
   },
-  async mounted() {
-    this.isLoading = true;
-    await this.fetchOrderDetails();
-    //await this.getLogs();
-    this.isLoading = false;
+  mounted() {
+    this.fetchOrderDetails();
+  },
+  watch: {
+    lastEventData() {
+      if (this.lastEventData != null) {
+        if (this.lastEventData.method == "OrderCancelled") {
+          console.log(this.lastEventData.method);
+          const dataEvent = JSON.parse(this.lastEventData.data.toString());
+          if (dataEvent[0].id == this.$route.params.number) {
+            this.isLoading = false;
+            this.alertTextBtn = "Close";
+            this.alertImgPath = "success.png";
+            this.alertTextAlert = "Request Test Order Canceled";
+            this.dialogAlert = true;
+            this.alertType = "cancel";
+          }
+        } else if (this.lastEventData.method == "OrderPaid") {
+          const dataEvent = JSON.parse(this.lastEventData.data.toString());
+          if (dataEvent[0].id == this.$route.params.number) {
+            this.isLoading = false;
+            this.alertTextBtn = "Close";
+            this.alertImgPath = "success.png";
+            this.alertTextAlert = "Request Test Order Paid";
+            this.dialogAlert = true;
+            this.alertType = "paid";
+          }
+        }
+      }
+    },
   },
   methods: {
+    actionAlert() {
+      if (this.alertType == "cancel") {
+        this.fetchOrderDetails();
+      }
+      if (this.alertType == "paid") {
+        this.fetchOrderDetails();
+      }
+      this.dialogAlert = false;
+    },
+    async openMetamask() {
+      await startApp();
+      const ethRegisterAddress = await ethAddressByAccountId(
+        this.api,
+        this.wallet.address
+      );
+      if (ethRegisterAddress == null) {
+        this.alertTextBtn = "Close";
+        this.alertImgPath = "warning.png";
+        this.alertTextAlert = "You haven't integrated in Wallet Binding.";
+        this.dialogAlert = true;
+        this.alertType = "no_acc_eth";
+        return;
+      }
+      const ethSellerAddress = await ethAddressByAccountId(
+        this.api,
+        this.lab.account_id
+      );
+      if (ethSellerAddress == null) {
+        this.alertTextBtn = "Close";
+        this.alertImgPath = "warning.png";
+        this.alertTextAlert = "Saller haven't integrated in Wallet Binding.";
+        this.dialogAlert = true;
+        this.alertType = "no_acc_eth";
+        return;
+      }
+      try {
+        let txreceipts = await transfer({
+          seller: ethSellerAddress,
+          amount: parseFloat(this.priceOrder),
+          from: ethRegisterAddress,
+        });
+        console.log(txreceipts);
+      } catch (err) {
+        console.log(err);
+        this.alertTextBtn = "Close";
+        this.alertImgPath = "warning.png";
+        this.alertTextAlert = "Payment via Metamask is canceled by the user.";
+        this.dialogAlert = true;
+        this.alertType = "cancel_metamask_payment";
+        this.isLoading = false;
+      }
+    },
+    showDialogCancelOrder() {
+      this.confirmDeleteOrder = true;
+    },
+    async cancelOrderRequest(status) {
+      if (status) {
+        try {
+          this.isLoading = true;
+          await cancelOrder(this.api, this.wallet, this.$route.params.number);
+        } catch (err) {
+          console.log(err);
+          this.isLoading = false;
+        }
+      }
+    },
     async fetchOrderDetails() {
+      this.isLoading = true;
       const orderId = this.$route.params.number;
       this.order = await getOrdersDetail(this.api, orderId);
       this.lab = await queryLabsById(this.api, this.order.seller_id);
       this.service = await queryServicesById(this.api, this.order.service_id);
-
+      this.priceOrder = parseFloat(
+        this.service.info.price.replaceAll(",", ".")
+      ).toFixed(2);
+      this.isLoading = false;
       console.log(this.order);
       console.log(this.lab);
       console.log(this.service);

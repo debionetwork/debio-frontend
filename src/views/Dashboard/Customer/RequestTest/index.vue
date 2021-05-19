@@ -262,10 +262,10 @@ export default {
       if (!this.cities) {
         return;
       }
-      
+
       const listLabID = await queryLabsByCountryRegionCity(
         this.api,
-        this.country+"-"+this.region,
+        this.country + "-" + this.region,
         this.city
       );
       if (listLabID != null) {

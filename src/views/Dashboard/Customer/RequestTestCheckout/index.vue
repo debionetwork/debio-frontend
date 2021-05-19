@@ -15,9 +15,7 @@
                 <div class="text-body-2">
                   {{ lab.info.address }}
                 </div>
-                <div class="text-body-2">
-                  {{ city }}, {{ country }}
-                </div>
+                <div class="text-body-2">{{ city }}, {{ country }}</div>
               </template>
             </v-card-text>
             <div class="px-8">
@@ -59,9 +57,11 @@
                 <v-spacer></v-spacer>
                 <div class="align-self-end pb-2">
                   <span class="text-h6">
-                    {{ product.price }}
+                    {{
+                      parseFloat(product.price.replaceAll(",", ".")).toFixed(2)
+                    }}
                   </span>
-                  <span class="primary--text text-caption"> DBIO </span>
+                  <span class="primary--text text-caption"> USDT </span>
                 </div>
               </div>
             </v-card-text>
@@ -79,7 +79,7 @@
                   <span class="text-h6">
                     {{ totalPrice }}
                   </span>
-                  <span class="primary--text text-caption"> DBIO </span>
+                  <span class="primary--text text-caption"> USDT </span>
                 </div>
               </div>
             </v-card-text>
@@ -130,7 +130,8 @@ export default {
     }),
     totalPrice() {
       return this.products.reduce(
-        (sum, { price }) => (sum += parseFloat(price)),
+        (sum, { price }) =>
+          (sum += parseFloat(price.replaceAll(",", "."))).toFixed(2),
         0
       );
     },
@@ -154,11 +155,12 @@ export default {
       console.log("Receipt in RequestTestCheckout", receipts);
     },
     checkingData() {
-      if (this.lab == null){
+      if (this.lab == null) {
         this.$router.push({ name: "request-test" });
       } else {
         this.country = cityData[this.lab.info.country].name;
-        this.city = cityData[this.lab.info.country].divisions[this.lab.info.city];
+        this.city =
+          cityData[this.lab.info.country].divisions[this.lab.info.city];
       }
     },
   },
