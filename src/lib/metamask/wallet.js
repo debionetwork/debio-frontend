@@ -1,7 +1,7 @@
 import store from '../../store'
 import appConfig from '@/lib/app-config'
 
-export async function getWalletAddress(){
+export async function getWalletAddress() {
   const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
   return accounts[0]
 }
@@ -30,22 +30,28 @@ export async function changeChain() {
 }
 
 export async function addTokenUsdt() {
-  // wasAdded is a boolean. Like any RPC method, an error may be thrown.
-  const wasAdded = await window.ethereum.request({
-    method: 'wallet_watchAsset',
-    params: {
-      type: 'ERC20', // Initially only supports ERC20, but eventually more!
-      options: {
-        address: '0xaf622dd428F0e35f6CC48A0756A93E32441060a8', // The address that the token is at.
-        symbol: 'USDT', // A ticker symbol or shorthand, up to 5 chars.
-        decimals: 8, // The number of decimals in the token
-        image: 'https://s2.coinmarketcap.com/static/img/coins/200x200/825.png', // A string url of the token logo
+  try {
+    const wasAdded = await window.ethereum.request({
+      method: 'wallet_watchAsset',
+      params: {
+        type: 'ERC20', // Initially only supports ERC20, but eventually more!
+        options: {
+          address: '0xaf622dd428F0e35f6CC48A0756A93E32441060a8', // The address that the token is at.
+          symbol: 'USDT', // A ticker symbol or shorthand, up to 5 chars.
+          decimals: 8, // The number of decimals in the token
+          image: 'https://s2.coinmarketcap.com/static/img/coins/200x200/825.png', // A string url of the token logo
+        },
       },
-    },
-  })
-
-  if (!wasAdded) {
-    throw 'Failed to add USDT token!'
+    });
+    if (!wasAdded) {
+      console.log('Failed to add USDT token!');
+      return false;
+    } else {
+      return true;
+    }
+  } catch (err) {
+    console.log(err);
+    return false;
   }
 }
 
@@ -62,14 +68,14 @@ export async function getBalance() {
  * @param {String} data -> The encoded ABI byte code to send via a transaction or call.
  *                          Example: myContract.methods.myMethod(123).encodeABI();
  * */
-export async function sendTransaction(to, data) {
+export async function sendTransaction(to, data, from) {
   const web3 = store.getters['metamask/getWeb3']
 
   const transactionParameters = {
     to: to, // Required except during contract publications.
     gasPrice: web3.utils.toHex(appConfig.getGasPrice()), // customizable by user during MetaMask confirmation.
     gas: web3.utils.toHex(appConfig.getGasLimit()),
-    from: window.ethereum.selectedAddress, // must match user's active address.
+    from: from, // must match user's active address.
     data: data, // Optional, but used for defining smart contract creation and interaction.
     chainId: '0x7E5', // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
   };
@@ -89,18 +95,7 @@ export async function transfer(data) {
 
   let raw = contractERC20Interface.methods.transfer(data.seller, data.amount).encodeABI()
 
-  let receipt = await sendTransaction(contractInfo.USDTTokenAddress.address, raw)
-  // let resEvent = await contractERC20Interface.getPastEvents('Transfer', {
-  //   fromBlock: receipt.blockNumber,
-  //   toBlock: receipt.blockNumber,
-  // })
-  // let escrowAddress = null
-  // for (let event of resEvent) {
-  //   if (event.transactionHash == receipt.transactionHash) {
-  //     escrowAddress = event.returnValues._address
-  //   }
-  // }
-  // for(let key in contracts.EscrowFactory.methods) console.log(key)
+  let receipt = await sendTransaction(contractInfo.USDTTokenAddress.address, raw, data.from)
   return { data, receipt }
 
 }

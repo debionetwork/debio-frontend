@@ -32,7 +32,7 @@
               <span class="text-h6">
                 {{ totalPrice }}
               </span>
-              <span class="primary--text text-caption"> DBIO </span>
+              <span class="primary--text text-caption"> USDT </span>
             </div>
           </div>
           <!-- <div class="d-flex align-center justify-space-between">
@@ -97,8 +97,9 @@ import {
   lastOrderByCustomer,
   getOrdersDetail,
 } from "@/lib/polkadotProvider/query/orders";
+import { createOrder } from "@/lib/polkadotProvider/command/orders";
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile";
-import { getBalance, transfer, addTokenUsdt } from "@/lib/metamask/wallet.js";
+import { transfer, addTokenUsdt } from "@/lib/metamask/wallet.js";
 
 export default {
   name: "SendPaymentDialog",
@@ -118,6 +119,7 @@ export default {
     receipts: [],
     metamaskStatus: false,
     ethSellerAddress: null,
+    ethRegisterAddress: null,
     ethAccount: null,
   }),
   computed: {
@@ -132,6 +134,7 @@ export default {
     ...mapState({
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      lastEventData: (state) => state.substrate.lastEventData,
     }),
   },
   mounted() {
@@ -142,12 +145,40 @@ export default {
     }
   },
   watch: {
-    receipts() {
-      if (this.products.length == this.receipts.length) {
-        console.log("masuk");
-        this.isLoading = false;
-        this.password = "";
-        this.$emit("payment-sent", this.receipts);
+    lastEventData() {
+      if (this.lastEventData != null) {
+        if (
+          this.lastEventData.method == "OrderCreated" ||
+          this.lastEventData.method == "OrderPaid"
+        ) {
+          const dataEvent = JSON.parse(this.lastEventData.data.toString());
+          let orderStatus = false;
+          for (let i = 0; i < dataEvent.length; i++) {
+            for (let x = 0; x < this.products.length; x++) {
+              const productDetail = this.products[x];
+              if (dataEvent[i].service_id == this.products[x].accountId) {
+                const specimenNumber = dataEvent[i].dna_sample_tracking_id;
+                const dataOrder = dataEvent[i];
+                this.receipts.push({
+                  dataOrder,
+                  specimenNumber,
+                  productDetail,
+                  lab: this.lab,
+                });
+                orderStatus = true;
+              }
+            }
+          }
+          this.isLoading = false;
+          this.password = "";
+          if (orderStatus) {
+            if (this.lastEventData.method == "OrderPaid") {
+              this.$emit("payment-sent", this.receipts);
+            } else {
+              this.openMetamask();
+            }
+          }
+        }
       }
     },
   },
@@ -157,18 +188,22 @@ export default {
     }),
     async openMetamask() {
       await addTokenUsdt();
-      let txreceipts = await transfer({
-        seller: this.ethSellerAddress,
-        amount: this.totalPrice,
-      });
-      console.log(txreceipts);
+      try {
+        let txreceipts = await transfer({
+          seller: this.ethSellerAddress,
+          amount: parseFloat(this.totalPrice),
+          from: this.ethRegisterAddress,
+        });
+        console.log(txreceipts);
+      } catch (err) {
+        console.log(err);
+      }
     },
     async onSubmit() {
       this.isLoading = true;
       this.error = "";
       try {
         this.wallet.decodePkcs8(this.password);
-
         // Checking seller ready eth Address
         this.ethSellerAddress = await ethAddressByAccountId(
           this.api,
@@ -197,51 +232,31 @@ export default {
 
           if (sendOrder) {
             this.ethAccount = await startApp();
-            const ethRegisterAddress = await ethAddressByAccountId(
+            if (this.ethAccount.currentAccount == "no_install") {
+              this.isLoading = false;
+              this.password = "";
+              this.error = "Please install MetaMask!";
+              return;
+            }
+            this.ethRegisterAddress = await ethAddressByAccountId(
               this.api,
               this.wallet.address
             );
-            if (ethRegisterAddress == null) {
+            if (this.ethRegisterAddress == null) {
               const addResult = await setEthAddress(
                 this.api,
                 this.wallet,
                 this.ethAccount.currentAccount
               );
+              this.ethRegisterAddress = this.ethAccount.currentAccount;
               console.log(addResult);
             }
             for (let i = 0; i < this.products.length; i++) {
-              const productDetail = this.products[i];
-              await this.api.tx.orders
-                .createOrder(this.products[i].accountId)
-                .signAndSend(this.wallet, ({ events = [], status }) => {
-                  if (status.isFinalized) {
-                    // Loop through Vec<EventRecord> to display all events
-                    events.forEach(
-                      ({ phase, event: { data, method, section } }) => {
-                        console.log(
-                          `\t' ${phase}: ${section}.${method}:: ${data}`
-                        );
-                        if (section == "orders") {
-                          if (method == "OrderCreated") {
-                            const result = JSON.parse(data.toString());
-                            console.log(result);
-                            const specimenNumber =
-                              result[0].dna_sample_tracking_id;
-                            const dataOrder = result[0];
-                            this.receipts.push({
-                              dataOrder,
-                              specimenNumber,
-                              productDetail,
-                              lab: this.lab,
-                            });
-                            this.openMetamask();
-                          }
-                        }
-                      }
-                    );
-                    process.exit(0);
-                  }
-                });
+              await createOrder(
+                this.api,
+                this.wallet,
+                this.products[i].accountId
+              );
             }
           } else {
             this.isLoading = false;
@@ -253,7 +268,7 @@ export default {
         console.log(err);
         this.isLoading = false;
         this.password = "";
-        this.error = err.message;
+        this.error = "The password you entered is wrong";
       }
     },
     closeDialog() {

@@ -26,6 +26,7 @@ const defaultState = {
   walletPublicKey: '',
   labAccount: null,
   isLabAccountExist: false,
+  lastEventData: null,
 }
 
 export default {
@@ -62,7 +63,10 @@ export default {
     CLEAR_WALLET(state) {
       state.wallet = null
       state.walletBalance = null
-    }
+    },
+    SET_LAST_EVENT(state, event) {
+      state.lastEventData = event
+    },
   },
   actions: {
     async connect({ commit }) {
@@ -78,14 +82,18 @@ export default {
         // Example of how to subscribe to events via storage
         api.query.system.events((events) => {
           console.log(`\nReceived ${events.length} events:`)
-
           events.forEach((record) => {
             const { event, phase } = record
 
             // Show what we are busy with
-            if(event.section === 'orders' && event.method === 'OrderPaid'){
+            if (event.section === 'orders' && event.method === 'OrderPaid') {
               console.log(`Received an OrderPaid event`)
               console.log(`Phase: ${phase.toString()}`)
+            }
+
+            if (event.section == "orders") {
+              console.log("Method :" + event.method);
+              commit('SET_LAST_EVENT', event);
             }
           })
         })
@@ -145,7 +153,7 @@ export default {
         return { success: false, error: err.message }
       }
     },
-    async getAkun({ commit,state }, { address }) {
+    async getAkun({ commit, state }, { address }) {
       try {
         commit('SET_LOADING_WALLET', true)
         const pair = keyring.getPair(address);
@@ -156,7 +164,7 @@ export default {
         commit('SET_LAB_ACCOUNT', null)
         commit('SET_IS_LAB_ACCOUNT_EXIST', false)
         const labAccount = await queryEntireLabDataById(state.api, address)
-        if(labAccount){
+        if (labAccount) {
           commit('SET_LAB_ACCOUNT', labAccount)
           commit('SET_IS_LAB_ACCOUNT_EXIST', true)
         }
@@ -172,7 +180,7 @@ export default {
     async getLabAccount({ commit, state }) {
       try {
         const labAccount = await queryEntireLabDataById(state.api, state.wallet.address)
-        if(labAccount){
+        if (labAccount) {
           commit('SET_LAB_ACCOUNT', labAccount)
           commit('SET_IS_LAB_ACCOUNT_EXIST', true)
         }
@@ -183,7 +191,7 @@ export default {
         return { success: false, error: err.message }
       }
     },
-    async checkMnemonicSomeAddress({ commit },{ mnemonic, accountAddress }) {
+    async checkMnemonicSomeAddress({ commit }, { mnemonic, accountAddress }) {
       try {
         const keyringX = new Keyring({ type: 'ed25519', ss58Format: 42 });
         const pair = keyringX.addFromUri(mnemonic, { name: 'first pair' }, 'ed25519');
@@ -195,7 +203,7 @@ export default {
         } else {
           return { success: false }
         }
-        
+
       } catch (err) {
         return { success: false }
       }
@@ -213,6 +221,9 @@ export default {
     },
     getAPI(state) {
       return state.api
+    },
+    getLastEvent(state) {
+      return state.lastEventData
     }
   }
 }

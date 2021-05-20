@@ -25,3 +25,10 @@ export async function setOrderPaid(api, pair, order_id) {
     .signAndSend(pair, { nonce: -1 })
   return result.toHuman()
 }
+
+export async function cancelOrder(api, pair, order_id) {
+  const result = await api.tx.orders
+    .cancelOrder(order_id)
+    .signAndSend(pair, { nonce: -1 })
+  return result.toHuman()
+}
