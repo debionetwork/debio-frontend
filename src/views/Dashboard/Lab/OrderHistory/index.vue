@@ -18,6 +18,19 @@
                         label="Search"
                      ></SearchBar>
                   </template>
+                  <template v-slot:[`item.actions`]="{ item }">
+                     <v-container
+                     >
+                        <v-btn
+                          class="btn-sending"
+                          dark
+                           small
+                           width="200"
+                           @click="processOrder(item)"
+                           >Process Order</v-btn
+                        >
+                     </v-container>
+                  </template>
                   <!-- Rows -->
                </DataTable>
             </v-col>
@@ -62,7 +75,9 @@ export default {
     }),
   },
   methods: {
-    
+    processOrder(item){
+      this.$router.push({ name: 'lab-dashboard-process-order', params: { item: item }})
+    }
   },
 }
 
