@@ -89,7 +89,7 @@
 
 <script>
 /* eslint-disable */
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions, mapMutations } from "vuex";
 import cityData from "@/assets/json/city.json";
 import { startApp } from "@/lib/metamask";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
@@ -100,6 +100,7 @@ import {
 import { createOrder } from "@/lib/polkadotProvider/command/orders";
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile";
 import { transfer, addTokenUsdt } from "@/lib/metamask/wallet.js";
+import { getBalanceETH } from "@/lib/metamask/wallet.js";
 
 export default {
   name: "SendPaymentDialog",
@@ -119,7 +120,6 @@ export default {
     receipts: [],
     metamaskStatus: false,
     ethSellerAddress: null,
-    ethRegisterAddress: null,
     ethAccount: null,
   }),
   computed: {
@@ -135,6 +135,8 @@ export default {
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
       lastEventData: (state) => state.substrate.lastEventData,
+      metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
+      metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance,
     }),
   },
   mounted() {
@@ -145,7 +147,7 @@ export default {
     }
   },
   watch: {
-    lastEventData() {
+    async lastEventData() {
       if (this.lastEventData != null) {
         if (
           this.lastEventData.method == "OrderCreated" ||
@@ -153,6 +155,7 @@ export default {
         ) {
           const dataEvent = JSON.parse(this.lastEventData.data.toString());
           let orderStatus = false;
+          let orderId = "";
           for (let i = 0; i < dataEvent.length; i++) {
             for (let x = 0; x < this.products.length; x++) {
               const productDetail = this.products[x];
@@ -166,6 +169,7 @@ export default {
                   lab: this.lab,
                 });
                 orderStatus = true;
+                orderId = dataEvent[i].id;
               }
             }
           }
@@ -173,9 +177,19 @@ export default {
           this.password = "";
           if (orderStatus) {
             if (this.lastEventData.method == "OrderPaid") {
-              this.$emit("payment-sent", this.receipts);
+              //this.$emit("payment-sent", this.receipts);
+              this.closeDialog();
+              this.$router.push({
+                name: "order-history-detail",
+                params: { number: orderId },
+              });
             } else {
-              this.openMetamask();
+              await this.openMetamask();
+              this.closeDialog();
+              this.$router.push({
+                name: "order-history-detail",
+                params: { number: orderId },
+              });
             }
           }
         }
@@ -183,6 +197,10 @@ export default {
     },
   },
   methods: {
+    ...mapMutations({
+      setMetamaskAddress: "metamask/SET_WALLET_ADDRESS",
+      setMetamaskBalance: "metamask/SET_WALLET_BALANCE",
+    }),
     ...mapActions({
       restoreAccountKeystore: "substrate/restoreAccountKeystore",
     }),
@@ -192,7 +210,7 @@ export default {
         let txreceipts = await transfer({
           seller: this.ethSellerAddress,
           amount: parseFloat(this.totalPrice),
-          from: this.ethRegisterAddress,
+          from: this.metamaskWalletAddress,
         });
         console.log(txreceipts);
       } catch (err) {
@@ -236,27 +254,42 @@ export default {
               this.isLoading = false;
               this.password = "";
               this.error = "Please install MetaMask!";
-              return;
-            }
-            this.ethRegisterAddress = await ethAddressByAccountId(
-              this.api,
-              this.wallet.address
-            );
-            if (this.ethRegisterAddress == null) {
-              const addResult = await setEthAddress(
-                this.api,
-                this.wallet,
-                this.ethAccount.currentAccount
-              );
-              this.ethRegisterAddress = this.ethAccount.currentAccount;
-              console.log(addResult);
-            }
-            for (let i = 0; i < this.products.length; i++) {
-              await createOrder(
-                this.api,
-                this.wallet,
-                this.products[i].accountId
-              );
+            } else {
+              if (
+                this.metamaskWalletAddress == "" &&
+                this.ethAccount.currentAccount != null
+              ) {
+                await setEthAddress(
+                  this.api,
+                  this.wallet,
+                  this.ethAccount.currentAccount
+                );
+                await this.setMetamaskAddress(this.ethAccount.currentAccount);
+                this.metamaskWalletAddress = this.ethAccount.currentAccount;
+              } else if (
+                this.metamaskWalletAddress == "" &&
+                this.ethAccount.currentAccount == null
+              ) {
+                this.isLoading = false;
+                this.password = "";
+                this.error = "You haven't done wallet binding yet.";
+                return;
+              }
+
+              const balance = await getBalanceETH(this.metamaskWalletAddress);
+              if (balance > 0) {
+                for (let i = 0; i < this.products.length; i++) {
+                  await createOrder(
+                    this.api,
+                    this.wallet,
+                    this.products[i].accountId
+                  );
+                }
+              } else {
+                this.isLoading = false;
+                this.password = "";
+                this.error = "Your balance is empty.";
+              }
             }
           } else {
             this.isLoading = false;
