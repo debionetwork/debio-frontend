@@ -31,15 +31,15 @@ export default {
       state.web3 = web3Instance
     },
     SET_WALLET_BALANCE(state, balance) {
-      state.walletBalance = balance
+      state.metamaskWalletBalance = balance
     },
     SET_WALLET_ADDRESS(state, walletAddress) {
-      state.walletAddress = walletAddress
+      state.metamaskWalletAddress = walletAddress
     },
     CLEAR_WALLET(state) {
       state.wallet = null
-      state.walletBalance = ''
-      state.walletAddress = ''
+      state.metamaskWalletBalance = ''
+      state.metamaskWalletAddress = ''
       state.walletPublicKey = ''
     },
   },
@@ -50,9 +50,9 @@ export default {
         commit('SET_LOADING_WEB3', true)
 
         
-        const web3 = new Web3(rpcUrl);
-        //const web3 = new Web3()
-        //web3.setProvider(new Web3.providers.HttpProvider(rpcUrl))
+        //const web3 = new Web3(rpcUrl);
+        const web3 = new Web3()
+        web3.setProvider(new Web3.providers.HttpProvider(rpcUrl))
         const isConnected = await web3.eth.net.isListening()
         if (isConnected) {
           //const xx = web3.utils.toHex('2021');
@@ -76,10 +76,10 @@ export default {
       return state.web3
     },
     getWalletAddress(state) {
-      return state.walletAddress
+      return state.metamaskWalletAddress
     },
     getWalletBalance(state) {
-      return state.walletBalance
+      return state.metamaskWalletBalance
     }
   }
 }

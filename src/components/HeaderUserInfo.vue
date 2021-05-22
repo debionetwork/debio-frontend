@@ -28,6 +28,14 @@
             <v-list-item-title>Download Keystore File</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+        <v-list-item two-line @click="openWalletBinding">
+          <v-list-item-action>
+            <v-icon>mdi-wallet</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Wallet Binding</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
         <v-list-item two-line @click="logOut">
           <v-list-item-action>
             <v-icon>mdi-logout</v-icon>
@@ -41,9 +49,12 @@
   </v-menu>
 </template>
 
+
 <script>
 import { mapState, mapMutations, mapActions } from "vuex";
 import localStorage from "@/lib/local-storage";
+import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
+import { getBalanceETH } from "@/lib/metamask/wallet.js";
 
 export default {
   name: "HeaderUserInfo",
@@ -52,6 +63,8 @@ export default {
       walletBalance: (state) => state.substrate.walletBalance,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
+      metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance,
     }),
   },
   data: () => ({
@@ -63,6 +76,8 @@ export default {
     ...mapMutations({
       setWalletBalance: "substrate/SET_WALLET_BALANCE",
       clearWallet: "substrate/CLEAR_WALLET",
+      setMetamaskAddress: "metamask/SET_WALLET_ADDRESS",
+      setMetamaskBalance: "metamask/SET_WALLET_BALANCE",
     }),
     ...mapActions({
       clearAuth: "auth/clearAuth",
@@ -75,9 +90,9 @@ export default {
         );
 
         this.balance = balance.free.toHuman();
-        if (this.balance == "0"){
+        if (this.balance == "0") {
           this.balance = "0 DBIO";
-        } 
+        }
 
         this.name = this.wallet.meta.name;
         console.log("nonce", nonce);
@@ -120,16 +135,36 @@ export default {
       );
       a.dispatchEvent(e);
     },
+    openWalletBinding() {
+      this.$emit("showWalletBinding", { status: true });
+    },
+    async checkMetamaskAddress() {
+      if (this.metamaskWalletAddress == "") {
+        const ethRegisterAddress = await ethAddressByAccountId(
+          this.api,
+          this.wallet.address
+        );
+        if (ethRegisterAddress != null) {
+          this.setMetamaskAddress(ethRegisterAddress);
+        }
+      }
+    },
   },
   watch: {
-    async wallet(val) {
-      if (val) {
-        await this.fetchWalletBalance();
+    async wallet() {
+      await this.fetchWalletBalance();
+    },
+    async metamaskWalletAddress() {
+      let balance = 0;
+      if (this.metamaskWalletAddress != "") {
+        balance = await getBalanceETH(this.metamaskWalletAddress);
       }
+      this.setMetamaskBalance(balance);
     },
   },
   async mounted() {
     await this.fetchWalletBalance();
+    await this.checkMetamaskAddress();
   },
 };
 </script>

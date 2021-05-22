@@ -263,6 +263,10 @@ export default {
         return;
       }
 
+      // this.country = "WL";
+      // this.city = "WL";
+      // this.region = "WL";
+      this.labs = [];
       const listLabID = await queryLabsByCountryRegionCity(
         this.api,
         this.country + "-" + this.region,
