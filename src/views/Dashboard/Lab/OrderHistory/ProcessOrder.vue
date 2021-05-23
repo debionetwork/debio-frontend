@@ -15,24 +15,29 @@
                         <b>Checklist</b>
                     </div>
                     <v-checkbox
-                        v-model="checkbox"
+                        v-model="receiveDnaSampleCheckbox"
                         label="Received"
+                        disabled
                     ></v-checkbox>
                     <v-checkbox
-                        v-model="checkbox"
+                        v-model="wetworkCheckbox"
                         label="Wetwork"
+                        disabled
                     ></v-checkbox>
                     <v-checkbox
-                        v-model="checkbox"
+                        v-model="uploadedGenomeCheckbox"
                         label="Genome"
+                        disabled
                     ></v-checkbox>
                     <v-checkbox
-                        v-model="checkbox"
+                        v-model="uploadedReportCheckbox"
                         label="Report"
+                        disabled
                     ></v-checkbox>
                     <v-checkbox
-                        v-model="checkbox"
+                        v-model="resultSubmittedCheckbox"
                         label="Sent"
+                        disabled
                     ></v-checkbox>
                     </v-card-text>
                 </v-card>
@@ -48,7 +53,7 @@
                             <div class="d-flex align-center">
                                 <div>
                                     <v-icon color="#BA8DBB" :size="52">
-                                        mdi-test-tube
+                                        mdi-pill
                                     </v-icon>
                                 </div>
                                 <div class="ml-5">
@@ -89,30 +94,38 @@
                         </div>
                     </v-card-text>
                 </v-card>
-                <v-card class="dg-card mt-5" elevation="0" outlined>
-                    <v-card-text class="d-flex px-8 mt-5">
-                        <v-text-field
-                            dense
-                            label="Confirm Specimen Number"
-                            placeholder="Confirm Specimen Number"
-                            outlined
-                            :rules="[confirmSpecimenNumberRule(specimenNumber)]"
-                            v-model="confirmSpecimenNumber"
+                <v-card v-if="showConfirmSpecimenDialog" class="dg-card mt-5" elevation="0" outlined>
+                    <v-card-text class="px-8 mt-5">
+                        <v-form
+                            ref="form"
+                            v-model="valid"
+                            class="d-flex"
+                        >
+                            <v-text-field
+                                dense
+                                label="Confirm Specimen Number"
+                                placeholder="Confirm Specimen Number"
+                                outlined
+                                :rules="[confirmSpecimenNumberRule(specimenNumber)]"
+                                v-model="confirmSpecimenNumber"
                             ></v-text-field>
 
-                        <v-btn
-                            class="ml-5"
-                            style="width: 35%"
-                            color="primary"
-                            large
-                            @click="receiveDnaSample"
+                            <v-btn
+                                class="ml-5"
+                                style="width: 35%"
+                                color="primary"
+                                large
+                                @click="receiveDnaSample"
                             >RECEIVE SPECIMEN</v-btn>
+                        </v-form>
                     </v-card-text>
                 </v-card>
-                <div>
+                <div v-if="showUploadGenomeReportDialog">
                     <v-checkbox
-                        v-model="checkbox"
+                        :disabled="wetworkCheckbox == true"
+                        v-model="wetworkCheckbox"
                         label="Wetwork is done"
+                        @click="processDnaSample"
                     ></v-checkbox>
                     <div class="d-flex justify-space-evenly">
                         <v-btn
@@ -120,13 +133,43 @@
                             style="width: 50%"
                             color="primary"
                             large
-                            >UPLOAD GENOME</v-btn>
+                            @click="uploadGenomeToIpfs"
+                        >
+                            <v-icon left>
+                            mdi-dna
+                            </v-icon>
+                            <v-spacer />
+                            UPLOAD GENOME
+                            <v-spacer />
+                            <v-icon 
+                                v-if="uploadedGenomeCheckbox"
+                                right 
+                                color="teal accent-2"
+                            >
+                            mdi-check-circle
+                            </v-icon>
+                        </v-btn>
                         <v-btn
                             class="mb-3 mr-3"
                             style="width: 50%"
                             color="primary"
                             large
-                            >UPLOAD REPORT</v-btn>
+                            @click="uploadReportToIpfs"
+                        >
+                            <v-icon left>
+                            mdi-file-document-multiple-outline
+                            </v-icon>
+                            <v-spacer />
+                            UPLOAD REPORT
+                            <v-spacer />
+                            <v-icon 
+                                v-if="uploadedReportCheckbox"
+                                right 
+                                color="teal accent-2"
+                            >
+                            mdi-check-circle
+                            </v-icon>
+                        </v-btn>
                     </div>
                     <div class="d-flex justify-space-evenly">
                         <v-btn
@@ -134,19 +177,21 @@
                             style="width: 50%"
                             color="primary"
                             large
-                            @click="updateLab"
-                            >SEND</v-btn>
+                            :disabled="uploadedGenomeCheckbox == false || uploadedReportCheckbox == false"
+                            @click="submitTestResult"
+                        >SEND</v-btn>
                         <v-btn
                             class="mb-3 mr-3"
                             style="width: 50%"
                             color="primary"
                             large
+                            :disabled="uploadedGenomeCheckbox == true && uploadedReportCheckbox == true"
                             @click="rejectDnaSample"
-                            >REJECT</v-btn>
+                        >REJECT</v-btn>
                     </div>
                 </div>
-                <div>
-                    <div class="d-flex mb-8 justify-space-between">
+                <div v-if="showResultDialog">
+                    <div class="d-flex mb-8 mt-4 justify-space-between">
                         <div style="width: 50%;">
                             <b class="secondary--text card-header">Genome Files</b>
                             <v-card class="d-flex pa-2 justify-space-between">
@@ -178,11 +223,20 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import ipfsWorker from '@/web-workers/ipfs-worker'
 import { processDnaSample, receiveDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
 
 export default {
   name: 'ProcessOrderHistory',
   data: () => ({
+    receiveDnaSampleCheckbox: false,
+    wetworkCheckbox: false,
+    uploadedGenomeCheckbox: false,
+    uploadedReportCheckbox: false,
+    resultSubmittedCheckbox: false,
+    genomeFiles: [],
+    reportFiles: [],
+    valid: "",
     comment: "",
     reportLink: "",
     resultLink: "",
@@ -196,6 +250,7 @@ export default {
         (!!password && password == val) || "Specimen number must match.",
   }),
   mounted(){
+    this.pair.unlock('yo230899')
     this.createdAt = this.$route.params.item.created_at
     this.customerEthAddress = this.$route.params.item.customer_eth_address
     this.sellerEthAddress = this.$route.params.item.seller_eth_address
@@ -206,27 +261,34 @@ export default {
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
     }),
+    showConfirmSpecimenDialog(){
+        return this.receiveDnaSampleCheckbox == false
+    },
+    showUploadGenomeReportDialog(){
+        return this.receiveDnaSampleCheckbox == true && this.resultSubmittedCheckbox == false
+    },
+    showResultDialog(){
+        return this.resultSubmittedCheckbox == true
+    },
   },
-  method:{
+  methods:{
+    async receiveDnaSample() {
+      this.$refs.form.validate()
+      if(this.valid){
+        await receiveDnaSample(
+            this.api,
+            this.pair,
+            this.specimenNumber,
+        )
+        this.receiveDnaSampleCheckbox = true
+      }
+    },
     async processDnaSample() {
       await processDnaSample(
         this.api,
         this.pair,
         this.specimenNumber,
       )
-      // Wait for transaction to finish before refreshing Vuex store
-      await this.$store.dispatch('substrate/getLabAccount')
-      this.$router.push('/lab/services')
-    },
-    async receiveDnaSample() {
-      await receiveDnaSample(
-        this.api,
-        this.pair,
-        this.specimenNumber,
-      )
-      // Wait for transaction to finish before refreshing Vuex store
-      await this.$store.dispatch('substrate/getLabAccount')
-      this.$router.push('/lab/services')
     },
     async rejectDnaSample() {
       await rejectDnaSample(
@@ -234,9 +296,6 @@ export default {
         this.pair,
         this.specimenNumber,
       )
-      // Wait for transaction to finish before refreshing Vuex store
-      await this.$store.dispatch('substrate/getLabAccount')
-      this.$router.push('/lab/services')
     },
     async submitTestResult() {
       await submitTestResult(
@@ -250,9 +309,67 @@ export default {
           result_link: this.resultLink
         }
       )
-      // Wait for transaction to finish before refreshing Vuex store
-      await this.$store.dispatch('substrate/getLabAccount')
-      this.$router.push('/lab/services')
+      this.resultSubmittedCheckbox = true
+    },
+    uploadGenomeToIpfs() {
+      const fileType = this.fileType
+      const objEncrypted = this.genomeFiles
+      
+      // For each objEncrypted object upload using IPFS worker
+      for (let file of objEncrypted) {
+        const data = JSON.stringify(file)
+        const blob = new Blob([ data ], {type: 'text/plain'})
+        ipfsWorker.workerUpload.postMessage({seed: file.seed, file: blob}) // Access this object in e.data in worker
+      }
+
+      // Listen and track upload
+      let uploadedFiles = []
+      ipfsWorker.workerUpload.onmessage = async event => {
+        uploadedFiles.push(event.data)
+        this.uploadProgress = uploadedFiles.length / objEncrypted.length * 100
+
+        if (uploadedFiles.length == objEncrypted.length) {
+          const fileName = this.fileName
+          this.files.push({
+            fileName,
+            fileType,
+            ipfsPath: uploadedFiles,
+          })
+          this.genomeFiles = []
+          this.fileType = null
+          this.uploadedGenomeCheckbox = true
+        }
+      }
+    },
+    uploadReportToIpfs() {
+      const fileType = this.fileType
+      const objEncrypted = this.reportFiles
+      
+      // For each objEncrypted object upload using IPFS worker
+      for (let file of objEncrypted) {
+        const data = JSON.stringify(file)
+        const blob = new Blob([ data ], {type: 'text/plain'})
+        ipfsWorker.workerUpload.postMessage({seed: file.seed, file: blob}) // Access this object in e.data in worker
+      }
+
+      // Listen and track upload
+      let uploadedFiles = []
+      ipfsWorker.workerUpload.onmessage = async event => {
+        uploadedFiles.push(event.data)
+        this.uploadProgress = uploadedFiles.length / objEncrypted.length * 100
+
+        if (uploadedFiles.length == objEncrypted.length) {
+          const fileName = this.fileName
+          this.files.push({
+            fileName,
+            fileType,
+            ipfsPath: uploadedFiles,
+          })
+          this.reportFiles = []
+          this.fileType = null
+          this.uploadedReportCheckbox = true
+        }
+      }
     },
   },
 }

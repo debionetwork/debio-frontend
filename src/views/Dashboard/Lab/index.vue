@@ -29,25 +29,25 @@
               :height="120"
               class="mb-2"
               icon="mdi-microscope"
-              title="Request Test"
-              sub-title="Get your DNA samples tested"
-              @click="$router.push({ name: 'request-test' })"
+              title="Account"
+              sub-title="Account page"
+              @click="$router.push({ name: 'lab-dashboard-account' })"
           ></MenuCard>
           <MenuCard
               :height="120"
               class="mb-2"
-              icon="mdi-test-tube"
-              title="Request Test"
-              sub-title="Get your DNA samples tested"
-              @click="$router.push({ name: 'request-test' })"
+              icon="mdi-hand-heart"
+              title="Services"
+              sub-title="Services list"
+              @click="$router.push({ name: 'lab-dashboard-services' })"
           ></MenuCard>
           <MenuCard
               :height="120"
               class="mb-2"
-              icon="mdi-test-tube"
-              title="Request Test"
-              sub-title="Get your DNA samples tested"
-              @click="$router.push({ name: 'request-test' })"
+              icon="mdi-clipboard-plus"
+              title="Orders"
+              sub-title="Order history"
+              @click="$router.push({ name: 'lab-dashboard-order-history' })"
           ></MenuCard>
           </v-col>
           <v-col cols="12" md="8">
