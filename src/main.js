@@ -50,7 +50,7 @@ async function setupAppDependencies() {
 */
 
 async function setupAppDependencies() {
-  const DEFAULT_RPC_URL = 'ws://testnet.theapps.dev/node'
+  const DEFAULT_RPC_URL = 'https://testnet.theapps.dev/rpc'
   //let rpcUrl = localStorage.getRpcUrl() || DEFAULT_RPC_URL
   await store.dispatch('metamask/initWeb3', DEFAULT_RPC_URL)
   store.dispatch('metamask/contracts/initContracts')

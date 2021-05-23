@@ -35,15 +35,20 @@ export async function connectToMetamask() {
 }
 
 export async function startApp() {
-  const provider = await detectEthereumProvider()
+  try {
+    const provider = await detectEthereumProvider()
 
-  if (provider) {
-    if (provider !== window.ethereum) {
-      throw 'Do you have multiple wallets installed?'
+    if (provider) {
+      if (provider !== window.ethereum) {
+        throw 'Do you have multiple wallets installed?'
+      }
+      return connectToMetamask()
+    } else {
+      console.log("Please install MetaMask!");
+      return { currentAccount: "no_install" };
     }
-    return connectToMetamask()
-  } else {
-    console.log("Please install MetaMask!");
-    return { currentAccount: "no_install" };
+  } catch (e) {
+    console.log("Connection refush.");
+    window.refresh();
   }
 }

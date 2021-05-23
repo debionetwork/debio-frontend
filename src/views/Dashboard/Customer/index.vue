@@ -23,7 +23,9 @@
         </a>
 
         <v-spacer></v-spacer>
-        <HeaderUserInfo />
+        <HeaderUserInfo
+          @showWalletBinding="({ status }) => openWalletBinding(status)"
+        ></HeaderUserInfo>
         <!-- Menu For Development Purposes -->
         <MenuChangeRole />
       </div>
@@ -33,6 +35,20 @@
 
     <v-main class="dg-dashboard-main">
       <!-- Breadcrumbs and Header -->
+      <WalletBinding
+        :show="showWalletBinding"
+        @toggle="showWalletBinding = $event"
+        @status-wallet="({ status, img }) => connectWalletResult(status, img)"
+      ></WalletBinding>
+      <DialogAlert
+        :show="dialogAlert"
+        :btnText="alertTextBtn"
+        :textAlert="alertTextAlert"
+        :imgPath="alertImgPath"
+        :imgWidth="imgWidth"
+        @toggle="dialogAlert = $event"
+        @close="dialogAlert = false"
+      ></DialogAlert>
       <v-container>
         <Breadcrumbs />
         <div class="text-h5 secondary--text text--lighten-2">
@@ -52,6 +68,8 @@ import MenuChangeRole from "@/components/MenuChangeRole";
 import Breadcrumbs from "@/views/Dashboard/Breadcrumbs";
 import NavigationDrawer from "@/components/NavigationDrawer";
 import HeaderUserInfo from "@/components/HeaderUserInfo";
+import WalletBinding from "@/components/WalletBinding";
+import DialogAlert from "@/components/Dialog/DialogAlert";
 
 export default {
   name: "Dashboard",
@@ -60,7 +78,17 @@ export default {
     Breadcrumbs,
     NavigationDrawer,
     HeaderUserInfo,
+    WalletBinding,
+    DialogAlert,
   },
+  data: () => ({
+    showWalletBinding: false,
+    dialogAlert: false,
+    alertTextBtn: "Continue",
+    alertImgPath: "warning.png",
+    alertTextAlert: "",
+    imgWidth: "270",
+  }),
   mounted() {},
   computed: {
     isLab() {
@@ -75,7 +103,17 @@ export default {
         : v.titleCase(this.$route.name);
     },
   },
-  methods: {},
+  methods: {
+    openWalletBinding(status) {
+      this.showWalletBinding = status;
+    },
+    connectWalletResult(status, img) {
+      if (status) {
+        this.alertImgPath = img;
+        this.dialogAlert = true;
+      }
+    },
+  },
 };
 </script>
 

@@ -141,6 +141,7 @@
           :btnText="alertTextBtn"
           :textAlert="alertTextAlert"
           :imgPath="alertImgPath"
+          :imgWidth="imgWidth"
           @toggle="dialogAlert = $event"
           @close="actionAlert()"
         ></DialogAlert>
@@ -235,6 +236,7 @@ export default {
     alertTextBtn: "Close",
     alertImgPath: "warning.png",
     alertTextAlert: "",
+    imgWidth: "50",
     logs: [],
   }),
   computed: {
@@ -243,6 +245,8 @@ export default {
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
       lastEventData: (state) => state.substrate.lastEventData,
+      metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
+      metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance,
     }),
     dataLoaded() {
       return this.lab && this.service && this.order;
@@ -291,11 +295,7 @@ export default {
     },
     async openMetamask() {
       await startApp();
-      const ethRegisterAddress = await ethAddressByAccountId(
-        this.api,
-        this.wallet.address
-      );
-      if (ethRegisterAddress == null) {
+      if (this.metamaskWalletAddress == "") {
         this.alertTextBtn = "Close";
         this.alertImgPath = "warning.png";
         this.alertTextAlert = "You haven't integrated in Wallet Binding.";
@@ -315,11 +315,19 @@ export default {
         this.alertType = "no_acc_eth";
         return;
       }
+      if (this.metamaskWalletBalance < 0){
+        this.alertTextBtn = "Close";
+        this.alertImgPath = "warning.png";
+        this.alertTextAlert = "Your balance is empty.";
+        this.dialogAlert = true;
+        this.alertType = "no_acc_eth";
+        return;
+      }
       try {
         let txreceipts = await transfer({
           seller: ethSellerAddress,
           amount: parseFloat(this.priceOrder),
-          from: ethRegisterAddress,
+          from: this.metamaskWalletAddress,
         });
         console.log(txreceipts);
       } catch (err) {
