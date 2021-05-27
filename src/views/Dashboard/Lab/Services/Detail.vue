@@ -7,8 +7,9 @@
                 class="d-flex flex-row-reverse"
             >
                 <v-btn
-                    color="light-blue"
-                    class="mb-5 white--text"
+                  color="light-blue"
+                  class="mb-5 white--text"
+                  @click="deleteService"
                 >
                     <v-icon 
                       inline
@@ -76,7 +77,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { updateService } from '@/lib/polkadotProvider/command/services'
+import { updateService, deleteService } from '@/lib/polkadotProvider/command/services'
 
 export default {
   name: 'LabAddServices',
@@ -90,7 +91,7 @@ export default {
   }),
   mounted(){
     const item = this.$route.params.item
-    this.id = item.id
+    this.id = item.serviceId
     this.name = item.name
     this.price = item.price
     this.description = item.description
@@ -112,9 +113,25 @@ export default {
           {
             name: this.name,
             price: this.price,
+            category: 'genetics',
             description: this.description,
             long_description: this.longDescription
           }
+        )
+        // Wait for transaction to finish before refreshing Vuex store
+        await this.$store.dispatch('substrate/getLabAccount')
+        this.$router.push('/lab/services')
+      }
+      catch(err){
+        console.error(err)
+      }
+    },
+    async deleteService() {
+      try{
+        await deleteService(
+          this.api,
+          this.pair,
+          this.id
         )
         // Wait for transaction to finish before refreshing Vuex store
         await this.$store.dispatch('substrate/getLabAccount')
