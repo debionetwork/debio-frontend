@@ -55,7 +55,22 @@ export async function addTokenUsdt() {
   }
 }
 
-export async function getBalance() {
+export async function getBalanceETH(address) {
+  try {
+    const web3 = store.getters['metamask/getWeb3']
+    let balance = await web3.eth.getBalance(address);
+    let ethBalance = web3.utils.fromWei(balance, 'ether');
+    var decimalIndex = balance.indexOf('.') + 1;
+    var digits = 7;
+    ethBalance = ethBalance.substring(0, decimalIndex != -1 ? decimalIndex + digits : ethBalance.length);
+
+    return ethBalance;
+  } catch (e) {
+    return 0;
+  }
+}
+
+export async function getBalanceUSDT() {
   const contractERC20Interface = store.getters['metamask/contracts/getERC20InterfaceContract'];
   let balance = await contractERC20Interface.methods
     .balanceOf(window.ethereum.selectedAddress).call()

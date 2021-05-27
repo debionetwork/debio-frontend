@@ -97,6 +97,7 @@
         :btnText="alertTextBtn"
         :textAlert="alertTextAlert"
         :imgPath="alertImgPath"
+        :imgWidth="imgWidth"
         @toggle="dialogAlert = $event"
         @close="actionAlert()"
       ></DialogAlert>
@@ -152,6 +153,7 @@ export default {
     alertTextBtn: "",
     alertImgPath: "warning.png",
     alertTextAlert: "",
+    imgWidth: "50",
     successLogin: false,
     typelogin: "",
   }),
