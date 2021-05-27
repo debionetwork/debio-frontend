@@ -4,48 +4,9 @@
       <v-container>
          <v-row>
             <v-col>
-               <v-dialog v-model="dialogInstruction" max-width="600px">
-                  <DNASampleSendingInstructions
-                     :specimenNumber="selectedSpeciment.number"
-                     :lab="selectedSpeciment.labData"
-                     hide-order-history-link
-                  >
-                     <template v-slot:button>
-                        <v-btn
-                           depressed
-                           color="primary"
-                           large
-                           width="100%"
-                           @click="() => (dialogInstruction = false)"
-                        >
-                           Dismiss
-                        </v-btn>
-                     </template>
-                  </DNASampleSendingInstructions>
-               </v-dialog>
-               <v-dialog v-model="dialogRejected" max-width="600px">
-                 <RejectedReasonDialog
-                    :specimen="selectedSpeciment"
-                 >
-                  <template v-slot:button>
-                        <v-btn
-                           depressed
-                           color="primary"
-                           large
-                           width="100%"
-                           @click="() => (dialogRejected = false)"
-                        >
-                           Dismiss
-                        </v-btn>
-                     </template>
-
-                 </RejectedReasonDialog>
-
-               </v-dialog>
-
                <DataTable
                   :headers="headers"
-                  :items="speciments"
+                  :items="orders"
                   :search="search"
                   :sort-by="['timestamp']"
                   :sort-desc="[true]"
@@ -55,66 +16,21 @@
                   <template v-slot:search-bar>
                      <SearchBar
                         label="Search"
-                        @input="onSearchInput"
                      ></SearchBar>
                   </template>
-                  <template v-slot:[`item.number`]="{ item }">
-                    {{ item.number | specimenNumber }}
-                  </template>
-                  <template v-slot:[`item.timestamp`]="{ item }">
-                    {{ item.timestamp | timestampToDate }}
-                  </template>
-                  <template v-slot:[`item.status`]="{ item }">
-                    {{ item.status | customerSpecimenStatus }}
-                  </template>
-
                   <template v-slot:[`item.actions`]="{ item }">
                      <v-container
-                        v-if="item.status == SENDING"
                      >
                         <v-btn
                           class="btn-sending"
                           dark
                            small
                            width="200"
-                           @click="showDialogInstruction(item)"
-                           >View Instructions</v-btn
-                        >
-                     </v-container>
-                     <v-container
-                        v-if="item.status == RECEIVED"
-                     >
-                        <v-btn
-                          class="Received"
-                          dark
-                           small
-                           width="200"
-                           @click="goToOrderDetail(item)"
-                           >View Order</v-btn
-                        >
-                     </v-container>
-                     <v-container v-if="item.status == SUCCESS">
-                        <v-btn
-                           class="success"
-                           small
-                           width="200"
-                           @click="gotoResult(item)"
-                           >View Result</v-btn
-                        >
-                     </v-container>
-
-                     <v-container v-if="item.status == REJECTED">
-                        <v-btn
-                           class="Reject"
-                           dark
-                           small
-                           width="200"
-                           @click="showDialogRejected(item)"
-                           >View Reason</v-btn
+                           @click="processOrder(item)"
+                           >Process Order</v-btn
                         >
                      </v-container>
                   </template>
-
                   <!-- Rows -->
                </DataTable>
             </v-col>
@@ -124,136 +40,45 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import router from '@/router'
-import localStorage from '@/lib/local-storage'
+import { mapGetters } from 'vuex'
+import { getOrdersDetailByAddress } from '@/lib/polkadotProvider/query/orders'
 import DataTable from '@/components/DataTable'
 import SearchBar from '@/components/DataTable/SearchBar'
-import DNASampleSendingInstructions from '@/components/DNASampleSendingInstructions'
-import RejectedReasonDialog from '@/components/RejectedReasonDialog'
-import { SENDING, RECEIVED, SUCCESS, REJECTED } from '@/constants/specimen-status'
 
 export default {
   name: 'LabOrderHistory',
   components: {
     DataTable,
-    DNASampleSendingInstructions,
     SearchBar,
-    RejectedReasonDialog,
   },
   data: () => ({
-    SENDING, RECEIVED, SUCCESS, REJECTED,
     headers: [
-          { text: 'Date', value: 'timestamp' },
-          { text: 'Product Name', value: 'serviceName' },
-          { text: 'Specimen Number', value: 'number' },
-          { text: 'Status', value: 'status' },
-          { text: 'Actions', value: 'actions', sortable: false, align: 'center', width: '5%' },
-        ],
-    speciments: [],
-    selectedSpeciment: {},
+      { text: 'Date', value: 'created_at' },
+      { text: 'Product Name', value: 'service_name' },
+      { text: 'Specimen Number', value: 'dna_sample_tracking_id' },
+      { text: 'Status', value: 'status' },
+      { text: 'Actions', value: 'actions', sortable: false, align: 'center', width: '5%' },
+    ],
+    orders: [],
     address: '',
     password: '',
     search: '',
     isLoading: false,
-    dialogInstruction: false,
-    dialogRejected: false,
   }),
   async mounted() {
-    this.address = JSON.parse(localStorage.getKeystore())['address'];
-  },
-  methods: {
-
-    async getSpcimentCount() {
-      try {
-        const address = this.address;
-        const specimenNum = await this.contractDegenics.methods.specimenCount().call({from:address})
-        return specimenNum;
-      } catch (error) {
-        console.log(error)
-      }
-    },
-    async getSpciments(num) {
-      try {
-        this.isLoading = true;
-        let specNum = new Array(parseInt(num)).fill(null);
-        const address = this.address;
-        const promSpec = specNum.map((x, i)=>this.contractDegenics.methods.specimenByIndex(i+1).call({from: address}))
-        const arrSpeciments = await Promise.all(promSpec);
-        const Labs = await this.getLabs(arrSpeciments);
-        console.log(arrSpeciments, Labs)
-        this.speciments = arrSpeciments.map(dt=>{
-          let { labAccount, owner, serviceCode, status, number, timestamp } = dt;
-          const labData = Labs.objLab.get(labAccount);
-          const objServiceName = Labs.objService.get(labAccount).find(obj=>obj.code == serviceCode);
-          const serviceName = objServiceName ? objServiceName.serviceName : "";
-          console.log("SN: ", serviceName, serviceCode)
-          return { labAccount, owner, serviceCode, status, number, labData, serviceName, timestamp };
-          });
-
-      } catch (error) {
-        console.log(error)
-      }
-      this.isLoading = false;
-    },
-    async getLabs (arrSpeciments) {
-      let objLab = new Map();
-      let objService = new Map();
-      try {
-        for (let speciment of arrSpeciments) {
-          let labData = await this.contractDegenics.methods.labByAccount(speciment.labAccount).call();
-          let labService = await this.getLabProducts(speciment.labAccount)
-          objService.set(speciment.labAccount, labService);
-          objLab.set(speciment.labAccount,labData);
-        }
-        return { objLab, objService };
-      } catch (error) {
-        console.error(error)
-      }
-    },
-    async getLabProducts(labAccount) {
-      try {
-        const serviceCount = await this.contractDegenics.methods.serviceCount(labAccount).call()
-        let specNum = new Array(parseInt(serviceCount)).fill(null);
-        const promService = specNum.map((x, i)=>this.contractDegenics.methods.serviceByIndex(labAccount, i+1).call())
-        const services = await Promise.all(promService)
-        return  services
-      } catch (err) {
-        this.products = []
-      }
-    },
-    gotoResult(item) {
-      router.push(`/result-test/${item.number}`);
-    },
-    showDialogInstruction(item) {
-      this.dialogInstruction = true;
-      this.selectedSpeciment = item;
-    },
-    goToOrderDetail(item) {
-      this.$router.push({
-        name: 'order-history-detail',
-        params: { number: item.number }
-      })
-    },
-    showDialogRejected(item) {
-      this.dialogRejected = true;
-      this.selectedSpeciment = item;
-    },
-    onSearchInput(val) {
-      this.search = val
-    },
+    this.orders = await getOrdersDetailByAddress(this.api, this.pair.address)
   },
   computed: {
-    ...mapState({
-      contractDegenics: state => state.ethereum.contracts.contractDegenics,
-    })
+    ...mapGetters({
+      api: 'substrate/getAPI',
+      pair: 'substrate/wallet',
+    }),
   },
-  watch: {
-    async address(){
-      let num = await this.getSpcimentCount();
-      await this.getSpciments(num);
+  methods: {
+    processOrder(item){
+      this.$router.push({ name: 'lab-dashboard-process-order', params: { item: item }})
     }
-  }
+  },
 }
 
 
