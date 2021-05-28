@@ -42,7 +42,7 @@
                     <v-card-text class="px-8 mt-5">
                         <div class="d-flex mb-8 justify-space-between">
                             <b class="secondary--text card-header">Order Detail</b>
-                            <b class="secondary--text h6">January 2 2021</b>
+                            <b class="secondary--text h6">{{ this.createdAt }}</b>
                         </div>
                         <div class="d-flex justify-space-between">
                             <div class="d-flex align-center">
@@ -65,7 +65,7 @@
                                     <b>Customer Account Number</b>
                                 </div>
                                 <div class="text-caption grey--text text--darken-1">
-                                    0xbC722C366Eabf9FC2F1faAa72bDd653b7061743C
+                                    {{ this.customerEthAddress }}
                                 </div>
                             </div>
                         </div>
@@ -75,7 +75,7 @@
                                     <b>Specimen Number</b>
                                 </div>
                                 <div class="text-caption grey--text text--darken-1">
-                                    0G0R-1CV2-4GRN
+                                    {{ this.specimenNumber }}
                                 </div>
                             </div>
                             <div class="mt-2 ml-5" style="max-width: 50%;">
@@ -83,7 +83,7 @@
                                     <b>Escrow Address</b>
                                 </div>
                                 <div class="text-caption grey--text text--darken-1">
-                                    0x1da8A0bf4a1Cdfc229F3adc6F27119C02e68Bc9e
+                                    {{ this.sellerEthAddress }}
                                 </div>
                             </div>
                         </div>
@@ -96,7 +96,8 @@
                             label="Confirm Specimen Number"
                             placeholder="Confirm Specimen Number"
                             outlined
-                            v-model="address"
+                            :rules="[confirmSpecimenNumberRule(specimenNumber)]"
+                            v-model="confirmSpecimenNumber"
                             ></v-text-field>
 
                         <v-btn
@@ -104,7 +105,7 @@
                             style="width: 35%"
                             color="primary"
                             large
-                            @click="updateLab"
+                            @click="receiveDnaSample"
                             >RECEIVE SPECIMEN</v-btn>
                     </v-card-text>
                 </v-card>
@@ -119,14 +120,12 @@
                             style="width: 50%"
                             color="primary"
                             large
-                            @click="updateLab"
                             >UPLOAD GENOME</v-btn>
                         <v-btn
                             class="mb-3 mr-3"
                             style="width: 50%"
                             color="primary"
                             large
-                            @click="updateLab"
                             >UPLOAD REPORT</v-btn>
                     </div>
                     <div class="d-flex justify-space-evenly">
@@ -142,7 +141,7 @@
                             style="width: 50%"
                             color="primary"
                             large
-                            @click="updateLab"
+                            @click="rejectDnaSample"
                             >REJECT</v-btn>
                     </div>
                 </div>
@@ -178,8 +177,83 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+import { processDnaSample, receiveDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
 
 export default {
   name: 'ProcessOrderHistory',
+  data: () => ({
+    comment: "",
+    reportLink: "",
+    resultLink: "",
+    isProcessSuccess: true,
+    customerEthAddress: "",
+    sellerEthAddress: "",
+    createdAt: "",
+    specimenNumber: "",
+    confirmSpecimenNumber: "",
+    confirmSpecimenNumberRule: (password) => (val) =>
+        (!!password && password == val) || "Specimen number must match.",
+  }),
+  mounted(){
+    this.createdAt = this.$route.params.item.created_at
+    this.customerEthAddress = this.$route.params.item.customer_eth_address
+    this.sellerEthAddress = this.$route.params.item.seller_eth_address
+    this.specimenNumber = this.$route.params.item.dna_sample_tracking_id
+  },
+  computed: {
+    ...mapGetters({
+      api: 'substrate/getAPI',
+      pair: 'substrate/wallet',
+    }),
+  },
+  method:{
+    async processDnaSample() {
+      await processDnaSample(
+        this.api,
+        this.pair,
+        this.specimenNumber,
+      )
+      // Wait for transaction to finish before refreshing Vuex store
+      await this.$store.dispatch('substrate/getLabAccount')
+      this.$router.push('/lab/services')
+    },
+    async receiveDnaSample() {
+      await receiveDnaSample(
+        this.api,
+        this.pair,
+        this.specimenNumber,
+      )
+      // Wait for transaction to finish before refreshing Vuex store
+      await this.$store.dispatch('substrate/getLabAccount')
+      this.$router.push('/lab/services')
+    },
+    async rejectDnaSample() {
+      await rejectDnaSample(
+        this.api,
+        this.pair,
+        this.specimenNumber,
+      )
+      // Wait for transaction to finish before refreshing Vuex store
+      await this.$store.dispatch('substrate/getLabAccount')
+      this.$router.push('/lab/services')
+    },
+    async submitTestResult() {
+      await submitTestResult(
+        this.api,
+        this.pair,
+        this.specimenNumber,
+        this.isProcessSuccess,
+        {
+          comment: this.comment,
+          report_link: this.reportLink,
+          result_link: this.resultLink
+        }
+      )
+      // Wait for transaction to finish before refreshing Vuex store
+      await this.$store.dispatch('substrate/getLabAccount')
+      this.$router.push('/lab/services')
+    },
+  },
 }
 </script>
