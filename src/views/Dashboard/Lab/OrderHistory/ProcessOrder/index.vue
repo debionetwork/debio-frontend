@@ -112,7 +112,6 @@
                             large
                             @click="receiveDnaSample"
                             >RECEIVE SPECIMEN</v-btn>
-                        </v-form>
                     </v-card-text>
                 </v-card>
                 <div v-if="showUploadGenomeReportDialog">
