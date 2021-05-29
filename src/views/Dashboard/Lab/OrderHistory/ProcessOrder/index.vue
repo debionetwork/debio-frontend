@@ -94,6 +94,7 @@
                         </div>
                     </v-card-text>
                 </v-card>
+<<<<<<< HEAD:src/views/Dashboard/Lab/OrderHistory/ProcessOrder.vue
                 <v-card v-if="showConfirmSpecimenDialog" class="dg-card mt-5" elevation="0" outlined>
                     <v-card-text class="px-8 mt-5">
                         <v-form
@@ -116,6 +117,25 @@
                                 color="primary"
                                 large
                                 @click="receiveDnaSample"
+=======
+                <v-card class="dg-card mt-5" elevation="0" outlined>
+                    <v-card-text class="d-flex px-8 mt-5">
+                        <v-text-field
+                            dense
+                            label="Confirm Specimen Number"
+                            placeholder="Confirm Specimen Number"
+                            outlined
+                            :rules="[confirmSpecimenNumberRule(specimenNumber)]"
+                            v-model="confirmSpecimenNumber"
+                            ></v-text-field>
+
+                        <v-btn
+                            class="ml-5"
+                            style="width: 35%"
+                            color="primary"
+                            large
+                            @click="receiveDnaSample"
+>>>>>>> 9f4ddda292176d81ef4de24544a28fb0d846bd5d:src/views/Dashboard/Lab/OrderHistory/ProcessOrder/index.vue
                             >RECEIVE SPECIMEN</v-btn>
                         </v-form>
                     </v-card-text>
@@ -133,6 +153,7 @@
                             style="width: 50%"
                             color="primary"
                             large
+<<<<<<< HEAD:src/views/Dashboard/Lab/OrderHistory/ProcessOrder.vue
                             @click="uploadGenomeToIpfs"
                         >
                             <v-icon left>
@@ -149,11 +170,15 @@
                             mdi-check-circle
                             </v-icon>
                         </v-btn>
+=======
+                            >UPLOAD GENOME</v-btn>
+>>>>>>> 9f4ddda292176d81ef4de24544a28fb0d846bd5d:src/views/Dashboard/Lab/OrderHistory/ProcessOrder/index.vue
                         <v-btn
                             class="mb-3 mr-3"
                             style="width: 50%"
                             color="primary"
                             large
+<<<<<<< HEAD:src/views/Dashboard/Lab/OrderHistory/ProcessOrder.vue
                             @click="uploadReportToIpfs"
                         >
                             <v-icon left>
@@ -170,6 +195,9 @@
                             mdi-check-circle
                             </v-icon>
                         </v-btn>
+=======
+                            >UPLOAD REPORT</v-btn>
+>>>>>>> 9f4ddda292176d81ef4de24544a28fb0d846bd5d:src/views/Dashboard/Lab/OrderHistory/ProcessOrder/index.vue
                     </div>
                     <div class="d-flex justify-space-evenly">
                         <v-btn
@@ -185,9 +213,14 @@
                             style="width: 50%"
                             color="primary"
                             large
+<<<<<<< HEAD:src/views/Dashboard/Lab/OrderHistory/ProcessOrder.vue
                             :disabled="uploadedGenomeCheckbox == true && uploadedReportCheckbox == true"
                             @click="rejectDnaSample"
                         >REJECT</v-btn>
+=======
+                            @click="rejectDnaSample"
+                            >REJECT</v-btn>
+>>>>>>> 9f4ddda292176d81ef4de24544a28fb0d846bd5d:src/views/Dashboard/Lab/OrderHistory/ProcessOrder/index.vue
                     </div>
                 </div>
                 <div v-if="showResultDialog">
@@ -223,12 +256,16 @@
 
 <script>
 import { mapGetters } from 'vuex'
+<<<<<<< HEAD:src/views/Dashboard/Lab/OrderHistory/ProcessOrder.vue
 import ipfsWorker from '@/web-workers/ipfs-worker'
+=======
+>>>>>>> 9f4ddda292176d81ef4de24544a28fb0d846bd5d:src/views/Dashboard/Lab/OrderHistory/ProcessOrder/index.vue
 import { processDnaSample, receiveDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
 
 export default {
   name: 'ProcessOrderHistory',
   data: () => ({
+<<<<<<< HEAD:src/views/Dashboard/Lab/OrderHistory/ProcessOrder.vue
     receiveDnaSampleCheckbox: false,
     wetworkCheckbox: false,
     uploadedGenomeCheckbox: false,
@@ -237,6 +274,8 @@ export default {
     genomeFiles: [],
     reportFiles: [],
     valid: "",
+=======
+>>>>>>> 9f4ddda292176d81ef4de24544a28fb0d846bd5d:src/views/Dashboard/Lab/OrderHistory/ProcessOrder/index.vue
     comment: "",
     reportLink: "",
     resultLink: "",
@@ -250,7 +289,10 @@ export default {
         (!!password && password == val) || "Specimen number must match.",
   }),
   mounted(){
+<<<<<<< HEAD:src/views/Dashboard/Lab/OrderHistory/ProcessOrder.vue
     this.pair.unlock('yo230899')
+=======
+>>>>>>> 9f4ddda292176d81ef4de24544a28fb0d846bd5d:src/views/Dashboard/Lab/OrderHistory/ProcessOrder/index.vue
     this.createdAt = this.$route.params.item.created_at
     this.customerEthAddress = this.$route.params.item.customer_eth_address
     this.sellerEthAddress = this.$route.params.item.seller_eth_address
@@ -261,6 +303,7 @@ export default {
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
     }),
+<<<<<<< HEAD:src/views/Dashboard/Lab/OrderHistory/ProcessOrder.vue
     showConfirmSpecimenDialog(){
         return this.receiveDnaSampleCheckbox == false
     },
@@ -283,12 +326,32 @@ export default {
         this.receiveDnaSampleCheckbox = true
       }
     },
+=======
+  },
+  method:{
+>>>>>>> 9f4ddda292176d81ef4de24544a28fb0d846bd5d:src/views/Dashboard/Lab/OrderHistory/ProcessOrder/index.vue
     async processDnaSample() {
       await processDnaSample(
         this.api,
         this.pair,
         this.specimenNumber,
       )
+<<<<<<< HEAD:src/views/Dashboard/Lab/OrderHistory/ProcessOrder.vue
+=======
+      // Wait for transaction to finish before refreshing Vuex store
+      await this.$store.dispatch('substrate/getLabAccount')
+      this.$router.push('/lab/services')
+    },
+    async receiveDnaSample() {
+      await receiveDnaSample(
+        this.api,
+        this.pair,
+        this.specimenNumber,
+      )
+      // Wait for transaction to finish before refreshing Vuex store
+      await this.$store.dispatch('substrate/getLabAccount')
+      this.$router.push('/lab/services')
+>>>>>>> 9f4ddda292176d81ef4de24544a28fb0d846bd5d:src/views/Dashboard/Lab/OrderHistory/ProcessOrder/index.vue
     },
     async rejectDnaSample() {
       await rejectDnaSample(
@@ -296,6 +359,12 @@ export default {
         this.pair,
         this.specimenNumber,
       )
+<<<<<<< HEAD:src/views/Dashboard/Lab/OrderHistory/ProcessOrder.vue
+=======
+      // Wait for transaction to finish before refreshing Vuex store
+      await this.$store.dispatch('substrate/getLabAccount')
+      this.$router.push('/lab/services')
+>>>>>>> 9f4ddda292176d81ef4de24544a28fb0d846bd5d:src/views/Dashboard/Lab/OrderHistory/ProcessOrder/index.vue
     },
     async submitTestResult() {
       await submitTestResult(
@@ -309,6 +378,7 @@ export default {
           result_link: this.resultLink
         }
       )
+<<<<<<< HEAD:src/views/Dashboard/Lab/OrderHistory/ProcessOrder.vue
       this.resultSubmittedCheckbox = true
     },
     uploadGenomeToIpfs() {
@@ -370,6 +440,11 @@ export default {
           this.uploadedReportCheckbox = true
         }
       }
+=======
+      // Wait for transaction to finish before refreshing Vuex store
+      await this.$store.dispatch('substrate/getLabAccount')
+      this.$router.push('/lab/services')
+>>>>>>> 9f4ddda292176d81ef4de24544a28fb0d846bd5d:src/views/Dashboard/Lab/OrderHistory/ProcessOrder/index.vue
     },
   },
 }
