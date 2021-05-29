@@ -128,10 +128,6 @@ export default {
     },
     async deleteService() {
       try{
-<<<<<<< HEAD
-        this.pair.unlock('yo230899')
-=======
->>>>>>> 9f4ddda292176d81ef4de24544a28fb0d846bd5d
         await deleteService(
           this.api,
           this.pair,
