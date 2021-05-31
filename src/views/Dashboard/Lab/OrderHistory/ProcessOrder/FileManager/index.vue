@@ -88,9 +88,9 @@
 <script>
 import { mapState } from 'vuex'
 import v from 'voca'
-import cryptWorker from '@/web-workers/crypt-worker'
-import ipfsWorker from '@/web-workers/ipfs-worker'
-import specimenFilesTempStore from '@/lib/specimen-files-temp-store'
+import cryptWorker from '../../../../../web-workers/crypt-worker'
+import ipfsWorker from '../../../../../web-workers/ipfs-worker'
+import specimenFilesTempStore from '../../../../../lib/specimen-files-temp-store'
 import FileCard from './FileCard'
 import { SENDING, RECEIVED, SUCCESS, REJECTED } from '@/constants/specimen-status'
 

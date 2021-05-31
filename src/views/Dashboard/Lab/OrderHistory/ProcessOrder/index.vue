@@ -15,24 +15,29 @@
                         <b>Checklist</b>
                     </div>
                     <v-checkbox
-                        v-model="checkbox"
+                        v-model="receivedCheckbox"
                         label="Received"
+                        disabled
                     ></v-checkbox>
                     <v-checkbox
-                        v-model="checkbox"
+                        v-model="wetworkCheckbox"
                         label="Wetwork"
+                        disabled
                     ></v-checkbox>
                     <v-checkbox
-                        v-model="checkbox"
+                        v-model="uploadedGenomeCheckbox"
                         label="Genome"
+                        disabled
                     ></v-checkbox>
                     <v-checkbox
-                        v-model="checkbox"
+                        v-model="uploadedReportCheckbox"
                         label="Report"
+                        disabled
                     ></v-checkbox>
                     <v-checkbox
-                        v-model="checkbox"
+                        v-model="sentCheckbox"
                         label="Sent"
+                        disabled
                     ></v-checkbox>
                     </v-card-text>
                 </v-card>
@@ -89,7 +94,7 @@
                         </div>
                     </v-card-text>
                 </v-card>
-                <v-card class="dg-card mt-5" elevation="0" outlined>
+                <v-card v-if="showReceiveDialog" class="dg-card mt-5" elevation="0" outlined>
                     <v-card-text class="d-flex px-8 mt-5">
                         <v-text-field
                             dense
@@ -109,7 +114,7 @@
                             >RECEIVE SPECIMEN</v-btn>
                     </v-card-text>
                 </v-card>
-                <div>
+                <div v-if="showGenomeReportDialog">
                     <v-checkbox
                         v-model="checkbox"
                         label="Wetwork is done"
@@ -120,13 +125,49 @@
                             style="width: 50%"
                             color="primary"
                             large
-                            >UPLOAD GENOME</v-btn>
+                        >
+                        <v-icon left dark class="pr-4">
+                        mdi-dna
+                        </v-icon>
+                        Upload Genome
+                        <template v-slot:loader>
+                        {{ loadingStatus.genome }}
+                        </template>
+                        <input
+                            type="file"
+                            style="display: none"
+                            ref="encryptUploadGenome"
+                        />
+                        </v-btn>
+                        <v-progress-linear
+                            v-if="loading.genome"
+                            class="mt-2"
+                            indeterminate color="primary"
+                        />
                         <v-btn
                             class="mb-3 mr-3"
                             style="width: 50%"
                             color="primary"
                             large
-                            >UPLOAD REPORT</v-btn>
+                        >
+                            <v-icon left dark class="pr-4">
+                            mdi-file-document-multiple
+                            </v-icon>
+                            Upload Report
+                            <template v-slot:loader>
+                            {{ loadingStatus.report }}
+                            </template>
+                            <input
+                                type="file"
+                                style="display: none"
+                                ref="encryptUploadReport"
+                            />
+                        </v-btn>
+                        <v-progress-linear
+                            v-if="loading.genome"
+                            class="mt-2"
+                            indeterminate color="primary"
+                        />
                     </div>
                     <div class="d-flex justify-space-evenly">
                         <v-btn
@@ -145,7 +186,7 @@
                             >REJECT</v-btn>
                     </div>
                 </div>
-                <div>
+                <div v-if="showSentDialog">
                     <div class="d-flex mb-8 justify-space-between">
                         <div style="width: 50%;">
                             <b class="secondary--text card-header">Genome Files</b>
@@ -178,11 +219,17 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import specimenFilesTempStore from '@/lib/specimen-files-temp-store'
 import { processDnaSample, receiveDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
 
 export default {
   name: 'ProcessOrderHistory',
   data: () => ({
+    receivedCheckbox: false,
+    wetworkCheckbox: false,
+    uploadedGenomeCheckbox: false,
+    uploadedReportCheckbox: false,
+    sentCheckbox: false,
     comment: "",
     reportLink: "",
     resultLink: "",
@@ -190,33 +237,49 @@ export default {
     customerEthAddress: "",
     sellerEthAddress: "",
     createdAt: "",
+    loadingStatus: {
+      genome: '',
+      report: '',
+    },
     specimenNumber: "",
     confirmSpecimenNumber: "",
     confirmSpecimenNumberRule: (password) => (val) =>
         (!!password && password == val) || "Specimen number must match.",
   }),
   mounted(){
+    // Get data from route param
     this.createdAt = this.$route.params.item.created_at
     this.customerEthAddress = this.$route.params.item.customer_eth_address
     this.sellerEthAddress = this.$route.params.item.seller_eth_address
     this.specimenNumber = this.$route.params.item.dna_sample_tracking_id
+    
+    // Add file input event listener
+    this.addFileUploadEventListener(this.$refs.encryptUploadGenome, 'genome')
+    this.addFileUploadEventListener(this.$refs.encryptUploadReport, 'report')
   },
   computed: {
     ...mapGetters({
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
     }),
+    showReceiveDialog(){
+        return !this.receivedCheckbox
+    },
+    showGenomeReportDialog(){
+        return this.receivedCheckbox && !this.sentCheckbox
+    },
+    showSentDialog(){
+        return this.sentCheckbox
+    }
   },
-  method:{
+  methods:{
     async processDnaSample() {
       await processDnaSample(
         this.api,
         this.pair,
         this.specimenNumber,
       )
-      // Wait for transaction to finish before refreshing Vuex store
-      await this.$store.dispatch('substrate/getLabAccount')
-      this.$router.push('/lab/services')
+      this.wetworkCheckbox = true
     },
     async receiveDnaSample() {
       await receiveDnaSample(
@@ -224,9 +287,7 @@ export default {
         this.pair,
         this.specimenNumber,
       )
-      // Wait for transaction to finish before refreshing Vuex store
-      await this.$store.dispatch('substrate/getLabAccount')
-      this.$router.push('/lab/services')
+      this.receivedCheckbox = true
     },
     async rejectDnaSample() {
       await rejectDnaSample(
@@ -234,9 +295,6 @@ export default {
         this.pair,
         this.specimenNumber,
       )
-      // Wait for transaction to finish before refreshing Vuex store
-      await this.$store.dispatch('substrate/getLabAccount')
-      this.$router.push('/lab/services')
     },
     async submitTestResult() {
       await submitTestResult(
@@ -250,9 +308,43 @@ export default {
           result_link: this.resultLink
         }
       )
-      // Wait for transaction to finish before refreshing Vuex store
-      await this.$store.dispatch('substrate/getLabAccount')
-      this.$router.push('/lab/services')
+    },
+    addFileUploadEventListener(fileInputRef, fileType) {
+      const context = this
+      console.log(fileInputRef)
+      fileInputRef.addEventListener('change', function() {
+        const file = this.files[0]
+        file.fileType = fileType // attach fileType to file, because fileType is not accessible in fr.onload scope
+        const fr = new FileReader()
+        fr.onload = async function() {
+          try {
+            context.loading[file.fileType] = true
+            // Encrypt
+            const encrypted = await context.encrypt({
+              text: fr.result,
+              fileType: file.fileType,
+              fileName: file.name
+            })
+            const { chunks, fileName: encFileName, fileType: encFileType } = encrypted
+            // Upload
+            const uploaded = await context.upload({
+              encryptedFileChunks: chunks,
+              fileName: encFileName,
+              fileType: encFileType
+            })
+            const { fileName, fileType, ipfsPath } = uploaded
+            context.files[fileType].push({ fileName, fileType, ipfsPath })
+            // Save files to localStorage
+            specimenFilesTempStore.set(context.specimen.number, context.files)
+
+            context.loading[file.fileType] = false
+          } catch (err) {
+            console.log(err)
+            context.loading[file.fileType] = false
+          }
+        }
+        fr.readAsText(file)
+      })
     },
   },
 }
