@@ -23,6 +23,15 @@
               @click="$router.push({ name: 'genome-files' })"
             ></MenuCard>
           </div>
+          <div class="mb-2">
+            <MenuCard
+              :height="120"
+              icon="mdi-file-document"
+              title="Upload EMR"
+              sub-title="Upload your genomic file"
+              @click="uploadEMR = true"
+            ></MenuCard>
+          </div>
         </v-col>
         <v-col cols="12" md="4">
           <OrderHistory />
@@ -31,7 +40,7 @@
           <TestResults />
         </v-col>
       </v-row>
-      <div class="d-flex justify-end" style="margin-top: 50px;">
+      <div class="d-flex justify-end" style="margin-top: 50px">
         <v-alert
           border="top"
           color="#ff56e0"
@@ -39,35 +48,41 @@
           icon="mdi-information"
           max-width="500"
         >
-          After making a test request you can process the request by logging out (top navigation bar) and logging back in using one of the demo lab accounts
+          After making a test request you can process the request by logging out
+          (top navigation bar) and logging back in using one of the demo lab
+          accounts
         </v-alert>
       </div>
+      <UploadEMR
+        :show="uploadEMR"
+        @toggle="uploadEMR = $event"
+        @status-wallet="({ status, img }) => connectWalletResult(status, img)"
+      ></UploadEMR>
     </v-container>
   </div>
 </template>
 
 <script>
-import MenuCard from '@/components/MenuCard'
-import OrderHistory from './OrderHistory'
-import TestResults from './TestResults'
+import MenuCard from "@/components/MenuCard";
+import OrderHistory from "./OrderHistory";
+import TestResults from "./TestResults";
+import UploadEMR from "@/views/Dashboard/Customer/EMR/UploadEMR";
 
 export default {
-  name: 'Home',
+  name: "Home",
   components: {
     MenuCard,
     OrderHistory,
     TestResults,
+    UploadEMR,
   },
-  computed: {
-  },
-  mounted() {
-  },
+  computed: {},
+  mounted() {},
   data: () => ({
+    uploadEMR: false,
   }),
-  methods: {
-
-  }
-}
+  methods: {},
+};
 </script>
 
 <style lang="scss" scoped>
