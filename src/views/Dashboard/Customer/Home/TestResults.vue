@@ -12,7 +12,7 @@
     ></v-progress-linear>
     <template v-if="testResults.length > 0">
       <div
-        v-for="(order) in testResults"
+        v-for="order in testResults"
         :key="order.number"
         class="mb-2"
         @click="gotoResult(order)"
@@ -31,29 +31,32 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import OrderCard from '@/components/OrderCard'
-import PrimaryButton from '@/components/PrimaryButton'
-import localStorage from '@/lib/local-storage'
-import router from '@/router'
-import { SUCCESS } from '@/constants/specimen-status'
+import { mapState } from "vuex";
+import OrderCard from "@/components/OrderCard";
+import PrimaryButton from "@/components/PrimaryButton";
+import { SUCCESS } from "@/constants/specimen-status";
+import {
+  queryDnaTestResultsByOwner,
+  queryDnaTestResults,
+} from "@/lib/polkadotProvider/query/geneticTesting";
+import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
+import { queryServicesById } from "@/lib/polkadotProvider/query/services";
+import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
 
 export default {
-  name: 'TestResults',
+  name: "TestResults",
   components: {
     OrderCard,
     PrimaryButton,
   },
   computed: {
     ...mapState({
-      degenicsContract: state => state.ethereum.contracts.contractDegenics
+      api: (state) => state.substrate.api,
+      wallet: (state) => state.substrate.wallet,
     }),
-    userAddress() {
-      return JSON.parse(localStorage.getKeystore())['address']
-    }
   },
   mounted() {
-    this.getTestResults()
+    this.getTestResults();
   },
   data: () => ({
     testResults: [],
@@ -61,140 +64,93 @@ export default {
   }),
   methods: {
     async getTestResults() {
-      this.isLoadingTestResults = true
+      this.isLoadingTestResults = true;
       try {
-        const maxResults = 3
+        this.testResults = [];
+        let maxResults = 3;
         // Get specimens
-        const specimens = await this.getSuccessSpecimens(maxResults)
-        // Get labs
-        const labAccounts = specimens.map(item => item.labAccount)
-            .filter((value, index, self) => self.indexOf(value) === index)
-        let labs = await this.getLabs(labAccounts)
-        labs = await this.fillLabServices(labs)
+        const specimens = await queryDnaTestResultsByOwner(
+          this.api,
+          this.wallet.address
+        );
 
-        const orders = this.prepareOrderData(specimens, labs)
-        this.testResults = orders
-
-        this.isLoadingTestResults = false
+        if (specimens != null) {
+          specimens.reverse();
+          if (specimens.length < maxResults) {
+            maxResults = specimens.length;
+          }
+        }
+        for (let i = 0; i < maxResults; i++) {
+          const dnaTestResults = await queryDnaTestResults(
+            this.api,
+            specimens[i]
+          );
+          if (dnaTestResults != null) {
+            const detaillab = await queryLabsById(
+              this.api,
+              dnaTestResults.lab_id
+            );
+            const detailOrder = await getOrdersDetail(
+              this.api,
+              dnaTestResults.order_id
+            );
+            const detailService = await queryServicesById(
+              this.api,
+              detailOrder.service_id
+            );
+            this.prepareOrderData(dnaTestResults, detaillab, detailService);
+          }
+        }
+        this.isLoadingTestResults = false;
       } catch (err) {
-
-        console.log(err)
-        this.isLoadingTestResults = false
+        console.log(err);
+        this.isLoadingTestResults = false;
       }
     },
-    async getSuccessSpecimens(maxSpecimens) {
-      try {
-        const specimenCount = await this.degenicsContract.methods
-          .specimenCount().call({ from: this.userAddress })
+    prepareOrderData(dnaTestResults, detaillab, detailService) {
+      const title = detailService.info.name;
 
-        const specimensPromises = []
-        for (let i = specimenCount; i > 0; i--) {
-          const promise = this.degenicsContract.methods
-            .specimenByIndex(i).call({ from: this.userAddress })
-
-          specimensPromises.push(promise)
-        }
-        const specimens = await Promise.all(specimensPromises)
-        const successSpecimens = specimens.filter(spec => spec.status == SUCCESS)
-
-        return successSpecimens.slice(0, maxSpecimens)
-      } catch (err) {
-        console.log(err)
-        throw new Error('Error in getting specimens: ' + err.message)
+      const labName = detaillab.info.name;
+      let icon = "mdi-needle";
+      if (detailService.info.image != null) {
+        icon = detailService.info.image;
       }
-    },
-    async getLabs(labAccounts) {
-      try {
-        const labPromises = []
-        for (let i = 0; i < labAccounts.length; i++) {
-          const promise = await this.degenicsContract.methods.labByAccount(labAccounts[i]).call()
-          labPromises.push(promise)
-        }
-        let labs = await Promise.all(labPromises)
 
-        return labs
-      } catch (err) {
-        console.log(err)
-        throw new Error('Error in getting labs: ' + err.message)
+      let timestamp = Math.floor(Date.now() / 1000).toString();
+      if (dnaTestResults.updated_at != null) {
+        timestamp = (
+          dnaTestResults.updated_at.replace(/,/g, "") / 1000
+        ).toString();
       }
-    },
-    async fillLabServices(labs) {
-      try {
-        const labWithServicePromises = []
-        for (let i = 0; i < labs.length; i++) {
-          let lab = labs[i]
-          const { labAccount } = lab
 
-          const promise = this.degenicsContract.methods
-            .serviceCount(labAccount).call()
-              .then(async serviceCount => {
-                const getServicePromises = []
-                for (let i = 1; i <= serviceCount; i++) {
-                  const promise = await this.degenicsContract.methods.serviceByIndex(labAccount, i).call()
-                  getServicePromises.push(promise)
-                }
-                const services = await Promise.all(getServicePromises)
-                lab.services = services
-                return lab
-              })
-          labWithServicePromises.push(promise)
-        }
-        const labWithServices = await Promise.all(labWithServicePromises)
+      const number = dnaTestResults.tracking_id;
+      const status = SUCCESS;
 
-        return labWithServices
-      } catch (err) {
-        console.log(err)
-        throw new Error('Error in getting lab products: ' + err.message)
-      }
-    },
-    /**
-    * prepareOrderData
-    *
-    * @param {Array} specimens
-    * @param {Array} labs
-    * @returns {Array} productData -- specimen data that includes lab name and product name
-    */
-    prepareOrderData(specimens, labs) {
-      /*
-      specimen:
-        - date (timestamp) - specimenNumber - status
-      lab:
-        - labName
-      lab product:
-        - icon - title
-      */
-      const orders = []
-      specimens.forEach(spec => {
-        const { number, timestamp, status, labAccount, serviceCode } = spec
-        const lab = labs.filter(l => l.labAccount == labAccount)[0]
-        const product = lab.services.filter(serv => serv.code == serviceCode)[0]
-        const productAdditionalData = product.additionalData
-          ? JSON.parse(product.additionalData)
-          : {}
+      const order = {
+        icon,
+        title,
+        number,
+        labName,
+        timestamp,
+        status,
+      };
 
-        const icon = productAdditionalData.icon ? productAdditionalData.icon : ''
-        const title = product.serviceName
-        const labName = lab.name
-
-        const order = {
-          icon, title, number, labName, timestamp, status,
-        }
-
-        orders.push(order)
-      })
-
-      return orders.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
+      this.testResults.push(order);
     },
     goToTestResults() {
-      router.push(`/result-test-all`);
+      this.$router.push({
+        name: "all-test-result",
+      });
     },
     gotoResult(item) {
-      router.push(`/result-test/${item.number}`);
+      this.$router.push({
+        name: "result-test",
+        params: { number: item.number },
+      });
     },
   },
-}
+};
 </script>
 
 <style>
-
 </style>
