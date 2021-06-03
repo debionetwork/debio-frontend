@@ -55,6 +55,7 @@ import {
 } from "@/lib/polkadotProvider/query/geneticTesting";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
+import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
 
 export default {
   name: "test-result-all",
@@ -118,9 +119,13 @@ export default {
                 this.api,
                 dnaTestResults.lab_id
               );
+              const detailOrder = await getOrdersDetail(
+                this.api,
+                dnaTestResults.order_id
+              );
               const detailService = await queryServicesById(
                 this.api,
-                detaillab.services[0]
+                detailOrder.service_id
               );
               this.prepareOrderData(dnaTestResults, detaillab, detailService);
             }
@@ -144,9 +149,9 @@ export default {
       }
 
       let timestamp = Math.floor(Date.now() / 1000).toString();
-      if (dnaTestResults.timestamp != null) {
+      if (dnaTestResults.updated_at != null) {
         timestamp = (
-          dnaTestResults.timestamp.replace(/,/g, "") / 1000
+          dnaTestResults.updated_at.replace(/,/g, "") / 1000
         ).toString();
       }
 
