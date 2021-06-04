@@ -109,8 +109,6 @@ export default {
     files: [],
   }),
   async mounted() {
-    console.log('Is pair locked?', this.pair.isLocked)
-    console.log(this.pair.address)
     await this.getCountries();
   },
   computed: {

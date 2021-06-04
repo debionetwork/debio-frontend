@@ -78,17 +78,14 @@
 </template>
 
 <script>
-import MenuCard from '@/components/MenuCard'
 import { mapState } from 'vuex'
+import MenuCard from '@/components/MenuCard'
 
 export default {
   name: 'Lab',
   components: {
     MenuCard,
   },
-  data: () => ({
-      password: ""
-  }),
   computed: {
     ...mapState({
       isLabAccountExist: (state) => state.substrate.isLabAccountExist,
