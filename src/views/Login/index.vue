@@ -43,6 +43,7 @@
           ({ status, address }) => onUseMnemonic(status, address)
         "
         @key-store-set="successLoginAction"
+        @show-mnemonic-form="showMnemonicForm"
       ></DialogSelectUserLogin>
 
       <GenerateAccountDialog
@@ -90,6 +91,12 @@
               mnemonic
             )
         "
+      ></AccessAccountMnemonicDialog>
+
+      <AccessAccountMnemonicDialog
+        :show="loginUsingMnemonicDialog"
+        @toggle="accessAccountMnemonicDialog = $event"
+        @mnemonic-input="({ mnemonic }) => showSetKeystorePasswordDialog(mnemonic)"
       ></AccessAccountMnemonicDialog>
 
       <DialogAlert
@@ -148,6 +155,7 @@ export default {
     setKeystorePasswordDialog: false,
     verifyRecoveryPhraseDialog: false,
     accessAccountMnemonicDialog: false,
+    loginUsingMnemonicDialog: false,
     forgotAddress: "",
     dialogAlert: false,
     alertTextBtn: "",
@@ -171,6 +179,9 @@ export default {
         this.forgotAddress = address;
         this.accessAccountMnemonicDialog = true;
       }
+    },
+    showMnemonicForm() {
+      this.loginUsingMnemonicDialog = true;
     },
     openSignIn() {
       this.dialogSelectUserLogin = true;
