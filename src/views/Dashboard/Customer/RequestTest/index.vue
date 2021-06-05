@@ -145,7 +145,7 @@
                 <span class="text-h6">
                   {{ product.price }}
                 </span>
-                <span class="primary--text text-caption"> DBIO </span>
+                <span class="primary--text text-caption"> {{ coinName }} </span>
               </template>
             </SelectableMenuCard>
           </v-col>
@@ -191,6 +191,7 @@ export default {
     DnaCollectionRequirements,
   },
   async mounted() {
+    this.coinName = process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME;
     await this.getCountries();
   },
   computed: {
@@ -237,6 +238,7 @@ export default {
     regions: [],
     labs: [],
     products: [],
+    coinName: "",
   }),
   methods: {
     ...mapMutations({

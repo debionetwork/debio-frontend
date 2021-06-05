@@ -55,6 +55,32 @@ export async function addTokenUsdt() {
   }
 }
 
+export async function addTokenDAIC() {
+  try {
+    const wasAdded = await window.ethereum.request({
+      method: 'wallet_watchAsset',
+      params: {
+        type: 'ERC20', // Initially only supports ERC20, but eventually more!
+        options: {
+          address: '0xC3C94c56D887a62B2eef9d49945A8b4f9Cc20511', // The address that the token is at.
+          symbol: 'DAIC', // A ticker symbol or shorthand, up to 5 chars.
+          decimals: 18, // The number of decimals in the token
+          image: 'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png', // A string url of the token logo
+        },
+      },
+    });
+    if (!wasAdded) {
+      console.log('Failed to add DAIC token!');
+      return false;
+    } else {
+      return true;
+    }
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+}
+
 export async function getBalanceETH(address) {
   try {
     const web3 = store.getters['metamask/getWeb3']
@@ -75,6 +101,13 @@ export async function getBalanceUSDT() {
   let balance = await contractERC20Interface.methods
     .balanceOf(window.ethereum.selectedAddress).call()
   return balance
+}
+
+export async function getPrice(priceOrder) {
+  const contractERC20Interface = store.getters['metamask/contracts/getERC20InterfaceContract'];
+  let decimalPlaces = await contractERC20Interface.methods
+    .decimals().call();
+  return Math.pow(priceOrder, parseInt(decimalPlaces) + 1);
 }
 
 /**
@@ -110,7 +143,20 @@ export async function transfer(data) {
 
   let raw = contractERC20Interface.methods.transfer(data.seller, data.amount).encodeABI()
 
-  let receipt = await sendTransaction(contractInfo.USDTTokenAddress.address, raw, data.from)
+  let receipt;
+  const coinName = process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME;
+  switch (coinName) {
+    case "DAIC":
+      receipt = await sendTransaction(contractInfo.DAICToken.address, raw, data.from);
+      break;
+    case "USDT":
+      receipt = await sendTransaction(contractInfo.USDTTokenAddress.address, raw, data.from);
+      break;
+    default:
+      receipt = await sendTransaction(contractInfo.USDTTokenAddress.address, raw, data.from);
+      break;
+  }
+
   return { data, receipt }
 
 }

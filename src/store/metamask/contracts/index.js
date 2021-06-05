@@ -51,8 +51,21 @@ export default {
       const Escrow20BasicContract = new web3.eth.Contract(Escrow20Basic, contractInfo.Escrow20Basic.address)
       const SingleEscrowContract = new web3.eth.Contract(SingleEscrow, contractInfo.SingleEscrow.address)
       const EscrowFactoryContract = new web3.eth.Contract(EscrowFactory, contractInfo.EscrowFactory.address)
-      const ERC20InterfaceContract = new web3.eth.Contract(ERC20Interface, contractInfo.ERC20Interface.address)
       const SimpleEscrowContract = new web3.eth.Contract(SimpleEscrow, contractInfo.SimpleEscrow.address)
+
+      let ERC20InterfaceContract;
+      const coinName = process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME;
+      switch (coinName) {
+        case "DAIC":
+          ERC20InterfaceContract = new web3.eth.Contract(ERC20Interface, contractInfo.DAICToken.address);
+          break;
+        case "USDT":
+          ERC20InterfaceContract = new web3.eth.Contract(ERC20Interface, contractInfo.ERC20Interface.address);
+          break;
+        default:
+          ERC20InterfaceContract = new web3.eth.Contract(ERC20Interface, contractInfo.ERC20Interface.address);
+          break;
+      }
 
       commit('SET_CONTRACT_Escrow20', Escrow20Contract)
       commit('SET_CONTRACT_Escrow20Basic', Escrow20BasicContract)

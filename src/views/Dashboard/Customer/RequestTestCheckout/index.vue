@@ -61,7 +61,9 @@
                       parseFloat(product.price.replaceAll(",", ".")).toFixed(2)
                     }}
                   </span>
-                  <span class="primary--text text-caption"> USDT </span>
+                  <span class="primary--text text-caption">
+                    {{ coinName }}
+                  </span>
                 </div>
               </div>
             </v-card-text>
@@ -79,7 +81,9 @@
                   <span class="text-h6">
                     {{ totalPrice }}
                   </span>
-                  <span class="primary--text text-caption"> USDT </span>
+                  <span class="primary--text text-caption">
+                    {{ coinName }}
+                  </span>
                 </div>
               </div>
             </v-card-text>
@@ -122,6 +126,7 @@ export default {
     sendPaymentDialog: false,
     country: "",
     city: "",
+    coinName: "",
   }),
   computed: {
     ...mapState({
@@ -137,6 +142,7 @@ export default {
     },
   },
   mounted() {
+    this.coinName = process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME;
     this.checkingData();
   },
   methods: {

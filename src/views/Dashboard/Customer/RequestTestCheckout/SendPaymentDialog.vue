@@ -32,7 +32,7 @@
               <span class="text-h6">
                 {{ totalPrice }}
               </span>
-              <span class="primary--text text-caption"> USDT </span>
+              <span class="primary--text text-caption"> {{ coinName }} </span>
             </div>
           </div>
           <!-- <div class="d-flex align-center justify-space-between">
@@ -99,7 +99,12 @@ import {
 } from "@/lib/polkadotProvider/query/orders";
 import { createOrder } from "@/lib/polkadotProvider/command/orders";
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile";
-import { transfer, addTokenUsdt } from "@/lib/metamask/wallet.js";
+import {
+  transfer,
+  addTokenUsdt,
+  addTokenDAIC,
+  getPrice,
+} from "@/lib/metamask/wallet.js";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
 
 export default {
@@ -121,6 +126,8 @@ export default {
     metamaskStatus: false,
     ethSellerAddress: null,
     ethAccount: null,
+    coinName: "",
+    priceOrder: 0,
   }),
   computed: {
     _show: {
@@ -140,6 +147,9 @@ export default {
     }),
   },
   mounted() {
+    this.coinName = process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME;
+    this.priceOrder = this.totalPrice;
+    this.priceOrder = parseFloat(this.priceOrder.replaceAll(",", "."));
     if (this.lab != null) {
       console.log(this.lab);
       this.country = cityData[this.lab.info.country].name;
@@ -205,11 +215,22 @@ export default {
       restoreAccountKeystore: "substrate/restoreAccountKeystore",
     }),
     async openMetamask() {
-      await addTokenUsdt();
+      switch (this.coinName) {
+        case "DAIC":
+          await addTokenDAIC();
+          break;
+        case "USDT":
+          await addTokenUsdt();
+          break;
+        default:
+          console.log("not trigger");
+          break;
+      }
       try {
+        const price = await getPrice(this.priceOrder);
         let txreceipts = await transfer({
-          seller: this.ethSellerAddress,
-          amount: parseFloat(this.totalPrice),
+          seller: process.env.VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS,
+          amount: String(price),
           from: this.metamaskWalletAddress,
         });
         console.log(txreceipts);
