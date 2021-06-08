@@ -104,18 +104,29 @@
         <template v-if="keystore == ''">
           <v-card-text class="pb-0 text-subtitle-1">
             <input type="file" style="display: none" ref="keystoreFileInput" />
-            <div align="center">OR</div>
+            <div style="width: 100%;">
+              <v-btn
+                depressed
+                color="primary"
+                medium
+                width="100%"
+                @click="showMnemonicForm"
+              >
+                Input Mnemonic
+              </v-btn>
+              <div class="py-2" align="center">OR</div>
+              <v-btn
+                depressed
+                color="primary"
+                medium
+                width="100%"
+                @click="onSelectKeystoreFile"
+              >
+                Import Keystore File
+              </v-btn>
+            </div>
           </v-card-text>
           <v-card-actions class="px-6 pb-4">
-            <v-btn
-              depressed
-              color="primary"
-              medium
-              width="100%"
-              @click="onSelectKeystoreFile"
-            >
-              Import Keystore File
-            </v-btn>
           </v-card-actions>
         </template>
       </div>
@@ -250,6 +261,9 @@ export default {
         this.keystoreInputErrors = result.error;
       }
     },
+    showMnemonicForm() {
+      this.$emit('show-mnemonic-form')
+    }
   },
 };
 </script>
