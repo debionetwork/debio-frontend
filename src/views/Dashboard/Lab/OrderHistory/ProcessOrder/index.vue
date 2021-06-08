@@ -101,6 +101,7 @@
                 <ProcessSpecimen 
                     v-if="showGenomeReportDialog"
                     :specimenNumber="specimenNumber"
+                    :publicKey="publicKey"
                     @processWetwork="wetworkCheckbox = true"
                     @uploadGenome="uploadedGenomeCheckbox = true"
                     @uploadReport="uploadedReportCheckbox = true"
@@ -114,9 +115,10 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { Keyring } from '@polkadot/keyring'
+import OrderFinished from './OrderFinished'
 import ReceiveSpecimen from './ReceiveSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
-import OrderFinished from './OrderFinished'
 
 export default {
   name: 'ProcessOrderHistory',
@@ -131,6 +133,7 @@ export default {
     uploadedGenomeCheckbox: false,
     uploadedReportCheckbox: false,
     sentCheckbox: false,
+    publicKey: "",
     createdAt: "",
     customerEthAddress: "",
     sellerEthAddress: "",
@@ -138,6 +141,8 @@ export default {
   }),
   mounted(){
     // Get data from route param
+    const keyring = new Keyring();
+    this.publicKey = keyring.decodeAddress(this.$route.params.item.customer_id)
     this.createdAt = this.$route.params.item.created_at
     this.customerEthAddress = this.$route.params.item.customer_eth_address
     this.sellerEthAddress = this.$route.params.item.seller_eth_address

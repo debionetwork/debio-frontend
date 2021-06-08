@@ -1,19 +1,18 @@
 <template>
-  <div class="py-4">
-    <v-row>
-      <v-col cols="12" md="6">
-        <template v-if="specimen.status == SUCCESS">
-          <div class="secondary--text text-h6"><b>Genome Files</b></div>
-        </template>
-        <template v-else>
+    <div>
+        <v-checkbox
+            v-model="wetworkCheckbox"
+            :disabled="wetworkCheckbox"
+            @change="processDnaSample()"
+            label="Wetwork is done"
+        ></v-checkbox>
+        <div class="d-flex justify-space-evenly">
           <v-btn
-            depressed
+            class="mb-3 mr-3"
+            style="width: 50%"
             color="primary"
-            width="100%"
+            large
             @click="uploadGenome"
-            :disabled="isLoading || !enabled"
-            :loading="loading.genome"
-            style="color: white;"
           >
             <v-icon left dark class="pr-4">
               mdi-dna
@@ -33,21 +32,11 @@
             class="mt-2"
             indeterminate color="primary"
           />
-        </template>
-      </v-col>
-      <v-col cols="12" md="6">
-        <template v-if="specimen.status == SUCCESS">
-          <div class="secondary--text text-h6"><b>Report Files</b></div>
-        </template>
-        <template v-else>
           <v-btn
-            depressed
+            class="mb-3 mr-3"
+            style="width: 50%"
             color="primary"
-            width="100%"
-            @click="uploadReport"
-            :disabled="isLoading || !enabled"
-            :loading="loading.report"
-            style="color: white;"
+            large
           >
             <v-icon left dark class="pr-4">
               mdi-file-document-multiple
@@ -63,173 +52,117 @@
             />
           </v-btn>
           <v-progress-linear
-            v-if="loading.report"
+            v-if="loading.genome"
             class="mt-2"
             indeterminate color="primary"
           />
-        </template>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12" md="6">
-        <div v-for="(file, idx) in files.genome" :key="idx + '-' + file.fileName + '-' + file.fileType">
-          <FileCard :file="file" @delete="onFileDelete" :hideDelete="specimen.status == SUCCESS"/>
         </div>
-      </v-col>
-      <v-col cols="12" md="6">
-        <div v-for="(file, idx) in files.report" :key="idx + '-' + file.fileName + '-' + file.fileType">
-          <FileCard :file="file" @delete="onFileDelete" :hideDelete="specimen.status == SUCCESS" />
+        <div class="d-flex justify-space-evenly">
+            <v-btn
+              class="mb-3 mr-3"
+              style="width: 50%"
+              color="primary"
+              large
+              :disabled="disableRejectButton"
+              @click="submitTestResult"
+              >SEND</v-btn>
+            <v-btn
+              class="mb-3 mr-3"
+              style="width: 50%; color: white"
+              color="yellow"
+              large
+              :disabled="disableRejectButton"
+              @click="rejectDnaSample"
+              >REJECT</v-btn>
         </div>
-      </v-col>
-    </v-row>
-  </div>
+    </div>
 </template>
 
+
 <script>
-import { mapState } from 'vuex'
-import v from 'voca'
-import cryptWorker from '../../../../../web-workers/crypt-worker'
-import ipfsWorker from '../../../../../web-workers/ipfs-worker'
-import specimenFilesTempStore from '../../../../../lib/specimen-files-temp-store'
-import FileCard from './FileCard'
-import { SENDING, RECEIVED, SUCCESS, REJECTED } from '@/constants/specimen-status'
+import { mapGetters } from 'vuex'
+// import FileCard from './FileCard'
+import ipfsWorker from '@/web-workers/ipfs-worker'
+import { naclSeal, mnemonicToMiniSecret, naclKeypairFromSeed } from '@polkadot/util-crypto'
+import cryptWorker from '@/web-workers/crypt-worker'
+import specimenFilesTempStore from '@/lib/specimen-files-temp-store'
+import { processDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
 
 export default {
-  name: 'FileManager',
-  components: {
-    FileCard,
-  },
+  name: 'ProcessSpecimen',
   props: {
-    enabled: Boolean,
-    wallet: Object,
-    specimen: Object,
-  },
-  computed: {
-    isLoading() {
-      return this.loading.genome || this.loading.report
-    },
-    ...mapState({
-      degenicsContract: state => state.ethereum.contracts.contractDegenics
-    }),
-    genomeFiles() {
-      return this.files.genome ?  [...this.files.genome] : []
-    },
-    reportFiles() {
-      return this.files.report ? [...this.files.report] : []
-    }
+    specimenNumber: String,
+    publicKey: Uint8Array,
   },
   data: () => ({
-    SENDING, RECEIVED, SUCCESS, REJECTED,
-    files: {
-      genome: [],
-      report: [],
-    },
+    wetworkCheckbox: false,
+    genomeSucceed: false,
+    reportSucceed: false,
+    comment: "",
+    reportLink: "",
+    resultLink: "",
+    isProcessSuccess: true,
     loading: {
-      genome: false,
-      report: false,
+      genome: '',
+      report: '',
     },
     loadingStatus: {
       genome: '',
       report: '',
     },
-    encryptProgress: {
-      genome: 0,
-      report: 0,
-    },
-    uploadProgress: {
-      genome: 0,
-      report: 0,
-    }
   }),
-  watch: {
-    genomeFiles(newState, oldState) {
-      if (!newState) return
-      if (oldState.length == 0 && newState.length > 0) {
-        this.$emit('actionDone', 'Genome')
-        return
-      }
-      if (oldState.length > 0 && newState.length == 0) {
-        this.$emit('actionUnDone', 'Genome')
-      }
-    },
-    reportFiles(newState, oldState) {
-      if (!newState) return
-      if (oldState.length == 0 && newState.length > 0) {
-        this.$emit('actionDone', 'Report')
-        return
-      }
-      if (oldState.length > 0 && newState.length == 0) {
-        this.$emit('actionUnDone', 'Report')
-      }
-    },
-    isLoading(val) {
-      this.$emit('loading', val)
-    }
-  },
-  mounted() {
-    if (this.specimen.status == SUCCESS) {
-      // Get files refernce from smart contract
-      this.getFilesUploaded()
-      return
-    }
+  mounted(){
     // Add file input event listener
     this.addFileUploadEventListener(this.$refs.encryptUploadGenome, 'genome')
     this.addFileUploadEventListener(this.$refs.encryptUploadReport, 'report')
-    // Get files stored locally
-    this.getFilesFromTempStore()
   },
-  methods: {
+  computed: {
+    ...mapGetters({
+      api: 'substrate/getAPI',
+      pair: 'substrate/wallet',
+    }),
+    disableRejectButton(){
+        return this.genomeSucceed && this.reportSucceed
+    },
+    disableSendButton(){
+        return !this.disableRejectButton
+    },
+  },
+  methods:{
     uploadGenome() {
       this.$refs.encryptUploadGenome.click()
     },
     uploadReport() {
       this.$refs.encryptUploadReport.click()
     },
-    /**
-     * getFilesUploaded
-     *
-     * get the files reference from Blockchain
-     * this will replace the local files state with the files state retrieved from Blockchain
-     */
-    async getFilesUploaded() {
-      try {
-        const address = this.specimen.owner;
-        const arrFiles = await this.degenicsContract.methods
-          .getFile(this.specimen.number).call({from: address});
-        if (arrFiles) {
-          const files = JSON.parse(arrFiles);
-          const temp = {}
-          files.forEach(file => {
-            if (!(file.fileType in temp)) {
-              temp[file.fileType] = []
-            }
-            temp[file.fileType].push(file)
-          })
-
-          this.files = temp
-        }
-      } catch (error) {
-        console.error(error)
-      }
+    async processDnaSample() {
+      await processDnaSample(
+        this.api,
+        this.pair,
+        this.specimenNumber,
+      )
+      this.$emit('processWetwork')
     },
-    /**
-     * getFilesFromTempStore
-     *
-     * Get the files store on localstorage
-     * Files are stored here if the processing is not yet finalized on the blockchain
-     */
-    getFilesFromTempStore() {
-      let tempFiles = specimenFilesTempStore.get(this.specimen.number)
-      if (!tempFiles) return
-      // Load the files
-      this.files = tempFiles
-      // Emit actions (Genome, Report) done according to files that exists
-      for (const [fileType, files] of Object.entries(tempFiles)) {
-        this.files[fileType].concat(files)
-        if (files.length > 0) {
-          this.$emit('actionDone', v.titleCase(fileType))
+    async rejectDnaSample() {
+      await rejectDnaSample(
+        this.api,
+        this.pair,
+        this.specimenNumber,
+      )
+    },
+    async submitTestResult() {
+      await submitTestResult(
+        this.api,
+        this.pair,
+        this.specimenNumber,
+        this.isProcessSuccess,
+        {
+          comment: this.comment,
+          report_link: this.reportLink,
+          result_link: this.resultLink
         }
-      }
+      )
+      this.$emit('sendData')
     },
     addFileUploadEventListener(fileInputRef, fileType) {
       const context = this
@@ -272,20 +205,30 @@ export default {
 
       return new Promise((resolve, reject) => {
         try {
-          const publicKey = this.specimen.pubkey;
-          const arrChunks = [];
-          let chunksAmount;
+          const publicKey = this.publicKey
+          const buffer = new Uint8Array(text)
+          
+          // Create valid Substrate-compatible seed from mnemonic
+          const seed = mnemonicToMiniSecret(this.mnemonic)
 
-          cryptWorker.workerEncrypt.postMessage({ publicKey, text}) // Access this object in e.data in worker
+          // Generate new public/secret keypair for Alice from the supplied seed
+          const keypair = naclKeypairFromSeed(seed)
+
+          const sealedBuffer = naclSeal(buffer, keypair.secretKey, publicKey)
+
+          const arrChunks = []
+          let chunksAmount
+
+          cryptWorker.workerEncrypt.postMessage({ publicKey, sealedBuffer }) // Access this object in e.data in worker
           cryptWorker.workerEncrypt.onmessage = event => {
             // The first returned data is the chunksAmount
             if(event.data.chunksAmount) {
-              chunksAmount = event.data.chunksAmount;
-              return;
+              chunksAmount = event.data.chunksAmount
+              return
             }
 
             arrChunks.push(event.data)
-            this.encryptProgress[fileType] = arrChunks.length / chunksAmount * 100;
+            this.encryptProgress[fileType] = arrChunks.length / chunksAmount * 100
 
             if (arrChunks.length == chunksAmount ) {
               resolve({
@@ -356,10 +299,6 @@ export default {
         specimenFilesTempStore.remove(this.specimen.number)
       }
     },
-  }
+  },
 }
 </script>
-
-<style>
-
-</style>
