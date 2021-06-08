@@ -43,10 +43,9 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import Dialog from './Dialog'
 import Button from './Button'
-import Wallet from '../lib/dgnx-wallet'
-import keystore from '../lib/keystore'
 
 export default {
   name: 'UnlockWalletDialog',
@@ -69,9 +68,15 @@ export default {
     isLoading: false,
     errorMessages: [],
   }),
+  computed: {
+    ...mapGetters({
+      api: 'substrate/getAPI',
+      pair: 'substrate/wallet',
+    }),
+  },
   methods: {
     onCancel() {
-      this.$emit('cancel')
+      this.$emit('toggle')
     },
     async decryptWallet() {
       this.isLoading = true
@@ -81,12 +86,12 @@ export default {
       }
 
       try {
-        const ks = keystore.get()
-        const wallet = await Wallet.decrypt(ks, this.password)
-        this.$emit('unlocked', wallet)
+        this.pair.unlock(this.password)
 
         this.isLoading = false
         this.password = ''
+        
+        this.$emit('toggle')
 
       } catch (err) {
         this.isLoading = false

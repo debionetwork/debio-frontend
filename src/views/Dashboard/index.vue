@@ -49,10 +49,10 @@
 
 <script>
 import v from 'voca'
-import DevMenu from '../../components/DevMenu'
-import UserAccountMenu from '../../components/UserAccountMenu'
-import SettingsMenu from '../../components/SettingsMenu'
-import WalletBalance from '../../components/WalletBalance'
+import DevMenu from '@/components/DevMenu'
+import UserAccountMenu from '@/components/UserAccountMenu'
+import SettingsMenu from '@/components/SettingsMenu'
+import WalletBalance from '@/components/WalletBalance'
 import Breadcrumbs from './Breadcrumbs'
 
 export default {
@@ -63,8 +63,6 @@ export default {
     SettingsMenu,
     Breadcrumbs,
     WalletBalance,
-  },
-  mounted() {
   },
   computed: {
     isLab() {

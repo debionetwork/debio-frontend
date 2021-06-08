@@ -46,16 +46,22 @@
       
       <router-view></router-view>
     </v-main>
+
+    <UnlockWalletDialog 
+      :show="show"
+      @toggle="toggle()"
+    ></UnlockWalletDialog>
   </v-app>
 </template>
 
 <script>
 import v from 'voca'
-import NavigationDrawer from '@/components/NavigationDrawer'
+import { mapState, mapGetters } from 'vuex'
 import Breadcrumbs from '@/views/Dashboard/Breadcrumbs'
-import { mapState } from 'vuex'
 import MenuChangeRole from "@/components/MenuChangeRole"
 import HeaderUserInfo from "@/components/HeaderUserInfo"
+import NavigationDrawer from '@/components/NavigationDrawer'
+import UnlockWalletDialog from '@/components/UnlockWalletDialog'
 
 export default {
   name: 'Dashboard',
@@ -63,9 +69,20 @@ export default {
     Breadcrumbs,
     NavigationDrawer,
     MenuChangeRole,
-    HeaderUserInfo
+    HeaderUserInfo,
+    UnlockWalletDialog,
+  },
+  data: () => ({
+    show: false
+  }),
+  mounted() {
+    console.log('Is pair locked?', this.pair.isLocked)
+    this.show = this.pair.isLocked
   },
   computed: {
+    ...mapGetters({
+      pair: 'substrate/wallet',
+    }),
     ...mapState({
       isLabAccountExist: (state) => state.substrate.isLabAccountExist,
     }),
@@ -81,6 +98,11 @@ export default {
         : v.titleCase(this.$route.name)
     }
   },
+  methods: {
+    toggle(){
+      this.show = false
+    }
+  }
 }
 </script>
 

@@ -40,5 +40,11 @@
     "address": "0xaf622dd428F0e35f6CC48A0756A93E32441060a8",
     "updated": true,
     "lastUpdate": "2021-02-10T07:25:08.487Z"
+  },
+  "DAICToken": {
+    "name": "DAICTokenAddress",
+    "address": "0xC3C94c56D887a62B2eef9d49945A8b4f9Cc20511",
+    "updated": true,
+    "lastUpdate": "2021-05-04T23:25:08.487Z"
   }
 }

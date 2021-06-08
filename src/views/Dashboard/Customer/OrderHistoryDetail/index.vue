@@ -61,7 +61,9 @@
                     <span class="text-h6">
                       {{ priceOrder }}
                     </span>
-                    <span class="primary--text text-caption"> USDT </span>
+                    <span class="primary--text text-caption">
+                      {{ coinName }}
+                    </span>
                   </div>
                 </div>
                 <div>
@@ -100,7 +102,9 @@
                   <span class="text-h6">
                     {{ priceOrder }}
                   </span>
-                  <span class="primary--text text-caption"> USDT </span>
+                  <span class="primary--text text-caption">
+                    {{ coinName }}
+                  </span>
                 </div>
               </div>
             </v-card-text>
@@ -201,7 +205,7 @@ import {
 import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
-import { transfer } from "@/lib/metamask/wallet.js";
+import { transfer, getPrice } from "@/lib/metamask/wallet.js";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
 import { cancelOrder } from "@/lib/polkadotProvider/command/orders";
 import { startApp } from "@/lib/metamask";
@@ -238,6 +242,7 @@ export default {
     alertTextAlert: "",
     imgWidth: "50",
     logs: [],
+    coinName: "",
   }),
   computed: {
     ...mapState({
@@ -253,6 +258,7 @@ export default {
     },
   },
   mounted() {
+    this.coinName = process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME;
     this.fetchOrderDetails();
   },
   watch: {
@@ -315,7 +321,7 @@ export default {
         this.alertType = "no_acc_eth";
         return;
       }
-      if (this.metamaskWalletBalance < 0){
+      if (this.metamaskWalletBalance < 0) {
         this.alertTextBtn = "Close";
         this.alertImgPath = "warning.png";
         this.alertTextAlert = "Your balance is empty.";
@@ -324,9 +330,10 @@ export default {
         return;
       }
       try {
+        const price = await getPrice(this.priceOrder);
         let txreceipts = await transfer({
-          seller: ethSellerAddress,
-          amount: parseFloat(this.priceOrder),
+          seller: process.env.VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS,
+          amount: String(price),
           from: this.metamaskWalletAddress,
         });
         console.log(txreceipts);
