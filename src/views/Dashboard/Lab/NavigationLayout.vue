@@ -8,25 +8,26 @@
       clipped-left
     >
       <div class="dg-app-bar-items-container">
-          <a href="https://www.degenics.com/" target="_blank" style="text-decoration: none;">
-            <div class="d-flex align-center">
-              <v-img
-                alt="Vuetify Logo"
-                class="shrink mr-2"
-                contain
-                src="@/assets/degenics-logo.png"
-                transition="scale-transition"
-                width="40"
-              />
-              <div class="text-h6 font-weight-bold light_primary--text">
-                Degenics {{ isLab ? 'Lab' : '' }}
-              </div>
+        <a href="https://www.degenics.com/" target="_blank" style="text-decoration: none;">
+          <div class="d-flex align-center">
+            <v-img
+              alt="Vuetify Logo"
+              class="shrink mr-2"
+              contain
+              src="@/assets/degenics-logo.png"
+              transition="scale-transition"
+              width="40"
+            />
+            <div class="text-h6 font-weight-bold light_primary--text">
+              Degenics {{ isLab ? 'Lab' : '' }}
             </div>
-          </a>
-          <v-spacer></v-spacer>
-          <HeaderUserInfo />
-          <!-- Menu For Development Purposes -->
-          <MenuChangeRole />
+          </div>
+        </a>
+        <v-spacer></v-spacer>
+        <HeaderUserInfo />
+        <!-- Menu For Development Purposes -->
+        <MenuChangeRole />
+        <NotificationInfo />
       </div>
     </v-app-bar>
 
@@ -60,6 +61,7 @@ import { mapState, mapGetters } from 'vuex'
 import Breadcrumbs from '@/views/Dashboard/Breadcrumbs'
 import MenuChangeRole from "@/components/MenuChangeRole"
 import HeaderUserInfo from "@/components/HeaderUserInfo"
+import NotificationInfo from "@/components/NotificationInfo"
 import NavigationDrawer from '@/components/NavigationDrawer'
 import UnlockWalletDialog from '@/components/UnlockWalletDialog'
 
@@ -71,6 +73,7 @@ export default {
     MenuChangeRole,
     HeaderUserInfo,
     UnlockWalletDialog,
+    NotificationInfo
   },
   data: () => ({
     show: false
