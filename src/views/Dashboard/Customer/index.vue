@@ -28,6 +28,9 @@
         ></HeaderUserInfo>
         <!-- Menu For Development Purposes -->
         <MenuChangeRole />
+        <HeaderNotification
+          :role="'customer'"
+        ></HeaderNotification>
       </div>
     </v-app-bar>
 
@@ -70,6 +73,8 @@ import NavigationDrawer from "@/components/NavigationDrawer";
 import HeaderUserInfo from "@/components/HeaderUserInfo";
 import WalletBinding from "@/components/WalletBinding";
 import DialogAlert from "@/components/Dialog/DialogAlert";
+import HeaderNotification from "@/components/HeaderNotification";
+import { mapState } from "vuex";
 
 export default {
   name: "Dashboard",
@@ -80,6 +85,7 @@ export default {
     HeaderUserInfo,
     WalletBinding,
     DialogAlert,
+    HeaderNotification,
   },
   data: () => ({
     showWalletBinding: false,
@@ -91,6 +97,11 @@ export default {
   }),
   mounted() {},
   computed: {
+    ...mapState({
+      api: (state) => state.substrate.api,
+      wallet: (state) => state.substrate.wallet,
+      lastEventData: (state) => state.substrate.lastEventData,
+    }),
     isLab() {
       return this.$route.path.indexOf("lab") > 0;
     },
@@ -101,6 +112,17 @@ export default {
       return this.$route.meta.pageHeader
         ? this.$route.meta.pageHeader
         : v.titleCase(this.$route.name);
+    },
+  },
+  watch: {
+    lastEventData() {
+      if (this.lastEventData != null) {
+        this.$store.dispatch("substrate/addListNotification", {
+          address: this.wallet.address,
+          event: this.lastEventData,
+          role: "customer",
+        });
+      }
     },
   },
   methods: {

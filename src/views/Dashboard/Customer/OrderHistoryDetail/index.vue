@@ -338,6 +338,7 @@ export default {
           amount: String(price),
           from: this.metamaskWalletAddress,
         });
+        this.isLoading = true;
         console.log(txreceipts);
       } catch (err) {
         console.log(err);

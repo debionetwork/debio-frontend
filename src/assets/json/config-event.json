@@ -1,0 +1,52 @@
+{
+  "role": {
+    "customer": {
+      "orders": {
+        "OrderPaid": {
+          "message": "Payment Success",
+          "value": "id",
+          "route": "order-history-detail",
+          "params": "number",
+          "identy": "customer_id"
+        },
+        "OrderCancelled": {
+          "message": "New order cancelled",
+          "value": "id",
+          "route": "order-history-detail",
+          "params": "number",
+          "identy": "customer_id"
+        },
+        "OrderCreated": {
+          "message": "New order created",
+          "value": "id",
+          "route": "order-history-detail",
+          "params": "number",
+          "identy": "customer_id"
+        }
+      },
+      "geneticTesting": {
+        "DnaSampleProcessed": {
+          "message": "Dna Sample Processed",
+          "value": "tracking_id",
+          "route": "result-test",
+          "params": "number",
+          "identy": "owner_id"
+        },
+        "DnaSampleReceived": {
+          "message": "Dna Sample Received",
+          "value": "tracking_id",
+          "route": "result-test",
+          "params": "number",
+          "identy": "owner_id"
+        },
+        "DnaSampleProcessing": {
+          "message": "Dna Sample Processing",
+          "value": "tracking_id",
+          "route": "result-test",
+          "params": "number",
+          "identy": "owner_id"
+        }
+      }
+    }
+  }
+}

@@ -18,34 +18,36 @@
         </div>
       </div>
     </template>
-    <v-card>
-      <v-list>
-        <v-list-item two-line @click="downloadKeystore">
-          <v-list-item-action>
-            <v-icon>mdi-file-key</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Download Keystore File</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item two-line @click="openWalletBinding">
-          <v-list-item-action>
-            <v-icon>mdi-wallet</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Wallet Binding</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item two-line @click="logOut">
-          <v-list-item-action>
-            <v-icon>mdi-logout</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Log Out</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-card>
+    <div class="mt-11">
+      <v-card>
+        <v-list>
+          <v-list-item two-line @click="downloadKeystore">
+            <v-list-item-action>
+              <v-icon>mdi-file-key</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Download Keystore File</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item two-line @click="openWalletBinding">
+            <v-list-item-action>
+              <v-icon>mdi-wallet</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Wallet Binding</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item two-line @click="logOut">
+            <v-list-item-action>
+              <v-icon>mdi-logout</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Log Out</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </div>
   </v-menu>
 </template>
 

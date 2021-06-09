@@ -6,6 +6,7 @@ import localStorage from '@/lib/local-storage'
 // u8aToString, stringToU8a
 import { u8aToHex } from '@polkadot/util'
 import { queryEntireLabDataById } from '@/lib/polkadotProvider/query/labs'
+import masterConfigEvent from "@/assets/json/config-event.json"
 
 const {
   // mnemonicToMiniSecret,
@@ -27,6 +28,8 @@ const defaultState = {
   labAccount: null,
   isLabAccountExist: false,
   lastEventData: null,
+  localListNotfication: [],
+  configEvent: null,
 }
 
 export default {
@@ -67,6 +70,12 @@ export default {
     SET_LAST_EVENT(state, event) {
       state.lastEventData = event
     },
+    SET_LIST_NOTIFICATION(state, event) {
+      state.localListNotfication = event
+    },
+    SET_CONFIG_EVENT(state, event) {
+      state.configEvent = event
+    },
   },
   actions: {
     async connect({ commit }) {
@@ -83,17 +92,21 @@ export default {
         api.query.system.events((events) => {
           console.log(`\nReceived ${events.length} events:`)
           events.forEach((record) => {
-            const { event, phase } = record
-
-            // Show what we are busy with
-            if (event.section === 'orders' && event.method === 'OrderPaid') {
-              console.log(`Received an OrderPaid event`)
-              console.log(`Phase: ${phase.toString()}`)
-            }
-
-            if (event.section == "orders") {
-              console.log("Method :" + event.method);
-              commit('SET_LAST_EVENT', event);
+            const { event, phase } = record;
+            switch (event.section) {
+              case "orders":
+                console.log("Method :" + event.method);
+                console.log(`Phase: ${phase.toString()}`)
+                commit('SET_LAST_EVENT', event);
+                break;
+              case "geneticTesting":
+                console.log("Method :" + event.method);
+                console.log(`Phase: ${phase.toString()}`)
+                commit('SET_LAST_EVENT', event);
+                break;
+              default:
+                console.log("event no mapping");
+                break;
             }
           })
         })
@@ -210,6 +223,74 @@ export default {
         return { success: false }
       }
     },
+    async getListNotification({ commit }, { address, role }) {
+      try {
+        //localStorage.removeLocalStorageByName("LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role, null);
+        commit('SET_CONFIG_EVENT', masterConfigEvent);
+        const listNotficationJson = localStorage.getLocalStorageByName("LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role);
+        let listNotfication = [];
+        if (listNotficationJson != null && listNotficationJson != "") {
+          listNotfication = JSON.parse(listNotficationJson);
+          listNotfication.reverse();
+          console.log(listNotfication);
+        }
+        commit('SET_LIST_NOTIFICATION', listNotfication);
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async addListNotification({ commit, state }, { address, event, role }) {
+      try {
+        const storageName = "LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role;
+        const listNotficationJson = localStorage.getLocalStorageByName(storageName);
+        let listNotfication = [];
+        if (listNotficationJson != null && listNotficationJson != "") {
+          listNotfication = JSON.parse(listNotficationJson);
+        }
+        const message = state.configEvent["role"][role][event.section][event.method].message;
+        const route = state.configEvent["role"][role][event.section][event.method].route;
+        const value = state.configEvent["role"][role][event.section][event.method].value;
+        const identy = state.configEvent["role"][role][event.section][event.method].identy;
+        const timestamp = Math.floor(Date.now() / 1000).toString();
+        const dataEvent = JSON.parse(event.data.toString());
+        let id = "";
+        let statusAdd = false;
+        let data = null;
+        if (dataEvent.length > 0) {
+          data = dataEvent[0];
+          id = dataEvent[0][value];
+          if (dataEvent[0][identy] == address) {
+            statusAdd = true;
+          }
+        }
+        if (statusAdd) {
+          listNotfication.push({
+            message: message,
+            timestamp: timestamp,
+            data: data,
+            route: route,
+            params: { number: id },
+            read: false,
+          });
+        }
+        localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotfication));
+        commit('SET_LIST_NOTIFICATION', listNotfication);
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async updateDataListNotification({ commit }, { address, data, role }) {
+      try {
+        if (data != null && data != "") {
+          data.reverse();
+          localStorage.setLocalStorageByName("LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role, JSON.stringify(data));
+          data.reverse();
+          commit('SET_LIST_NOTIFICATION', data);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
   },
   getters: {
     wallet(state) {
@@ -226,6 +307,9 @@ export default {
     },
     getLastEvent(state) {
       return state.lastEventData
+    },
+    getListNotification(state) {
+      state.localListNotfication
     }
   }
 }
