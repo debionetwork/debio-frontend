@@ -330,6 +330,8 @@ export default {
         return;
       }
       try {
+        console.log('VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS', process.env.VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS)
+        console.log('VUE_APP_DEGENICS_USE_TOKEN_NAME', process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME)
         const price = await getPrice(this.priceOrder);
         let txreceipts = await transfer({
           seller: process.env.VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS,
