@@ -1,0 +1,204 @@
+{
+  "role": {
+    "customer": {
+      "balances": {
+        "Transfer": {
+          "message": "Congrats! You got ",
+          "value": 0,
+          "value_message": 2,
+          "route": "",
+          "params": "number",
+          "identy": 1
+        }
+      },
+      "orders": {
+        "OrderPaid": {
+          "message": "Payment Success",
+          "value": "id",
+          "value_message": "dna_sample_tracking_id",
+          "route": "order-history-detail",
+          "params": "number",
+          "identy": "customer_id"
+        },
+        "OrderCancelled": {
+          "message": "New order cancelled",
+          "value": "id",
+          "value_message": "dna_sample_tracking_id",
+          "route": "order-history-detail",
+          "params": "number",
+          "identy": "customer_id"
+        },
+        "OrderCreated": {
+          "message": "New order created",
+          "value": "id",
+          "value_message": "dna_sample_tracking_id",
+          "route": "order-history-detail",
+          "params": "number",
+          "identy": "customer_id"
+        },
+        "OrderSuccess": {
+          "message": "Order completed",
+          "value": "id",
+          "value_message": "dna_sample_tracking_id",
+          "route": "order-history-detail",
+          "params": "number",
+          "identy": "customer_id"
+        },
+        "OrderRefunded": {
+          "message": "Order rejected or returned",
+          "value": "id",
+          "value_message": "dna_sample_tracking_id",
+          "route": "order-history-detail",
+          "params": "number",
+          "identy": "customer_id"
+        },
+        "OrderFailed": {
+          "message": "Order failed to create",
+          "value": "id",
+          "value_message": "dna_sample_tracking_id",
+          "route": "order-history-detail",
+          "params": "number",
+          "identy": "customer_id"
+        }
+      },
+      "geneticTesting": {
+        "DnaSampleProcessed": {
+          "message": "Dna Sample Processed",
+          "value": "tracking_id",
+          "value_message": "tracking_id",
+          "route": "result-test",
+          "params": "number",
+          "identy": "owner_id"
+        },
+        "DnaSampleReceived": {
+          "message": "Dna Sample Received",
+          "value": "tracking_id",
+          "value_message": "tracking_id",
+          "route": "result-test",
+          "params": "number",
+          "identy": "owner_id"
+        },
+        "DnaSampleProcessing": {
+          "message": "Dna Sample Processing",
+          "value": "tracking_id",
+          "value_message": "tracking_id",
+          "route": "result-test",
+          "params": "number",
+          "identy": "owner_id"
+        },
+        "DnaSampleCreated": {
+          "message": "Dna Sample Created",
+          "value": "tracking_id",
+          "value_message": "tracking_id",
+          "route": "result-test",
+          "params": "number",
+          "identy": "owner_id"
+        },
+        "DnaSampleRejected": {
+          "message": "Dna Sample Rejected",
+          "value": "tracking_id",
+          "value_message": "tracking_id",
+          "route": "result-test",
+          "params": "number",
+          "identy": "owner_id"
+        },
+        "DnaTestResultSubmitted": {
+          "message": "Dna Test Result Submitted",
+          "value": "tracking_id",
+          "value_message": "tracking_id",
+          "route": "result-test",
+          "params": "number",
+          "identy": "owner_id"
+        }
+      }
+    },
+    "lab": {
+      "balances": {
+        "Transfer": {
+          "message": "Congrats! You got ",
+          "value": 0,
+          "value_message": 2,
+          "route": "",
+          "params": "number",
+          "identy": 1
+        }
+      },
+      "orders": {
+        "OrderPaid": {
+          "message": "New order in.",
+          "value": "id",
+          "value_message": "dna_sample_tracking_id",
+          "route": "lab-dashboard-order-history",
+          "params": "number",
+          "identy": "seller_id"
+        },
+        "OrderSuccess": {
+          "message": "Order completed",
+          "value": "id",
+          "value_message": "dna_sample_tracking_id",
+          "route": "lab-dashboard-order-history",
+          "params": "number",
+          "identy": "seller_id"
+        },
+        "OrderRefunded": {
+          "message": "Order rejected or returned",
+          "value": "id",
+          "value_message": "dna_sample_tracking_id",
+          "route": "lab-dashboard-order-history",
+          "params": "number",
+          "identy": "seller_id"
+        }
+      },
+      "geneticTesting": {
+        "DnaSampleProcessed": {
+          "message": "Dna Sample Processed",
+          "value": "tracking_id",
+          "value_message": "tracking_id",
+          "route": "lab-process",
+          "params": "number",
+          "identy": "lab_id"
+        },
+        "DnaSampleReceived": {
+          "message": "Dna Sample Received",
+          "value": "tracking_id",
+          "value_message": "tracking_id",
+          "route": "lab-process",
+          "params": "number",
+          "identy": "lab_id"
+        },
+        "DnaSampleProcessing": {
+          "message": "Dna Sample Processing",
+          "value": "tracking_id",
+          "value_message": "tracking_id",
+          "route": "lab-process",
+          "params": "number",
+          "identy": "lab_id"
+        },
+        "DnaSampleCreated": {
+          "message": "Dna Sample Created",
+          "value": "tracking_id",
+          "value_message": "tracking_id",
+          "route": "lab-process",
+          "params": "number",
+          "identy": "lab_id"
+        },
+        "DnaSampleRejected": {
+          "message": "Dna Sample Rejected",
+          "value": "tracking_id",
+          "value_message": "tracking_id",
+          "route": "lab-process",
+          "params": "number",
+          "identy": "lab_id"
+        },
+        "DnaTestResultSubmitted": {
+          "message": "Dna Test Result Submitted",
+          "value": "tracking_id",
+          "value_message": "tracking_id",
+          "route": "lab-process",
+          "params": "number",
+          "identy": "lab_id"
+        }
+      }
+    }
+  }
+}
