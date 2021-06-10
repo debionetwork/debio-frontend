@@ -2,7 +2,13 @@
   <v-menu bottom left>
     <template v-slot:activator="{ on, attrs }">
       <div
-        class="d-flex align-center light_primary--text caption text-decoration-underline"
+        class="
+          d-flex
+          align-center
+          light_primary--text
+          caption
+          text-decoration-underline
+        "
         v-bind="attrs"
         v-on="on"
       >
@@ -10,20 +16,22 @@
       </div>
     </template>
 
-    <v-card>
-      <v-list>
-        <router-link to="/customer">
-          <v-list-item link>
-            <v-list-item-title>Customer</v-list-item-title>
-          </v-list-item>
-        </router-link>
-        <router-link to="/lab">
-          <v-list-item link>
-            <v-list-item-title>Lab</v-list-item-title>
-          </v-list-item>
-        </router-link>
-      </v-list>
-    </v-card>
+    <div class="mt-11">
+      <v-card>
+        <v-list>
+          <router-link to="/customer">
+            <v-list-item link>
+              <v-list-item-title>Customer</v-list-item-title>
+            </v-list-item>
+          </router-link>
+          <router-link to="/lab">
+            <v-list-item link>
+              <v-list-item-title>Lab</v-list-item-title>
+            </v-list-item>
+          </router-link>
+        </v-list>
+      </v-card>
+    </div>
   </v-menu>
 </template>
 
