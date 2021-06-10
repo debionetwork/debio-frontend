@@ -105,8 +105,8 @@
                     @processWetwork="wetworkCheckbox = true"
                     @uploadGenome="uploadedGenomeCheckbox = true"
                     @uploadReport="uploadedReportCheckbox = true"
-                    @sendData="sentCheckbox = true" />
-                <OrderFinished v-if="showSentDialog" />
+                    @submitTestResult="sentCheckbox = true" />
+                <!-- <OrderFinished v-if="showSentDialog" /> -->
             </v-col>
         </v-row>
       </v-container>
@@ -116,7 +116,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { Keyring } from '@polkadot/keyring'
-import OrderFinished from './OrderFinished'
+// import OrderFinished from './OrderFinished'
 import ReceiveSpecimen from './ReceiveSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
 
@@ -125,7 +125,7 @@ export default {
   components: {
     ReceiveSpecimen,
     ProcessSpecimen,
-    OrderFinished,
+    // OrderFinished,
   },
   data: () => ({
     receivedCheckbox: false,
@@ -157,11 +157,12 @@ export default {
         return !this.receivedCheckbox
     },
     showGenomeReportDialog(){
-        return this.receivedCheckbox && !this.sentCheckbox
+        return this.receivedCheckbox
+        // return this.receivedCheckbox && !this.sentCheckbox
     },
-    showSentDialog(){
-        return this.sentCheckbox
-    }
+    // showSentDialog(){
+    //     return this.sentCheckbox
+    // }
   },
 }
 </script>

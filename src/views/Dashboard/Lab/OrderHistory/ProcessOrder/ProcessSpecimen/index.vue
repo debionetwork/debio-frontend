@@ -1,17 +1,40 @@
 <template>
-    <div>
-        <v-checkbox
-            v-model="wetworkCheckbox"
-            :disabled="wetworkCheckbox"
-            @change="processDnaSample()"
-            label="Wetwork is done"
-        ></v-checkbox>
-        <div class="d-flex justify-space-evenly">
+  <div>
+    <div v-if="submitted">
+      <div class="d-flex mt-5 mb-5 justify-space-between">
+        <v-row>
+          <v-col>
+            <div v-for="(file, idx) in files.genome" :key="idx + '-' + file.fileName + '-' + file.fileType">
+              <FileCard :filename="file.fileName" :ipfsUrl="getFileIpfsUrl(file)"/>
+            </div>
+          </v-col>
+        </v-row>
+        <v-row class="ml-5">
+          <v-col>
+            <div v-for="(file, idx) in files.report" :key="idx + '-' + file.fileName + '-' + file.fileType">
+              <FileCard :filename="file.fileName" :ipfsUrl="getFileIpfsUrl(file)" />
+            </div>
+          </v-col>
+        </v-row>
+      </div>
+      <v-alert
+          type="success"
+          >Specimen Processed</v-alert>
+    </div>
+    <div v-else>
+      <v-checkbox
+          v-model="wetworkCheckbox"
+          :disabled="wetworkCheckbox"
+          @change="processDnaSample()"
+          label="Wetwork is done"
+      ></v-checkbox>
+      <div class="d-flex justify-space-evenly">
+        <div class="mb-3 mr-3" style="width: 50%">
           <v-btn
-            class="mb-3 mr-3"
-            style="width: 50%"
             color="primary"
             large
+            block
+            :disabled="loading.genome || loading.report || genomeSucceed"
             @click="uploadGenome"
           >
             <v-icon left dark class="pr-4">
@@ -32,11 +55,14 @@
             class="mt-2"
             indeterminate color="primary"
           />
+        </div>
+        <div class="mb-3" style="width: 50%">
           <v-btn
-            class="mb-3 mr-3"
-            style="width: 50%"
             color="primary"
             large
+            block
+            :disabled="loading.genome || loading.report || reportSucceed"
+            @click="uploadReport"
           >
             <v-icon left dark class="pr-4">
               mdi-file-document-multiple
@@ -52,36 +78,41 @@
             />
           </v-btn>
           <v-progress-linear
-            v-if="loading.genome"
+            v-if="loading.report"
             class="mt-2"
             indeterminate color="primary"
           />
         </div>
-        <div class="d-flex justify-space-evenly">
-            <v-btn
-              class="mb-3 mr-3"
-              style="width: 50%"
-              color="primary"
-              large
-              :disabled="disableRejectButton"
-              @click="submitTestResult"
-              >SEND</v-btn>
-            <v-btn
-              class="mb-3 mr-3"
-              style="width: 50%; color: white"
-              color="yellow"
-              large
-              :disabled="disableRejectButton"
-              @click="rejectDnaSample"
-              >REJECT</v-btn>
+      </div>
+      <div class="d-flex justify-space-evenly">
+        <div class="mb-3 mr-3" style="width: 50%">
+          <v-btn
+            color="primary"
+            large
+            block
+            :disabled="disableSendButton"
+            @click="submitTestResult"
+            >SEND</v-btn>
         </div>
+        <div class="mb-3" style="width: 50%">
+          <v-btn
+            style="color: white"
+            color="yellow"
+            large
+            block
+            :disabled="disableRejectButton"
+            @click="rejectDnaSample"
+            >REJECT</v-btn>
+        </div>
+      </div>
     </div>
+  </div>
 </template>
 
 
 <script>
 import { mapGetters } from 'vuex'
-// import FileCard from './FileCard'
+import FileCard from './FileCard'
 import ipfsWorker from '@/web-workers/ipfs-worker'
 import { naclSeal, mnemonicToMiniSecret, naclKeypairFromSeed } from '@polkadot/util-crypto'
 import cryptWorker from '@/web-workers/crypt-worker'
@@ -90,6 +121,9 @@ import { processDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polka
 
 export default {
   name: 'ProcessSpecimen',
+  components: {
+    FileCard,
+  },
   props: {
     specimenNumber: String,
     publicKey: Uint8Array,
@@ -102,14 +136,27 @@ export default {
     reportLink: "",
     resultLink: "",
     isProcessSuccess: true,
+    submitted: false,
+    files: {
+      genome: [],
+      report: [],
+    },
     loading: {
-      genome: '',
-      report: '',
+      genome: false,
+      report: false,
     },
     loadingStatus: {
       genome: '',
       report: '',
     },
+    encryptProgress: {
+      genome: 0,
+      report: 0,
+    },
+    uploadProgress: {
+      genome: 0,
+      report: 0,
+    }
   }),
   mounted(){
     // Add file input event listener
@@ -122,10 +169,10 @@ export default {
       pair: 'substrate/wallet',
     }),
     disableRejectButton(){
-        return this.genomeSucceed && this.reportSucceed
+      return this.genomeSucceed && this.reportSucceed
     },
     disableSendButton(){
-        return !this.disableRejectButton
+      return !this.disableRejectButton
     },
   },
   methods:{
@@ -134,6 +181,16 @@ export default {
     },
     uploadReport() {
       this.$refs.encryptUploadReport.click()
+    },
+    /**
+     * @returns {String} The first ipfs path (a file has multiple ipfs path, because a file may be chunked)
+     */
+    getFileIpfsPath(file) {
+      return file.ipfsPath[0].data.path
+    },
+    getFileIpfsUrl(file) {
+      const path = this.getFileIpfsPath(file)
+      return `https://ipfs.io/ipfs/${path}`
     },
     async processDnaSample() {
       await processDnaSample(
@@ -149,8 +206,12 @@ export default {
         this.pair,
         this.specimenNumber,
       )
+      this.$emit('rejectSpecimen')
     },
     async submitTestResult() {
+      const genomeLink = this.getFileIpfsUrl(this.files.genome[0])
+      const reportLink = this.getFileIpfsUrl(this.files.report[0])
+      console.log(genomeLink, reportLink)
       await submitTestResult(
         this.api,
         this.pair,
@@ -158,11 +219,12 @@ export default {
         this.isProcessSuccess,
         {
           comment: this.comment,
-          report_link: this.reportLink,
-          result_link: this.resultLink
+          report_link: reportLink,
+          result_link: genomeLink
         }
       )
-      this.$emit('sendData')
+      this.submitted = true
+      this.$emit('submitTestResult')
     },
     addFileUploadEventListener(fileInputRef, fileType) {
       const context = this
@@ -173,27 +235,45 @@ export default {
         fr.onload = async function() {
           try {
             context.loading[file.fileType] = true
-            // Encrypt
-            const encrypted = await context.encrypt({
-              text: fr.result,
-              fileType: file.fileType,
-              fileName: file.name
-            })
-            const { chunks, fileName: encFileName, fileType: encFileType } = encrypted
+
+            // // Encrypt
+            // const encrypted = await context.encrypt({
+            //   text: fr.result,
+            //   fileType: file.fileType,
+            //   fileName: file.name,
+            // })
+            // const { chunks, fileName: encFileName, fileType: encFileType } = encrypted
+            // // Upload
+            // const uploaded = await context.upload({
+            //   encryptedFileChunks: chunks,
+            //   fileType: encFileType,
+            //   fileName: encFileName,
+            // })
+
             // Upload
             const uploaded = await context.upload({
-              encryptedFileChunks: chunks,
-              fileName: encFileName,
-              fileType: encFileType
+              encryptedFileChunks: fr.result,
+              fileType: file.fileType,
+              fileName: file.name,
             })
             const { fileName, fileType, ipfsPath } = uploaded
             context.files[fileType].push({ fileName, fileType, ipfsPath })
+
             // Save files to localStorage
-            specimenFilesTempStore.set(context.specimen.number, context.files)
+            specimenFilesTempStore.set(context.specimenNumber, context.files)
 
             context.loading[file.fileType] = false
+
+            if(file.fileType == 'genome') {
+              context.genomeSucceed = true
+              context.$emit('uploadGenome')
+            }
+            if(file.fileType == 'report') {
+              context.reportSucceed = true
+              context.$emit('uploadReport')
+            }
           } catch (err) {
-            console.log(err)
+            console.error(err)
             context.loading[file.fileType] = false
           }
         }
