@@ -1,21 +1,21 @@
 <template>
   <div>
     <div class="secondary--text mb-2"><b>Order History</b></div>
-    <div v-if="orderHistory.length == 0 && !isLoadingOrderHistory">
+    <div v-if="preparedOrderHistory.length == 0 && !isLoadingOrderHistory">
       No order history found
     </div>
     <v-progress-linear
-      v-if="orderHistory.length == 0 && isLoadingOrderHistory"
+      v-if="preparedOrderHistory.length == 0 && isLoadingOrderHistory"
       class="mt-2"
       indeterminate
       color="primary"
     ></v-progress-linear>
-    <template v-if="orderHistory.length > 0">
+    <template v-if="preparedOrderHistory.length > 0">
       <div
-        v-for="order in orderHistory"
+        v-for="order in preparedOrderHistory"
         :key="order.number"
         class="mb-2"
-        @click="gotoDetailOrder(order)"
+        @click="gotoDetailOrder(order.number)"
       >
         <v-tooltip top v-if="order.status == 'Sending'">
           <template v-slot:activator="{ on, attrs }">
@@ -25,7 +25,7 @@
                 :title="order.title"
                 :specimenNumber="order.dna_sample_tracking_id"
                 :labName="order.labName"
-                :timestamp="order.dateOrder"
+                :timestamp="order.timestamp"
                 :status="order.status"
               />
             </div>
@@ -51,16 +51,12 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import OrderCard from "@/components/OrderCard";
-import PrimaryButton from "@/components/PrimaryButton";
-import localStorage from "@/lib/local-storage";
+import { mapState } from "vuex"
+import OrderCard from "@/components/OrderCard"
+import PrimaryButton from "@/components/PrimaryButton"
 import {
   getOrdersDetailByAddress,
-  getOrdersDetail,
-} from "@/lib/polkadotProvider/query/orders";
-import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
-import { queryServicesById } from "@/lib/polkadotProvider/query/services";
+} from "@/lib/polkadotProvider/query/orders"
 
 export default {
   name: "LabOrders",
@@ -74,71 +70,54 @@ export default {
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
     }),
-    userAddress() {
-      return JSON.parse(localStorage.getKeystore())["address"];
-    },
   },
   mounted() {
-    this.getOrderHistory();
+    this.getOrderHistory()
   },
   data: () => ({
     orderHistory: [],
+    preparedOrderHistory: [],
     isLoadingOrderHistory: false,
   }),
   methods: {
     async getOrderHistory() {
-      this.isLoadingOrderHistory = true;
+      this.isLoadingOrderHistory = true
       try {
-        this.orderHistory = [];
-        const address = this.wallet.address;
-        const listOrderId = await getOrdersDetailByAddress(
+        const address = this.wallet.address
+        let orders = await getOrdersDetailByAddress(
           this.api,
           address,
-        );
+        )
+        orders.sort(
+          (a, b) => parseInt(b.created_at) - parseInt(a.created_at)
+        )
 
-        var lengthMax = 3;
-        if (listOrderId != null) {
-          listOrderId.reverse();
-          if (listOrderId.length < lengthMax) {
-            lengthMax = listOrderId.length;
-          }
-
+        var lengthMax = 3
+        if(orders.length > 0){
           for (let i = 0; i < lengthMax; i++) {
-            const detailOrder = await getOrdersDetail(this.api, listOrderId[i]);
-            const detaillab = await queryLabsById(
-              this.api,
-              detailOrder.seller_id
-            );
-            const detailService = await queryServicesById(
-              this.api,
-              detailOrder.service_id
-            );
-            this.prepareOrderData(detailOrder, detaillab, detailService);
+            this.prepareOrderData(orders[i])
           }
-
-          this.orderHistory.sort(
-            (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
-          );
         }
 
-        this.isLoadingOrderHistory = false;
+        this.isLoadingOrderHistory = false
       } catch (err) {
-        console.log(err);
-        this.isLoadingOrderHistory = false;
+        this.isLoadingOrderHistory = false
       }
     },
-    prepareOrderData(detailOrder, detaillab, detailService) {
-      const title = detailService.info.name;
-      const labName = detaillab.info.name;
-      let icon = "mdi-needle";
-      if (detailService.info.image != null) {
-        icon = detailService.info.image;
+    prepareOrderData(detailOrder) {
+      this.orderHistory.push(detailOrder)
+
+      const title = detailOrder.lab_name
+      const labName = detailOrder.service_name
+      let icon = "mdi-needle"
+      if (detailOrder.image != null) {
+        icon = detailOrder.image
       }
 
-      const number = detailOrder.id;
-      const timestamp = (detailOrder.created_at.replace(/,/g, "") / 1000).toString();
-      const status = detailOrder.status;
-      const dna_sample_tracking_id = detailOrder.dna_sample_tracking_id;
+      const number = detailOrder.id
+      const timestamp = (detailOrder.created_at / 1000).toString()
+      const status = detailOrder.status
+      const dna_sample_tracking_id = detailOrder.dna_sample_tracking_id
 
       const order = {
         icon,
@@ -148,23 +127,30 @@ export default {
         timestamp,
         status,
         dna_sample_tracking_id,
-      };
+      }
 
-      this.orderHistory.push(order);
+      this.preparedOrderHistory.push(order)
     },
     goToOrderHistory() {
       this.$router.push({
         name: "lab-dashboard-order-history",
-      });
+      })
     },
-    gotoDetailOrder(item) {
+    gotoDetailOrder(number) {
+      let item = null
+      for(let i = 0; i < this.orderHistory.length; i++){
+        if(this.orderHistory[i].id == number){
+          item = this.orderHistory[i]
+        }
+      }
+      console.log(item)
       this.$router.push({ 
         name: 'lab-dashboard-process-order', 
         params: { item: item }
       })
     },
   },
-};
+}
 </script>
 
 <style>
