@@ -105,7 +105,7 @@
                     @processWetwork="wetworkCheckbox = true"
                     @uploadGenome="uploadedGenomeCheckbox = true"
                     @uploadReport="uploadedReportCheckbox = true"
-                    @submitTestResult="sentCheckbox = true" />
+                    @submitTestResult="submitTestResult" />
                 <!-- <OrderFinished v-if="showSentDialog" /> -->
             </v-col>
         </v-row>
@@ -119,6 +119,7 @@ import { Keyring } from '@polkadot/keyring'
 // import OrderFinished from './OrderFinished'
 import ReceiveSpecimen from './ReceiveSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
+import { fulfillOrder } from '@/lib/polkadotProvider/command/orders'
 
 export default {
   name: 'ProcessOrderHistory',
@@ -147,6 +148,16 @@ export default {
     this.customerEthAddress = this.$route.params.item.customer_eth_address
     this.sellerEthAddress = this.$route.params.item.seller_eth_address
     this.specimenNumber = this.$route.params.item.dna_sample_tracking_id
+  },
+  methods: {
+    async submitTestResult(){
+        await fulfillOrder(
+            this.api,
+            this.pair,
+            this.specimenNumber,
+        )
+        this.sentCheckbox = true
+    }
   },
   computed: {
     ...mapGetters({
