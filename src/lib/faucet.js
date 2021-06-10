@@ -17,3 +17,13 @@ export async function getEthFromFaucet(walletAddress) {
   }
 }
 
+export async function getDbioFromFaucet(walletAddress) {
+  const faucetEndpoint = 'https://faucet.theapps.dev'
+  const request = `${faucetEndpoint}?address=${walletAddress}`
+  try {
+    const resp = await axios.get(request)
+    console.log(resp)
+  } catch (err) {
+    console.log(err)
+  }
+}
