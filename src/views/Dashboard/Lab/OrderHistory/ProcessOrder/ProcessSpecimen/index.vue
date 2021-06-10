@@ -147,7 +147,7 @@ export default {
     comment: "",
     reportLink: "",
     resultLink: "",
-    isProcessSuccess: true,
+    isProcessSuccess: false,
     submitted: false,
     files: {
       genome: [],
@@ -210,6 +210,8 @@ export default {
         this.pair,
         this.specimenNumber,
       )
+
+      this.isProcessSuccess = true
       this.$emit('processWetwork')
     },
     async rejectDnaSample() {
@@ -223,7 +225,7 @@ export default {
     async submitTestResult() {
       const genomeLink = this.getFileIpfsUrl(this.files.genome[0])
       const reportLink = this.getFileIpfsUrl(this.files.report[0])
-      console.log(genomeLink, reportLink)
+      
       await submitTestResult(
         this.api,
         this.pair,
@@ -235,6 +237,7 @@ export default {
           result_link: genomeLink
         }
       )
+
       this.submitted = true
       this.$emit('submitTestResult')
     },
