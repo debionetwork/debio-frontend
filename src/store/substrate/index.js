@@ -7,6 +7,7 @@ import localStorage from '@/lib/local-storage'
 import { u8aToHex } from '@polkadot/util'
 import { queryEntireLabDataById } from '@/lib/polkadotProvider/query/labs'
 import masterConfigEvent from "@/assets/json/config-event.json"
+import { queryBalance } from "@/lib/polkadotProvider/query/balance"
 
 const {
   // mnemonicToMiniSecret,
@@ -90,7 +91,7 @@ export default {
 
         // Example of how to subscribe to events via storage
         api.query.system.events((events) => {
-          console.log(`\nReceived ${events.length} events:`)
+          console.log(`\nReceived ${events.length} events:`);
           events.forEach((record) => {
             const { event, phase } = record;
             switch (event.section) {
@@ -102,6 +103,11 @@ export default {
               case "geneticTesting":
                 console.log("Method :" + event.method);
                 console.log(`Phase: ${phase.toString()}`)
+                commit('SET_LAST_EVENT', event);
+                break;
+              case "balances":
+                console.log("Method :" + event.method);
+                console.log(`Phase: ${phase.toString()}`);
                 commit('SET_LAST_EVENT', event);
                 break;
               default:
@@ -232,7 +238,7 @@ export default {
         if (listNotficationJson != null && listNotficationJson != "") {
           listNotfication = JSON.parse(listNotficationJson);
           listNotfication.reverse();
-          console.log(listNotfication);
+          //console.log(listNotfication);
         }
         commit('SET_LIST_NOTIFICATION', listNotfication);
       } catch (err) {
@@ -247,33 +253,113 @@ export default {
         if (listNotficationJson != null && listNotficationJson != "") {
           listNotfication = JSON.parse(listNotficationJson);
         }
-        const message = state.configEvent["role"][role][event.section][event.method].message;
+        let message = state.configEvent["role"][role][event.section][event.method].message;
         const route = state.configEvent["role"][role][event.section][event.method].route;
         const value = state.configEvent["role"][role][event.section][event.method].value;
+        const value_message = state.configEvent["role"][role][event.section][event.method].value_message;
         const identy = state.configEvent["role"][role][event.section][event.method].identy;
         const timestamp = Math.floor(Date.now() / 1000).toString();
         const dataEvent = JSON.parse(event.data.toString());
+
         let id = "";
         let statusAdd = false;
         let data = null;
+        let params = null;
+        let wording = "";
+        let finalText = "";
         if (dataEvent.length > 0) {
-          data = dataEvent[0];
-          id = dataEvent[0][value];
-          if (dataEvent[0][identy] == address) {
+          switch (role) {
+            case "customer":
+              switch (event.section) {
+                case "orders":
+                  data = dataEvent[0];
+                  id = data[value];
+                  params = { number: id };
+                  wording = "for (" + data[value_message].substr(0, 4) + "..." + data[value_message].substr(data[value_message].length - 4) + ")";
+                  break;
+                case "geneticTesting":
+                  data = dataEvent[0];
+                  id = data[value];
+                  params = { number: id };
+                  wording = "for (" + data[value_message].substr(0, 4) + "..." + data[value_message].substr(data[value_message].length - 4) + ")";
+                  break;
+                case "balances":
+                  data = dataEvent;
+                  id = data[value];
+                  params = { number: id };
+                  if (data[value_message].toString().includes("0x")) {
+                    const decimal = parseInt(data[value_message].toString(), 16).toString();
+                    finalText = decimal.replace("000000000000000", "");
+                  } else {
+                    finalText = data[value_message].toString().replace("000000000000000", "");
+                  }
+                  if (finalText != "") {
+                    const balance = await queryBalance(
+                      state.api,
+                      state.wallet.address
+                    );
+                    commit('SET_WALLET_BALANCE', balance);
+                  }
+                  wording = finalText + " DBIO!";
+                  break;
+                default:
+                  data = dataEvent[0];
+                  id = data[value];
+                  params = { number: id };
+                  wording = "for (" + data[value_message].substr(0, 4) + "..." + data[value_message].substr(data[value_message].length - 4) + ")";
+                  break;
+              }
+              break;
+            case "lab":
+              switch (event.section) {
+                case "balances":
+                  data = dataEvent;
+                  id = data[value];
+                  params = { number: id };
+                  wording = data[value_message] + " DBIO!";
+                  break;
+                case "orders":
+                  data = dataEvent[0];
+                  params = data;
+                  wording = "for (" + data[value_message].substr(0, 4) + "..." + data[value_message].substr(data[value_message].length - 4) + ")";
+                  break;
+                case "geneticTesting":
+                  data = dataEvent[0];
+                  id = data[value];
+                  params = { number: id };
+                  wording = "for (" + data[value_message].substr(0, 4) + "..." + data[value_message].substr(data[value_message].length - 4) + ")";
+                  break;
+                default:
+                  data = dataEvent[0];
+                  id = data[value];
+                  params = { number: id };
+                  wording = "for (" + data[value_message].substr(0, 4) + "..." + data[value_message].substr(data[value_message].length - 4) + ")";
+                  break;
+              }
+              break;
+            default:
+              console.log("role no mapping");
+              break;
+          }
+
+          if (data[identy] == address) {
             statusAdd = true;
+            message = message + " " + wording;
           }
         }
+
         if (statusAdd) {
           listNotfication.push({
             message: message,
             timestamp: timestamp,
             data: data,
             route: route,
-            params: { number: id },
+            params: params,
             read: false,
           });
         }
         localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotfication));
+        listNotfication.reverse();
         commit('SET_LIST_NOTIFICATION', listNotfication);
       } catch (err) {
         console.log(err);
@@ -313,4 +399,3 @@ export default {
     }
   }
 }
-

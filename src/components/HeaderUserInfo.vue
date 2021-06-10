@@ -56,6 +56,7 @@
 import { mapState, mapMutations, mapActions } from "vuex";
 import localStorage from "@/lib/local-storage";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
+import { queryBalance } from "@/lib/polkadotProvider/query/balance";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
 
 export default {
@@ -84,21 +85,22 @@ export default {
     ...mapActions({
       clearAuth: "auth/clearAuth",
     }),
+    getBalance(balanceNummber) {
+      this.balance = balanceNummber;
+      if (this.balance == "0") {
+        this.balance = "0 DBIO";
+      }
+    },
     async fetchWalletBalance() {
       try {
         this.isLoading = true;
-        const { nonce, data: balance } = await this.api.query.system.account(
+        const balanceNummber = await queryBalance(
+          this.api,
           this.wallet.address
         );
-
-        this.balance = balance.free.toHuman();
-        if (this.balance == "0") {
-          this.balance = "0 DBIO";
-        }
-
+        this.getBalance(balanceNummber);
         this.name = this.wallet.meta.name;
-        console.log("nonce", nonce);
-        this.setWalletBalance(balance.free.toHuman());
+        this.setWalletBalance(balanceNummber);
         this.isLoading = false;
       } catch (err) {
         console.error(err);
@@ -162,6 +164,9 @@ export default {
         balance = await getBalanceETH(this.metamaskWalletAddress);
       }
       this.setMetamaskBalance(balance);
+    },
+    walletBalance() {
+      this.getBalance(this.walletBalance);
     },
   },
   async mounted() {

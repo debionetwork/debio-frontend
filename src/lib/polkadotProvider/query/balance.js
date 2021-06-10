@@ -1,3 +1,7 @@
 export async function queryBalance(api, addr) {
-    return await api.query.system.account(addr)
+  const { nonce, data: balance } = await api.query.system.account(
+    addr
+  );
+  console.log(nonce);
+  return balance.free.toHuman();
 }
