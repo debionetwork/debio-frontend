@@ -51,7 +51,7 @@
           ></MenuCard>
           </v-col>
           <v-col cols="12" md="4">
-            <OrderHistory />
+            <LabOrders />
           </v-col>
           <v-col cols="12" md="4">
             <TestResults />
@@ -86,14 +86,14 @@
 <script>
 import { mapState } from 'vuex'
 import MenuCard from '@/components/MenuCard'
-import OrderHistory from "./OrderHistory";
+import LabOrders from "./LabOrders";
 import TestResults from "./TestResults";
 
 export default {
   name: 'Lab',
   components: {
     MenuCard,
-    OrderHistory,
+    LabOrders,
     TestResults,
   },
   computed: {
