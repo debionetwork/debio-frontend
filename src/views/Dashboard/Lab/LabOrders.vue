@@ -63,7 +63,7 @@ import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 
 export default {
-  name: "OrderHistory",
+  name: "LabOrders",
   components: {
     OrderCard,
     PrimaryButton,
