@@ -4,15 +4,17 @@
       <div class="d-flex mt-5 mb-5 justify-space-between">
         <v-row>
           <v-col>
+            <b class="secondary--text card-header mb-2" style="display: block">Genome Files</b>
             <div v-for="(file, idx) in files.genome" :key="idx + '-' + file.fileName + '-' + file.fileType">
-              <FileCard :filename="file.fileName" :ipfsUrl="getFileIpfsUrl(file)"/>
+              <FileCard :filename="file.fileName" :ipfsUrl="getFileIpfsUrl(file)" :hideDelete="true"/>
             </div>
           </v-col>
         </v-row>
         <v-row class="ml-5">
           <v-col>
+            <b class="secondary--text card-header mb-2" style="display: block">Report Files</b>
             <div v-for="(file, idx) in files.report" :key="idx + '-' + file.fileName + '-' + file.fileType">
-              <FileCard :filename="file.fileName" :ipfsUrl="getFileIpfsUrl(file)" />
+              <FileCard :filename="file.fileName" :ipfsUrl="getFileIpfsUrl(file)" :hideDelete="true"/>
             </div>
           </v-col>
         </v-row>
@@ -40,7 +42,12 @@
             <v-icon left dark class="pr-4">
               mdi-dna
             </v-icon>
+            <v-spacer v-if="genomeSucceed" />
             Upload Genome
+            <v-spacer v-if="genomeSucceed" />
+            <v-icon v-if="genomeSucceed" right dark color="teal accent-2" class="pr-4">
+              mdi-check-circle
+            </v-icon>
             <template v-slot:loader>
               {{ loadingStatus.genome }}
             </template>
@@ -67,7 +74,12 @@
             <v-icon left dark class="pr-4">
               mdi-file-document-multiple
             </v-icon>
+            <v-spacer v-if="reportSucceed" />
             Upload Report
+            <v-spacer v-if="reportSucceed" />
+            <v-icon v-if="reportSucceed" right dark color="teal accent-2" class="pr-4">
+              mdi-check-circle
+            </v-icon>
             <template v-slot:loader>
               {{ loadingStatus.report }}
             </template>
