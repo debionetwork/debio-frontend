@@ -28,6 +28,28 @@
           <v-img src="@/assets/lab-icon.png" max-width="65" />
           <div>Lab</div>
         </v-col>
+        <v-col
+          lg="3"
+          md="3"
+          sm="3"
+          align="center"
+          style="cursor: pointer"
+          @click="closeDialog('hospital')"
+        >
+          <v-img src="@/assets/lab-icon.png" max-width="65" />
+          <div>Hospital</div>
+        </v-col>
+        <v-col
+          lg="3"
+          md="3"
+          sm="3"
+          align="center"
+          style="cursor: pointer"
+          @click="closeDialog('doctor')"
+        >
+          <v-img src="@/assets/lab-icon.png" max-width="65" />
+          <div>Doctor</div>
+        </v-col>
       </v-row>
     </v-card>
   </v-dialog>

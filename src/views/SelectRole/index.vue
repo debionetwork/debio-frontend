@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { mapMutations, mapActions } from "vuex";
+import { mapActions } from "vuex";
 import DialogSelectRole from "@/components/Dialog/DialogSelectRole";
 
 export default {
@@ -43,9 +43,8 @@ export default {
     ...mapActions({
       checkMnemonicSomeAddress: "substrate/checkMnemonicSomeAddress",
     }),
-    ...mapMutations({}),  
     actionAlert(openRole) {
-      this.$router.push("/"+openRole);
+      this.$router.push(`/${openRole}`);
     },
   
   },
