@@ -236,7 +236,11 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from "vuex";
+import Kilt from '@kiltprotocol/sdk-js'
+import { Keyring } from '@polkadot/keyring'
+import { mapState, mapMutations } from "vuex"
+import ipfsWorker from '@/web-workers/ipfs-worker'
+import cryptWorker from '@/web-workers/crypt-worker'
 
 export default {
   name: "UploadEMR",
@@ -256,6 +260,8 @@ export default {
     password: "",
     isLoading: false,
     error: "",
+    identity: null,
+    publicKey: null,
     uploadSuccessIcon: "mdi-check-circle",
     uploadSuccessTitle: "Upload Successful",
   }),
@@ -274,7 +280,16 @@ export default {
       metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
     }),
   },
-  mounted() {},
+  async mounted() {
+    // Get data from route param
+    const keyring = new Keyring()
+    this.publicKey = keyring.decodeAddress(this.wallet.address)
+
+    // Create valid Substrate-compatible seed from mnemonic
+    // TODO: get mnemonic from localStorage
+    const mnemonic = 'wolf police basic grape fade chest catalog enroll language exact minimum monkey'
+    this.identity = await Kilt.Identity.buildFromMnemonic(mnemonic)
+  },
   methods: {
     ...mapMutations({
       setMetamaskAddress: "metamask/SET_WALLET_ADDRESS",
@@ -295,8 +310,118 @@ export default {
       this.formFilePath = null;
       console.log(this.listPendingUploadFile);
     },
+    /**
+     * @returns {String} The first ipfs path (a file has multiple ipfs path, because a file may be chunked)
+     */
+    getFileIpfsPath(file) {
+      return file.ipfsPath[0].data.path
+    },
+    getFileIpfsUrl(file) {
+      const path = this.getFileIpfsPath(file)
+      return `https://ipfs.io/ipfs/${path}`
+    },
     handleFileUpload() {
-      this.formFilePath = this.$refs.file.files[0];
+      const file = this.$refs.file.files[0]
+      file.fileType = 'EMR' // attach fileType to file, because fileType is not accessible in fr.onload scope
+      
+      const context = this
+      const fr = new FileReader()
+      fr.onload = async function() {
+        try {
+          // Encrypt
+          const encrypted = await context.encrypt({
+            text: fr.result,
+            fileType: file.fileType,
+            fileName: file.name,
+          })
+          const { chunks, fileName: encFileName, fileType: encFileType } = encrypted
+
+          // Upload
+          const uploaded = await context.upload({
+            encryptedFileChunks: chunks,
+            fileName: encFileName,
+            fileType: encFileType
+          })
+          context.formFilePath = context.getFileIpfsPath(uploaded)
+        } catch (err) {
+          console.error(err)
+        }
+      }
+      fr.readAsText(file)
+    },
+    encrypt({ text, fileType, fileName }) {
+      const context = this
+      return new Promise((resolve, reject) => {
+        try {
+          const pair = { 
+            secretKey: context.identity.boxKeyPair.secretKey,
+            publicKey: context.publicKey
+          }
+          const arrChunks = []
+          let chunksAmount
+          cryptWorker.workerEncrypt.postMessage({ pair, text }) // Access this object in e.data in worker
+          cryptWorker.workerEncrypt.onmessage = event => {
+            console.log(event)
+            // The first returned data is the chunksAmount
+            if(event.data.chunksAmount) {
+              chunksAmount = event.data.chunksAmount
+              return
+            }
+
+            arrChunks.push(event.data)
+            this.encryptProgress[fileType] = arrChunks.length / chunksAmount * 100
+            console.log(arrChunks.length, chunksAmount)
+
+            if (arrChunks.length == chunksAmount ) {
+              resolve({
+                fileName: fileName,
+                chunks: arrChunks,
+                fileType: fileType
+              })
+            }
+          }
+
+        } catch (err) {
+          reject(new Error(err.message))
+        }
+      })
+    },
+    upload({ encryptedFileChunks, fileName, fileType }) {
+      const chunkSize = 10 * 1024 * 1024 // 10 MB
+      let offset = 0
+      const data = JSON.stringify(encryptedFileChunks)
+      const blob = new Blob([ data ], { type: 'text/plain' })
+
+      return new Promise((resolve, reject) => {
+        try {
+          const fileSize = blob.size
+          do {
+            let chunk = blob.slice(offset, chunkSize + offset);
+            ipfsWorker.workerUpload.postMessage({
+              seed: chunk.seed, file: blob
+            })
+            offset += chunkSize
+          } while((chunkSize + offset) < fileSize)
+          
+          let uploadSize = 0
+          const uploadedResultChunks = []
+          ipfsWorker.workerUpload.onmessage = async event => {
+            uploadedResultChunks.push(event.data)
+            uploadSize += event.data.data.size
+              
+            if (uploadSize >= fileSize) {
+              resolve({
+                fileName: fileName,
+                fileType: fileType,
+                ipfsPath: uploadedResultChunks
+              })
+            }
+          }
+
+        } catch (err) {
+          reject(new Error(err.message))
+        }
+      })
     },
     addToPending() {
       this.listPendingUploadFile.push({
