@@ -28,6 +28,10 @@ const defaultState = {
   walletPublicKey: '',
   labAccount: null,
   isLabAccountExist: false,
+  doctorAccount: null,
+  isDoctorAccountExist: false,
+  hospitalAccount: null,
+  isHospitalAccountExist: false,
   lastEventData: null,
   localListNotfication: [],
   configEvent: null,
@@ -54,6 +58,20 @@ export default {
     },
     SET_IS_LAB_ACCOUNT_EXIST(state, isLabAccountExist) {
       state.isLabAccountExist = isLabAccountExist
+    },
+    SET_DOCTOR_ACCOUNT(state, doctorAccount) {
+      state.doctorAccount = doctorAccount
+      state.isDoctorAccountExist = true
+    },
+    SET_IS_DOCTOR_ACCOUNT_EXIST(state, isDoctorAccountExist) {
+      state.isDoctorAccountExist = isDoctorAccountExist
+    },
+    SET_HOSPITAL_ACCOUNT(state, hospitalAccount) {
+      state.hospitalAccount = hospitalAccount
+      state.isHospitalAccountExist = true
+    },
+    SET_IS_HOSPITAL_ACCOUNT_EXIST(state, isHospitalAccountExist) {
+      state.isHospitalAccountExist = isHospitalAccountExist
     },
     SET_LOADING_WALLET(state, isLoadingWallet) {
       state.isLoadingWallet = isLoadingWallet
@@ -188,6 +206,22 @@ export default {
           commit('SET_IS_LAB_ACCOUNT_EXIST', true)
         }
 
+        commit('SET_DOCTOR_ACCOUNT', null)
+        commit('SET_IS_DOCTOR_ACCOUNT_EXIST', false)
+        // const doctorAccount = await queryEntireDoctorDataById(state.api, address)
+        // if (doctorAccount) {
+        //   commit('SET_DOCTOR_ACCOUNT', doctorAccount)
+        //   commit('SET_IS_DOCTOR_ACCOUNT_EXIST', true)
+        // }
+
+        commit('SET_HOSPITAL_ACCOUNT', null)
+        commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', false)
+        // const hospitalAccount = await queryEntireHospitalDataById(state.api, address)
+        // if (hospitalAccount) {
+        //   commit('SET_HOSPITAL_ACCOUNT', hospitalAccount)
+        //   commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', true)
+        // }
+
         return { success: true }
       } catch (err) {
         console.log(err)
@@ -205,6 +239,40 @@ export default {
           commit('SET_LAB_ACCOUNT', labAccount)
           commit('SET_IS_LAB_ACCOUNT_EXIST', true)
         }
+
+        return { success: true }
+      } catch (err) {
+        console.log(err)
+        return { success: false, error: err.message }
+      }
+    },
+    async getDoctorAccount({ commit, state }) {
+      try {
+        commit('SET_DOCTOR_ACCOUNT', null)
+        commit('SET_IS_DOCTOR_ACCOUNT_EXIST', false)
+        console.log(state) // TODO: Remove when certification pallet added
+        // const doctorAccount = await queryEntireDoctorDataById(state.api, state.wallet.address)
+        // if (doctorAccount) {
+        //   commit('SET_DOCTOR_ACCOUNT', doctorAccount)
+        //   commit('SET_IS_DOCTOR_ACCOUNT_EXIST', true)
+        // }
+
+        return { success: true }
+      } catch (err) {
+        console.log(err)
+        return { success: false, error: err.message }
+      }
+    },
+    async getHospitalAccount({ commit, state }) {
+      try {
+        commit('SET_HOSPITAL_ACCOUNT', null)
+        commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', false)
+        console.log(state) // TODO: Remove when certification pallet added
+        // const hospitalAccount = await queryEntireHospitalDataById(state.api, state.wallet.address)
+        // if (hospitalAccount) {
+        //   commit('SET_HOSPITAL_ACCOUNT', hospitalAccount)
+        //   commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', true)
+        // }
 
         return { success: true }
       } catch (err) {
@@ -387,6 +455,18 @@ export default {
     },
     isLabAccountExist(state) {
       return state.isLabAccountExist
+    },
+    doctorAccount(state) {
+      return state.doctorAccount
+    },
+    isDoctorAccountExist(state) {
+      return state.isDoctorAccountExist
+    },
+    hospitalAccount(state) {
+      return state.hospitalAccount
+    },
+    isHospitalAccountExist(state) {
+      return state.isHospitalAccountExist
     },
     getAPI(state) {
       return state.api
