@@ -330,8 +330,8 @@ export default {
         return;
       }
       try {
-        console.log('VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS', process.env.VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS)
-        console.log('VUE_APP_DEGENICS_USE_TOKEN_NAME', process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME)
+        //console.log('VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS', process.env.VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS)
+        //console.log('VUE_APP_DEGENICS_USE_TOKEN_NAME', process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME)
         const price = await getPrice(this.priceOrder);
         let txreceipts = await transfer({
           seller: process.env.VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS,
@@ -381,86 +381,6 @@ export default {
     isValidIcon(icon) {
       return icon && (icon.startsWith("mdi") || icon.startsWith("$"));
     },
-    // async getLogs() {
-    //   const ks = keystore.get();
-    //   const logCount = await this.logContract.methods
-    //     .countSpecimenLog(this.specimen.number)
-    //     .call({ from: ks.address });
-
-    //   const logPromises = [];
-    //   for (let i = 1; i <= logCount; i++) {
-    //     const promise = this.logContract.methods
-    //       .specimenLogByIndex(this.specimen.number, i)
-    //       .call();
-    //     logPromises.push(promise);
-    //   }
-    //   const logs = await Promise.all(logPromises);
-
-    //   this.logs = logs;
-    // },
-    // isValidIcon(icon) {
-    //   return icon && (icon.startsWith("mdi") || icon.startsWith("$"));
-    // },
-    // goToHome() {
-    //   this.$router.push("/");
-    // },
-    // goToResult() {
-    //   this.$router.push({
-    //     name: "result-test",
-    //     params: { number: this.specimen.number },
-    //   });
-    // },
-    // async getSpecimen() {
-    //   const ks = keystore.get();
-    //   const specimenNumber = this.$route.params.number;
-    //   const specimen = await this.degenicsContract.methods
-    //     .specimenByNumber(specimenNumber)
-    //     .call({ from: ks.address });
-
-    //   return specimen;
-    // },
-    // async getLabBySpecimen(specimen) {
-    //   const ks = keystore.get();
-    //   const lab = await this.degenicsContract.methods
-    //     .labByAccount(specimen.labAccount)
-    //     .call({ from: ks.address });
-
-    //   return lab;
-    // },
-    // async getProduct(lab, specimen) {
-    //   console.log(specimen);
-    //   const ks = keystore.get();
-    //   const services = await this.degenicsContract.methods
-    //     .serviceCount(lab.labAccount)
-    //     .call({ from: ks.address })
-    //     .then(async (count) => {
-    //       const servicePromises = [];
-    //       for (let i = 1; i <= count; i++) {
-    //         const promise = this.degenicsContract.methods
-    //           .serviceByIndex(lab.labAccount, i)
-    //           .call({ from: ks.address });
-    //         servicePromises.push(promise);
-    //       }
-    //       const _services = await Promise.all(servicePromises);
-    //       return _services;
-    //     });
-    //   const product = services.find((s) => s.code == specimen.serviceCode);
-
-    //   // Parse product additionalData
-    //   try {
-    //     const additionalData = JSON.parse(product.additionalData);
-    //     if (additionalData.icon) {
-    //       product.icon = additionalData.icon;
-    //     }
-    //   } catch (err) {
-    //     product.additionalData = {};
-    //   }
-
-    //   return product;
-    // },
-    // onRefunded() {
-    //   this.specimen.status = REFUNDED;
-    // },
   },
 };
 </script>

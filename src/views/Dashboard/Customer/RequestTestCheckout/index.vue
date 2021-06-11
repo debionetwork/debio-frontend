@@ -110,6 +110,15 @@
       @toggle="sendPaymentDialog = $event"
       @payment-sent="onPaymentSent"
     ></SendPaymentDialog>
+    <DialogAlert
+      :show="dialogAlert"
+      :btnText="alertTextBtn"
+      :textAlert="alertTextAlert"
+      :imgPath="alertImgPath"
+      :imgWidth="imgWidth"
+      @toggle="dialogAlert = $event"
+      @close="actionAlert()"
+    ></DialogAlert>
   </div>
 </template>
 
@@ -117,21 +126,31 @@
 import { mapState, mapMutations } from "vuex";
 import SendPaymentDialog from "./SendPaymentDialog";
 import cityData from "@/assets/json/city.json";
+import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
+import DialogAlert from "@/components/Dialog/DialogAlert";
 
 export default {
   components: {
     SendPaymentDialog,
+    DialogAlert,
   },
   data: () => ({
     sendPaymentDialog: false,
     country: "",
     city: "",
     coinName: "",
+    dialogAlert: false,
+    alertTextBtn: "Close",
+    alertImgPath: "warning.png",
+    alertTextAlert: "",
+    imgWidth: "50",
   }),
   computed: {
     ...mapState({
       lab: (state) => state.testRequest.lab,
       products: (state) => state.testRequest.products,
+      api: (state) => state.substrate.api,
+      wallet: (state) => state.substrate.wallet,
     }),
     totalPrice() {
       return this.products.reduce(
@@ -149,8 +168,17 @@ export default {
     ...mapMutations({
       clearTestRequest: "testRequest/CLEAR_TEST_REQUEST",
     }),
-    onSubmitOrder() {
-      this.sendPaymentDialog = true;
+    async onSubmitOrder() {
+      const ethAddress = await ethAddressByAccountId(
+        this.api,
+        this.wallet.address
+      );
+      if (ethAddress != null && ethAddress != "") {
+        this.sendPaymentDialog = true;
+      } else {
+        this.alertTextAlert = "Please do Wallet Binding first.";
+        this.dialogAlert = true;
+      }
     },
     onPaymentSent(receipts) {
       this.sendPaymentDialog = false;
@@ -168,6 +196,9 @@ export default {
         this.city =
           cityData[this.lab.info.country].divisions[this.lab.info.city];
       }
+    },
+    actionAlert() {
+      this.dialogAlert = false;
     },
   },
 };
