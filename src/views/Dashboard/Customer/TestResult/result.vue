@@ -28,6 +28,53 @@
               @click="showDialog('download', index)"
             />
           </div>
+          <div class="mb-2">
+            <v-card
+              class="dg-card dg-menu-card"
+              :class="{ 'card-hover': true }"
+              :elevation="0"
+              @click="true"
+              outlined
+              :style="'border-radius: 10px;'"
+              :ripple="false"
+            >
+              <div
+                class="
+                  d-flex
+                  flex-column
+                  justify-space-around
+                  fill-height
+                  pr-4
+                  py-2
+                "
+              >
+                <div class="d-flex align-center">
+                  <div class="my-3 ml-5">
+                    <v-avatar>
+                      <img src="@/assets/reward.png" />
+                    </v-avatar>
+                  </div>
+                  <div class="ml-5" style="width: 100%">
+                    <div class="text-h6">
+                      <b>Stake Data</b>
+                    </div>
+                    <div
+                      class="text-caption grey--text text--darken-1"
+                      style="
+                        max-height: 60px;
+                        overflow: hidden;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 3;
+                        -webkit-box-orient: vertical;
+                      "
+                    >
+                      Stake my data anonymously
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </v-card>
+          </div>
         </v-col>
       </v-row>
       <v-dialog v-model="dialog" max-width="600px" persistent>
