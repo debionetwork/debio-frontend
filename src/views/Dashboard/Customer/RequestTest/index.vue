@@ -341,20 +341,20 @@ export default {
     },
     isProductSelected(product) {
       return (
-        this.selectedProducts.filter((p) => p.code == product.code).length > 0
+        this.selectedProducts.filter((p) => p.serviceData.id == product.serviceData.id).length > 0
       );
     },
     isProductDisabled(product) {
       if (this.selectedProducts.length == 0) {
         return false;
       }
-      return this.selectedProducts[0].code != product.code;
+      return this.selectedProducts[0].serviceData.id != product.serviceData.id;
     },
     selectProduct(product) {
       // deselect
       if (_.includes(this.selectedProducts, product)) {
         this.selectedProducts = this.selectedProducts.filter(
-          (p) => p.code != product.code
+          (p) => p.serviceData.id != product.serviceData.id
         );
         return;
       }
@@ -368,7 +368,7 @@ export default {
       }
       if (
         this.selectedProducts.length > 0 &&
-        this.selectedProducts[0].code == product.code
+        this.selectedProducts[0].serviceData.id == product.serviceData.id
       ) {
         this.selectedProducts = [];
       }
