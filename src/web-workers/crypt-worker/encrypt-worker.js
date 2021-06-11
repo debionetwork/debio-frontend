@@ -1,11 +1,10 @@
- /* eslint-disable */
-import EthCrypto from 'eth-crypto';
+/* eslint-disable */
+import Kilt from '@kiltprotocol/sdk-js'
 
 onmessage = function(e) {
   console.log("Encrypting...");
-  console.log(e);
 
-  (async (EthCrypto)=>{
+  (async () => {
     const fileBlob = new Blob([ e.data.text ], {type: 'text/plain'});
     const chunkSize = 5 * 1000 * 1024;
     const chunksAmount = Math.ceil(fileBlob.size / chunkSize);
@@ -16,14 +15,16 @@ onmessage = function(e) {
       const end = chunkSize * (i + 1);
       const chunk = fileBlob.slice(start, end, fileBlob.type);
       const chunkBuf = await chunk.arrayBuffer();
-      const data = await EthCrypto.encryptWithPublicKey(e.data.publicKey, chunkBuf);
+      const data = await Kilt.Utils.Crypto.encryptAsymmetric(new Uint8Array(chunkBuf), e.data.pair.secretKey, e.data.pair.publicKey);
       postMessage({ seed: i,  data });
       console.log({ seed: i,  data });
 
       // postMessage({ seed: i,  data: chunk });
     }
-  })(EthCrypto).then(res=>{
-    console.log("Encrypted");
-  }).catch(console.log)
+  })()
+    .then(() => {
+      console.log("Encrypted");
+    })
+    .catch(console.log)
 
 }
