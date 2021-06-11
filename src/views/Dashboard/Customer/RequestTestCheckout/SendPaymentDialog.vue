@@ -277,24 +277,46 @@ export default {
               this.error = "Please install MetaMask!";
             } else {
               if (
-                this.metamaskWalletAddress == "" &&
-                this.ethAccount.currentAccount != null
+                this.metamaskWalletAddress != null &&
+                this.metamaskWalletAddress != ""
               ) {
-                await setEthAddress(
-                  this.api,
-                  this.wallet,
-                  this.ethAccount.currentAccount
-                );
-                await this.setMetamaskAddress(this.ethAccount.currentAccount);
-                this.metamaskWalletAddress = this.ethAccount.currentAccount;
-              } else if (
-                this.metamaskWalletAddress == "" &&
-                this.ethAccount.currentAccount == null
-              ) {
-                this.isLoading = false;
-                this.password = "";
-                this.error = "You haven't done wallet binding yet.";
-                return;
+                if (this.ethAccount.accountList.length > 0) {
+                  let statusAddUse = false;
+                  for (let x = 0; x < this.ethAccount.accountList.length; x++) {
+                    if (
+                      this.ethAccount.accountList[x] ==
+                      this.metamaskWalletAddress
+                    ) {
+                      statusAddUse = true;
+                    }
+                  }
+                  if (statusAddUse == false) {
+                    this.isLoading = false;
+                    this.password = "";
+                    this.error = "The address is not listed on Metamask.";
+                    return;
+                  }
+                } else {
+                  this.isLoading = false;
+                  this.password = "";
+                  this.error = "Metamask has no address ETH.";
+                  return;
+                }
+              } else {
+                if (this.ethAccount.currentAccount != null) {
+                  await setEthAddress(
+                    this.api,
+                    this.wallet,
+                    this.ethAccount.currentAccount
+                  );
+                  await this.setMetamaskAddress(this.ethAccount.currentAccount);
+                  this.metamaskWalletAddress = this.ethAccount.currentAccount;
+                } else {
+                  this.isLoading = false;
+                  this.password = "";
+                  this.error = "Metamask has no address.";
+                  return;
+                }
               }
 
               const balance = await getBalanceETH(this.metamaskWalletAddress);
@@ -309,7 +331,7 @@ export default {
               } else {
                 this.isLoading = false;
                 this.password = "";
-                this.error = "Your balance is empty.";
+                this.error = "ETH balance is 0";
               }
             }
           } else {
