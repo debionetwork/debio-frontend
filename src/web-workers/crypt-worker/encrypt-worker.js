@@ -15,7 +15,7 @@ onmessage = function(e) {
       const end = chunkSize * (i + 1);
       const chunk = fileBlob.slice(start, end, fileBlob.type);
       const chunkBuf = await chunk.arrayBuffer();
-      const data = await Kilt.Utils.Crypto.encryptAsymmetric(new Uint8Array(chunkBuf), e.data.pair.secretKey, e.data.pair.publicKey);
+      const data = await Kilt.Utils.Crypto.encryptAsymmetric(new Uint8Array(chunkBuf), e.data.pair.publicKey, e.data.pair.secretKey);
       postMessage({ seed: i,  data });
       console.log({ seed: i,  data });
 
