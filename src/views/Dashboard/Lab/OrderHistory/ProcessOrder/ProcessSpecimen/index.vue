@@ -249,23 +249,8 @@ export default {
         const fr = new FileReader()
         fr.onload = async function() {
           try {
-            context.loading[file.fileType] = true
-
-            // // Encrypt
-            // const encrypted = await context.encrypt({
-            //   text: fr.result,
-            //   fileType: file.fileType,
-            //   fileName: file.name,
-            // })
-            // const { chunks, fileName: encFileName, fileType: encFileType } = encrypted
-            // // Upload
-            // const uploaded = await context.upload({
-            //   encryptedFileChunks: chunks,
-            //   fileType: encFileType,
-            //   fileName: encFileName,
-            // })
-
             // Upload
+            context.loading[file.fileType] = true
             const uploaded = await context.upload({
               encryptedFileChunks: fr.result,
               fileType: file.fileType,
@@ -276,9 +261,9 @@ export default {
 
             // Save files to localStorage
             specimenFilesTempStore.set(context.specimenNumber, context.files)
-
             context.loading[file.fileType] = false
 
+            // Emit finish
             if(file.fileType == 'genome') {
               context.genomeSucceed = true
               context.$emit('uploadGenome')
@@ -344,24 +329,31 @@ export default {
     },
     upload({ encryptedFileChunks, fileName, fileType }) {
       this.loadingStatus[fileType] = 'Uploading'
+      const chunkSize = 10 * 1024 * 1024 // 10 MB
+      let offset = 0
+      const data = JSON.stringify(encryptedFileChunks)
+      const blob = new Blob([ data ], { type: 'text/plain' })
 
       return new Promise((resolve, reject) => {
         try {
-          for (let chunk of encryptedFileChunks) {
-            const data = JSON.stringify(chunk)
-            const blob = new Blob([ data ], { type: 'text/plain' })
+          const fileSize = blob.size
+          do {
+            let chunk = blob.slice(offset, chunkSize + offset);
             ipfsWorker.workerUpload.postMessage({
               seed: chunk.seed, file: blob
             })
-          }
-
+            offset += chunkSize
+          } while((chunkSize + offset) < fileSize)
+          
+          let uploadSize = 0
           const uploadedResultChunks = []
           ipfsWorker.workerUpload.onmessage = async event => {
             uploadedResultChunks.push(event.data)
+            uploadSize += event.data.data.size
             this.uploadProgress[fileType] =
-              uploadedResultChunks.length / encryptedFileChunks.length * 100
-
-            if (uploadedResultChunks.length == encryptedFileChunks.length) {
+              uploadSize / fileSize * 100
+              
+            if (uploadSize >= fileSize) {
               resolve({
                 fileName: fileName,
                 fileType: fileType,
