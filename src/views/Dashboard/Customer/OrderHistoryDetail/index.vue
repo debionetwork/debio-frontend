@@ -395,6 +395,12 @@ export default {
     isValidIcon(icon) {
       return icon && (icon.startsWith("mdi") || icon.startsWith("$"));
     },
+    goToResult() {
+      this.$router.push({
+        name: "result-test",
+        params: { number: this.order.dna_sample_tracking_id },
+      });
+    },
   },
 };
 </script>
