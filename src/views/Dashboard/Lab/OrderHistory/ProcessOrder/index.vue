@@ -47,7 +47,7 @@
                     <v-card-text class="px-8 mt-5">
                         <div class="d-flex mb-8 justify-space-between">
                             <b class="secondary--text card-header">Order Detail</b>
-                            <b class="secondary--text h6">{{ this.createdAt }}</b>
+                            <b class="secondary--text h6">{{ this.createdAt  | timestampToDate }}</b>
                         </div>
                         <div class="d-flex justify-space-between">
                             <div class="d-flex align-center">
@@ -102,6 +102,7 @@
                     v-if="showGenomeReportDialog"
                     :specimenNumber="specimenNumber"
                     :publicKey="publicKey"
+                    :is-processed="isOrderProcessed"
                     @processWetwork="wetworkCheckbox = true"
                     @uploadGenome="uploadedGenomeCheckbox = true"
                     @uploadReport="uploadedReportCheckbox = true"
@@ -140,6 +141,7 @@ export default {
     customerEthAddress: "",
     sellerEthAddress: "",
     specimenNumber: "",
+    isOrderProcessed: false,
   }),
   async mounted(){
     try {
@@ -155,6 +157,15 @@ export default {
       this.customerEthAddress = order.customer_eth_address
       this.sellerEthAddress = order.seller_eth_address
       this.specimenNumber = order.dna_sample_tracking_id
+
+      if(order.status == "Success") {
+        this.receivedCheckbox = true
+        this.wetworkCheckbox = true
+        this.uploadedGenomeCheckbox = true
+        this.uploadedReportCheckbox = true
+        this.sentCheckbox = true
+        this.isOrderProcessed = true
+      }
     } catch (err) {
       console.log(err)
     }

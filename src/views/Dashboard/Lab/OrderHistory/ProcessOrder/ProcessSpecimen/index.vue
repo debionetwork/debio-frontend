@@ -130,6 +130,7 @@ import { naclSeal, mnemonicToMiniSecret, naclKeypairFromSeed } from '@polkadot/u
 import cryptWorker from '@/web-workers/crypt-worker'
 import specimenFilesTempStore from '@/lib/specimen-files-temp-store'
 import { processDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
+import { queryDnaTestResults } from '@/lib/polkadotProvider/query/geneticTesting'
 
 export default {
   name: 'ProcessSpecimen',
@@ -139,6 +140,7 @@ export default {
   props: {
     specimenNumber: String,
     publicKey: Uint8Array,
+    isProcessed: Boolean,
   },
   data: () => ({
     wetworkCheckbox: false,
@@ -170,10 +172,28 @@ export default {
       report: 0,
     }
   }),
-  mounted(){
+  async mounted(){
     // Add file input event listener
     this.addFileUploadEventListener(this.$refs.encryptUploadGenome, 'genome')
     this.addFileUploadEventListener(this.$refs.encryptUploadReport, 'report')
+    if (this.isProcessed) {
+      const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
+      console.log(testResult)
+      const { result_link, report_link } = testResult
+      const genomeFile = {
+        fileName: 'Genome File', // FIXME: Harusnya di simpan di dan di ambil dari blockchain  
+        ipfsPath: [{ data: { path: result_link.split('/')[result_link.split('/').length-1] } }]
+      }
+      const reportFile = {
+        fileName: 'Report File', // FIXME: Harusnya di simpan di dan di ambil dari blockchain
+        ipfsPath: [{ data: { path: report_link.split('/')[report_link.split('/').length-1] } }]
+      }
+      this.files = {
+        genome: [genomeFile],
+        report: [reportFile]
+      }
+      this.submitted = true
+    }
   },
   computed: {
     ...mapGetters({
