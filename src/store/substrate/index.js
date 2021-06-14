@@ -10,8 +10,8 @@ import masterConfigEvent from "@/assets/json/config-event.json"
 import { queryBalance } from "@/lib/polkadotProvider/query/balance"
 
 const {
-  // mnemonicToMiniSecret,
-  // naclKeypairFromSeed,
+  mnemonicToMiniSecret,
+  naclKeypairFromSeed,
   cryptoWaitReady,
 } = require('@polkadot/util-crypto');
 
@@ -31,6 +31,7 @@ const defaultState = {
   lastEventData: null,
   localListNotfication: [],
   configEvent: null,
+  mnemonicData: null,
 }
 
 export default {
@@ -76,6 +77,9 @@ export default {
     },
     SET_CONFIG_EVENT(state, event) {
       state.configEvent = event
+    },
+    SET_MNEMONIC_DATA(state, event) {
+      state.mnemonicData = event
     },
   },
   actions: {
@@ -140,11 +144,15 @@ export default {
         commit('SET_WALLET', pair) // FIXME: simpen untuk dev
         commit('SET_LOADING_WALLET', false)
 
-        // const seed = mnemonicToMiniSecret(mnemonic)
-        // const { publicKey, secretKey } = naclKeypairFromSeed(seed)
-        // console.log(u8aToHex(publicKey))
-        // console.log(u8aToHex(secretKey))
-
+        const seed = mnemonicToMiniSecret(mnemonic)
+        const { publicKey, secretKey } = naclKeypairFromSeed(seed)
+        const dataMemonic = {
+          privateKey: u8aToHex(secretKey),
+          publicKey: u8aToHex(publicKey),
+          mnemonic: mnemonic,
+        };
+        localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(dataMemonic));
+        commit('SET_MNEMONIC_DATA', dataMemonic)
         return { success: true }
       } catch (err) {
         console.log(err)
@@ -156,13 +164,16 @@ export default {
     async restoreAccountKeystore({ commit }, { file, password }) {
       try {
         commit('SET_LOADING_WALLET', true)
-        const pair = keyring.restoreAccount(file, password);
+        const pair = keyring.restoreAccount(file[0], password);
         pair.unlock(password)
-        localStorage.setKeystore(JSON.stringify(file))
+        localStorage.setKeystore(JSON.stringify(file[0]))
         localStorage.setAddress(pair.address)
         commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
         console.log('Is pair locked?', pair.isLocked)
-        commit('SET_WALLET', pair) // FIXME: simpen untuk dev
+        commit('SET_WALLET', pair)
+
+        localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(file[1]));
+        commit('SET_MNEMONIC_DATA', file[1])
         commit('SET_LOADING_WALLET', false)
 
         return { success: true }
@@ -177,8 +188,14 @@ export default {
         commit('SET_LOADING_WALLET', true)
         const pair = keyring.getPair(address);
         commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
-        commit('SET_WALLET', pair) // FIXME: simpen untuk dev
+        commit('SET_WALLET', pair)
         commit('SET_LOADING_WALLET', false)
+
+        const dataMemonicJson = localStorage.getLocalStorageByName("mnemonic_data");
+        if (dataMemonicJson != null && dataMemonicJson != "") {
+          const dataMemonic = JSON.parse(dataMemonicJson);
+          commit('SET_MNEMONIC_DATA', dataMemonic);
+        }
 
         commit('SET_LAB_ACCOUNT', null)
         commit('SET_IS_LAB_ACCOUNT_EXIST', false)
@@ -396,6 +413,9 @@ export default {
     },
     getListNotification(state) {
       state.localListNotfication
+    },
+    getMnemonicData(state) {
+      state.mnemonicData
     }
   }
 }
