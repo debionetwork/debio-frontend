@@ -15,6 +15,14 @@
         </p>
         <v-form v-model="passwordsValid" ref="passwordForm">
           <v-text-field
+            outlined
+            :type="'text'"
+            v-model="accountName"
+            label="Type in account name"
+            :disabled="isLoading"
+          >
+          </v-text-field>
+          <v-text-field
             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
             @click:append="showPassword = !showPassword"
             outlined
@@ -102,6 +110,7 @@ export default {
     passwordConfirmRule: (password) => (val) =>
       (!!password && password == val) || "Passwords must match.",
     recaptchaVerified: false,
+    accountName: "mnemonic acc",
   }),
   computed: {
     _show: {
@@ -134,7 +143,7 @@ export default {
       registerMnemonic: "substrate/registerMnemonic",
     }),
     ...mapMutations({
-      setIsLoading: 'substrate/SET_LOADING_WALLET'
+      setIsLoading: "substrate/SET_LOADING_WALLET",
     }),
     async onVerifyRecaptcha(response) {
       const recaptchaBackendUrl = `${process.env.VUE_APP_DEGENICS_BACKEND_URL}/recaptcha`;
@@ -147,10 +156,14 @@ export default {
     async onPasswordSet() {
       try {
         if (this.secretType == "mnemonic") {
+          if (this.accountName == "") {
+            this.accountName = "Account Name";
+          }
           this.setIsLoading(true);
           const result = await this.registerMnemonic({
             mnemonic: this.secret,
             password: this.password,
+            accountName: this.accountName,
           });
           if (result.success) {
             this._show = false;

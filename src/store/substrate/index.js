@@ -130,12 +130,12 @@ export default {
         commit('SET_LOADING_API', false)
       }
     },
-    async registerMnemonic({ commit }, { mnemonic, password }) {
+    async registerMnemonic({ commit }, { mnemonic, password, accountName }) {
       try {
         commit('SET_LOADING_WALLET', true)
         commit('CLEAR_WALLET')
 
-        const { pair, json } = keyring.addUri(mnemonic, password, { name: 'mnemonic acc' })
+        const { pair, json } = keyring.addUri(mnemonic, password, { name: accountName })
         pair.unlock(password)
         localStorage.setKeystore(JSON.stringify(json))
         localStorage.setAddress(pair.address)
