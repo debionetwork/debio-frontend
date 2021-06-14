@@ -22,7 +22,11 @@ class AppConfig {
   }
 
   getGasPrice() {
-    return this.getCurrentAppConfig().gasPrice
+    const currentConfig = this.getCurrentAppConfig()
+    if (currentConfig) {
+      return currentConfig.gasPrice
+    }
+    return defaultConfig.gasPrice
   }
 
   setGasPrice(gasPrice) {
@@ -32,7 +36,11 @@ class AppConfig {
   }
 
   getGasLimit() {
-    return this.getCurrentAppConfig().gasLimit
+    const currentConfig = this.getCurrentAppConfig()
+    if (currentConfig) {
+      return currentConfig.gasLimit
+    }
+    return defaultConfig.gasLimit
   }
 
   setGasLimit(gasLimit) {
