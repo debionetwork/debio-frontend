@@ -67,6 +67,8 @@ import MenuCard from "@/components/MenuCard";
 import OrderHistory from "./OrderHistory";
 import TestResults from "./TestResults";
 import UploadEMR from "@/views/Dashboard/Customer/EMR/UploadEMR";
+import { mapState } from 'vuex'
+import { getDbioFromFaucet } from '@/lib/faucet'
 
 export default {
   name: "Home",
@@ -76,8 +78,18 @@ export default {
     TestResults,
     UploadEMR,
   },
-  computed: {},
-  mounted() {},
+  computed: {
+    ...mapState({
+      substrateWallet: state => state.substrate.wallet
+    })
+  },
+  mounted() {
+    try {
+      getDbioFromFaucet(this.substrateWallet.address) 
+    } catch (err) {
+      console.log(err)
+    }
+  },
   data: () => ({
     uploadEMR: false,
   }),

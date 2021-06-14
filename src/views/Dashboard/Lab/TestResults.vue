@@ -36,12 +36,8 @@ import OrderCard from "@/components/OrderCard";
 import PrimaryButton from "@/components/PrimaryButton";
 import { SUCCESS } from "@/constants/specimen-status";
 import {
-  queryDnaTestResultsByOwner,
-  queryDnaTestResults,
-} from "@/lib/polkadotProvider/query/geneticTesting";
-import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
-import { queryServicesById } from "@/lib/polkadotProvider/query/services";
-import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
+  getDnaTestResultsDetailByLab,
+} from "@/lib/polkadotProvider/query/geneticTesting"
 
 export default {
   name: "TestResults",
@@ -69,51 +65,32 @@ export default {
         this.testResults = [];
         let maxResults = 3;
         // Get specimens
-        const specimens = await queryDnaTestResultsByOwner(
+        let dnaTestResults = await getDnaTestResultsDetailByLab(
           this.api,
           this.wallet.address
-        );
+        )
+        dnaTestResults.sort(
+          (a, b) => parseInt(b.created_at) - parseInt(a.created_at)
+        )
 
-        if (specimens != null) {
-          specimens.reverse();
-          if (specimens.length < maxResults) {
-            maxResults = specimens.length;
+        if(dnaTestResults.length > 0){
+          for (let i = 0; i < maxResults; i++) {
+            this.prepareOrderData(dnaTestResults[i])
           }
         }
-        for (let i = 0; i < maxResults; i++) {
-          const dnaTestResults = await queryDnaTestResults(
-            this.api,
-            specimens[i]
-          );
-          if (dnaTestResults != null) {
-            const detaillab = await queryLabsById(
-              this.api,
-              dnaTestResults.lab_id
-            );
-            const detailOrder = await getOrdersDetail(
-              this.api,
-              dnaTestResults.order_id
-            );
-            const detailService = await queryServicesById(
-              this.api,
-              detailOrder.service_id
-            );
-            this.prepareOrderData(dnaTestResults, detaillab, detailService);
-          }
-        }
+
         this.isLoadingTestResults = false;
       } catch (err) {
         console.log(err);
         this.isLoadingTestResults = false;
       }
     },
-    prepareOrderData(dnaTestResults, detaillab, detailService) {
-      const title = detailService.info.name;
-
-      const labName = detaillab.info.name;
+    prepareOrderData(dnaTestResults) {
+      const title = dnaTestResults.order.service_name;
+      const labName = dnaTestResults.order.lab_name;
       let icon = "mdi-needle";
-      if (detailService.info.image != null) {
-        icon = detailService.info.image;
+      if (dnaTestResults.order.image != null) {
+        icon = dnaTestResults.order.image;
       }
 
       let timestamp = Math.floor(Date.now() / 1000).toString();

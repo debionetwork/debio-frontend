@@ -66,7 +66,12 @@ export default {
     isLoading: false,
   }),
   async mounted() {
-    this.orders = await getOrdersDetailByAddress(this.api, this.pair.address)
+    const orders = await getOrdersDetailByAddress(this.api, this.pair.address)
+    for(let i = 0; i < orders.length; i++){
+      const order = orders[i]
+      order.created_at = (new Date(order.created_at)).toLocaleDateString()
+      this.orders.push(order)
+    }
   },
   computed: {
     ...mapGetters({
@@ -76,7 +81,7 @@ export default {
   },
   methods: {
     processOrder(item){
-      this.$router.push({ name: 'lab-dashboard-process-order', params: { item: item }})
+      this.$router.push({ name: 'lab-dashboard-process-order', params: { order_id: item.id }})
     }
   },
 }

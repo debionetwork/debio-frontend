@@ -130,6 +130,7 @@ import { naclSeal, mnemonicToMiniSecret, naclKeypairFromSeed } from '@polkadot/u
 import cryptWorker from '@/web-workers/crypt-worker'
 import specimenFilesTempStore from '@/lib/specimen-files-temp-store'
 import { processDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
+import { queryDnaTestResults } from '@/lib/polkadotProvider/query/geneticTesting'
 
 export default {
   name: 'ProcessSpecimen',
@@ -139,6 +140,7 @@ export default {
   props: {
     specimenNumber: String,
     publicKey: Uint8Array,
+    isProcessed: Boolean,
   },
   data: () => ({
     wetworkCheckbox: false,
@@ -147,7 +149,7 @@ export default {
     comment: "",
     reportLink: "",
     resultLink: "",
-    isProcessSuccess: true,
+    isProcessSuccess: false,
     submitted: false,
     files: {
       genome: [],
@@ -170,10 +172,28 @@ export default {
       report: 0,
     }
   }),
-  mounted(){
+  async mounted(){
     // Add file input event listener
     this.addFileUploadEventListener(this.$refs.encryptUploadGenome, 'genome')
     this.addFileUploadEventListener(this.$refs.encryptUploadReport, 'report')
+    if (this.isProcessed) {
+      const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
+      console.log(testResult)
+      const { result_link, report_link } = testResult
+      const genomeFile = {
+        fileName: 'Genome File', // FIXME: Harusnya di simpan di dan di ambil dari blockchain  
+        ipfsPath: [{ data: { path: result_link.split('/')[result_link.split('/').length-1] } }]
+      }
+      const reportFile = {
+        fileName: 'Report File', // FIXME: Harusnya di simpan di dan di ambil dari blockchain
+        ipfsPath: [{ data: { path: report_link.split('/')[report_link.split('/').length-1] } }]
+      }
+      this.files = {
+        genome: [genomeFile],
+        report: [reportFile]
+      }
+      this.submitted = true
+    }
   },
   computed: {
     ...mapGetters({
@@ -210,6 +230,8 @@ export default {
         this.pair,
         this.specimenNumber,
       )
+
+      this.isProcessSuccess = true
       this.$emit('processWetwork')
     },
     async rejectDnaSample() {
@@ -223,7 +245,7 @@ export default {
     async submitTestResult() {
       const genomeLink = this.getFileIpfsUrl(this.files.genome[0])
       const reportLink = this.getFileIpfsUrl(this.files.report[0])
-      console.log(genomeLink, reportLink)
+      
       await submitTestResult(
         this.api,
         this.pair,
@@ -235,8 +257,11 @@ export default {
           result_link: genomeLink
         }
       )
-      this.submitted = true
+
       this.$emit('submitTestResult')
+      setTimeout(() => {
+        this.submitted = true
+      }, 500)
     },
     addFileUploadEventListener(fileInputRef, fileType) {
       const context = this
@@ -246,23 +271,8 @@ export default {
         const fr = new FileReader()
         fr.onload = async function() {
           try {
-            context.loading[file.fileType] = true
-
-            // // Encrypt
-            // const encrypted = await context.encrypt({
-            //   text: fr.result,
-            //   fileType: file.fileType,
-            //   fileName: file.name,
-            // })
-            // const { chunks, fileName: encFileName, fileType: encFileType } = encrypted
-            // // Upload
-            // const uploaded = await context.upload({
-            //   encryptedFileChunks: chunks,
-            //   fileType: encFileType,
-            //   fileName: encFileName,
-            // })
-
             // Upload
+            context.loading[file.fileType] = true
             const uploaded = await context.upload({
               encryptedFileChunks: fr.result,
               fileType: file.fileType,
@@ -273,9 +283,9 @@ export default {
 
             // Save files to localStorage
             specimenFilesTempStore.set(context.specimenNumber, context.files)
-
             context.loading[file.fileType] = false
 
+            // Emit finish
             if(file.fileType == 'genome') {
               context.genomeSucceed = true
               context.$emit('uploadGenome')
@@ -341,24 +351,31 @@ export default {
     },
     upload({ encryptedFileChunks, fileName, fileType }) {
       this.loadingStatus[fileType] = 'Uploading'
+      const chunkSize = 10 * 1024 * 1024 // 10 MB
+      let offset = 0
+      const data = JSON.stringify(encryptedFileChunks)
+      const blob = new Blob([ data ], { type: 'text/plain' })
 
       return new Promise((resolve, reject) => {
         try {
-          for (let chunk of encryptedFileChunks) {
-            const data = JSON.stringify(chunk)
-            const blob = new Blob([ data ], { type: 'text/plain' })
+          const fileSize = blob.size
+          do {
+            let chunk = blob.slice(offset, chunkSize + offset);
             ipfsWorker.workerUpload.postMessage({
               seed: chunk.seed, file: blob
             })
-          }
-
+            offset += chunkSize
+          } while((chunkSize + offset) < fileSize)
+          
+          let uploadSize = 0
           const uploadedResultChunks = []
           ipfsWorker.workerUpload.onmessage = async event => {
             uploadedResultChunks.push(event.data)
+            uploadSize += event.data.data.size
             this.uploadProgress[fileType] =
-              uploadedResultChunks.length / encryptedFileChunks.length * 100
-
-            if (uploadedResultChunks.length == encryptedFileChunks.length) {
+              uploadSize / fileSize * 100
+              
+            if (uploadSize >= fileSize) {
               resolve({
                 fileName: fileName,
                 fileType: fileType,
