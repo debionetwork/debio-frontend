@@ -79,28 +79,29 @@ export default {
           if (specimens.length < maxResults) {
             maxResults = specimens.length;
           }
-        }
-        for (let i = 0; i < maxResults; i++) {
-          const dnaTestResults = await queryDnaTestResults(
-            this.api,
-            specimens[i]
-          );
-          if (dnaTestResults != null) {
-            const detaillab = await queryLabsById(
+          for (let i = 0; i < maxResults; i++) {
+            const dnaTestResults = await queryDnaTestResults(
               this.api,
-              dnaTestResults.lab_id
+              specimens[i]
             );
-            const detailOrder = await getOrdersDetail(
-              this.api,
-              dnaTestResults.order_id
-            );
-            const detailService = await queryServicesById(
-              this.api,
-              detailOrder.service_id
-            );
-            this.prepareOrderData(dnaTestResults, detaillab, detailService);
+            if (dnaTestResults != null) {
+              const detaillab = await queryLabsById(
+                this.api,
+                dnaTestResults.lab_id
+              );
+              const detailOrder = await getOrdersDetail(
+                this.api,
+                dnaTestResults.order_id
+              );
+              const detailService = await queryServicesById(
+                this.api,
+                detailOrder.service_id
+              );
+              this.prepareOrderData(dnaTestResults, detaillab, detailService);
+            }
           }
         }
+
         this.isLoadingTestResults = false;
       } catch (err) {
         console.log(err);
