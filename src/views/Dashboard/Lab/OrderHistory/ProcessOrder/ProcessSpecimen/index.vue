@@ -238,8 +238,10 @@ export default {
         }
       )
 
-      this.submitted = true
       this.$emit('submitTestResult')
+      setTimeout(() => {
+        this.submitted = true
+      }, 500)
     },
     addFileUploadEventListener(fileInputRef, fileType) {
       const context = this

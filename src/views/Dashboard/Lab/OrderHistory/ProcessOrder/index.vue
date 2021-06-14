@@ -120,6 +120,7 @@ import { Keyring } from '@polkadot/keyring'
 import ReceiveSpecimen from './ReceiveSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
 import { fulfillOrder } from '@/lib/polkadotProvider/command/orders'
+import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
 
 export default {
   name: 'ProcessOrderHistory',
@@ -140,23 +141,37 @@ export default {
     sellerEthAddress: "",
     specimenNumber: "",
   }),
-  mounted(){
-    // Get data from route param
-    const keyring = new Keyring();
-    this.publicKey = keyring.decodeAddress(this.$route.params.item.customer_id)
-    this.createdAt = this.$route.params.item.created_at
-    this.customerEthAddress = this.$route.params.item.customer_eth_address
-    this.sellerEthAddress = this.$route.params.item.seller_eth_address
-    this.specimenNumber = this.$route.params.item.dna_sample_tracking_id
+  async mounted(){
+    try {
+      // If no order id redirect to order history list
+      if (!this.orderId) {
+        this.$router.push({ name: 'lab-dashboard-order-history' })
+      }
+      const order = await getOrdersDetail(this.api, this.orderId)
+      // Get data from route param
+      const keyring = new Keyring();
+      this.publicKey = keyring.decodeAddress(order.customer_id)
+      this.createdAt = order.created_at
+      this.customerEthAddress = order.customer_eth_address
+      this.sellerEthAddress = order.seller_eth_address
+      this.specimenNumber = order.dna_sample_tracking_id
+    } catch (err) {
+      console.log(err)
+    }
   },
   methods: {
     async submitTestResult(){
+      try {
+        console.log('Submitting test result!')
         await fulfillOrder(
             this.api,
             this.pair,
-            this.specimenNumber,
+            this.orderId,
         )
         this.sentCheckbox = true
+      } catch (err) {
+        console.log(err)
+      }
     }
   },
   computed: {
@@ -164,6 +179,9 @@ export default {
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
     }),
+    orderId() {
+      return this.$route.params.order_id ? this.$route.params.order_id : ''
+    },
     showReceiveDialog(){
         return !this.receivedCheckbox
     },
