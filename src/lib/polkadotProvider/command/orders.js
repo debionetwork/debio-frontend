@@ -32,7 +32,8 @@ export async function fulfillOrder(api, pair, order_id) {
           });
       }
     })
-  return result.toHuman()
+  
+  console.log(result)
 }
 
 export async function refundOrder(api, pair, order_id) {

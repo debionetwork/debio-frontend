@@ -17,8 +17,14 @@ Vue.filter('specimenNumber', function (val) {
   return fmtSpecimenNumber(val)
 })
 Vue.filter('timestampToDate', function (val) {
+  let timestamp
+  if (typeof val == "string") {
+    timestamp = parseInt(val.replaceAll(',', ''))
+  } else {
+    timestamp = val
+  }
   try {
-    return format(fromUnixTime(val), 'MMMM dd yyyy')
+    return format(new Date(timestamp), 'MMMM dd yyyy')
   } catch (err) {
     console.log(err)
     return ''
