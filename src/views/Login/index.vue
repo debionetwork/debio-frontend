@@ -82,6 +82,7 @@
 
       <AccessAccountMnemonicDialog
         :show="accessAccountMnemonicDialog"
+        :type="'forgot-password'"
         @toggle="accessAccountMnemonicDialog = $event"
         @mnemonic-input="
           (mnemonic) =>
@@ -95,8 +96,9 @@
 
       <AccessAccountMnemonicDialog
         :show="loginUsingMnemonicDialog"
-        @toggle="accessAccountMnemonicDialog = $event"
-        @mnemonic-input="({ mnemonic }) => showSetKeystorePasswordDialog(mnemonic)"
+        :type="'login-mnemonic'"
+        @toggle="loginUsingMnemonicDialog = $event"
+        @mnemonic-input-login="({ mnemonic }) => showSetKeystorePasswordDialog(mnemonic)"
       ></AccessAccountMnemonicDialog>
 
       <DialogAlert
