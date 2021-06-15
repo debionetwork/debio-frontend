@@ -103,6 +103,7 @@
                     :specimenNumber="specimenNumber"
                     :publicKey="publicKey"
                     :is-processed="isOrderProcessed"
+                    :wetwork-checkbox="wetworkCheckbox"
                     @processWetwork="wetworkCheckbox = true"
                     @uploadGenome="uploadedGenomeCheckbox = true"
                     @uploadReport="uploadedReportCheckbox = true"
@@ -122,6 +123,7 @@ import ReceiveSpecimen from './ReceiveSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
 import { fulfillOrder } from '@/lib/polkadotProvider/command/orders'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
+import { queryDnaSamples } from '@/lib/polkadotProvider/query/geneticTesting'
 
 export default {
   name: 'ProcessOrderHistory',
@@ -157,20 +159,37 @@ export default {
       this.customerEthAddress = order.customer_eth_address
       this.sellerEthAddress = order.seller_eth_address
       this.specimenNumber = order.dna_sample_tracking_id
-
-      if(order.status == "Success") {
-        this.receivedCheckbox = true
-        this.wetworkCheckbox = true
-        this.uploadedGenomeCheckbox = true
-        this.uploadedReportCheckbox = true
-        this.sentCheckbox = true
-        this.isOrderProcessed = true
-      }
+      this.setCheckboxByDnaStatus()
     } catch (err) {
       console.log(err)
     }
   },
   methods: {
+    async setCheckboxByDnaStatus(){
+        const dna = await queryDnaSamples(this.api, this.specimenNumber)
+
+        if(dna.status == "Received") {
+            this.receivedCheckbox = true
+        }
+
+        if(dna.status == "Rejected") {
+            this.receivedCheckbox = true
+        }
+
+        if(dna.status == "Processing") {
+            this.receivedCheckbox = true
+            this.wetworkCheckbox = true
+        }
+
+        if(dna.status == "Success") {
+            this.receivedCheckbox = true
+            this.wetworkCheckbox = true
+            this.uploadedGenomeCheckbox = true
+            this.uploadedReportCheckbox = true
+            this.sentCheckbox = true
+            this.isOrderProcessed = true
+        }
+    },
     async submitTestResult(){
       try {
         console.log('Submitting test result!')

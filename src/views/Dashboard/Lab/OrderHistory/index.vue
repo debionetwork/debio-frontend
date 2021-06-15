@@ -27,7 +27,7 @@
                            small
                            width="200"
                            @click="processOrder(item)"
-                           >Process Order</v-btn
+                           >{{ item.dna_sample_status }}</v-btn
                         >
                      </v-container>
                   </template>
@@ -66,7 +66,10 @@ export default {
     isLoading: false,
   }),
   async mounted() {
-    const orders = await getOrdersDetailByAddress(this.api, this.pair.address)
+    let orders = await getOrdersDetailByAddress(this.api, this.pair.address)
+    orders.sort(
+      (a, b) => parseInt(b.created_at) - parseInt(a.created_at)
+    )
     for(let i = 0; i < orders.length; i++){
       const order = orders[i]
       order.created_at = (new Date(order.created_at)).toLocaleDateString()

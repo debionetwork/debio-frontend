@@ -36,7 +36,7 @@
             color="primary"
             large
             block
-            :disabled="loading.genome || loading.report || genomeSucceed"
+            :disabled="loading.genome || loading.report || genomeSucceed || !wetworkCheckbox"
             @click="uploadGenome"
           >
             <v-icon left dark class="pr-4">
@@ -68,7 +68,7 @@
             color="primary"
             large
             block
-            :disabled="loading.genome || loading.report || reportSucceed"
+            :disabled="loading.genome || loading.report || reportSucceed || !wetworkCheckbox"
             @click="uploadReport"
           >
             <v-icon left dark class="pr-4">
@@ -126,7 +126,6 @@
 import { mapGetters } from 'vuex'
 import FileCard from './FileCard'
 import ipfsWorker from '@/web-workers/ipfs-worker'
-import Kilt from '@kiltprotocol/sdk-js'
 import cryptWorker from '@/web-workers/crypt-worker'
 import specimenFilesTempStore from '@/lib/specimen-files-temp-store'
 import { processDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
@@ -141,10 +140,10 @@ export default {
     specimenNumber: String,
     publicKey: Uint8Array,
     isProcessed: Boolean,
+    wetworkCheckbox: Boolean
   },
   data: () => ({
     identity: null,
-    wetworkCheckbox: false,
     genomeSucceed: false,
     reportSucceed: false,
     comment: "",
@@ -279,7 +278,7 @@ export default {
               fileType: file.fileType,
               fileName: file.name,
             })
-            console.log(encrypted)
+            
             const { chunks, fileName: encFileName, fileType: encFileType } = encrypted
             // Upload
             const uploaded = await context.upload({
