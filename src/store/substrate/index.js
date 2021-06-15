@@ -180,11 +180,12 @@ export default {
       }
     },
     async restoreAccountKeystore({ commit }, { file, password }) {
+      console.log('retoring account keystore')
       try {
         commit('SET_LOADING_WALLET', true)
-        const pair = keyring.restoreAccount(file[0], password);
+        const pair = keyring.restoreAccount(file, password);
         pair.unlock(password)
-        localStorage.setKeystore(JSON.stringify(file[0]))
+        localStorage.setKeystore(JSON.stringify(file))
         localStorage.setAddress(pair.address)
         commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
         console.log('Is pair locked?', pair.isLocked)
@@ -196,6 +197,7 @@ export default {
 
         return { success: true }
       } catch (err) {
+        console.log(err)
         commit('CLEAR_WALLET')
         commit('SET_LOADING_WALLET', false)
         return { success: false, error: err.message }

@@ -123,11 +123,12 @@
 
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import FileCard from './FileCard'
 import ipfsWorker from '@/web-workers/ipfs-worker'
 import cryptWorker from '@/web-workers/crypt-worker'
 import specimenFilesTempStore from '@/lib/specimen-files-temp-store'
+import Kilt from '@kiltprotocol/sdk-js'
 import { processDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
 import { queryDnaTestResults } from '@/lib/polkadotProvider/query/geneticTesting'
 
@@ -176,6 +177,8 @@ export default {
     // Add file input event listener
     this.addFileUploadEventListener(this.$refs.encryptUploadGenome, 'genome')
     this.addFileUploadEventListener(this.$refs.encryptUploadReport, 'report')
+
+    this.identity = Kilt.Identity.buildFromMnemonic(this.mnemonic)
     
     if (this.isProcessed) {
       const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
@@ -200,6 +203,9 @@ export default {
     ...mapGetters({
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
+    }),
+    ...mapState({
+      mnemonic: state => state.substrate.mnemonicData.mnemonic
     }),
     disableRejectButton(){
       return this.genomeSucceed && this.reportSucceed
@@ -267,6 +273,7 @@ export default {
     addFileUploadEventListener(fileInputRef, fileType) {
       const context = this
       fileInputRef.addEventListener('change', function() {
+        context.loading[fileType] = true
         const file = this.files[0]
         file.fileType = fileType // attach fileType to file, because fileType is not accessible in fr.onload scope
         const fr = new FileReader()

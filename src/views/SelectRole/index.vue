@@ -2,9 +2,9 @@
   <v-app>
     <v-main class="login-main">
       <v-container fill-height>
-        <div>
+        <div style="margin: 0 auto;">
           <div class="d-flex justify-center">
-            <v-img src="@/assets/degenics-logo-words.png" max-width="40%" />
+            <v-img src="@/assets/debio-logo-words-grey.png" max-width="40%" />
           </div>
 
           <div class="d-flex justify-center white--text text-lg-h6 mt-3">
