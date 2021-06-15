@@ -22,12 +22,13 @@
                      <v-container
                      >
                         <v-btn
-                          class="btn-sending"
+                          :class="buttonClass(item)"
                           dark
-                           small
-                           width="200"
-                           @click="processOrder(item)"
-                           >{{ item.dna_sample_status }}</v-btn
+                          small
+                          width="200"
+                          @click="processOrder(item)"
+                          v-if="item.status != 'Cancelled'"
+                          >{{ item.status }}</v-btn
                         >
                      </v-container>
                   </template>
@@ -85,6 +86,12 @@ export default {
   methods: {
     processOrder(item){
       this.$router.push({ name: 'lab-dashboard-process-order', params: { order_id: item.id }})
+    },
+    buttonClass(item){
+      if(item.status == "Success"){
+        return "Success"
+      }
+      return "btn-sending"
     }
   },
 }
@@ -107,7 +114,7 @@ export default {
   background-color: $color-status-received !important;
 }
 
-.Succes {
+.Success {
   background-color: $color-status-success !important;
 }
 
