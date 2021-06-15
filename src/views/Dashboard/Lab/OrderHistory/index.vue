@@ -8,7 +8,7 @@
                   :headers="headers"
                   :items="orders"
                   :search="search"
-                  :sort-by="['timestamp']"
+                  :sort-by="['created_at']"
                   :sort-desc="[true]"
                   :loading="isLoading"
                   additional-class="laporan-table"
@@ -16,20 +16,27 @@
                   <template v-slot:search-bar>
                      <SearchBar
                         label="Search"
+                        @input="search = $event"
                      ></SearchBar>
                   </template>
                   <template v-slot:[`item.actions`]="{ item }">
-                     <v-container
-                     >
+                     <v-container v-if="item.status == 'Success'">
                         <v-btn
                           :class="buttonClass(item)"
                           dark
                           small
                           width="200"
                           @click="processOrder(item)"
-                          v-if="item.status != 'Cancelled'"
-                          >{{ item.status }}</v-btn
-                        >
+                          >View</v-btn>
+                     </v-container>
+                     <v-container v-if="item.status == 'Paid' || item.status == 'Unpaid'">
+                        <v-btn
+                          :class="buttonClass(item)"
+                          dark
+                          small
+                          width="200"
+                          @click="processOrder(item)"
+                        >Process</v-btn>
                      </v-container>
                   </template>
                   <!-- Rows -->
@@ -67,6 +74,7 @@ export default {
     isLoading: false,
   }),
   async mounted() {
+    this.isLoading = true
     let orders = await getOrdersDetailByAddress(this.api, this.pair.address)
     orders.sort(
       (a, b) => parseInt(b.created_at) - parseInt(a.created_at)
@@ -76,6 +84,7 @@ export default {
       order.created_at = (new Date(order.created_at)).toLocaleDateString()
       this.orders.push(order)
     }
+    this.isLoading = false
   },
   computed: {
     ...mapGetters({
