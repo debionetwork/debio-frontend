@@ -1,5 +1,6 @@
 import store from '../../store'
 import appConfig from '@/lib/app-config'
+import BigNumber from 'bignumber.js'
 
 export async function getWalletAddress() {
   const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
@@ -107,7 +108,14 @@ export async function getPrice(priceOrder) {
   const contractERC20Interface = store.getters['metamask/contracts/getERC20InterfaceContract'];
   let decimalPlaces = await contractERC20Interface.methods
     .decimals().call();
-  return Math.pow(priceOrder, parseInt(decimalPlaces) + 1);
+
+  let price = BigNumber(priceOrder).toString()
+  let _decimals = parseInt(decimalPlaces)
+  for (let i = 0; i < _decimals; i++) {
+    price += '0'
+  }
+
+  return price
 }
 
 /**
