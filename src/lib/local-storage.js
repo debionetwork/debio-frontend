@@ -35,6 +35,7 @@ const localStorage = {
     window.localStorage.removeItem(this.DEGENICS_ADDRESS_LOGIN)
     window.localStorage.removeItem(this.DEGENICS_RPC_URL)
     window.localStorage.removeItem(this.DEGENICS_CONFIG)
+    window.localStorage.removeItem("mnemonic_data")
   },
   setAddress(address) {
     window.localStorage.setItem(this.DEGENICS_ADDRESS_LOGIN, address)

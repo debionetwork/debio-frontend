@@ -81,7 +81,7 @@ export default {
   },
   methods: {
     processOrder(item){
-      this.$router.push({ name: 'lab-dashboard-process-order', params: { item: item }})
+      this.$router.push({ name: 'lab-dashboard-process-order', params: { order_id: item.id }})
     }
   },
 }
