@@ -7,10 +7,10 @@
     </v-app-bar> -->
     <v-main class="login-main">
       <v-container fill-height>
-        <div>
+        <div style="margin: 0 auto;">
           <div class="d-flex justify-center">
             <!-- <a href="https://www.degenics.com/" target="_blank"> -->
-            <v-img src="@/assets/degenics-logo-words.png" max-width="40%" />
+            <v-img src="@/assets/debio-logo-words-grey.png" max-width="40%" />
             <!-- </a> -->
           </div>
 
