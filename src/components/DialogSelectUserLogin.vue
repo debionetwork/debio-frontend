@@ -25,6 +25,7 @@
                 :disabled="isLoading"
                 @keyup.enter="onPasswordInput"
               ></v-text-field>
+              <!--
               <div
                 style="font-size: 12px"
                 class="d-flex justify-end primary--text"
@@ -32,6 +33,7 @@
               >
                 Forgot your password?
               </div>
+              -->
             </v-form>
             <v-progress-linear
               v-if="isLoading"

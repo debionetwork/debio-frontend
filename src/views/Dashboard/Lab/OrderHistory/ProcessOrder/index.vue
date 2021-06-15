@@ -53,15 +53,15 @@
                             <div class="d-flex align-center">
                                 <div>
                                     <v-icon color="#BA8DBB" :size="52">
-                                        mdi-test-tube
+                                      {{ serviceInfo.image }}
                                     </v-icon>
                                 </div>
                                 <div class="ml-5">
-                                    <div class="text-h6">
-                                        <b>Supplement</b>
+                                    <div style="">
+                                      <b>{{ serviceInfo.name }}</b>
                                     </div>
                                     <div class="text-caption grey--text text--darken-1">
-                                        Supplement recommendation based on your genes
+                                      {{ serviceInfo.description.substring(0, 60) }}...
                                     </div>
                                 </div>
                             </div>
@@ -124,6 +124,7 @@ import ProcessSpecimen from './ProcessSpecimen'
 import { fulfillOrder } from '@/lib/polkadotProvider/command/orders'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
 import { queryDnaSamples } from '@/lib/polkadotProvider/query/geneticTesting'
+import { queryServicesById } from '@/lib/polkadotProvider/query/services'
 
 export default {
   name: 'ProcessOrderHistory',
@@ -144,6 +145,11 @@ export default {
     sellerEthAddress: "",
     specimenNumber: "",
     isOrderProcessed: false,
+    serviceInfo: {
+      name: "",
+      description: "",
+      image: "",
+    }
   }),
   async mounted(){
     try {
@@ -152,6 +158,9 @@ export default {
         this.$router.push({ name: 'lab-dashboard-order-history' })
       }
       const order = await getOrdersDetail(this.api, this.orderId)
+
+      await this.getServiceDetail(order.service_id)
+
       // Get data from route param
       const keyring = new Keyring();
       this.publicKey = keyring.decodeAddress(order.customer_id)
@@ -165,6 +174,10 @@ export default {
     }
   },
   methods: {
+    async getServiceDetail(serviceId) {
+      const service = await queryServicesById(this.api, serviceId)
+      this.serviceInfo = { ...service.info }
+    },
     async setCheckboxByDnaStatus(){
         const dna = await queryDnaSamples(this.api, this.specimenNumber)
 
