@@ -81,7 +81,6 @@ export default {
 
         this.isLoadingTestResults = false;
       } catch (err) {
-        console.log(err);
         this.isLoadingTestResults = false;
       }
     },
