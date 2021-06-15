@@ -82,6 +82,7 @@
 
       <AccessAccountMnemonicDialog
         :show="accessAccountMnemonicDialog"
+        :type="'forgot-password'"
         @toggle="accessAccountMnemonicDialog = $event"
         @mnemonic-input="
           (mnemonic) =>
@@ -95,8 +96,11 @@
 
       <AccessAccountMnemonicDialog
         :show="loginUsingMnemonicDialog"
-        @toggle="accessAccountMnemonicDialog = $event"
-        @mnemonic-input="({ mnemonic }) => showSetKeystorePasswordDialog(mnemonic)"
+        :type="'login-mnemonic'"
+        @toggle="loginUsingMnemonicDialog = $event"
+        @mnemonic-input-login="
+          ({ mnemonic }) => showSetKeystorePasswordDialog(mnemonic)
+        "
       ></AccessAccountMnemonicDialog>
 
       <DialogAlert
@@ -232,8 +236,8 @@ export default {
     async actionAlert() {
       if (this.successLogin) {
         this.clearSecret();
-        await this.$store.dispatch('substrate/connect')
-        await this.$store.dispatch('substrate/getLabAccount')
+        await this.$store.dispatch("substrate/connect");
+        await this.$store.dispatch("substrate/getLabAccount");
         this.$router.push("/");
       } else {
         this.clearSecret();

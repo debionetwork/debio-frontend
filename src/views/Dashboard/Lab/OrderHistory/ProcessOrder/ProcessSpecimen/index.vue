@@ -130,6 +130,7 @@ import Kilt from '@kiltprotocol/sdk-js'
 import cryptWorker from '@/web-workers/crypt-worker'
 import specimenFilesTempStore from '@/lib/specimen-files-temp-store'
 import { processDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
+import { queryDnaTestResults } from '@/lib/polkadotProvider/query/geneticTesting'
 
 export default {
   name: 'ProcessSpecimen',
@@ -139,6 +140,7 @@ export default {
   props: {
     specimenNumber: String,
     publicKey: Uint8Array,
+    isProcessed: Boolean,
   },
   data: () => ({
     identity: null,
@@ -176,10 +178,24 @@ export default {
     this.addFileUploadEventListener(this.$refs.encryptUploadGenome, 'genome')
     this.addFileUploadEventListener(this.$refs.encryptUploadReport, 'report')
     
-    // Create valid Substrate-compatible seed from mnemonic
-    // TODO: get mnemonic from localStorage
-    const mnemonic = 'wolf police basic grape fade chest catalog enroll language exact minimum monkey'
-    this.identity = await Kilt.Identity.buildFromMnemonic(mnemonic)
+    if (this.isProcessed) {
+      const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
+      console.log(testResult)
+      const { result_link, report_link } = testResult
+      const genomeFile = {
+        fileName: 'Genome File', // FIXME: Harusnya di simpan di dan di ambil dari blockchain  
+        ipfsPath: [{ data: { path: result_link.split('/')[result_link.split('/').length-1] } }]
+      }
+      const reportFile = {
+        fileName: 'Report File', // FIXME: Harusnya di simpan di dan di ambil dari blockchain
+        ipfsPath: [{ data: { path: report_link.split('/')[report_link.split('/').length-1] } }]
+      }
+      this.files = {
+        genome: [genomeFile],
+        report: [reportFile]
+      }
+      this.submitted = true
+    }
   },
   computed: {
     ...mapGetters({
@@ -244,8 +260,10 @@ export default {
         }
       )
 
-      this.submitted = true
       this.$emit('submitTestResult')
+      setTimeout(() => {
+        this.submitted = true
+      }, 500)
     },
     addFileUploadEventListener(fileInputRef, fileType) {
       const context = this

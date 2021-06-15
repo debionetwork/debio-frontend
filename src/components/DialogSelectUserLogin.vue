@@ -228,7 +228,7 @@ export default {
     forgotPassword(){
       const dataPair = JSON.parse(this.keystore);
       this._show = false;
-      this.$emit('forgot-password', { status: true, address: dataPair.address })
+      this.$emit('forgot-password', { status: true, address: dataPair[0].address })
       this.clearInput();
     },
     closeDialog() {
