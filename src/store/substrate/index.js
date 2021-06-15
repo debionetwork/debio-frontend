@@ -8,15 +8,14 @@ import { u8aToHex } from '@polkadot/util'
 import { queryEntireLabDataById } from '@/lib/polkadotProvider/query/labs'
 import masterConfigEvent from "@/assets/json/config-event.json"
 import { queryBalance } from "@/lib/polkadotProvider/query/balance"
+import Kilt from '@kiltprotocol/sdk-js'
 
 const {
-  mnemonicToMiniSecret,
-  naclKeypairFromSeed,
   cryptoWaitReady,
 } = require('@polkadot/util-crypto');
 
 cryptoWaitReady().then(() => {
-  keyring.loadAll({ ss58Format: 42, type: 'ed25519' });
+  keyring.loadAll({ ss58Format: 42, type: 'sr25519' });
 });
 
 const defaultState = {
@@ -162,15 +161,16 @@ export default {
         commit('SET_WALLET', pair) // FIXME: simpen untuk dev
         commit('SET_LOADING_WALLET', false)
 
-        const seed = mnemonicToMiniSecret(mnemonic)
-        const { publicKey, secretKey } = naclKeypairFromSeed(seed)
-        const dataMemonic = {
-          privateKey: u8aToHex(secretKey),
-          publicKey: u8aToHex(publicKey),
+        const identity = await Kilt.Identity.buildFromMnemonic(mnemonic);
+
+        const dataMnemonic = {
+          privateKey: u8aToHex(identity.boxKeyPair.secretKey),
+          publicKey: u8aToHex(identity.boxKeyPair.publicKey),
           mnemonic: mnemonic,
         };
-        localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(dataMemonic));
-        commit('SET_MNEMONIC_DATA', dataMemonic)
+
+        localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(dataMnemonic));
+        commit('SET_MNEMONIC_DATA', dataMnemonic)
         return { success: true }
       } catch (err) {
         console.log(err)
@@ -209,10 +209,10 @@ export default {
         commit('SET_WALLET', pair)
         commit('SET_LOADING_WALLET', false)
 
-        const dataMemonicJson = localStorage.getLocalStorageByName("mnemonic_data");
-        if (dataMemonicJson != null && dataMemonicJson != "") {
-          const dataMemonic = JSON.parse(dataMemonicJson);
-          commit('SET_MNEMONIC_DATA', dataMemonic);
+        const dataMnemonicJson = localStorage.getLocalStorageByName("mnemonic_data");
+        if (dataMnemonicJson != null && dataMnemonicJson != "") {
+          const dataMnemonic = JSON.parse(dataMnemonicJson);
+          commit('SET_MNEMONIC_DATA', dataMnemonic);
         }
 
         commit('SET_LAB_ACCOUNT', null)
