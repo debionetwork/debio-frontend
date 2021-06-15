@@ -228,6 +228,8 @@ export default {
       }
       try {
         const price = await getPrice(this.priceOrder);
+        console.log('price -> ', price)
+        console.log('String(price) -> ', price)
         let txreceipts = await transfer({
           seller: process.env.VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS,
           amount: String(price),
