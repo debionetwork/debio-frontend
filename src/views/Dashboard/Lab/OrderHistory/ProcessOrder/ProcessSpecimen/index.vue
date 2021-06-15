@@ -126,7 +126,7 @@
 import { mapGetters } from 'vuex'
 import FileCard from './FileCard'
 import ipfsWorker from '@/web-workers/ipfs-worker'
-import { naclSeal, mnemonicToMiniSecret, naclKeypairFromSeed } from '@polkadot/util-crypto'
+import Kilt from '@kiltprotocol/sdk-js'
 import cryptWorker from '@/web-workers/crypt-worker'
 import specimenFilesTempStore from '@/lib/specimen-files-temp-store'
 import { processDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
@@ -143,6 +143,7 @@ export default {
     isProcessed: Boolean,
   },
   data: () => ({
+    identity: null,
     wetworkCheckbox: false,
     genomeSucceed: false,
     reportSucceed: false,
@@ -176,6 +177,7 @@ export default {
     // Add file input event listener
     this.addFileUploadEventListener(this.$refs.encryptUploadGenome, 'genome')
     this.addFileUploadEventListener(this.$refs.encryptUploadReport, 'report')
+    
     if (this.isProcessed) {
       const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
       console.log(testResult)
@@ -271,12 +273,19 @@ export default {
         const fr = new FileReader()
         fr.onload = async function() {
           try {
-            // Upload
-            context.loading[file.fileType] = true
-            const uploaded = await context.upload({
-              encryptedFileChunks: fr.result,
+            // Encrypt
+            const encrypted = await context.encrypt({
+              text: fr.result,
               fileType: file.fileType,
               fileName: file.name,
+            })
+            console.log(encrypted)
+            const { chunks, fileName: encFileName, fileType: encFileType } = encrypted
+            // Upload
+            const uploaded = await context.upload({
+              encryptedFileChunks: chunks,
+              fileName: encFileName,
+              fileType: encFileType
             })
             const { fileName, fileType, ipfsPath } = uploaded
             context.files[fileType].push({ fileName, fileType, ipfsPath })
@@ -303,26 +312,20 @@ export default {
       })
     },
     encrypt({ text, fileType, fileName }) {
+      const context = this
       this.loadingStatus[fileType] = 'Encrypting'
 
       return new Promise((resolve, reject) => {
         try {
-          const publicKey = this.publicKey
-          const buffer = new Uint8Array(text)
-          
-          // Create valid Substrate-compatible seed from mnemonic
-          const seed = mnemonicToMiniSecret(this.mnemonic)
-
-          // Generate new public/secret keypair for Alice from the supplied seed
-          const keypair = naclKeypairFromSeed(seed)
-
-          const sealedBuffer = naclSeal(buffer, keypair.secretKey, publicKey)
-
+          const pair = { 
+            secretKey: context.identity.boxKeyPair.secretKey,
+            publicKey: context.publicKey
+          }
           const arrChunks = []
           let chunksAmount
-
-          cryptWorker.workerEncrypt.postMessage({ publicKey, sealedBuffer }) // Access this object in e.data in worker
+          cryptWorker.workerEncrypt.postMessage({ pair, text }) // Access this object in e.data in worker
           cryptWorker.workerEncrypt.onmessage = event => {
+            console.log(event)
             // The first returned data is the chunksAmount
             if(event.data.chunksAmount) {
               chunksAmount = event.data.chunksAmount
@@ -331,6 +334,7 @@ export default {
 
             arrChunks.push(event.data)
             this.encryptProgress[fileType] = arrChunks.length / chunksAmount * 100
+            console.log(arrChunks.length, chunksAmount)
 
             if (arrChunks.length == chunksAmount ) {
               resolve({

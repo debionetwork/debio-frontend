@@ -3,13 +3,17 @@ import VueRouter from 'vue-router'
 import indexRoutes from './routes'
 import authRoutes from './routes/auth'
 import labRoutes from './routes/lab'
-import customerRoutes from './routes/customer.js'
+import doctorRoutes from './routes/doctor'
+import hospitalRoutes from './routes/hospital'
+import customerRoutes from './routes/customer'
 
 Vue.use(VueRouter)
 
 const routes = [
   ...indexRoutes,
   ...labRoutes,
+  ...doctorRoutes,
+  ...hospitalRoutes,
   ...authRoutes,
   ...customerRoutes,
 ]
