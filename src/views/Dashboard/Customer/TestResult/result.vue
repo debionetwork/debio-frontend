@@ -130,13 +130,12 @@
 <script>
 import MenuCard from "@/components/MenuCard";
 import ipfsWorker from "@/web-workers/ipfs-worker";
-import localStorage from "@/lib/local-storage";
-import Wallet from "@/lib/dgnx-wallet";
 import { mapState } from "vuex";
 import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
+import { hexToU8a } from "@polkadot/util";
 
 export default {
   name: "test-result",
@@ -145,6 +144,7 @@ export default {
   },
   data: () => ({
     privateKey: "",
+    publicKey: "",
     specimentNumberInput: "",
     ownerAddress: "",
     files: [],
@@ -161,9 +161,13 @@ export default {
     fileDownloadIndex: 0,
     filesLoading: [],
     resultLoading: false,
+    baseUrl: "https://ipfs.io/ipfs/",
   }),
   async mounted() {
     this.specimentNumberInput = this.$route.params.number;
+    this.publicKey = this.wallet.publicKey;
+    this.privateKey = hexToU8a(this.mnemonicData.privateKey);
+    this.ownerAddress = this.wallet.address;
     await this.getSpciments();
     await this.getLabServices();
     await this.getFileUploaded();
@@ -176,6 +180,7 @@ export default {
           this.api,
           this.specimentNumberInput
         );
+        console.log(this.speciment);
       } catch (error) {
         console.log(error);
       }
@@ -196,14 +201,24 @@ export default {
     },
     async getFileUploaded() {
       try {
-        const address = this.ownerAddress;
-        const arrFile = await this.contractDegenics.methods
-          .getFile(this.specimentNumberInput)
-          .call({ from: address });
-        this.files = JSON.parse(arrFile);
+        if (this.speciment.report_link != "") {
+          this.files.push({
+            fileType: "report",
+            fileName: this.serviceName + " Report",
+            fileLink: this.speciment.report_link,
+          });
+        }
+
+        if (this.speciment.result_link != "") {
+          this.files.push({
+            fileType: "result",
+            fileName: this.serviceName + " Result",
+            fileLink: this.speciment.result_link,
+          });
+        }
         this.filesLoading = new Array(this.files.length).fill(false);
       } catch (error) {
-        console.error(error);
+        console.log(error);
       }
     },
     async decryptWallet() {
@@ -211,22 +226,62 @@ export default {
       if (this.password == "") {
         return;
       }
-      const keystore = localStorage.getKeystore();
-      const wallet = await Wallet.decrypt(keystore, this.password);
-      this.ownerAddress = wallet.address;
-      const privateKey = wallet.privateKey;
-      if (this.actionType == "result") {
-        await this.parseResult(privateKey);
-      }
+      try {
+        this.wallet.decodePkcs8(this.password);
+        if (this.actionType == "result") {
+          await this.parseResult();
+        }
 
-      if (this.actionType == "download") {
-        await this.downloadDecryptedFromIPFS(privateKey);
+        if (this.actionType == "download") {
+          await this.downloadDecryptedFromIPFS();
+        }
+        this.dialog = false;
+        this.password = "";
+        this.isLoading = false;
+      } catch (e) {
+        console.log(e);
+        this.isLoading = false;
+        this.password = "";
       }
-
-      this.isLoading = false;
-      this.dialog = false;
-      this.password = "";
     },
+    async parseResult() {
+      this.resultLoading = true;
+      const path = this.files[0].fileLink.replace(this.baseUrl, "");
+      const pair = {
+        secretKey: this.privateKey,
+        publicKey: this.publicKey,
+      };
+
+      const channel = new MessageChannel();
+      channel.port1.onmessage = ipfsWorker.workerDownload;
+      ipfsWorker.workerDownload.postMessage({ path, pair }, [channel.port2]);
+      ipfsWorker.workerDownload.onmessage = (event) => {
+        // const blob = new Blob([ event.data ], {type: 'text/plain'})
+        this.result = event.data;
+        //window.URL.createObjectURL(blob)
+      };
+      this.resultLoading = false;
+    },
+    async downloadDecryptedFromIPFS() {
+      const channel = new MessageChannel();
+      channel.port1.onmessage = ipfsWorker.workerDownload;
+      const path = this.files[this.fileDownloadIndex].fileLink.replace(
+        this.baseUrl,
+        ""
+      );
+      const pair = {
+        secretKey: this.privateKey,
+        publicKey: this.publicKey,
+      };
+
+      this.filesLoading[this.fileDownloadIndex] = true;
+      ipfsWorker.workerDownload.postMessage({ path, pair }, [channel.port2]);
+      ipfsWorker.workerDownload.onmessage = (event) => {
+        this.download(event.data, this.files[this.fileDownloadIndex].fileName);
+        this.$set(this.filesLoading, this.fileDownloadIndex, false);
+      };
+    },
+
     download(data, fileName) {
       const blob = new Blob([data], { type: "text/plain" });
       const e = document.createEvent("MouseEvents");
@@ -253,41 +308,7 @@ export default {
       );
       a.dispatchEvent(e);
     },
-    async downloadDecryptedFromIPFS(privateKey) {
-      const channel = new MessageChannel();
-      channel.port1.onmessage = ipfsWorker.workerDownload;
-      let fileList = this.files[this.fileDownloadIndex].ipfsPath;
-      this.filesLoading[this.fileDownloadIndex] = true;
-      ipfsWorker.workerDownload.postMessage({ file: fileList, privateKey }, [
-        channel.port2,
-      ]);
-      ipfsWorker.workerDownload.onmessage = (event) => {
-        this.download(event.data, this.files[this.fileDownloadIndex].fileName);
-        this.privateKey = "";
-        this.$set(this.filesLoading, this.fileDownloadIndex, false);
-      };
-    },
-    async parseResult(privateKey) {
-      this.resultLoading = true;
-      let fileResult = this.files.find((o) => o.fileType == "report");
-      console.log(this.files);
-      if (!fileResult) {
-        this.resultLoading = false;
-        return;
-      }
-      let fileList = fileResult.ipfsPath;
-      const channel = new MessageChannel();
-      channel.port1.onmessage = ipfsWorker.workerDownload;
-      ipfsWorker.workerDownload.postMessage({ file: fileList, privateKey }, [
-        channel.port2,
-      ]);
-      ipfsWorker.workerDownload.onmessage = (event) => {
-        // const blob = new Blob([ event.data ], {type: 'text/plain'})
-        this.result = event.data;
-        //window.URL.createObjectURL(blob)
-      };
-      this.resultLoading = false;
-    },
+
     showDialog(actionType, index) {
       this.dialog = true;
       this.actionType = actionType;
@@ -297,9 +318,9 @@ export default {
 
   computed: {
     ...mapState({
-      contractDegenics: (state) => state.ethereum.contracts.contractDegenics,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      mnemonicData: (state) => state.substrate.mnemonicData,
     }),
     reportResult() {
       if (this.dialog) {
