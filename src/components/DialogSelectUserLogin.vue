@@ -62,6 +62,7 @@
         </template>
 
         <!-- Prompt user to select keystore file -->
+        <!--
         <template v-if="dataAccount != null && keystore == ''">
           <v-hover v-slot="{ hover }">
             <v-card
@@ -102,6 +103,7 @@
           </div>
           <div align="center" class="mb-5">No accounts found.</div>
         </template>
+        -->
 
         <template v-if="keystore == ''">
           <v-card-text class="pb-0 text-subtitle-1">
