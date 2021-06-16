@@ -181,21 +181,43 @@ export default {
       }
     },
     async restoreAccountKeystore({ commit }, { file, password }) {
+      console.log(file)
       try {
-        commit('SET_LOADING_WALLET', true)
-        const pair = keyring.restoreAccount(file[0], password);
-        pair.unlock(password)
-        localStorage.setKeystore(JSON.stringify(file[0]))
-        localStorage.setAddress(pair.address)
-        commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
-        console.log('Is pair locked?', pair.isLocked)
-        commit('SET_WALLET', pair)
-    
-        localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(file[1]));
-        commit('SET_MNEMONIC_DATA', file[1])
-        commit('SET_LOADING_WALLET', false)
-    
-        return { success: true }
+        if (Array.isArray(file)) {
+          commit('SET_LOADING_WALLET', true)
+          const pair = keyring.restoreAccount(file[0], password);
+          pair.unlock(password)
+          localStorage.setKeystore(JSON.stringify(file[0]))
+          localStorage.setAddress(pair.address)
+          commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
+          console.log('Is pair locked?', pair.isLocked)
+          commit('SET_WALLET', pair)
+      
+          localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(file[1]));
+          commit('SET_MNEMONIC_DATA', file[1])
+          commit('SET_LOADING_WALLET', false)
+      
+          return { success: true }
+        } else {
+          // FIXME: Ini belum ada mnemonic nya
+
+          commit('SET_LOADING_WALLET', true)
+          const pair = keyring.restoreAccount(file, password);
+          pair.unlock(password)
+          localStorage.setKeystore(JSON.stringify(file))
+          localStorage.setAddress(pair.address)
+          commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
+          console.log('Is pair locked?', pair.isLocked)
+          commit('SET_WALLET', pair)
+      
+          return { success: true }
+          /*
+          localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(file[1]));
+          commit('SET_MNEMONIC_DATA', file[1])
+          commit('SET_LOADING_WALLET', false)
+          */
+        }
+
       } catch (err) {
         commit('CLEAR_WALLET')
         commit('SET_LOADING_WALLET', false)

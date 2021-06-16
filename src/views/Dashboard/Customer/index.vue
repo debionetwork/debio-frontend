@@ -17,7 +17,7 @@
               width="40"
             />
             <div class="text-h6 font-weight-bold light_primary--text">
-              Degenics {{ isLab ? "Lab" : "" }}
+              Debio {{ isLab ? "Lab" : "" }}
             </div>
           </div>
         </a>
