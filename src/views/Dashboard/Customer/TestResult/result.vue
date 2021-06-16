@@ -136,6 +136,7 @@ import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
 import { hexToU8a } from "@polkadot/util";
+import Kilt from '@kiltprotocol/sdk-js'
 
 export default {
   name: "test-result",
@@ -194,6 +195,7 @@ export default {
           this.api,
           this.order.service_id
         );
+        console.log('Lab -> ', this.lab)
         this.serviceName = this.services.info.name;
       } catch (err) {
         this.services = [];
@@ -247,9 +249,14 @@ export default {
     async parseResult() {
       this.resultLoading = true;
       const path = this.files[0].fileLink.replace(this.baseUrl, "");
+
+      const identity = Kilt.Identity.buildFromMnemonic(this.mnemonicData.mnemonic)
+      const { secretKey } = identity.boxKeyPair
+      const publicKey = this.lab.info.box_public_key
+
       const pair = {
-        secretKey: this.privateKey,
-        publicKey: this.publicKey,
+        secretKey,
+        publicKey,
       };
 
       const channel = new MessageChannel();
@@ -261,6 +268,7 @@ export default {
         //window.URL.createObjectURL(blob)
       };
       this.resultLoading = false;
+      console.log(this.result)
     },
     async downloadDecryptedFromIPFS() {
       const channel = new MessageChannel();

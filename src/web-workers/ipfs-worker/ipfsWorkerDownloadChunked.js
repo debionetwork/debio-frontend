@@ -37,10 +37,24 @@ onmessage = function (e) {
       dts = constructFile(dts, dtd);
     }
 
+    console.log('dts is -> ', dts)
+
     const fl = new Blob([dts], { type: 'text/plain' });
-    const encrypted = await fl.text();
-    console.log(encrypted);
-    const decryptedObject = await Kilt.Utils.Crypto.decryptAsymmetric(JSON.parse(encrypted).data, e.data.pair.publicKey, e.data.pair.secretKey);
+    let encrypted = await fl.text();
+    encrypted = JSON.parse(encrypted)
+    encrypted = encrypted[0]
+
+    console.log('encrypted', encrypted)
+    let { box, nonce } = encrypted.data
+    box = Object.values(box) // Convert from object to Array
+    nonce = Object.values(nonce) // Convert from object to Array
+
+    const toDecrypt = {
+      box: Uint8Array.from(box),
+      nonce: Uint8Array.from(nonce)
+    }
+
+    const decryptedObject = await Kilt.Utils.Crypto.decryptAsymmetricAsStr(toDecrypt, e.data.pair.publicKey, e.data.pair.secretKey);
     if (!decryptedObject) {
       console.log('undefined', decryptedObject);
     }

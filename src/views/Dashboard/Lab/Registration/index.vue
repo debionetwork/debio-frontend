@@ -61,7 +61,7 @@
                 v-model="address"
                 ></v-text-field>
                 
-              
+              <!--
               <v-file-input
                 dense
                 label="Profile Image"
@@ -70,6 +70,7 @@
                 outlined
                 v-model="files"
                 ></v-file-input>
+              -->
 
                 <v-btn
                   color="primary"
@@ -93,6 +94,9 @@ import { setEthAddress } from '@/lib/polkadotProvider/command/userProfile'
 import { getWalletAddress } from '@/lib/metamask/wallet'
 import countryData from "@/assets/json/country.json"
 import cityData from "@/assets/json/city.json"
+import Kilt from '@kiltprotocol/sdk-js'
+import { u8aToHex } from '@polkadot/util'
+
 
 export default {
   name: 'LabRegistration',
@@ -121,6 +125,7 @@ export default {
     ...mapState({
       locationContract: state => state.ethereum.contracts.contractLocation,
       degenicsContract: state => state.ethereum.contracts.contractDegenics,
+      mnemonic: state => state.substrate.mnemonicData.mnemonic,
     }),
     citiesSelection() {
       return this.cities
@@ -153,13 +158,19 @@ export default {
     onCityChange(selectedCity) {
       this.city = selectedCity;
     },
+    getKiltBoxPublicKey() {
+      const cred = Kilt.Identity.buildFromMnemonic(this.mnemonic)
+      return u8aToHex(cred.boxKeyPair.publicKey)
+    },
     async registerLab(){
       try{
         const ethAddress = await getWalletAddress()
+        const box_public_key = this.getKiltBoxPublicKey()
         await registerLab(
           this.api,
           this.pair,
           {
+            box_public_key,
             name: this.labName,
             email: this.email,
             address: this.address,
