@@ -104,6 +104,7 @@
             block
             :disabled="disableSendButton"
             @click="submitTestResult"
+            :loading="isLoading"
             >SEND</v-btn>
         </div>
         <div class="mb-3" style="width: 50%">
@@ -139,7 +140,7 @@ export default {
   },
   props: {
     specimenNumber: String,
-    publicKey: Uint8Array,
+    publicKey: [Uint8Array, String],
     isProcessed: Boolean,
     wetworkCheckbox: Boolean
   },
@@ -152,6 +153,7 @@ export default {
     resultLink: "",
     isProcessSuccess: false,
     submitted: false,
+    isLoading: false,
     files: {
       genome: [],
       report: [],
@@ -252,6 +254,8 @@ export default {
     async submitTestResult() {
       const genomeLink = this.getFileIpfsUrl(this.files.genome[0])
       const reportLink = this.getFileIpfsUrl(this.files.report[0])
+
+      this.isLoading = true
       
       await submitTestResult(
         this.api,
@@ -268,7 +272,9 @@ export default {
       this.$emit('submitTestResult')
       setTimeout(() => {
         this.submitted = true
-      }, 500)
+        this.isLoading = false
+      }, 2000)
+
     },
     addFileUploadEventListener(fileInputRef, fileType) {
       const context = this
@@ -320,12 +326,13 @@ export default {
     encrypt({ text, fileType, fileName }) {
       const context = this
       this.loadingStatus[fileType] = 'Encrypting'
+      console.log("customer's box public key -> ", this.publicKey)
 
       return new Promise((resolve, reject) => {
         try {
           const pair = { 
             secretKey: context.identity.boxKeyPair.secretKey,
-            publicKey: context.publicKey
+            publicKey: context.publicKey // Customer's box publicKey
           }
           const arrChunks = []
           let chunksAmount

@@ -1,6 +1,6 @@
-export async function createOrder(api, pair, service_id) {
+export async function createOrder(api, pair, service_id, customer_box_public_key) {
   const result = await api.tx.orders
-    .createOrder(service_id)
+    .createOrder(service_id, customer_box_public_key)
     .signAndSend(pair, { nonce: -1 })
   return result.toHuman()
 }

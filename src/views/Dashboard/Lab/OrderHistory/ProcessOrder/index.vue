@@ -117,7 +117,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { Keyring } from '@polkadot/keyring'
+//import { Keyring } from '@polkadot/keyring'
 // import OrderFinished from './OrderFinished'
 import ReceiveSpecimen from './ReceiveSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
@@ -162,8 +162,9 @@ export default {
       await this.getServiceDetail(order.service_id)
 
       // Get data from route param
-      const keyring = new Keyring();
-      this.publicKey = keyring.decodeAddress(order.customer_id)
+      //const keyring = new Keyring();
+      //this.publicKey = keyring.decodeAddress(order.customer_id)
+      this.publicKey = order.customer_box_public_key
       this.createdAt = order.created_at
       this.customerEthAddress = order.customer_eth_address
       this.sellerEthAddress = order.seller_eth_address

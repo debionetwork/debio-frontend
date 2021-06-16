@@ -106,6 +106,8 @@ import {
   getPrice,
 } from "@/lib/metamask/wallet.js";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
+import Kilt from '@kiltprotocol/sdk-js'
+import { u8aToHex } from '@polkadot/util'
 
 export default {
   name: "SendPaymentDialog",
@@ -144,6 +146,7 @@ export default {
       lastEventData: (state) => state.substrate.lastEventData,
       metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
       metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance,
+      mnemonic: state => state.substrate.mnemonicData.mnemonic,
     }),
   },
   mounted() {
@@ -323,11 +326,13 @@ export default {
 
               const balance = await getBalanceETH(this.metamaskWalletAddress);
               if (balance > 0) {
+                const customer_box_public_key = this.getKiltBoxPublicKey()
                 for (let i = 0; i < this.products.length; i++) {
                   await createOrder(
                     this.api,
                     this.wallet,
-                    this.products[i].accountId
+                    this.products[i].accountId,
+                    customer_box_public_key,
                   );
                 }
               } else {
@@ -353,6 +358,10 @@ export default {
       this._show = false;
       this.password = "";
       this.error = "";
+    },
+    getKiltBoxPublicKey() {
+      const cred = Kilt.Identity.buildFromMnemonic(this.mnemonic)
+      return u8aToHex(cred.boxKeyPair.publicKey)
     },
   },
 };
