@@ -158,6 +158,7 @@ import { mapState, mapMutations } from "vuex";
 import { startApp } from "@/lib/metamask";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile";
+import { getEthFromFaucet, getDaicFromFaucet } from '@/lib/faucet'
 
 export default {
   name: "WalletBinding",
@@ -196,6 +197,10 @@ export default {
     ...mapMutations({
       setMetamaskAddress: "metamask/SET_WALLET_ADDRESS",
     }),
+    async getMunnyFromFaucet(address) {
+      await getEthFromFaucet(address)
+      await getDaicFromFaucet(address)
+    },
     async setWalllet(walletName) {
       this.error = "";
       this.loading = true;
@@ -254,8 +259,11 @@ export default {
           status: true,
           img: "metamask-account-connected.png",
         });
+        await this.getMunnyFromFaucet(this.selectAccount.address)
+        this.isLoading = false
         this.closeDialog();
       } catch (err) {
+        console.log(err)
         this.isLoading = false;
         this.password = "";
         this.error = "The password you entered is wrong";
