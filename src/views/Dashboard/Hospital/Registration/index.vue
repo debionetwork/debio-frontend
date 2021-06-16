@@ -15,10 +15,10 @@
               
               <v-text-field
                 dense
-                label="Lab Name"
-                placeholder="Lab Name"
+                label="Hospital Name"
+                placeholder="Hospital Name"
                 outlined
-                v-model="labName"
+                v-model="hospitalName"
                 ></v-text-field>
 
               <v-autocomplete
@@ -61,7 +61,7 @@
                 v-model="address"
                 ></v-text-field>
                 
-              <!--
+              
               <v-file-input
                 dense
                 label="Profile Image"
@@ -70,13 +70,12 @@
                 outlined
                 v-model="files"
                 ></v-file-input>
-              -->
 
                 <v-btn
                   color="primary"
                   block
                   large
-                  @click="registerLab"
+                  @click="registerHospital"
                 >Submit</v-btn>
             </v-card-text>
           </v-card>
@@ -88,18 +87,15 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex'
-import { queryLabsById } from '@/lib/polkadotProvider/query/labs'
-import { registerLab } from '@/lib/polkadotProvider/command/labs'
+import { queryHospitalsById } from '@/lib/polkadotProvider/query/hospitals'
+import { registerHospital } from '@/lib/polkadotProvider/command/hospitals'
 import { setEthAddress } from '@/lib/polkadotProvider/command/userProfile'
 import { getWalletAddress } from '@/lib/metamask/wallet'
 import countryData from "@/assets/json/country.json"
 import cityData from "@/assets/json/city.json"
-import Kilt from '@kiltprotocol/sdk-js'
-import { u8aToHex } from '@polkadot/util'
-
 
 export default {
-  name: 'LabRegistration',
+  name: 'HospitalRegistration',
   data: () => ({
     country: "",
     region: "",
@@ -108,7 +104,7 @@ export default {
     cities: [],
     regions: [],
     email: "",
-    labName: "",
+    hospitalName: "",
     address: "",
     files: [],
   }),
@@ -119,30 +115,29 @@ export default {
     ...mapGetters({
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
-      labAccount: 'substrate/labAccount',
-      isLabAccountExist: 'substrate/isLabAccountExist',
+      hospitalAccount: 'substrate/hospitalAccount',
+      isHospitalAccountExist: 'substrate/isHospitalAccountExist',
     }),
     ...mapState({
       locationContract: state => state.ethereum.contracts.contractLocation,
       degenicsContract: state => state.ethereum.contracts.contractDegenics,
-      mnemonic: state => state.substrate.mnemonicData.mnemonic,
     }),
     citiesSelection() {
       return this.cities
         .filter((c) => c.country == this.country)
         .map((c) => ({ value: c.city, text: c.city, country: c.country }));
     },
-    selectedLab() {
-      if (!this.labAccount) {
+    selectedHospital() {
+      if (!this.hospitalAccount) {
         return;
       }
-      return this.labs.filter((l) => l.labAccount == this.labAccount)[0];
+      return this.hospitals.filter((l) => l.hospitalAccount == this.hospitalAccount)[0];
     },
   },
   methods: {
-    setLabAccount(labAccount) {
-      this.$store.state.substrate.labAccount = labAccount
-      this.$store.state.substrate.isLabAccountExist = true
+    setHospitalAccount(hospitalAccount) {
+      this.$store.state.substrate.hospitalAccount = hospitalAccount
+      this.$store.state.substrate.isHospitalAccountExist = true
     },
     async getCountries() {
       this.countries = countryData;
@@ -158,20 +153,14 @@ export default {
     onCityChange(selectedCity) {
       this.city = selectedCity;
     },
-    getKiltBoxPublicKey() {
-      const cred = Kilt.Identity.buildFromMnemonic(this.mnemonic)
-      return u8aToHex(cred.boxKeyPair.publicKey)
-    },
-    async registerLab(){
+    async registerHospital(){
       try{
         const ethAddress = await getWalletAddress()
-        const box_public_key = this.getKiltBoxPublicKey()
-        await registerLab(
+        await registerHospital(
           this.api,
           this.pair,
           {
-            box_public_key,
-            name: this.labName,
+            name: this.hospitalName,
             email: this.email,
             address: this.address,
             country: this.country,
@@ -185,9 +174,9 @@ export default {
           ethAddress
         )
         
-        const labAccount = await queryLabsById(this.api, this.pair.address)
-        this.setLabAccount(labAccount)
-        this.$router.push('/lab')
+        const hospitalAccount = await queryHospitalsById(this.api, this.pair.address)
+        this.setHospitalAccount(hospitalAccount)
+        this.$router.push('/hospital')
       }
       catch(e){
         console.error(e)

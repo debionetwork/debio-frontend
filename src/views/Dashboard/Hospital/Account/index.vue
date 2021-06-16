@@ -3,23 +3,56 @@
     <v-container>
       <v-row>
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
+          <!-- <v-card class="dg-card mb-10" elevation="0" outlined>
+            <div class="secondary--text mt-5 ml-8"><b>Your Account is not verified</b></div>
+            <v-card-text class="px-8">
+                <p class="black--text">
+                    We recommend that you go through the hospital verification process in order to receive the verified badge
+                    <v-icon 
+                      inline
+                      color="primary"
+                      :size="16"
+                    >mdi-check-decagram</v-icon>.
+                    <br>
+                    Otherwise, you can skip this step and do this later.
+                </p>
+                <v-btn
+                    color="primary"
+                    block
+                    medium>Verify Account</v-btn>
+            </v-card-text>
+          </v-card> -->
+
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-text class="px-8 mt-5">
+              <div class="secondary--text mb-10 h6">
+                <b>Hospital Account Information</b>
+              </div>
+
+              <v-file-input
+                dense
+                label="Profile Image"
+                placeholder="Profile Image"
+                prepend-icon="mdi-image"
+                outlined
+                v-model="files"
+              ></v-file-input>
+
               <v-text-field
                 dense
                 label="Email"
                 placeholder="Email"
                 outlined
                 v-model="email"
-                ></v-text-field>
+              ></v-text-field>
               
               <v-text-field
                 dense
-                label="Lab Name"
-                placeholder="Lab Name"
+                label="Hospital Name"
+                placeholder="Hospital Name"
                 outlined
-                v-model="labName"
-                ></v-text-field>
+                v-model="hospitalName"
+              ></v-text-field>
 
               <v-autocomplete
                 dense
@@ -28,6 +61,7 @@
                 item-value="alpha-2"
                 @change="onCountryChange"
                 label="Select Country"
+                v-model="country"
                 outlined
               ></v-autocomplete>
 
@@ -39,6 +73,7 @@
                 @change="onRegionChange"
                 label="Select Region"
                 :disabled="!country"
+                v-model="region"
                 outlined
               ></v-autocomplete>
 
@@ -50,6 +85,7 @@
                 @change="onCityChange"
                 label="Select City"
                 :disabled="!region"
+                v-model="city"
                 outlined
               ></v-autocomplete>
               
@@ -60,23 +96,12 @@
                 outlined
                 v-model="address"
                 ></v-text-field>
-                
-              <!--
-              <v-file-input
-                dense
-                label="Profile Image"
-                placeholder="Profile Image"
-                prepend-icon="mdi-image"
-                outlined
-                v-model="files"
-                ></v-file-input>
-              -->
 
                 <v-btn
                   color="primary"
                   block
                   large
-                  @click="registerLab"
+                  @click="updateHospital"
                 >Submit</v-btn>
             </v-card-text>
           </v-card>
@@ -87,63 +112,51 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
-import { queryLabsById } from '@/lib/polkadotProvider/query/labs'
-import { registerLab } from '@/lib/polkadotProvider/command/labs'
-import { setEthAddress } from '@/lib/polkadotProvider/command/userProfile'
-import { getWalletAddress } from '@/lib/metamask/wallet'
+import { mapGetters } from 'vuex'
+import { updateHospital } from '@/lib/polkadotProvider/command/hospitals'
 import countryData from "@/assets/json/country.json"
 import cityData from "@/assets/json/city.json"
-import Kilt from '@kiltprotocol/sdk-js'
-import { u8aToHex } from '@polkadot/util'
-
 
 export default {
-  name: 'LabRegistration',
+  name: 'HospitalAccount',
+  async mounted() {
+    const hospitalInfo = this.hospitalAccount.info
+    this.email = hospitalInfo.email
+    this.hospitalName = hospitalInfo.name
+    this.address = hospitalInfo.address
+    
+    await this.getCountries()
+    this.country = hospitalInfo.country
+    this.regions = Object.entries(cityData[hospitalInfo.country].divisions)
+    this.cities = Object.entries(cityData[hospitalInfo.country].divisions)
+    this.region = hospitalInfo.city
+    this.city = hospitalInfo.city
+  },
   data: () => ({
+    email: "",
+    hospitalName: "",
+    address: "",
     country: "",
     region: "",
     city: "",
     countries: [],
-    cities: [],
     regions: [],
-    email: "",
-    labName: "",
-    address: "",
+    cities: [],
     files: [],
   }),
-  async mounted() {
-    await this.getCountries();
-  },
   computed: {
     ...mapGetters({
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
-      labAccount: 'substrate/labAccount',
-      isLabAccountExist: 'substrate/isLabAccountExist',
-    }),
-    ...mapState({
-      locationContract: state => state.ethereum.contracts.contractLocation,
-      degenicsContract: state => state.ethereum.contracts.contractDegenics,
-      mnemonic: state => state.substrate.mnemonicData.mnemonic,
+      hospitalAccount: 'substrate/hospitalAccount',
     }),
     citiesSelection() {
       return this.cities
         .filter((c) => c.country == this.country)
         .map((c) => ({ value: c.city, text: c.city, country: c.country }));
     },
-    selectedLab() {
-      if (!this.labAccount) {
-        return;
-      }
-      return this.labs.filter((l) => l.labAccount == this.labAccount)[0];
-    },
   },
   methods: {
-    setLabAccount(labAccount) {
-      this.$store.state.substrate.labAccount = labAccount
-      this.$store.state.substrate.isLabAccountExist = true
-    },
     async getCountries() {
       this.countries = countryData;
     },
@@ -158,39 +171,22 @@ export default {
     onCityChange(selectedCity) {
       this.city = selectedCity;
     },
-    getKiltBoxPublicKey() {
-      const cred = Kilt.Identity.buildFromMnemonic(this.mnemonic)
-      return u8aToHex(cred.boxKeyPair.publicKey)
-    },
-    async registerLab(){
+    async updateHospital(){
       try{
-        const ethAddress = await getWalletAddress()
-        const box_public_key = this.getKiltBoxPublicKey()
-        await registerLab(
+        await updateHospital(
           this.api,
           this.pair,
           {
-            box_public_key,
-            name: this.labName,
+            name: this.hospitalName,
             email: this.email,
             address: this.address,
             country: this.country,
             city: this.city,
           }
         )
-        
-        await setEthAddress(
-          this.api,
-          this.pair,
-          ethAddress
-        )
-        
-        const labAccount = await queryLabsById(this.api, this.pair.address)
-        this.setLabAccount(labAccount)
-        this.$router.push('/lab')
       }
-      catch(e){
-        console.error(e)
+      catch(err){
+        console.error(err)
       }
     }
   }

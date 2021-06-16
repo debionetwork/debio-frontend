@@ -36,7 +36,7 @@
             color="primary"
             large
             block
-            :disabled="loading.genome || loading.report || genomeSucceed"
+            :disabled="loading.genome || loading.report || genomeSucceed || !wetworkCheckbox"
             @click="uploadGenome"
           >
             <v-icon left dark class="pr-4">
@@ -68,7 +68,7 @@
             color="primary"
             large
             block
-            :disabled="loading.genome || loading.report || reportSucceed"
+            :disabled="loading.genome || loading.report || reportSucceed || !wetworkCheckbox"
             @click="uploadReport"
           >
             <v-icon left dark class="pr-4">
@@ -104,6 +104,7 @@
             block
             :disabled="disableSendButton"
             @click="submitTestResult"
+            :loading="isLoading"
             >SEND</v-btn>
         </div>
         <div class="mb-3" style="width: 50%">
@@ -123,12 +124,12 @@
 
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import FileCard from './FileCard'
 import ipfsWorker from '@/web-workers/ipfs-worker'
-import { naclSeal, mnemonicToMiniSecret, naclKeypairFromSeed } from '@polkadot/util-crypto'
 import cryptWorker from '@/web-workers/crypt-worker'
 import specimenFilesTempStore from '@/lib/specimen-files-temp-store'
+import Kilt from '@kiltprotocol/sdk-js'
 import { processDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
 import { queryDnaTestResults } from '@/lib/polkadotProvider/query/geneticTesting'
 
@@ -139,11 +140,12 @@ export default {
   },
   props: {
     specimenNumber: String,
-    publicKey: Uint8Array,
+    publicKey: [Uint8Array, String],
     isProcessed: Boolean,
+    wetworkCheckbox: Boolean
   },
   data: () => ({
-    wetworkCheckbox: false,
+    identity: null,
     genomeSucceed: false,
     reportSucceed: false,
     comment: "",
@@ -151,6 +153,7 @@ export default {
     resultLink: "",
     isProcessSuccess: false,
     submitted: false,
+    isLoading: false,
     files: {
       genome: [],
       report: [],
@@ -176,6 +179,9 @@ export default {
     // Add file input event listener
     this.addFileUploadEventListener(this.$refs.encryptUploadGenome, 'genome')
     this.addFileUploadEventListener(this.$refs.encryptUploadReport, 'report')
+
+    this.identity = Kilt.Identity.buildFromMnemonic(this.mnemonic)
+    
     if (this.isProcessed) {
       const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
       console.log(testResult)
@@ -199,6 +205,9 @@ export default {
     ...mapGetters({
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
+    }),
+    ...mapState({
+      mnemonic: state => state.substrate.mnemonicData.mnemonic
     }),
     disableRejectButton(){
       return this.genomeSucceed && this.reportSucceed
@@ -245,6 +254,8 @@ export default {
     async submitTestResult() {
       const genomeLink = this.getFileIpfsUrl(this.files.genome[0])
       const reportLink = this.getFileIpfsUrl(this.files.report[0])
+
+      this.isLoading = true
       
       await submitTestResult(
         this.api,
@@ -261,22 +272,32 @@ export default {
       this.$emit('submitTestResult')
       setTimeout(() => {
         this.submitted = true
-      }, 500)
+        this.isLoading = false
+      }, 2000)
+
     },
     addFileUploadEventListener(fileInputRef, fileType) {
       const context = this
       fileInputRef.addEventListener('change', function() {
+        context.loading[fileType] = true
         const file = this.files[0]
         file.fileType = fileType // attach fileType to file, because fileType is not accessible in fr.onload scope
         const fr = new FileReader()
         fr.onload = async function() {
           try {
-            // Upload
-            context.loading[file.fileType] = true
-            const uploaded = await context.upload({
-              encryptedFileChunks: fr.result,
+            // Encrypt
+            const encrypted = await context.encrypt({
+              text: fr.result,
               fileType: file.fileType,
               fileName: file.name,
+            })
+            
+            const { chunks, fileName: encFileName, fileType: encFileType } = encrypted
+            // Upload
+            const uploaded = await context.upload({
+              encryptedFileChunks: chunks,
+              fileName: encFileName,
+              fileType: encFileType
             })
             const { fileName, fileType, ipfsPath } = uploaded
             context.files[fileType].push({ fileName, fileType, ipfsPath })
@@ -303,26 +324,21 @@ export default {
       })
     },
     encrypt({ text, fileType, fileName }) {
+      const context = this
       this.loadingStatus[fileType] = 'Encrypting'
+      console.log("customer's box public key -> ", this.publicKey)
 
       return new Promise((resolve, reject) => {
         try {
-          const publicKey = this.publicKey
-          const buffer = new Uint8Array(text)
-          
-          // Create valid Substrate-compatible seed from mnemonic
-          const seed = mnemonicToMiniSecret(this.mnemonic)
-
-          // Generate new public/secret keypair for Alice from the supplied seed
-          const keypair = naclKeypairFromSeed(seed)
-
-          const sealedBuffer = naclSeal(buffer, keypair.secretKey, publicKey)
-
+          const pair = { 
+            secretKey: context.identity.boxKeyPair.secretKey,
+            publicKey: context.publicKey // Customer's box publicKey
+          }
           const arrChunks = []
           let chunksAmount
-
-          cryptWorker.workerEncrypt.postMessage({ publicKey, sealedBuffer }) // Access this object in e.data in worker
+          cryptWorker.workerEncrypt.postMessage({ pair, text }) // Access this object in e.data in worker
           cryptWorker.workerEncrypt.onmessage = event => {
+            console.log(event)
             // The first returned data is the chunksAmount
             if(event.data.chunksAmount) {
               chunksAmount = event.data.chunksAmount
@@ -331,6 +347,7 @@ export default {
 
             arrChunks.push(event.data)
             this.encryptProgress[fileType] = arrChunks.length / chunksAmount * 100
+            console.log(arrChunks.length, chunksAmount)
 
             if (arrChunks.length == chunksAmount ) {
               resolve({

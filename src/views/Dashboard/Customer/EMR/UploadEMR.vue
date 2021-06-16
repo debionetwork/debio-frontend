@@ -146,7 +146,8 @@
                 type="file"
                 id="file"
                 ref="file"
-                v-on:change="handleFileUpload()"
+                v-on:change="setFiles()"
+                accept="application/pdf"
               />
             </label>
           </div>
@@ -237,6 +238,10 @@
 
 <script>
 import { mapState, mapMutations } from "vuex";
+import ipfsWorker from "@/web-workers/ipfs-worker";
+import cryptWorker from "@/web-workers/crypt-worker";
+import { hexToU8a } from "@polkadot/util";
+import { uploadElectronicMedicalRecord } from "@/lib/polkadotProvider/command/electronicMedicalRecord";
 
 export default {
   name: "UploadEMR",
@@ -256,8 +261,12 @@ export default {
     password: "",
     isLoading: false,
     error: "",
+    identity: null,
+    publicKey: null,
     uploadSuccessIcon: "mdi-check-circle",
     uploadSuccessTitle: "Upload Successful",
+    secretKey: null,
+    baseUrl: "https://ipfs.io/ipfs/",
   }),
   computed: {
     _show: {
@@ -271,20 +280,30 @@ export default {
     ...mapState({
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      mnemonicData: (state) => state.substrate.mnemonicData,
       metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
     }),
   },
-  mounted() {},
+  mounted() {
+    this.initialData();
+  },
   methods: {
     ...mapMutations({
       setMetamaskAddress: "metamask/SET_WALLET_ADDRESS",
     }),
+    initialData() {
+      this.publicKey = this.wallet.publicKey;
+      this.secretKey = hexToU8a(this.mnemonicData.privateKey);
+    },
     addFile() {
       this.filePending = false;
       this.openFormEMR = true;
       this.formTitle = "";
       this.formDescription = "";
       this.formFilePath = null;
+    },
+    setFiles() {
+      this.formFilePath = this.$refs.file.files[0];
     },
     closeForm() {
       this.inputPassword = false;
@@ -295,8 +314,132 @@ export default {
       this.formFilePath = null;
       console.log(this.listPendingUploadFile);
     },
-    handleFileUpload() {
-      this.formFilePath = this.$refs.file.files[0];
+    /**
+     * @returns {String} The first ipfs path (a file has multiple ipfs path, because a file may be chunked)
+     */
+    getFileIpfsPath(file) {
+      return file.ipfsPath[0].data.path;
+    },
+    getFileIpfsUrl(file) {
+      const path = this.getFileIpfsPath(file);
+      return `https://ipfs.io/ipfs/${path}`;
+    },
+    async handleFileUpload(dataFile) {
+      const file = dataFile.file;
+      file.fileType = "EMR"; // attach fileType to file, because fileType is not accessible in fr.onload scope
+
+      const context = this;
+      const fr = new FileReader();
+      fr.onload = async function () {
+        try {
+          // Encrypt
+          const encrypted = await context.encrypt({
+            text: fr.result,
+            fileType: file.fileType,
+            fileName: file.name,
+          });
+          const {
+            chunks,
+            fileName: encFileName,
+            fileType: encFileType,
+          } = encrypted;
+
+          // Upload
+          const uploaded = await context.upload({
+            encryptedFileChunks: chunks,
+            fileName: encFileName,
+            fileType: encFileType,
+          });
+          const link = context.baseUrl + "" + context.getFileIpfsPath(uploaded);
+          console.log(link);
+          const result = await uploadElectronicMedicalRecord(
+            context.api,
+            context.wallet,
+            {
+              id: "",
+              owner_id: context.wallet.address,
+              title: dataFile.title,
+              description: dataFile.desc,
+              record_link: link,
+            }
+          );
+          console.log(result);
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      fr.readAsText(file);
+    },
+    encrypt({ text, fileType, fileName }) {
+      const context = this;
+      return new Promise((resolve, reject) => {
+        try {
+          const pair = {
+            secretKey: context.secretKey,
+            publicKey: context.publicKey,
+          };
+          const arrChunks = [];
+          let chunksAmount;
+          cryptWorker.workerEncrypt.postMessage({ pair, text }); // Access this object in e.data in worker
+          cryptWorker.workerEncrypt.onmessage = (event) => {
+            console.log(event);
+            if (event.data.chunksAmount) {
+              chunksAmount = event.data.chunksAmount;
+              return;
+            }
+
+            arrChunks.push(event.data);
+            console.log((arrChunks.length / chunksAmount) * 100);
+
+            if (arrChunks.length == chunksAmount) {
+              resolve({
+                fileName: fileName,
+                chunks: arrChunks,
+                fileType: fileType,
+              });
+            }
+          };
+        } catch (err) {
+          reject(new Error(err.message));
+        }
+      });
+    },
+    upload({ encryptedFileChunks, fileName, fileType }) {
+      const chunkSize = 10 * 1024 * 1024; // 10 MB
+      let offset = 0;
+      const data = JSON.stringify(encryptedFileChunks);
+      const blob = new Blob([data], { type: "text/plain" });
+
+      return new Promise((resolve, reject) => {
+        try {
+          const fileSize = blob.size;
+          do {
+            let chunk = blob.slice(offset, chunkSize + offset);
+            ipfsWorker.workerUpload.postMessage({
+              seed: chunk.seed,
+              file: blob,
+            });
+            offset += chunkSize;
+          } while (chunkSize + offset < fileSize);
+
+          let uploadSize = 0;
+          const uploadedResultChunks = [];
+          ipfsWorker.workerUpload.onmessage = async (event) => {
+            uploadedResultChunks.push(event.data);
+            uploadSize += event.data.data.size;
+
+            if (uploadSize >= fileSize) {
+              resolve({
+                fileName: fileName,
+                fileType: fileType,
+                ipfsPath: uploadedResultChunks,
+              });
+            }
+          };
+        } catch (err) {
+          reject(new Error(err.message));
+        }
+      });
     },
     addToPending() {
       this.listPendingUploadFile.push({
@@ -322,10 +465,28 @@ export default {
     },
     async onSubmit() {
       this.isLoading = true;
-      this.inputPassword = false;
-      this.resultUpload = true;
-      this.isLoading = false;
-      this.error = "";
+      try {
+        this.wallet.decodePkcs8(this.password);
+
+        if (this.listPendingUploadFile.length > 0) {
+          let status = false;
+          for (let i = 0; i < this.listPendingUploadFile.length; i++) {
+            await this.handleFileUpload(this.listPendingUploadFile[i]);
+            status = true;
+          }
+          if (status) {
+            this.inputPassword = false;
+            this.resultUpload = true;
+            this.isLoading = false;
+            this.error = "";
+          }
+        }
+      } catch (e) {
+        console.log(e);
+        this.isLoading = false;
+        this.password = "";
+        this.error = "The password you entered is wrong";
+      }
     },
     closeDialog() {
       this._show = false;

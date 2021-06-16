@@ -19,6 +19,7 @@ export async function getEthFromFaucet(walletAddress) {
 
 export async function getDbioFromFaucet(walletAddress) {
   const faucetEndpoint = 'https://faucet.theapps.dev'
+  //const faucetEndpoint = 'http://localhost:3003'
   const request = `${faucetEndpoint}?address=${walletAddress}`
   try {
     const resp = await axios.get(request)

@@ -53,15 +53,15 @@
                             <div class="d-flex align-center">
                                 <div>
                                     <v-icon color="#BA8DBB" :size="52">
-                                        mdi-test-tube
+                                      {{ serviceInfo.image }}
                                     </v-icon>
                                 </div>
                                 <div class="ml-5">
-                                    <div class="text-h6">
-                                        <b>Supplement</b>
+                                    <div style="">
+                                      <b>{{ serviceInfo.name }}</b>
                                     </div>
                                     <div class="text-caption grey--text text--darken-1">
-                                        Supplement recommendation based on your genes
+                                      {{ serviceInfo.description.substring(0, 60) }}...
                                     </div>
                                 </div>
                             </div>
@@ -103,6 +103,7 @@
                     :specimenNumber="specimenNumber"
                     :publicKey="publicKey"
                     :is-processed="isOrderProcessed"
+                    :wetwork-checkbox="wetworkCheckbox"
                     @processWetwork="wetworkCheckbox = true"
                     @uploadGenome="uploadedGenomeCheckbox = true"
                     @uploadReport="uploadedReportCheckbox = true"
@@ -116,12 +117,14 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { Keyring } from '@polkadot/keyring'
+//import { Keyring } from '@polkadot/keyring'
 // import OrderFinished from './OrderFinished'
 import ReceiveSpecimen from './ReceiveSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
 import { fulfillOrder } from '@/lib/polkadotProvider/command/orders'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
+import { queryDnaSamples } from '@/lib/polkadotProvider/query/geneticTesting'
+import { queryServicesById } from '@/lib/polkadotProvider/query/services'
 
 export default {
   name: 'ProcessOrderHistory',
@@ -142,6 +145,11 @@ export default {
     sellerEthAddress: "",
     specimenNumber: "",
     isOrderProcessed: false,
+    serviceInfo: {
+      name: "",
+      description: "",
+      image: "",
+    }
   }),
   async mounted(){
     try {
@@ -150,27 +158,52 @@ export default {
         this.$router.push({ name: 'lab-dashboard-order-history' })
       }
       const order = await getOrdersDetail(this.api, this.orderId)
+
+      await this.getServiceDetail(order.service_id)
+
       // Get data from route param
-      const keyring = new Keyring();
-      this.publicKey = keyring.decodeAddress(order.customer_id)
+      //const keyring = new Keyring();
+      //this.publicKey = keyring.decodeAddress(order.customer_id)
+      this.publicKey = order.customer_box_public_key
       this.createdAt = order.created_at
       this.customerEthAddress = order.customer_eth_address
       this.sellerEthAddress = order.seller_eth_address
       this.specimenNumber = order.dna_sample_tracking_id
-
-      if(order.status == "Success") {
-        this.receivedCheckbox = true
-        this.wetworkCheckbox = true
-        this.uploadedGenomeCheckbox = true
-        this.uploadedReportCheckbox = true
-        this.sentCheckbox = true
-        this.isOrderProcessed = true
-      }
+      this.setCheckboxByDnaStatus()
     } catch (err) {
       console.log(err)
     }
   },
   methods: {
+    async getServiceDetail(serviceId) {
+      const service = await queryServicesById(this.api, serviceId)
+      this.serviceInfo = { ...service.info }
+    },
+    async setCheckboxByDnaStatus(){
+        const dna = await queryDnaSamples(this.api, this.specimenNumber)
+
+        if(dna.status == "Received") {
+            this.receivedCheckbox = true
+        }
+
+        if(dna.status == "Rejected") {
+            this.receivedCheckbox = true
+        }
+
+        if(dna.status == "Processing") {
+            this.receivedCheckbox = true
+            this.wetworkCheckbox = true
+        }
+
+        if(dna.status == "Success") {
+            this.receivedCheckbox = true
+            this.wetworkCheckbox = true
+            this.uploadedGenomeCheckbox = true
+            this.uploadedReportCheckbox = true
+            this.sentCheckbox = true
+            this.isOrderProcessed = true
+        }
+    },
     async submitTestResult(){
       try {
         console.log('Submitting test result!')

@@ -88,17 +88,18 @@ export default {
           this.api,
           address,
         )
+        
         orders.sort(
           (a, b) => parseInt(b.created_at) - parseInt(a.created_at)
         )
 
-        var lengthMax = 3
+        let lengthMax = 3
         if(orders.length > 0){
           for (let i = 0; i < lengthMax; i++) {
             this.prepareOrderData(orders[i])
           }
         }
-
+        
         this.isLoadingOrderHistory = false
       } catch (err) {
         this.isLoadingOrderHistory = false

@@ -12,10 +12,18 @@ export async function getOrdersDetailByAddress(api, address) {
   for(let i = 0; i < orderIds.length; i++){
     let orderDetail = await getOrdersDetail(api, orderIds[i])
     const service = await queryServicesById(api, orderDetail.service_id)
-    const lab = await queryLabsById(api, service.owner_id)
     orderDetail['created_at'] = parseInt(orderDetail.created_at.replace(/,/g, ""))
-    orderDetail['lab_name'] = lab.info.name
-    orderDetail['service_name'] = service.info.name
+    
+    let lab = null
+    if(service != null){
+      orderDetail['service_name'] = service.info.name
+      lab = await queryLabsById(api, service.owner_id)
+    }
+
+    if(lab != null){
+      orderDetail['lab_name'] = lab.info.name
+    }
+
     orders.push(orderDetail)
   }
   return orders

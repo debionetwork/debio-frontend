@@ -38,10 +38,10 @@
                   <template v-slot:[`item.image`]="{ item }">
                      <v-container rounded>
                         <v-img 
-                           :src="item.image" 
+                           src="@/assets/degenics-logo.png" 
                            :alt="item.name" 
-                           max-height="100px"
-                           max-width="100px"
+                           max-height="70px"
+                           max-width="70px"
                         ></v-img>
                      </v-container>
                   </template>

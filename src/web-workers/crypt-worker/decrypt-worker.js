@@ -1,15 +1,15 @@
-import EthCrypto from 'eth-crypto';
+/* eslint-disable */
+import Kilt from '@kiltprotocol/sdk-js'
 
 onmessage = function(e) {
-  console.log("Decrypting...", e.data);
-  const fl = new Blob([ e.data.text ], {type: 'text/plain'});
-  fl.text().then(encrypted => {
-    const obj = JSON.parse(encrypted);
-    EthCrypto.decryptWithPrivateKey(e.data.privateKey, obj)
-    .then(decryptedObject => {
+  console.log("Decrypting...")
+  (async () => {
+    const decryptedObject = await Kilt.Utils.Crypto.decryptAsymmetric(e.data.text, e.data.pair.publicKey, e.data.pair.secretKey)
+    postMessage(decryptedObject)
+  })()
+    .then(() => {
       console.log("Decrypted");
-      postMessage(decryptedObject);
-    });
-  });
+    })
+    .catch(console.log)
 
 }

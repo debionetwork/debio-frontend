@@ -118,10 +118,10 @@ export default {
       if (keystoreJson != null && keystoreJson != "") {
         dataDownload.push(JSON.parse(keystoreJson));
       }
-      const dataMemonicJson =
+      const dataMnemonicJson =
         localStorage.getLocalStorageByName("mnemonic_data");
-      if (dataMemonicJson != null && dataMemonicJson != "") {
-        dataDownload.push(JSON.parse(dataMemonicJson));
+      if (dataMnemonicJson != null && dataMnemonicJson != "") {
+        dataDownload.push(JSON.parse(dataMnemonicJson));
       }
 
       if (dataDownload.length > 0) {

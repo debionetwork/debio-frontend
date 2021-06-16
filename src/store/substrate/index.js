@@ -8,15 +8,14 @@ import { u8aToHex } from '@polkadot/util'
 import { queryEntireLabDataById } from '@/lib/polkadotProvider/query/labs'
 import masterConfigEvent from "@/assets/json/config-event.json"
 import { queryBalance } from "@/lib/polkadotProvider/query/balance"
+import Kilt from '@kiltprotocol/sdk-js'
 
 const {
-  mnemonicToMiniSecret,
-  naclKeypairFromSeed,
   cryptoWaitReady,
 } = require('@polkadot/util-crypto');
 
 cryptoWaitReady().then(() => {
-  keyring.loadAll({ ss58Format: 42, type: 'ed25519' });
+  keyring.loadAll({ ss58Format: 42, type: 'sr25519' });
 });
 
 const defaultState = {
@@ -28,6 +27,10 @@ const defaultState = {
   walletPublicKey: '',
   labAccount: null,
   isLabAccountExist: false,
+  doctorAccount: null,
+  isDoctorAccountExist: false,
+  hospitalAccount: null,
+  isHospitalAccountExist: false,
   lastEventData: null,
   localListNotfication: [],
   configEvent: null,
@@ -55,6 +58,20 @@ export default {
     },
     SET_IS_LAB_ACCOUNT_EXIST(state, isLabAccountExist) {
       state.isLabAccountExist = isLabAccountExist
+    },
+    SET_DOCTOR_ACCOUNT(state, doctorAccount) {
+      state.doctorAccount = doctorAccount
+      state.isDoctorAccountExist = true
+    },
+    SET_IS_DOCTOR_ACCOUNT_EXIST(state, isDoctorAccountExist) {
+      state.isDoctorAccountExist = isDoctorAccountExist
+    },
+    SET_HOSPITAL_ACCOUNT(state, hospitalAccount) {
+      state.hospitalAccount = hospitalAccount
+      state.isHospitalAccountExist = true
+    },
+    SET_IS_HOSPITAL_ACCOUNT_EXIST(state, isHospitalAccountExist) {
+      state.isHospitalAccountExist = isHospitalAccountExist
     },
     SET_LOADING_WALLET(state, isLoadingWallet) {
       state.isLoadingWallet = isLoadingWallet
@@ -87,6 +104,7 @@ export default {
       try {
         commit('SET_LOADING_API', true)
         const PROVIDER_SOCKET = 'wss://debio.theapps.dev/node'
+        //const PROVIDER_SOCKET = 'ws://127.0.0.1:9944'
         const wsProvider = new WsProvider(PROVIDER_SOCKET)
         const api = await ApiPromise.create({
           provider: wsProvider,
@@ -144,15 +162,16 @@ export default {
         commit('SET_WALLET', pair) // FIXME: simpen untuk dev
         commit('SET_LOADING_WALLET', false)
 
-        const seed = mnemonicToMiniSecret(mnemonic)
-        const { publicKey, secretKey } = naclKeypairFromSeed(seed)
-        const dataMemonic = {
-          privateKey: u8aToHex(secretKey),
-          publicKey: u8aToHex(publicKey),
+        const identity = await Kilt.Identity.buildFromMnemonic(mnemonic);
+
+        const dataMnemonic = {
+          privateKey: u8aToHex(identity.boxKeyPair.secretKey),
+          publicKey: u8aToHex(identity.boxKeyPair.publicKey),
           mnemonic: mnemonic,
         };
-        localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(dataMemonic));
-        commit('SET_MNEMONIC_DATA', dataMemonic)
+
+        localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(dataMnemonic));
+        commit('SET_MNEMONIC_DATA', dataMnemonic)
         return { success: true }
       } catch (err) {
         console.log(err)
@@ -171,11 +190,11 @@ export default {
         commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
         console.log('Is pair locked?', pair.isLocked)
         commit('SET_WALLET', pair)
-
+    
         localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(file[1]));
         commit('SET_MNEMONIC_DATA', file[1])
         commit('SET_LOADING_WALLET', false)
-
+    
         return { success: true }
       } catch (err) {
         commit('CLEAR_WALLET')
@@ -191,10 +210,10 @@ export default {
         commit('SET_WALLET', pair)
         commit('SET_LOADING_WALLET', false)
 
-        const dataMemonicJson = localStorage.getLocalStorageByName("mnemonic_data");
-        if (dataMemonicJson != null && dataMemonicJson != "") {
-          const dataMemonic = JSON.parse(dataMemonicJson);
-          commit('SET_MNEMONIC_DATA', dataMemonic);
+        const dataMnemonicJson = localStorage.getLocalStorageByName("mnemonic_data");
+        if (dataMnemonicJson != null && dataMnemonicJson != "") {
+          const dataMnemonic = JSON.parse(dataMnemonicJson);
+          commit('SET_MNEMONIC_DATA', dataMnemonic);
         }
 
         commit('SET_LAB_ACCOUNT', null)
@@ -204,6 +223,22 @@ export default {
           commit('SET_LAB_ACCOUNT', labAccount)
           commit('SET_IS_LAB_ACCOUNT_EXIST', true)
         }
+
+        commit('SET_DOCTOR_ACCOUNT', null)
+        commit('SET_IS_DOCTOR_ACCOUNT_EXIST', false)
+        // const doctorAccount = await queryEntireDoctorDataById(state.api, address)
+        // if (doctorAccount) {
+        //   commit('SET_DOCTOR_ACCOUNT', doctorAccount)
+        //   commit('SET_IS_DOCTOR_ACCOUNT_EXIST', true)
+        // }
+
+        commit('SET_HOSPITAL_ACCOUNT', null)
+        commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', false)
+        // const hospitalAccount = await queryEntireHospitalDataById(state.api, address)
+        // if (hospitalAccount) {
+        //   commit('SET_HOSPITAL_ACCOUNT', hospitalAccount)
+        //   commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', true)
+        // }
 
         return { success: true }
       } catch (err) {
@@ -222,6 +257,40 @@ export default {
           commit('SET_LAB_ACCOUNT', labAccount)
           commit('SET_IS_LAB_ACCOUNT_EXIST', true)
         }
+
+        return { success: true }
+      } catch (err) {
+        console.log(err)
+        return { success: false, error: err.message }
+      }
+    },
+    async getDoctorAccount({ commit, state }) {
+      try {
+        commit('SET_DOCTOR_ACCOUNT', null)
+        commit('SET_IS_DOCTOR_ACCOUNT_EXIST', false)
+        console.log(state) // TODO: Remove when certification pallet added
+        // const doctorAccount = await queryEntireDoctorDataById(state.api, state.wallet.address)
+        // if (doctorAccount) {
+        //   commit('SET_DOCTOR_ACCOUNT', doctorAccount)
+        //   commit('SET_IS_DOCTOR_ACCOUNT_EXIST', true)
+        // }
+
+        return { success: true }
+      } catch (err) {
+        console.log(err)
+        return { success: false, error: err.message }
+      }
+    },
+    async getHospitalAccount({ commit, state }) {
+      try {
+        commit('SET_HOSPITAL_ACCOUNT', null)
+        commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', false)
+        console.log(state) // TODO: Remove when certification pallet added
+        // const hospitalAccount = await queryEntireHospitalDataById(state.api, state.wallet.address)
+        // if (hospitalAccount) {
+        //   commit('SET_HOSPITAL_ACCOUNT', hospitalAccount)
+        //   commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', true)
+        // }
 
         return { success: true }
       } catch (err) {
@@ -404,6 +473,18 @@ export default {
     },
     isLabAccountExist(state) {
       return state.isLabAccountExist
+    },
+    doctorAccount(state) {
+      return state.doctorAccount
+    },
+    isDoctorAccountExist(state) {
+      return state.isDoctorAccountExist
+    },
+    hospitalAccount(state) {
+      return state.hospitalAccount
+    },
+    isHospitalAccountExist(state) {
+      return state.isHospitalAccountExist
     },
     getAPI(state) {
       return state.api
