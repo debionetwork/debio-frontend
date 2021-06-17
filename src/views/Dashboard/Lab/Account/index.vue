@@ -192,6 +192,7 @@ export default {
             email: this.email,
             address: this.address,
             country: this.country,
+            region: this.region,
             city: this.city,
           }
         )
