@@ -273,6 +273,9 @@ export default {
     this.fetchOrderDetails();
   },
   watch: {
+    $route() {
+      this.fetchOrderDetails();
+    },
     lastEventData() {
       if (this.lastEventData != null) {
         if (this.lastEventData.method == "OrderCancelled") {

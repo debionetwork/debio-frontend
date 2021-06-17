@@ -80,6 +80,11 @@ export default {
   mounted() {
     this.getTestResults();
   },
+  watch: {
+    $route() {
+      this.getTestResults();
+    },
+  },
   data: () => ({
     search: "",
     searchableTestResults: null,

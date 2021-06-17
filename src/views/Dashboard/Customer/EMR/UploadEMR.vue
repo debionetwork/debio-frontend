@@ -292,7 +292,7 @@ export default {
       setMetamaskAddress: "metamask/SET_WALLET_ADDRESS",
     }),
     initialData() {
-      this.publicKey = this.wallet.publicKey;
+      this.publicKey = hexToU8a(this.mnemonicData.publicKey);
       this.secretKey = hexToU8a(this.mnemonicData.privateKey);
     },
     addFile() {
