@@ -8,6 +8,11 @@ export async function ordersByCustomer(api, address) {
 
 export async function getOrdersDetailByAddress(api, address) {
   const orderIds = await ordersBySeller(api, address)
+  
+  if(orderIds == null){
+    return []
+  }
+  
   let orders = []
   for(let i = 0; i < orderIds.length; i++){
     let orderDetail = await getOrdersDetail(api, orderIds[i])
