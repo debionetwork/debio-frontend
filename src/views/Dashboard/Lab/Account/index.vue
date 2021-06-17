@@ -29,14 +29,14 @@
                 <b>Lab Account Information</b>
               </div>
 
-              <v-file-input
+              <!-- <v-file-input
                 dense
                 label="Profile Image"
                 placeholder="Profile Image"
                 prepend-icon="mdi-image"
                 outlined
                 v-model="files"
-              ></v-file-input>
+              ></v-file-input> -->
 
               <v-text-field
                 dense
@@ -112,10 +112,12 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import { updateLab } from '@/lib/polkadotProvider/command/labs'
 import countryData from "@/assets/json/country.json"
 import cityData from "@/assets/json/city.json"
+import Kilt from '@kiltprotocol/sdk-js'
+import { u8aToHex } from '@polkadot/util'
 
 export default {
   name: 'LabAccount',
@@ -150,6 +152,9 @@ export default {
       pair: 'substrate/wallet',
       labAccount: 'substrate/labAccount',
     }),
+    ...mapState({
+      mnemonic: state => state.substrate.mnemonicData.mnemonic,
+    }),
     citiesSelection() {
       return this.cities
         .filter((c) => c.country == this.country)
@@ -171,16 +176,23 @@ export default {
     onCityChange(selectedCity) {
       this.city = selectedCity;
     },
+    getKiltBoxPublicKey() {
+      const cred = Kilt.Identity.buildFromMnemonic(this.mnemonic)
+      return u8aToHex(cred.boxKeyPair.publicKey)
+    },
     async updateLab(){
       try{
+        const box_public_key = this.getKiltBoxPublicKey()
         await updateLab(
           this.api,
           this.pair,
           {
+            box_public_key,
             name: this.labName,
             email: this.email,
             address: this.address,
             country: this.country,
+            region: this.region,
             city: this.city,
           }
         )
