@@ -126,7 +126,6 @@
 
 <script>
 import { mapState } from "vuex";
-import router from "@/router";
 import DataTable from "@/components/DataTable";
 import SearchBar from "@/components/DataTable/SearchBar";
 import DNASampleSendingInstructions from "@/components/DNASampleSendingInstructions";
@@ -273,10 +272,11 @@ export default {
         params: { number: item.number },
       });
     },
-
-    // Lama
     gotoResult(item) {
-      router.push(`/result-test/${item.number}`);
+      this.$router.push({
+        name: "result-test",
+        params: { number: item.dna_sample_tracking_id },
+      });
     },
     showDialogInstruction(item) {
       this.dialogInstruction = true;

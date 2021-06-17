@@ -121,7 +121,7 @@
         <v-row class="pt-1">
           <v-col
             v-for="product in products"
-            :key="product.serviceName"
+            :key="product.serviceData.id"
             cols="12"
             xl="4"
             lg="4"
@@ -341,7 +341,9 @@ export default {
     },
     isProductSelected(product) {
       return (
-        this.selectedProducts.filter((p) => p.serviceData.id == product.serviceData.id).length > 0
+        this.selectedProducts.filter(
+          (p) => p.serviceData.id == product.serviceData.id
+        ).length > 0
       );
     },
     isProductDisabled(product) {

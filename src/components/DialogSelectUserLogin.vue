@@ -25,7 +25,7 @@
                 :disabled="isLoading"
                 @keyup.enter="onPasswordInput"
               ></v-text-field>
-              <!--
+
               <div
                 style="font-size: 12px"
                 class="d-flex justify-end primary--text"
@@ -33,7 +33,6 @@
               >
                 Forgot your password?
               </div>
-              -->
             </v-form>
             <v-progress-linear
               v-if="isLoading"
@@ -62,7 +61,6 @@
         </template>
 
         <!-- Prompt user to select keystore file -->
-        <!--
         <template v-if="dataAccount != null && keystore == ''">
           <v-hover v-slot="{ hover }">
             <v-card
@@ -103,12 +101,11 @@
           </div>
           <div align="center" class="mb-5">No accounts found.</div>
         </template>
-        -->
 
         <template v-if="keystore == ''">
           <v-card-text class="pb-0 text-subtitle-1">
             <input type="file" style="display: none" ref="keystoreFileInput" />
-            <div style="width: 100%;">
+            <div style="width: 100%">
               <v-btn
                 depressed
                 color="primary"
@@ -130,8 +127,7 @@
               </v-btn>
             </div>
           </v-card-text>
-          <v-card-actions class="px-6 pb-4">
-          </v-card-actions>
+          <v-card-actions class="px-6 pb-4"> </v-card-actions>
         </template>
       </div>
       <div v-else class="d-flex justify-center mt-10 pb-10">
@@ -161,6 +157,7 @@ export default {
     nonce: null,
     keystoreInputErrors: [],
     loading: false,
+    dataMnemonicJson: null,
   }),
   props: {
     show: Boolean,
@@ -199,6 +196,8 @@ export default {
         );
         this.balance = balance.free.toHuman();
         this.nonce = nonce;
+        this.dataMnemonicJson =
+          localStorage.getLocalStorageByName("mnemonic_data");
         this.loading = false;
       } catch (err) {
         console.log(err);
@@ -206,8 +205,8 @@ export default {
       }
     },
     setKeystore() {
-      this.keystore = this.dataAccountJson
-      this.fileName = "keystore"
+      this.keystore = this.dataAccountJson;
+      this.fileName = "keystore";
     },
     setKeystoreFileInputListener() {
       const context = this;
@@ -229,10 +228,13 @@ export default {
     saveKeystoreToLocalStorage(keystore) {
       localStorage.setKeystore(keystore);
     },
-    forgotPassword(){
+    forgotPassword() {
       const dataPair = JSON.parse(this.keystore);
       this._show = false;
-      this.$emit('forgot-password', { status: true, address: dataPair[0].address })
+      this.$emit("forgot-password", {
+        status: true,
+        address: dataPair[0].address,
+      });
       this.clearInput();
     },
     closeDialog() {
@@ -249,25 +251,41 @@ export default {
       this.loading = true;
       this.setIsLoading(true);
       this.keystoreInputErrors = [];
-      const keystore = JSON.parse(this.keystore);
-      const result = await this.restoreAccountKeystore({
-        file: keystore,
-        password: this.password,
-      });
+      let dataKeystore = [];
 
-      this.loading = false;
-      if (result.success) {
-        this._show = false;
-        this.clearInput();
-        this.$emit('key-store-set')
-        return;
+      const keystore = JSON.parse(this.keystore);
+      if (keystore != null) {
+        if (Array.isArray(keystore)) {
+          dataKeystore = keystore;
+        } else {
+          dataKeystore.push(keystore);
+          if (this.dataMnemonicJson != null && this.dataMnemonicJson != "") {
+            dataKeystore.push(JSON.parse(this.dataMnemonicJson));
+          }
+        }
+        const result = await this.restoreAccountKeystore({
+          file: dataKeystore,
+          password: this.password,
+        });
+
+        this.loading = false;
+        this.setIsLoading(false);
+        this.keystoreInputErrors = "";
+        if (result.success) {
+          this._show = false;
+          this.clearInput();
+          this.$emit("key-store-set");
+          return;
+        } else {
+          this.keystoreInputErrors = result.error;
+        }
       } else {
-        this.keystoreInputErrors = result.error;
+        this.keystoreInputErrors = "no keystore";
       }
     },
     showMnemonicForm() {
-      this.$emit('show-mnemonic-form')
-    }
+      this.$emit("show-mnemonic-form");
+    },
   },
 };
 </script>
