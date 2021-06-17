@@ -29,14 +29,14 @@
                 <b>Lab Account Information</b>
               </div>
 
-              <v-file-input
+              <!-- <v-file-input
                 dense
                 label="Profile Image"
                 placeholder="Profile Image"
                 prepend-icon="mdi-image"
                 outlined
                 v-model="files"
-              ></v-file-input>
+              ></v-file-input> -->
 
               <v-text-field
                 dense

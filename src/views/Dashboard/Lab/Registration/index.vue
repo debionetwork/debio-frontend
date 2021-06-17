@@ -88,7 +88,6 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex'
-import { queryLabsById } from '@/lib/polkadotProvider/query/labs'
 import { registerLab } from '@/lib/polkadotProvider/command/labs'
 import { setEthAddress } from '@/lib/polkadotProvider/command/userProfile'
 import { getWalletAddress } from '@/lib/metamask/wallet'
@@ -185,7 +184,18 @@ export default {
           ethAddress
         )
         
-        const labAccount = await queryLabsById(this.api, this.pair.address)
+        const labAccount = {
+          account_id: this.pair.address,
+          services: [],
+          info: {
+            box_public_key,
+            name: this.labName,
+            email: this.email,
+            address: this.address,
+            country: this.country,
+            city: this.city,
+          }
+        }
         this.setLabAccount(labAccount)
         this.$router.push('/lab')
       }

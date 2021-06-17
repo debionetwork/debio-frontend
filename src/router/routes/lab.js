@@ -12,21 +12,24 @@ const labRoutes = [
               name: 'lab-dashboard',
               meta: {
                   pageHeader: 'Lab Dashboard',
-                  drawerButtons: [
-                    { text: "Dashboard", active: true, disabled: false, route: { name: "lab-dashboard" } },
-                    { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
-                    { text: "Services", disabled: false, route: { name: "lab-dashboard-services" } },
-                    { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
-                  ]
               },
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab'),
               beforeEnter: (to, from, next) => {
+                // Set drawer buttons here to make it dynamic :)
                 if(!store.state.substrate.isLabAccountExist){
                   to.meta.drawerButtons = [
                     { text: "Dashboard", active: true, disabled: false, route: { name: "lab-dashboard" } },
                     { text: "Account" },
                     { text: "Services" },
                     { text: "Order" },
+                  ]
+                }
+                else{
+                  to.meta.drawerButtons = [
+                    { text: "Dashboard", active: true, disabled: false, route: { name: "lab-dashboard" } },
+                    { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
+                    { text: "Services", disabled: false, route: { name: "lab-dashboard-services" } },
+                    { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
                   ]
                 }
                 next()
