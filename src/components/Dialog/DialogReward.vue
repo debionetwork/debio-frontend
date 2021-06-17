@@ -2,10 +2,7 @@
   <v-dialog :value="_show" width="500" persistent>
     <v-card>
       <div class="d-flex justify-center pb-5 pt-5">
-        <v-img
-          v-bind:src="require('../../assets/' + imgPath)"
-          :max-width="imgWidth"
-        />
+        <v-img src="@/assets/reward.png" max-width="70" />
       </div>
       <div align="center" class="pb-5">
         Congrats! You have received 5 DBIO from your transaction.
@@ -37,10 +34,8 @@ export default {
   },
   data: () => ({
     textAlert: "",
-    imgPath: "reward.png",
     btnText: "Stake my data anonymously",
     btnText1: "Not now, maybe later",
-    imgWidth: 70,
   }),
   computed: {
     _show: {
