@@ -1,0 +1,55 @@
+---
+kind: pipeline
+type: docker
+name: frontend_dev_deploy
+trigger:
+  event:
+    - push
+  branch:
+    - staging
+
+platform:
+  os: linux
+  arch: amd64
+
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
+  - name: whitelist
+    host:
+      path: /etc/docker/daemon.json
+
+steps:
+  - name: build
+    pull: if-not-exists
+    image: node:14
+    commands:
+      - npm cache clean --force
+      - rm -rf node_modules
+      - npm install
+      - npm run build
+    when:
+      event:
+        - push
+      branch:
+        - staging
+
+  - name: deploy
+    pull: if-not-exists
+    image: docker
+    volumes:
+      - name: whitelist
+        path: /etc/docker/daemon.json
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands:
+      - echo "build debio_frontend_service image ...."
+      - docker build -t debio_frontend_service .
+      - docker tag debio_frontend_service hub.theapps.dev/debio_frontend_service:latest
+      - docker push hub.theapps.dev/debio_frontend_service:latest
+    when:
+      event:
+        - push
+      branch:
+        - staging
