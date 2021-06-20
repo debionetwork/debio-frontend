@@ -6,8 +6,11 @@
   >
     <v-card>
       <v-app-bar flat dense color="white">
-        <v-toolbar-title class="title">
+        <v-toolbar-title class="title d-flex justify-space-between align-center" style="width: 100%;">
           <slot name="title"></slot>
+          <v-btn v-if="$listeners && $listeners.close" icon @click="closeDialog">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
         </v-toolbar-title>
         <v-spacer></v-spacer>
       </v-app-bar>
@@ -28,6 +31,9 @@ export default {
     show: Boolean
   },
   methods: {
+    closeDialog() {
+      this.$emit('close')
+    }
   }
 }
 </script>
