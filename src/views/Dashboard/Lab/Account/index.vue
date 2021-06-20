@@ -25,7 +25,7 @@
 
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-text class="px-8 mt-5">
-              <div class="secondary--text mb-10 h6">
+              <div class="secondary--text mb-10 text-h6">
                 <b>Lab Account Information</b>
               </div>
 
@@ -105,27 +105,141 @@
                 >Submit</v-btn>
             </v-card-text>
           </v-card>
+
+          <v-card class="dg-card mt-5" elevation="0" outlined>
+            <v-card-text class="px-8 mt-5">
+              <div class="d-flex justify-space-between align-center">
+                <div class="secondary--text text-h6">
+                  <b>Certifications</b>
+                </div>
+                <v-btn small dark color="#75DEE4" fab style="border-radius:10px;" @click="certificationDialog = true">
+                  <v-icon>mdi-plus</v-icon>
+                </v-btn>
+              </div>
+              <div v-if="certifications.length == 0">
+                You don’t have any certifications
+              </div>
+              <v-skeleton-loader v-if="isLoading" height="250" min-width="200">
+              </v-skeleton-loader>
+              <div v-if="certifications.length > 0 && !isLoading" class="mt-5">
+                <div
+                  v-for="(cert, idx) in certifications"
+                  :key="cert.id"
+                  :style="idx < (certifications.length - 1) && 'border-bottom: 1px solid #555454;'"
+                  class="my-3"
+                >
+                  <div class="d-flex justify-space-between align-center" style="width: 100%;">
+                    <div class=""><b>{{ cert.info.title }}</b></div>
+                    <div class="d-flex">
+                      <v-icon class="mx-1" small @click="editCertification(cert)">mdi-pencil</v-icon>
+                      <v-icon class="mx-1" small @click="deleteCertification(cert)">mdi-delete</v-icon>
+                    </div>
+                  </div>
+                  <div>{{ cert.info.month }} {{ cert.info.year }} • {{ cert.info.issuer }}</div>
+                  <div class="mt-3 mb-3">{{ cert.info.description }}</div>
+                </div>
+              </div>
+            </v-card-text>
+          </v-card>
         </v-col>
       </v-row>
     </v-container>
+
+    <Dialog :show="certificationDialog" @close="certificationDialog = false">
+      <template v-slot:title>
+        <div class="secondary--text h6">
+          Add Certification
+        </div>
+      </template>
+      <template v-slot:body>
+        <v-form ref="certificationForm">
+          <v-text-field
+            dense
+            label="Title"
+            placeholder="Title"
+            outlined
+            v-model="certTitle"
+            :rules="[val => !!val || 'Title is required']"
+            ></v-text-field>
+          <v-text-field
+            dense
+            label="Issuer"
+            placeholder="Issuer"
+            outlined
+            v-model="certIssuer"
+            :rules="[val => !!val || 'Issuer is required']"
+            ></v-text-field>
+          <div class="d-flex justify-space-between align-center">
+            <div class="mr-1">
+              <v-select
+                dense
+                label="Month"
+                :items="selectMonths"
+                outlined
+                v-model="certMonth"
+                :rules="[val => !!val || 'Month is required']"
+                ></v-select>
+            </div>
+            <div class="ml-1">
+              <v-select
+                dense
+                label="Year"
+                :items="selectYears"
+                outlined
+                v-model="certYear"
+                :rules="[val => !!val || 'Year is required']"
+                ></v-select>
+            </div>
+          </div>
+          <v-textarea
+            outlined
+            label="Description"
+            v-model="certDescription"
+            :rules="[val => !!val || 'Description is required']"
+          ></v-textarea>
+        </v-form>
+      </template>
+      <template v-slot:actions>
+        <Button @click="submitCertification" :loading="isLoading" color="primary" dark>
+          Save
+        </Button>
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <script>
 import { mapState, mapGetters } from 'vuex'
 import { updateLab } from '@/lib/polkadotProvider/command/labs'
+import { createCertification, updateCertification, deleteCertification } from '@/lib/polkadotProvider/command/certifications'
+import { getCertificationDetails } from '@/lib/polkadotProvider/query/certifications'
 import countryData from "@/assets/json/country.json"
 import cityData from "@/assets/json/city.json"
 import Kilt from '@kiltprotocol/sdk-js'
 import { u8aToHex } from '@polkadot/util'
+import Dialog from '@/components/Dialog'
+import Button from '@/components/Button'
+
+updateCertification
+deleteCertification
+
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
 
 export default {
   name: 'LabAccount',
+  components: {
+    Dialog,
+    Button,
+  },
   async mounted() {
     const labInfo = this.labAccount.info
     this.email = labInfo.email
     this.labName = labInfo.name
     this.address = labInfo.address
+    
+    await this.fetchCertifications()
     
     await this.getCountries()
     this.country = labInfo.country
@@ -145,6 +259,16 @@ export default {
     regions: [],
     cities: [],
     files: [],
+    certifications: [],
+    certificationDialog: false,
+    certId: "", // for update certification
+    certTitle: "",
+    certIssuer: "",
+    certMonth: "",
+    certYear: "",
+    certDescription: "",
+    selectMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    isLoading: false,
   }),
   computed: {
     ...mapGetters({
@@ -160,6 +284,14 @@ export default {
         .filter((c) => c.country == this.country)
         .map((c) => ({ value: c.city, text: c.city, country: c.country }));
     },
+    selectYears() {
+      const years = []
+      const thisYear = new Date().getFullYear()
+      for (let i = thisYear; i >= 2000; i--) {
+        years.push(String(i))
+      }
+      return years
+    }
   },
   methods: {
     async getCountries() {
@@ -200,7 +332,113 @@ export default {
       catch(err){
         console.error(err)
       }
-    }
+    },
+    async fetchCertifications() {
+      this.certifications = []
+      const certificationIds = this.labAccount.certifications
+      console.log(certificationIds)
+      this.certifications = await getCertificationDetails(this.api, certificationIds)
+
+      console.log(this.certifications)
+    },
+    closeCertificationDialog() {
+      this.certId = ""
+      this.certificationDialog = false
+      this.$refs.certificationForm.reset()
+    },
+    async submitCertification() {
+      if (!this.certId) {
+        await this.addCertification()
+        return
+      }
+      await this.updateCertification()
+    },
+    async addCertification() {
+      if (!this.$refs.certificationForm.validate()) {
+        return
+      }
+      try {
+        this.isLoading = true
+        const certificationInfo = {
+          title: this.certTitle,
+          issuer: this.certIssuer,
+          month: this.certMonth,
+          year: this.certYear,
+          description: this.certDescription,
+        }
+
+        const result = await createCertification(this.api, this.pair, certificationInfo)
+        console.log(result)
+        await sleep(3000) // FIXME: Should use subscription to know when transaction has been in block
+
+        this.closeCertificationDialog()
+
+        await this.fetchCertifications()
+
+        this.isLoading = false
+      } catch (err) {
+        console.log(err)
+        this.isLoading = false
+      }
+    },
+    editCertification(cert) {
+      this.certId = cert.id
+      this.certTitle = cert.info.title
+      this.certIssuer = cert.info.issuer
+      this.certMonth = cert.info.month
+      this.certYear = cert.info.year
+      this.certDescription = cert.info.description
+
+      this.certificationDialog = true
+    },
+    async updateCertification() {
+      if (!this.$refs.certificationForm.validate()) {
+        return
+      }
+
+      try {
+        this.isLoading = true
+
+        const certificationInfo = {
+          title: this.certTitle,
+          issuer: this.certIssuer,
+          month: this.certMonth,
+          year: this.certYear,
+          description: this.certDescription,
+        }
+
+        const res = await updateCertification(this.api, this.pair, this.certId, certificationInfo)
+        console.log(res)
+        await sleep(3000) // FIXME: Should use subscription to know when transaction has been in block
+
+        this.closeCertificationDialog()
+
+        await this.fetchCertifications()
+
+        this.isLoading = false
+
+      } catch (err) {
+        console.log(err)
+        this.isLoading = false
+      }
+    },
+    async deleteCertification(cert) {
+      const isConfirmed = confirm("Are you sure you want to delete this certification?")
+      if (isConfirmed) {
+        this.isLoading = true
+
+        const result = await deleteCertification(this.api, this.pair, cert.id)
+        console.log(result)
+
+        await sleep(3000) // FIXME: Should use subscription to know when transaction has been in block
+
+        await this.fetchCertifications()
+        this.isLoading = false
+
+        return
+      }
+      return
+    },
   }
 }
 </script>

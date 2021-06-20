@@ -7,6 +7,7 @@
     large
     width="100%"
     :elevation="elevation"
+    :loading="loading"
     @click="onClick"
   >
     <slot></slot>
@@ -27,6 +28,7 @@ export default {
       type: Boolean,
       default: true,
     },
+    loading: Boolean,
   },
   methods: {
     onClick() {

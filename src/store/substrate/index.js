@@ -103,8 +103,9 @@ export default {
     async connect({ commit }) {
       try {
         commit('SET_LOADING_API', true)
-        const PROVIDER_SOCKET = 'wss://debio.theapps.dev/node'
+        //const PROVIDER_SOCKET = 'wss://debio.theapps.dev/node'
         //const PROVIDER_SOCKET = 'ws://127.0.0.1:9944'
+        const PROVIDER_SOCKET = process.env.VUE_APP_DEGENICS_SUBSTRATE_WS
         const wsProvider = new WsProvider(PROVIDER_SOCKET)
         const api = await ApiPromise.create({
           provider: wsProvider,
