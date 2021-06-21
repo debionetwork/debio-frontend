@@ -133,6 +133,11 @@ export default {
                 console.log(`Phase: ${phase.toString()}`);
                 commit('SET_LAST_EVENT', event);
                 break;
+              case "electronicMedicalRecord":
+                console.log("Method :" + event.method);
+                console.log(`Phase: ${phase.toString()}`);
+                commit('SET_LAST_EVENT', event);
+                break;
               default:
                 console.log("event no mapping");
                 break;

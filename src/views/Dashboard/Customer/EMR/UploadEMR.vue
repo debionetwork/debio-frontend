@@ -241,7 +241,7 @@ import { mapState, mapMutations } from "vuex";
 import ipfsWorker from "@/web-workers/ipfs-worker";
 import cryptWorker from "@/web-workers/crypt-worker";
 import { hexToU8a } from "@polkadot/util";
-import { uploadElectronicMedicalRecord } from "@/lib/polkadotProvider/command/electronicMedicalRecord";
+import { addElectronicMedicalRecordInfo } from "@/lib/polkadotProvider/command/electronicMedicalRecord";
 
 export default {
   name: "UploadEMR",
@@ -267,6 +267,8 @@ export default {
     uploadSuccessTitle: "Upload Successful",
     secretKey: null,
     baseUrl: "https://ipfs.io/ipfs/",
+    encryptProgress: 0,
+    countFileUploaded: 0,
   }),
   computed: {
     _show: {
@@ -280,12 +282,27 @@ export default {
     ...mapState({
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      lastEventData: (state) => state.substrate.lastEventData,
       mnemonicData: (state) => state.substrate.mnemonicData,
-      metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
     }),
   },
   mounted() {
     this.initialData();
+  },
+  watch: {
+    lastEventData() {
+      if (this.lastEventData != null) {
+        if (this.lastEventData.method == "ElectronicMedicalRecordInfoAdded") {
+          this.countFileUploaded = this.countFileUploaded + 1;
+          if (this.countFileUploaded == this.listPendingUploadFile.length) {
+            this.isLoading = false;
+            this.inputPassword = false;
+            this.resultUpload = true;
+            this.error = "";
+          }
+        }
+      }
+    },
   },
   methods: {
     ...mapMutations({
@@ -352,16 +369,15 @@ export default {
           });
           const link = context.baseUrl + "" + context.getFileIpfsPath(uploaded);
           console.log(link);
-          const result = await uploadElectronicMedicalRecord(
+          const dataBody = {
+            title: dataFile.title,
+            description: dataFile.desc,
+            record_link: link,
+          };
+          const result = await addElectronicMedicalRecordInfo(
             context.api,
             context.wallet,
-            {
-              id: "",
-              owner_id: context.wallet.address,
-              title: dataFile.title,
-              description: dataFile.desc,
-              record_link: link,
-            }
+            dataBody
           );
           console.log(result);
         } catch (err) {
@@ -389,7 +405,8 @@ export default {
             }
 
             arrChunks.push(event.data);
-            console.log((arrChunks.length / chunksAmount) * 100);
+            this.encryptProgress = (arrChunks.length / chunksAmount) * 100;
+            console.log(arrChunks.length, chunksAmount);
 
             if (arrChunks.length == chunksAmount) {
               resolve({
@@ -397,6 +414,8 @@ export default {
                 chunks: arrChunks,
                 fileType: fileType,
               });
+              // Cleanup
+              this.encryptProgress = 0;
             }
           };
         } catch (err) {
@@ -467,19 +486,14 @@ export default {
       this.isLoading = true;
       try {
         this.wallet.decodePkcs8(this.password);
-
         if (this.listPendingUploadFile.length > 0) {
-          let status = false;
           for (let i = 0; i < this.listPendingUploadFile.length; i++) {
             await this.handleFileUpload(this.listPendingUploadFile[i]);
-            status = true;
           }
-          if (status) {
-            this.inputPassword = false;
-            this.resultUpload = true;
-            this.isLoading = false;
-            this.error = "";
-          }
+        } else {
+          this.isLoading = false;
+          this.password = "";
+          this.error = "no pending file";
         }
       } catch (e) {
         console.log(e);
