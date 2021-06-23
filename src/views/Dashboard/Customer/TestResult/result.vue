@@ -136,7 +136,7 @@ import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
 import { hexToU8a } from "@polkadot/util";
-import Kilt from '@kiltprotocol/sdk-js'
+//import Kilt from '@kiltprotocol/sdk-js'
 
 export default {
   name: "test-result",
@@ -230,6 +230,7 @@ export default {
       }
       try {
         this.wallet.decodePkcs8(this.password);
+        this.publicKey = this.lab.info.box_public_key;
         if (this.actionType == "result") {
           await this.parseResult();
         }
@@ -250,9 +251,10 @@ export default {
       this.resultLoading = true;
       const path = this.files[0].fileLink.replace(this.baseUrl, "");
 
-      const identity = Kilt.Identity.buildFromMnemonic(this.mnemonicData.mnemonic)
-      const { secretKey } = identity.boxKeyPair
-      const publicKey = this.lab.info.box_public_key
+      //const identity = Kilt.Identity.buildFromMnemonic(this.mnemonicData.mnemonic)
+      //const { secretKey } = identity.boxKeyPair
+      const secretKey = this.privateKey;
+      const publicKey = this.lab.info.box_public_key;
 
       const pair = {
         secretKey,
@@ -277,9 +279,11 @@ export default {
         this.baseUrl,
         ""
       );
+      const secretKey = this.privateKey;
+      const publicKey = this.publicKey;
       const pair = {
-        secretKey: this.privateKey,
-        publicKey: this.publicKey,
+        secretKey,
+        publicKey,
       };
 
       this.filesLoading[this.fileDownloadIndex] = true;
