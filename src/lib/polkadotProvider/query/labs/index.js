@@ -1,4 +1,4 @@
-import { queryServicesById } from './services'
+import { queryServicesById } from '@/lib/polkadotProvider/query/services'
 
 export async function queryLabsById(api, labId){
     const res = await api.query.labs.labs(labId)

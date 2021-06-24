@@ -6,8 +6,8 @@ import localStorage from '@/lib/local-storage'
 // u8aToString, stringToU8a
 import { u8aToHex } from '@polkadot/util'
 import { queryEntireLabDataById } from '@/lib/polkadotProvider/query/labs'
-import masterConfigEvent from "@/assets/json/config-event.json"
-import { queryBalance } from "@/lib/polkadotProvider/query/balance"
+import masterConfigEvent from "./event-types.json"
+import { processEvent } from "@/lib/polkadotProvider/events"
 import Kilt from '@kiltprotocol/sdk-js'
 
 const {
@@ -32,7 +32,7 @@ const defaultState = {
   hospitalAccount: null,
   isHospitalAccountExist: false,
   lastEventData: null,
-  localListNotfication: [],
+  localListNotification: [],
   configEvent: null,
   mnemonicData: null,
 }
@@ -90,7 +90,7 @@ export default {
       state.lastEventData = event
     },
     SET_LIST_NOTIFICATION(state, event) {
-      state.localListNotfication = event
+      state.localListNotification = event
     },
     SET_CONFIG_EVENT(state, event) {
       state.configEvent = event
@@ -117,30 +117,13 @@ export default {
           console.log(`\nReceived ${events.length} events:`);
           events.forEach((record) => {
             const { event, phase } = record;
-            switch (event.section) {
-              case "orders":
-                console.log("Method :" + event.method);
-                console.log(`Phase: ${phase.toString()}`)
-                commit('SET_LAST_EVENT', event);
-                break;
-              case "geneticTesting":
-                console.log("Method :" + event.method);
-                console.log(`Phase: ${phase.toString()}`)
-                commit('SET_LAST_EVENT', event);
-                break;
-              case "balances":
-                console.log("Method :" + event.method);
-                console.log(`Phase: ${phase.toString()}`);
-                commit('SET_LAST_EVENT', event);
-                break;
-              case "electronicMedicalRecord":
-                console.log("Method :" + event.method);
-                console.log(`Phase: ${phase.toString()}`);
-                commit('SET_LAST_EVENT', event);
-                break;
-              default:
-                console.log("event no mapping");
-                break;
+            if(event.section == "orders" || event.section == "geneticTesting" || event.section == "balances" || event.section == "electronicMedicalRecord"){
+              console.log("Method :" + event.method);
+              console.log(`Phase: ${phase.toString()}`)
+              commit('SET_LAST_EVENT', event);
+            }
+            else{
+              console.log("event no mapping");
             }
           })
         })
@@ -347,14 +330,14 @@ export default {
       try {
         //localStorage.removeLocalStorageByName("LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role, null);
         commit('SET_CONFIG_EVENT', masterConfigEvent);
-        const listNotficationJson = localStorage.getLocalStorageByName("LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role);
-        let listNotfication = [];
-        if (listNotficationJson != null && listNotficationJson != "") {
-          listNotfication = JSON.parse(listNotficationJson);
-          listNotfication.reverse();
-          //console.log(listNotfication);
+        const listNotificationJson = localStorage.getLocalStorageByName("LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role);
+        let listNotification = [];
+        if (listNotificationJson != null && listNotificationJson != "") {
+          listNotification = JSON.parse(listNotificationJson);
+          listNotification.reverse();
+          //console.log(listNotification);
         }
-        commit('SET_LIST_NOTIFICATION', listNotfication);
+        commit('SET_LIST_NOTIFICATION', listNotification);
       } catch (err) {
         console.log(err);
       }
@@ -362,119 +345,33 @@ export default {
     async addListNotification({ commit, state }, { address, event, role }) {
       try {
         const storageName = "LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role;
-        const listNotficationJson = localStorage.getLocalStorageByName(storageName);
-        let listNotfication = [];
-        if (listNotficationJson != null && listNotficationJson != "") {
-          listNotfication = JSON.parse(listNotficationJson);
+        const listNotificationJson = localStorage.getLocalStorageByName(storageName);
+
+        let listNotification = [];
+        if (listNotificationJson != null && listNotificationJson != "") {
+          listNotification = JSON.parse(listNotificationJson);
         }
-        let message = state.configEvent["role"][role][event.section][event.method].message;
-        const route = state.configEvent["role"][role][event.section][event.method].route;
-        const value = state.configEvent["role"][role][event.section][event.method].value;
-        const value_message = state.configEvent["role"][role][event.section][event.method].value_message;
-        const identy = state.configEvent["role"][role][event.section][event.method].identy;
-        const timestamp = Math.floor(Date.now() / 1000).toString();
-        const dataEvent = JSON.parse(event.data.toString());
-
-        let id = "";
-        let statusAdd = false;
-        let data = null;
-        let params = null;
-        let wording = "";
-        let finalText = "";
-        if (dataEvent.length > 0) {
-          switch (role) {
-            case "customer":
-              switch (event.section) {
-                case "orders":
-                  data = dataEvent[0];
-                  id = data[value];
-                  params = { number: id };
-                  wording = "for (" + data[value_message].substr(0, 4) + "..." + data[value_message].substr(data[value_message].length - 4) + ")";
-                  break;
-                case "geneticTesting":
-                  data = dataEvent[0];
-                  id = data[value];
-                  params = { number: id };
-                  wording = "for (" + data[value_message].substr(0, 4) + "..." + data[value_message].substr(data[value_message].length - 4) + ")";
-                  break;
-                case "balances":
-                  data = dataEvent;
-                  id = data[value];
-                  params = { number: id };
-                  if (data[value_message].toString().includes("0x")) {
-                    const decimal = parseInt(data[value_message].toString(), 16).toString();
-                    finalText = decimal.replace("000000000000000", "");
-                  } else {
-                    finalText = data[value_message].toString().replace("000000000000000", "");
-                  }
-                  if (finalText != "") {
-                    const balance = await queryBalance(
-                      state.api,
-                      state.wallet.address
-                    );
-                    commit('SET_WALLET_BALANCE', balance);
-                  }
-                  wording = finalText + " DBIO!";
-                  break;
-                default:
-                  data = dataEvent[0];
-                  id = data[value];
-                  params = { number: id };
-                  wording = "for (" + data[value_message].substr(0, 4) + "..." + data[value_message].substr(data[value_message].length - 4) + ")";
-                  break;
-              }
-              break;
-            case "lab":
-              switch (event.section) {
-                case "balances":
-                  data = dataEvent;
-                  id = data[value];
-                  params = { number: id };
-                  wording = data[value_message] + " DBIO!";
-                  break;
-                case "orders":
-                  data = dataEvent[0];
-                  params = data;
-                  wording = "for (" + data[value_message].substr(0, 4) + "..." + data[value_message].substr(data[value_message].length - 4) + ")";
-                  break;
-                case "geneticTesting":
-                  data = dataEvent[0];
-                  id = data[value];
-                  params = { number: id };
-                  wording = "for (" + data[value_message].substr(0, 4) + "..." + data[value_message].substr(data[value_message].length - 4) + ")";
-                  break;
-                default:
-                  data = dataEvent[0];
-                  id = data[value];
-                  params = { number: id };
-                  wording = "for (" + data[value_message].substr(0, 4) + "..." + data[value_message].substr(data[value_message].length - 4) + ")";
-                  break;
-              }
-              break;
-            default:
-              console.log("role no mapping");
-              break;
-          }
-
-          if (data[identy] == address) {
-            statusAdd = true;
-            message = message + " " + wording;
+        
+        // If event section defined then process event
+        if(state.configEvent["role"][role][event.section] && state.configEvent["role"][role][event.section][event.method]){
+          const { statusAdd, message, data, params } = await processEvent(state, address, event, role)
+          const route = state.configEvent["role"][role][event.section][event.method].route;
+          const timestamp = Math.floor(Date.now() / 1000).toString();
+          if (statusAdd) {
+            listNotification.push({
+              message: message,
+              timestamp: timestamp,
+              data: data,
+              route: route,
+              params: params,
+              read: false,
+            });
           }
         }
 
-        if (statusAdd) {
-          listNotfication.push({
-            message: message,
-            timestamp: timestamp,
-            data: data,
-            route: route,
-            params: params,
-            read: false,
-          });
-        }
-        localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotfication));
-        listNotfication.reverse();
-        commit('SET_LIST_NOTIFICATION', listNotfication);
+        localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotification));
+        listNotification.reverse();
+        commit('SET_LIST_NOTIFICATION', listNotification);
       } catch (err) {
         console.log(err);
       }
@@ -521,7 +418,7 @@ export default {
       return state.lastEventData
     },
     getListNotification(state) {
-      state.localListNotfication
+      state.localListNotification
     },
     getMnemonicData(state) {
       state.mnemonicData
