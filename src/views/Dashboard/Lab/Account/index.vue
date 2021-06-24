@@ -211,8 +211,8 @@
 <script>
 import { mapState, mapGetters } from 'vuex'
 import { updateLab } from '@/lib/polkadotProvider/command/labs'
-import { createCertification, updateCertification, deleteCertification } from '@/lib/polkadotProvider/command/certifications'
-import { getCertificationDetails } from '@/lib/polkadotProvider/query/certifications'
+import { createCertification, updateCertification, deleteCertification } from '@/lib/polkadotProvider/command/labs/certifications'
+import { getCertificationDetails } from '@/lib/polkadotProvider/query/labs/certifications'
 import countryData from "@/assets/json/country.json"
 import cityData from "@/assets/json/city.json"
 import Kilt from '@kiltprotocol/sdk-js'
