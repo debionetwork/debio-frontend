@@ -91,7 +91,7 @@ export default {
     ...mapState({
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
-      localListNotfication: (state) => state.substrate.localListNotfication,
+      localListNotification: (state) => state.substrate.localListNotification,
     }),
   },
   props: {
@@ -127,7 +127,7 @@ export default {
       this.setData();
     },
     setData() {
-      this.listNotif = this.localListNotfication;
+      this.listNotif = this.localListNotification;
       this.notifLength = this.listNotif.filter((x) => x.read == false).length;
     },
     gotoRoute(notif, index) {
@@ -148,7 +148,7 @@ export default {
     },
   },
   watch: {
-    localListNotfication() {
+    localListNotification() {
       this.setData();
     },
   },

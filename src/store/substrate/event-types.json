@@ -8,7 +8,7 @@
           "value_message": 2,
           "route": "",
           "params": "number",
-          "identy": 1
+          "identity": 1
         }
       },
       "orders": {
@@ -18,7 +18,7 @@
           "value_message": "dna_sample_tracking_id",
           "route": "order-history-detail",
           "params": "number",
-          "identy": "customer_id"
+          "identity": "customer_id"
         },
         "OrderCancelled": {
           "message": "New order cancelled",
@@ -26,7 +26,7 @@
           "value_message": "dna_sample_tracking_id",
           "route": "order-history-detail",
           "params": "number",
-          "identy": "customer_id"
+          "identity": "customer_id"
         },
         "OrderCreated": {
           "message": "New order created",
@@ -34,7 +34,7 @@
           "value_message": "dna_sample_tracking_id",
           "route": "order-history-detail",
           "params": "number",
-          "identy": "customer_id"
+          "identity": "customer_id"
         },
         "OrderSuccess": {
           "message": "Order completed",
@@ -42,7 +42,7 @@
           "value_message": "dna_sample_tracking_id",
           "route": "order-history-detail",
           "params": "number",
-          "identy": "customer_id"
+          "identity": "customer_id"
         },
         "OrderRefunded": {
           "message": "Order rejected or returned",
@@ -50,7 +50,7 @@
           "value_message": "dna_sample_tracking_id",
           "route": "order-history-detail",
           "params": "number",
-          "identy": "customer_id"
+          "identity": "customer_id"
         },
         "OrderFailed": {
           "message": "Order failed to create",
@@ -58,7 +58,7 @@
           "value_message": "dna_sample_tracking_id",
           "route": "order-history-detail",
           "params": "number",
-          "identy": "customer_id"
+          "identity": "customer_id"
         }
       },
       "geneticTesting": {
@@ -68,7 +68,7 @@
           "value_message": "tracking_id",
           "route": "result-test",
           "params": "number",
-          "identy": "owner_id"
+          "identity": "owner_id"
         },
         "DnaSampleReceived": {
           "message": "Dna Sample Received",
@@ -76,7 +76,7 @@
           "value_message": "tracking_id",
           "route": "result-test",
           "params": "number",
-          "identy": "owner_id"
+          "identity": "owner_id"
         },
         "DnaSampleProcessing": {
           "message": "Dna Sample Processing",
@@ -84,7 +84,7 @@
           "value_message": "tracking_id",
           "route": "result-test",
           "params": "number",
-          "identy": "owner_id"
+          "identity": "owner_id"
         },
         "DnaSampleCreated": {
           "message": "Dna Sample Created",
@@ -92,7 +92,7 @@
           "value_message": "tracking_id",
           "route": "result-test",
           "params": "number",
-          "identy": "owner_id"
+          "identity": "owner_id"
         },
         "DnaSampleRejected": {
           "message": "Dna Sample Rejected",
@@ -100,7 +100,7 @@
           "value_message": "tracking_id",
           "route": "result-test",
           "params": "number",
-          "identy": "owner_id"
+          "identity": "owner_id"
         },
         "DnaTestResultSubmitted": {
           "message": "Dna Test Result Submitted",
@@ -108,7 +108,7 @@
           "value_message": "tracking_id",
           "route": "result-test",
           "params": "number",
-          "identy": "owner_id"
+          "identity": "owner_id"
         }
       },
       "electronicMedicalRecord": null
@@ -121,7 +121,7 @@
           "value_message": 2,
           "route": "",
           "params": "number",
-          "identy": 1
+          "identity": 1
         }
       },
       "orders": {
@@ -131,7 +131,7 @@
           "value_message": "dna_sample_tracking_id",
           "route": "lab-dashboard-order-history",
           "params": "number",
-          "identy": "seller_id"
+          "identity": "seller_id"
         },
         "OrderSuccess": {
           "message": "Order completed",
@@ -139,7 +139,7 @@
           "value_message": "dna_sample_tracking_id",
           "route": "lab-dashboard-order-history",
           "params": "number",
-          "identy": "seller_id"
+          "identity": "seller_id"
         },
         "OrderRefunded": {
           "message": "Order rejected or returned",
@@ -147,7 +147,7 @@
           "value_message": "dna_sample_tracking_id",
           "route": "lab-dashboard-order-history",
           "params": "number",
-          "identy": "seller_id"
+          "identity": "seller_id"
         }
       },
       "geneticTesting": {
@@ -157,7 +157,7 @@
           "value_message": "tracking_id",
           "route": "lab-process",
           "params": "number",
-          "identy": "lab_id"
+          "identity": "lab_id"
         },
         "DnaSampleReceived": {
           "message": "Dna Sample Received",
@@ -165,7 +165,7 @@
           "value_message": "tracking_id",
           "route": "lab-process",
           "params": "number",
-          "identy": "lab_id"
+          "identity": "lab_id"
         },
         "DnaSampleProcessing": {
           "message": "Dna Sample Processing",
@@ -173,7 +173,7 @@
           "value_message": "tracking_id",
           "route": "lab-process",
           "params": "number",
-          "identy": "lab_id"
+          "identity": "lab_id"
         },
         "DnaSampleCreated": {
           "message": "Dna Sample Created",
@@ -181,7 +181,7 @@
           "value_message": "tracking_id",
           "route": "lab-process",
           "params": "number",
-          "identy": "lab_id"
+          "identity": "lab_id"
         },
         "DnaSampleRejected": {
           "message": "Dna Sample Rejected",
@@ -189,7 +189,7 @@
           "value_message": "tracking_id",
           "route": "lab-process",
           "params": "number",
-          "identy": "lab_id"
+          "identity": "lab_id"
         },
         "DnaTestResultSubmitted": {
           "message": "Dna Test Result Submitted",
@@ -197,7 +197,7 @@
           "value_message": "tracking_id",
           "route": "lab-process",
           "params": "number",
-          "identy": "lab_id"
+          "identity": "lab_id"
         }
       }
     }
