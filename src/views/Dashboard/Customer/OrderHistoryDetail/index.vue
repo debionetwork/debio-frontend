@@ -191,7 +191,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapMutations } from "vuex";
 import DNASampleSendingInstructions from "@/components/DNASampleSendingInstructions";
 import DialogConfirmWithPassword from "@/components/Dialog/DialogConfirmWithPassword";
 import DialogAlert from "@/components/Dialog/DialogAlert";
@@ -213,10 +213,16 @@ import {
 import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
-import { transfer, getPrice } from "@/lib/metamask/wallet.js";
+import {
+  transfer,
+  getPrice,
+  addTokenUsdt,
+  addTokenDAIC,
+} from "@/lib/metamask/wallet.js";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
 import { cancelOrder } from "@/lib/polkadotProvider/command/orders";
 import { startApp } from "@/lib/metamask";
+import { getBalanceETH } from "@/lib/metamask/wallet.js";
 
 export default {
   name: "RequestTestSuccess",
@@ -263,6 +269,7 @@ export default {
       lastEventData: (state) => state.substrate.lastEventData,
       metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
       metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance,
+      openPayMetamask: (state) => state.metamask.openPayMetamask,
     }),
     dataLoaded() {
       return this.lab && this.service && this.order;
@@ -278,45 +285,77 @@ export default {
     },
     lastEventData() {
       if (this.lastEventData != null) {
-        if (this.lastEventData.method == "OrderCancelled") {
-          console.log(this.lastEventData.method);
-          const dataEvent = JSON.parse(this.lastEventData.data.toString());
+        const dataEvent = JSON.parse(this.lastEventData.data.toString());
+        if (this.lastEventData.section == "orders") {
           if (dataEvent[0].id == this.$route.params.number) {
             this.isLoading = false;
             this.alertTextBtn = "Close";
             this.alertImgPath = "success.png";
-            this.alertTextAlert = "Request Test Order Canceled";
-            this.dialogAlert = true;
-            this.alertType = "cancel";
+            if (this.lastEventData.method == "OrderCancelled") {
+              this.alertTextAlert = "Request Test Order Canceled";
+              this.dialogAlert = true;
+              this.alertType = "cancel";
+            }
+            if (this.lastEventData.method == "OrderPaid") {
+              this.alertTextAlert = "Request Test Order Paid";
+              this.dialogAlert = true;
+              this.alertType = "paid";
+            }
+            if (this.lastEventData.method == "OrderSuccess") {
+              this.dialogReward = true;
+            }
+            if (this.lastEventData.method == "OrderRefunded") {
+              this.fetchOrderDetails();
+            }
           }
-        } else if (this.lastEventData.method == "OrderPaid") {
-          const dataEvent = JSON.parse(this.lastEventData.data.toString());
-          if (dataEvent[0].id == this.$route.params.number) {
-            this.isLoading = false;
-            this.alertTextBtn = "Close";
-            this.alertImgPath = "success.png";
-            this.alertTextAlert = "Request Test Order Paid";
-            this.dialogAlert = true;
-            this.alertType = "paid";
-          }
-        } else if (this.lastEventData.method == "OrderSuccess") {
-          this.dialogReward = true;
         }
       }
     },
   },
   methods: {
-    actionAlert() {
-      if (this.alertType == "cancel") {
-        this.fetchOrderDetails();
+    ...mapMutations({
+      setOpenMetaMask: "metamask/SET_OPEN_PAY_METAMASK",
+    }),
+    async fetchOrderDetails() {
+      this.isLoading = true;
+      const orderId = this.$route.params.number;
+      this.order = await getOrdersDetail(this.api, orderId);
+      this.lab = await queryLabsById(this.api, this.order.seller_id);
+      this.service = await queryServicesById(this.api, this.order.service_id);
+      this.priceOrder = parseFloat(
+        this.service.info.price.replaceAll(",", ".")
+      ).toFixed(2);
+
+      if (this.openPayMetamask) {
+        console.log(this.order);
+        console.log(this.lab);
+        console.log(this.service);
+        this.openMetamask();
+      } else {
+        this.isLoading = false;
       }
-      if (this.alertType == "paid") {
-        this.fetchOrderDetails();
+
+      if (this.order.status == ORDER_FULFILLED) {
+        this.dialogReward = true;
+      }
+    },
+    actionAlert() {
+      switch (this.alertType) {
+        case "cancel":
+          this.fetchOrderDetails();
+          break;
+        case "paid":
+          this.fetchOrderDetails();
+          break;
+        default:
+          this.isLoading = false;
+          break;
       }
       this.dialogAlert = false;
     },
     async openMetamask() {
       await startApp();
+      this.setOpenMetaMask(false);
       if (this.metamaskWalletAddress == "") {
         this.alertTextBtn = "Close";
         this.alertImgPath = "warning.png";
@@ -337,15 +376,28 @@ export default {
         this.alertType = "no_acc_eth";
         return;
       }
-      if (this.metamaskWalletBalance < 0) {
+      const balance = await getBalanceETH(this.metamaskWalletAddress);
+      if (balance < 1) {
         this.alertTextBtn = "Close";
         this.alertImgPath = "warning.png";
-        this.alertTextAlert = "Your balance is empty.";
+        this.alertTextAlert = "Your ETH balance is 0.";
         this.dialogAlert = true;
         this.alertType = "no_acc_eth";
         return;
       }
+
       try {
+        switch (this.coinName) {
+          case "DAIC":
+            await addTokenDAIC();
+            break;
+          case "USDT":
+            await addTokenUsdt();
+            break;
+          default:
+            console.log("not trigger");
+            break;
+        }
         const price = await getPrice(this.priceOrder);
         let txreceipts = await transfer({
           seller: process.env.VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS,
@@ -358,7 +410,7 @@ export default {
         console.log(err);
         this.alertTextBtn = "Close";
         this.alertImgPath = "warning.png";
-        this.alertTextAlert = "Payment via Metamask is canceled by the user.";
+        this.alertTextAlert = "Payment via Metamask is canceled or rejected.";
         this.dialogAlert = true;
         this.alertType = "cancel_metamask_payment";
         this.isLoading = false;
@@ -377,23 +429,6 @@ export default {
           this.isLoading = false;
         }
       }
-    },
-    async fetchOrderDetails() {
-      this.isLoading = true;
-      const orderId = this.$route.params.number;
-      this.order = await getOrdersDetail(this.api, orderId);
-      this.lab = await queryLabsById(this.api, this.order.seller_id);
-      this.service = await queryServicesById(this.api, this.order.service_id);
-      this.priceOrder = parseFloat(
-        this.service.info.price.replaceAll(",", ".")
-      ).toFixed(2);
-      this.isLoading = false;
-      if (this.order.status == ORDER_FULFILLED) {
-        this.dialogReward = true;
-      }
-      console.log(this.order);
-      console.log(this.lab);
-      console.log(this.service);
     },
     isValidIcon(icon) {
       return icon && (icon.startsWith("mdi") || icon.startsWith("$"));
