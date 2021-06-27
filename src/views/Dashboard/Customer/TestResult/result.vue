@@ -136,7 +136,6 @@ import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
 import { hexToU8a } from "@polkadot/util";
-//import Kilt from '@kiltprotocol/sdk-js'
 
 export default {
   name: "test-result",
@@ -165,8 +164,8 @@ export default {
     baseUrl: "https://ipfs.io/ipfs/",
   }),
   async mounted() {
+    this.resultLoading = true;
     this.specimentNumberInput = this.$route.params.number;
-    this.publicKey = this.wallet.publicKey;
     this.privateKey = hexToU8a(this.mnemonicData.privateKey);
     this.ownerAddress = this.wallet.address;
     await this.getSpciments();
@@ -183,6 +182,7 @@ export default {
         );
         console.log(this.speciment);
       } catch (error) {
+        this.resultLoading = false;
         console.log(error);
       }
     },
@@ -195,9 +195,10 @@ export default {
           this.api,
           this.order.service_id
         );
-        console.log('Lab -> ', this.lab)
+        console.log("Lab -> ", this.lab);
         this.serviceName = this.services.info.name;
       } catch (err) {
+        this.resultLoading = false;
         this.services = [];
       }
     },
@@ -220,16 +221,17 @@ export default {
         }
         this.filesLoading = new Array(this.files.length).fill(false);
       } catch (error) {
+        this.resultLoading = false;
         console.log(error);
       }
     },
     async decryptWallet() {
-      this.dialog = true;
-      if (this.password == "") {
-        return;
-      }
+      // this.dialog = true;
+      // if (this.password == "") {
+      //   return;
+      // }
       try {
-        this.wallet.decodePkcs8(this.password);
+        //this.wallet.decodePkcs8(this.password);
         this.publicKey = this.lab.info.box_public_key;
         if (this.actionType == "result") {
           await this.parseResult();
@@ -244,54 +246,60 @@ export default {
       } catch (e) {
         console.log(e);
         this.isLoading = false;
+        this.resultLoading = false;
         this.password = "";
       }
     },
     async parseResult() {
-      this.resultLoading = true;
-      const path = this.files[0].fileLink.replace(this.baseUrl, "");
+      try {
+        const path = this.files[0].fileLink.replace(this.baseUrl, "");
+        const secretKey = this.privateKey;
+        const publicKey = this.lab.info.box_public_key;
 
-      //const identity = Kilt.Identity.buildFromMnemonic(this.mnemonicData.mnemonic)
-      //const { secretKey } = identity.boxKeyPair
-      const secretKey = this.privateKey;
-      const publicKey = this.lab.info.box_public_key;
+        const pair = {
+          secretKey,
+          publicKey,
+        };
 
-      const pair = {
-        secretKey,
-        publicKey,
-      };
-
-      const channel = new MessageChannel();
-      channel.port1.onmessage = ipfsWorker.workerDownload;
-      ipfsWorker.workerDownload.postMessage({ path, pair }, [channel.port2]);
-      ipfsWorker.workerDownload.onmessage = (event) => {
-        // const blob = new Blob([ event.data ], {type: 'text/plain'})
-        this.result = event.data;
-        //window.URL.createObjectURL(blob)
-      };
-      this.resultLoading = false;
-      console.log(this.result)
+        const channel = new MessageChannel();
+        channel.port1.onmessage = ipfsWorker.workerDownload;
+        ipfsWorker.workerDownload.postMessage({ path, pair }, [channel.port2]);
+        ipfsWorker.workerDownload.onmessage = (event) => {
+          this.result = event.data;
+          this.resultLoading = false;
+        };
+        console.log(this.result);
+      } catch (e) {
+        this.resultLoading = false;
+      }
     },
     async downloadDecryptedFromIPFS() {
-      const channel = new MessageChannel();
-      channel.port1.onmessage = ipfsWorker.workerDownload;
-      const path = this.files[this.fileDownloadIndex].fileLink.replace(
-        this.baseUrl,
-        ""
-      );
-      const secretKey = this.privateKey;
-      const publicKey = this.publicKey;
-      const pair = {
-        secretKey,
-        publicKey,
-      };
+      try {
+        const channel = new MessageChannel();
+        channel.port1.onmessage = ipfsWorker.workerDownload;
+        const path = this.files[this.fileDownloadIndex].fileLink.replace(
+          this.baseUrl,
+          ""
+        );
+        const secretKey = this.privateKey;
+        const publicKey = this.publicKey;
+        const pair = {
+          secretKey,
+          publicKey,
+        };
 
-      this.filesLoading[this.fileDownloadIndex] = true;
-      ipfsWorker.workerDownload.postMessage({ path, pair }, [channel.port2]);
-      ipfsWorker.workerDownload.onmessage = (event) => {
-        this.download(event.data, this.files[this.fileDownloadIndex].fileName);
-        this.$set(this.filesLoading, this.fileDownloadIndex, false);
-      };
+        this.filesLoading[this.fileDownloadIndex] = true;
+        ipfsWorker.workerDownload.postMessage({ path, pair }, [channel.port2]);
+        ipfsWorker.workerDownload.onmessage = (event) => {
+          this.download(
+            event.data,
+            this.files[this.fileDownloadIndex].fileName
+          );
+          this.$set(this.filesLoading, this.fileDownloadIndex, false);
+        };
+      } catch (e) {
+        console.log(e);
+      }
     },
 
     download(data, fileName) {
@@ -322,9 +330,10 @@ export default {
     },
 
     showDialog(actionType, index) {
-      this.dialog = true;
+      // this.dialog = true;
       this.actionType = actionType;
       this.fileDownloadIndex = index;
+      this.decryptWallet();
     },
   },
 

@@ -84,7 +84,7 @@ export default {
       if (this.lastEventData != null) {
         const dataEvent = JSON.parse(this.lastEventData.data.toString());
         if (this.lastEventData.section == "orders") {
-          if (dataEvent[0].id == this.$route.params.number) {
+          if (dataEvent[0].customer_id == this.wallet.address) {
             this.getOrderHistory();
           }
         }

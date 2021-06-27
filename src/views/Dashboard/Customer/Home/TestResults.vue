@@ -53,7 +53,20 @@ export default {
     ...mapState({
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      lastEventData: (state) => state.substrate.lastEventData,
     }),
+  },
+  watch: {
+    lastEventData() {
+      if (this.lastEventData != null) {
+        const dataEvent = JSON.parse(this.lastEventData.data.toString());
+        if (this.lastEventData.section == "geneticTesting") {
+          if (dataEvent[0].owner_id == this.wallet.address) {
+            this.getTestResults();
+          }
+        }
+      }
+    }
   },
   mounted() {
     this.getTestResults();
