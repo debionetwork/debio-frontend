@@ -193,9 +193,20 @@ export default {
       walletBalance: (state) => state.substrate.walletBalance,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      lastEventData: (state) => state.substrate.lastEventData,
     }),
   },
   watch: {
+    lastEventData() {
+      if (this.lastEventData != null) {
+        const dataEvent = JSON.parse(this.lastEventData.data.toString());
+        if (this.lastEventData.section == "orders") {
+          if (dataEvent[0].id == this.$route.params.number) {
+            this.getOrderHistory();
+          }
+        }
+      }
+    },
     async address() {
       await this.getOrderHistory();
     },
