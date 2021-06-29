@@ -46,5 +46,11 @@
     "address": "0xC3C94c56D887a62B2eef9d49945A8b4f9Cc20511",
     "updated": true,
     "lastUpdate": "2021-05-04T23:25:08.487Z"
+  },
+  "DAIToken": {
+    "name": "DAITokenAddress",
+    "address": "0xc578415bAb4cc851f7571678d4f7e4E849FA4737",
+    "updated": true,
+    "lastUpdate": "2021-06-28T23:25:08.487Z"
   }
 }

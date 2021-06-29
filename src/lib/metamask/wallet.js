@@ -58,12 +58,13 @@ export async function addTokenUsdt() {
 
 export async function addTokenDAIC() {
   try {
+    const contractInfo = require('@/store/metamask/contracts/contract.json');
     const wasAdded = await window.ethereum.request({
       method: 'wallet_watchAsset',
       params: {
         type: 'ERC20', // Initially only supports ERC20, but eventually more!
         options: {
-          address: '0xC3C94c56D887a62B2eef9d49945A8b4f9Cc20511', // The address that the token is at.
+          address: contractInfo.DAICToken.address, // The address that the token is at.
           symbol: 'DAIC', // A ticker symbol or shorthand, up to 5 chars.
           decimals: 18, // The number of decimals in the token
           image: 'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png', // A string url of the token logo
@@ -72,6 +73,33 @@ export async function addTokenDAIC() {
     });
     if (!wasAdded) {
       console.log('Failed to add DAIC token!');
+      return false;
+    } else {
+      return true;
+    }
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+}
+
+export async function addTokenDAI() {
+  const contractInfo = require('@/store/metamask/contracts/contract.json');
+  try {
+    const wasAdded = await window.ethereum.request({
+      method: 'wallet_watchAsset',
+      params: {
+        type: 'ERC20', // Initially only supports ERC20, but eventually more!
+        options: {
+          address: contractInfo.DAIToken.address, // The address that the token is at.
+          symbol: 'DAI', // A ticker symbol or shorthand, up to 5 chars.
+          decimals: 18, // The number of decimals in the token
+          image: 'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png', // A string url of the token logo
+        },
+      },
+    });
+    if (!wasAdded) {
+      console.log('Failed to add DAI token!');
       return false;
     } else {
       return true;
@@ -152,18 +180,23 @@ export async function transfer(data) {
   let raw = contractERC20Interface.methods.transfer(data.seller, data.amount).encodeABI()
 
   let receipt;
-  const coinName = process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME;
+  let contractAddress = "";
+  const coinName = store.getters['auth/getConfig'].tokenName;
   switch (coinName) {
     case "DAIC":
-      receipt = await sendTransaction(contractInfo.DAICToken.address, raw, data.from);
+      contractAddress = contractInfo.DAICToken.address;
       break;
     case "USDT":
-      receipt = await sendTransaction(contractInfo.USDTTokenAddress.address, raw, data.from);
+      contractAddress = contractInfo.USDTTokenAddress.address;
+      break;
+    case "DAI":
+      contractAddress = contractInfo.DAIToken.address;
       break;
     default:
-      receipt = await sendTransaction(contractInfo.USDTTokenAddress.address, raw, data.from);
+      contractAddress = contractInfo.USDTTokenAddress.address;
       break;
   }
+  receipt = await sendTransaction(contractAddress, raw, data.from);
 
   return { data, receipt }
 
@@ -204,5 +237,22 @@ export async function listenEventEscrow() {
         */
       })
     }
+  }
+}
+
+export async function addToken(coinName) {
+  switch (coinName) {
+    case "DAIC":
+      await addTokenDAIC();
+      break;
+    case "USDT":
+      await addTokenUsdt();
+      break;
+    case "DAI":
+      await addTokenDAI();
+      break;
+    default:
+      console.log("not trigger");
+      break;
   }
 }

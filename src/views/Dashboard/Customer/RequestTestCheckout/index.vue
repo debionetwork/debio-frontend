@@ -151,6 +151,7 @@ export default {
       products: (state) => state.testRequest.products,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      configApp: (state) => state.auth.configApp,
     }),
     totalPrice() {
       return this.products.reduce(
@@ -161,7 +162,7 @@ export default {
     },
   },
   mounted() {
-    this.coinName = process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME;
+    this.coinName = this.configApp.tokenName;
     this.checkingData();
   },
   methods: {
