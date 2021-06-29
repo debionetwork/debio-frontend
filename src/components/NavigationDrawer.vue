@@ -18,7 +18,7 @@
       :width="this.width"
       class="mr-10 pt-10 dg-raleway-font"
     >
-      <v-toolbar flat class="mt-15 text-h7 secondary--text ">
+      <v-toolbar flat class="text-h7 secondary--text " style="margin-top:90px;">
         <v-flex>
           <v-container
             class="pt-1 pb-1"
