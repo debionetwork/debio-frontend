@@ -99,12 +99,6 @@ import {
 } from "@/lib/polkadotProvider/query/orders";
 import { createOrder } from "@/lib/polkadotProvider/command/orders";
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile";
-import {
-  transfer,
-  addTokenUsdt,
-  addTokenDAIC,
-  getPrice,
-} from "@/lib/metamask/wallet.js";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
 import Kilt from "@kiltprotocol/sdk-js";
 import { u8aToHex } from "@polkadot/util";
@@ -147,10 +141,11 @@ export default {
       metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
       metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance,
       mnemonic: (state) => state.substrate.mnemonicData.mnemonic,
+      configApp: (state) => state.auth.configApp,
     }),
   },
   mounted() {
-    this.coinName = process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME;
+    this.coinName = this.configApp.tokenName;
     this.priceOrder = this.totalPrice;
     this.priceOrder = parseFloat(this.priceOrder.replaceAll(",", "."));
     if (this.lab != null) {

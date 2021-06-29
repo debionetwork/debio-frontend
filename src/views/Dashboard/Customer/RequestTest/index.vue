@@ -191,13 +191,14 @@ export default {
     DnaCollectionRequirements,
   },
   async mounted() {
-    this.coinName = process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME;
+    this.coinName = this.configApp.tokenName;
     await this.getCountries();
   },
   computed: {
     ...mapState({
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      configApp: (state) => state.auth.configApp,
     }),
     citiesSelection() {
       return this.cities

@@ -213,12 +213,7 @@ import {
 import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
-import {
-  transfer,
-  getPrice,
-  addTokenUsdt,
-  addTokenDAIC,
-} from "@/lib/metamask/wallet.js";
+import { transfer, getPrice, addToken } from "@/lib/metamask/wallet.js";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
 import { cancelOrder } from "@/lib/polkadotProvider/command/orders";
 import { startApp } from "@/lib/metamask";
@@ -270,13 +265,14 @@ export default {
       metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
       metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance,
       openPayMetamask: (state) => state.metamask.openPayMetamask,
+      configApp: (state) => state.auth.configApp,
     }),
     dataLoaded() {
       return this.lab && this.service && this.order;
     },
   },
   mounted() {
-    this.coinName = process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME;
+    this.coinName = this.configApp.tokenName;
     this.fetchOrderDetails();
   },
   watch: {
@@ -387,20 +383,10 @@ export default {
       }
 
       try {
-        switch (this.coinName) {
-          case "DAIC":
-            await addTokenDAIC();
-            break;
-          case "USDT":
-            await addTokenUsdt();
-            break;
-          default:
-            console.log("not trigger");
-            break;
-        }
+        await addToken(this.coinName);
         const price = await getPrice(this.priceOrder);
         let txreceipts = await transfer({
-          seller: process.env.VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS,
+          seller: this.configApp.escrowETHAddress,
           amount: String(price),
           from: this.metamaskWalletAddress,
         });
