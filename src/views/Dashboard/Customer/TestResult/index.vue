@@ -67,6 +67,7 @@ export default {
     ...mapState({
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      lastEventData: (state) => state.substrate.lastEventData,
     }),
     searchTestResults() {
       if (!this.search) {
@@ -81,6 +82,16 @@ export default {
     this.getTestResults();
   },
   watch: {
+    lastEventData() {
+      if (this.lastEventData != null) {
+        const dataEvent = JSON.parse(this.lastEventData.data.toString());
+        if (this.lastEventData.section == "geneticTesting") {
+          if (dataEvent[0].owner_id == this.wallet.address) {
+            this.getTestResults();
+          }
+        }
+      }
+    },
     $route() {
       this.getTestResults();
     },
@@ -147,7 +158,11 @@ export default {
     prepareOrderData(dnaTestResults, detaillab, detailService) {
       const title = detailService.info.name;
 
-      const labName = detaillab.info.name;
+      let labName = "";
+      if (detaillab != null) {
+        labName = detaillab.info.name;
+      }
+
       let icon = "mdi-needle";
       if (detailService.info.image != null) {
         icon = detailService.info.image;

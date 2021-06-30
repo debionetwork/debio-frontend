@@ -15,6 +15,7 @@ const customerRoutes = [{
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/Home')
@@ -29,6 +30,7 @@ const customerRoutes = [{
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
+          { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/OrderHistory.vue')
@@ -47,6 +49,7 @@ const customerRoutes = [{
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
+          { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/OrderHistoryDetail')
@@ -67,6 +70,7 @@ const customerRoutes = [{
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
+          { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/DnaCollectionInstructions.vue')
@@ -86,6 +90,7 @@ const customerRoutes = [{
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Result", active: true, disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/TestResult/result.vue')
@@ -104,6 +109,7 @@ const customerRoutes = [{
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/RequestTest')
@@ -122,6 +128,7 @@ const customerRoutes = [{
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/RequestTestCheckout')
@@ -142,6 +149,7 @@ const customerRoutes = [{
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/RequestTestReceipt.vue')
@@ -160,6 +168,7 @@ const customerRoutes = [{
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Result", active: true, disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/TestResult')
@@ -178,9 +187,44 @@ const customerRoutes = [{
           { text: "Request Test", disabled: true },
           { text: "Test Result", disabled: true },
           { text: "Order History", disabled: true },
+          { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/GenomeFiles.vue')
+    },
+    {
+      path: '/customer/documents',
+      name: 'documents',
+      meta: {
+        pageHeader: 'Documents',
+        drawerButtons: [
+          { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
+          { text: "Request Test", disabled: false, route: { name: "request-test" } },
+          { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
+          { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Documents", active: true, disabled: false, route: { name: "documents" } },
+        ]
+      },
+      component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/Documents/DocumentsList.vue')
+    },
+    {
+      path: '/customer/document-detail/:number/:type',
+      name: 'document-detail',
+      meta: {
+        pageHeader: 'Document Detail',
+        breadcrumbs: [
+          { text: 'Documents', href: '/customer/documents' },
+          { text: 'Document Detail', disabled: true },
+        ],
+        drawerButtons: [
+          { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
+          { text: "Request Test", disabled: false, route: { name: "request-test" } },
+          { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
+          { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Documents", active: true, disabled: false, route: { name: "documents" } },
+        ]
+      },
+      component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/Documents/DocumentResult.vue')
     },
   ]
 },

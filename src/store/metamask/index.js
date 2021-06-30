@@ -1,7 +1,6 @@
 import Web3 from 'web3'
 import contracts from './contracts'
-//import Wallet from '../../lib/dgnx-wallet'
-//import { getEthFromFaucet } from '../../lib/faucet'
+import store from '@/store/index'
 
 const defaultState = {
   web3: null,
@@ -10,6 +9,7 @@ const defaultState = {
   metamaskWallet: null,
   metamaskWalletBalance: '',
   metamaskWalletAddress: '',
+  openPayMetamask: false,
 }
 
 export default {
@@ -42,15 +42,18 @@ export default {
       state.metamaskWalletAddress = ''
       state.walletPublicKey = ''
     },
+    SET_OPEN_PAY_METAMASK(state, data) {
+      state.openPayMetamask = data
+    },
   },
   actions: {
-    async initWeb3({ commit }, rpcUrl) {
+    async initWeb3({ commit }) {
       try {
         commit('SET_WEB3', null)
         commit('SET_LOADING_WEB3', true)
 
-        
         //const web3 = new Web3(rpcUrl);
+        const rpcUrl = store.getters['auth/getConfig'].web3Rpc;
         const web3 = new Web3()
         web3.setProvider(new Web3.providers.HttpProvider(rpcUrl))
         const isConnected = await web3.eth.net.isListening()

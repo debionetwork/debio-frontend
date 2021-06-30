@@ -241,7 +241,11 @@ import { mapState, mapMutations } from "vuex";
 import ipfsWorker from "@/web-workers/ipfs-worker";
 import cryptWorker from "@/web-workers/crypt-worker";
 import { hexToU8a } from "@polkadot/util";
-import { addElectronicMedicalRecordInfo } from "@/lib/polkadotProvider/command/electronicMedicalRecord";
+import {
+  addElectronicMedicalRecordInfo,
+  registerElectronicMedicalRecord,
+} from "@/lib/polkadotProvider/command/electronicMedicalRecord";
+import { queryGetEMRList } from "@/lib/polkadotProvider/query/electronicMedicalRecord";
 
 export default {
   name: "UploadEMR",
@@ -261,7 +265,7 @@ export default {
     password: "",
     isLoading: false,
     error: "",
-    identity: null,
+    registerEMR: false,
     publicKey: null,
     uploadSuccessIcon: "mdi-check-circle",
     uploadSuccessTitle: "Upload Successful",
@@ -269,6 +273,7 @@ export default {
     baseUrl: "https://ipfs.io/ipfs/",
     encryptProgress: 0,
     countFileUploaded: 0,
+    fileType: "application/pdf",
   }),
   computed: {
     _show: {
@@ -290,15 +295,29 @@ export default {
     this.initialData();
   },
   watch: {
-    lastEventData() {
+    async lastEventData() {
       if (this.lastEventData != null) {
+        const dataEvent = JSON.parse(this.lastEventData.data.toString());
         if (this.lastEventData.method == "ElectronicMedicalRecordInfoAdded") {
-          this.countFileUploaded = this.countFileUploaded + 1;
-          if (this.countFileUploaded == this.listPendingUploadFile.length) {
-            this.isLoading = false;
-            this.inputPassword = false;
-            this.resultUpload = true;
-            this.error = "";
+          if (dataEvent[0].owner_id == this.wallet.address) {
+            this.countFileUploaded = this.countFileUploaded + 1;
+            if (this.countFileUploaded == this.listPendingUploadFile.length) {
+              this.isLoading = false;
+              this.inputPassword = false;
+              this.resultUpload = true;
+              this.error = "";
+            }
+          }
+        } else if (
+          this.lastEventData.method == "ElectronicMedicalRecordAdded"
+        ) {
+          if (
+            dataEvent[0].owner_id == this.wallet.address &&
+            this.registerEMR
+          ) {
+            for (let i = 0; i < this.listPendingUploadFile.length; i++) {
+              await this.handleFileUpload(this.listPendingUploadFile[i]);
+            }
           }
         }
       }
@@ -343,7 +362,7 @@ export default {
     },
     async handleFileUpload(dataFile) {
       const file = dataFile.file;
-      file.fileType = "EMR"; // attach fileType to file, because fileType is not accessible in fr.onload scope
+      file.fileType = "application/pdf"; // attach fileType to file, because fileType is not accessible in fr.onload scope
 
       const context = this;
       const fr = new FileReader();
@@ -381,10 +400,11 @@ export default {
           );
           console.log(result);
         } catch (err) {
+          this.isLoading = false;
           console.error(err);
         }
       };
-      fr.readAsText(file);
+      fr.readAsArrayBuffer(file);
     },
     encrypt({ text, fileType, fileName }) {
       const context = this;
@@ -396,8 +416,10 @@ export default {
           };
           const arrChunks = [];
           let chunksAmount;
-          cryptWorker.workerEncrypt.postMessage({ pair, text }); // Access this object in e.data in worker
-          cryptWorker.workerEncrypt.onmessage = (event) => {
+          const typeFr = this.fileType;
+          console.log(typeFr);
+          cryptWorker.workerEncryptFile.postMessage({ pair, text, typeFr }); // Access this object in e.data in worker
+          cryptWorker.workerEncryptFile.onmessage = (event) => {
             console.log(event);
             if (event.data.chunksAmount) {
               chunksAmount = event.data.chunksAmount;
@@ -426,8 +448,9 @@ export default {
     upload({ encryptedFileChunks, fileName, fileType }) {
       const chunkSize = 10 * 1024 * 1024; // 10 MB
       let offset = 0;
+      console.log(encryptedFileChunks);
       const data = JSON.stringify(encryptedFileChunks);
-      const blob = new Blob([data], { type: "text/plain" });
+      const blob = new Blob([data], { type: this.fileType });
 
       return new Promise((resolve, reject) => {
         try {
@@ -487,8 +510,14 @@ export default {
       try {
         this.wallet.decodePkcs8(this.password);
         if (this.listPendingUploadFile.length > 0) {
-          for (let i = 0; i < this.listPendingUploadFile.length; i++) {
-            await this.handleFileUpload(this.listPendingUploadFile[i]);
+          const listEMR = await queryGetEMRList(this.api, this.wallet.address);
+          if (listEMR == null) {
+            this.registerEMR = true;
+            await registerElectronicMedicalRecord(this.api, this.wallet);
+          } else {
+            for (let i = 0; i < this.listPendingUploadFile.length; i++) {
+              await this.handleFileUpload(this.listPendingUploadFile[i]);
+            }
           }
         } else {
           this.isLoading = false;

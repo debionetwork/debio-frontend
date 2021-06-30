@@ -99,15 +99,9 @@ import {
 } from "@/lib/polkadotProvider/query/orders";
 import { createOrder } from "@/lib/polkadotProvider/command/orders";
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile";
-import {
-  transfer,
-  addTokenUsdt,
-  addTokenDAIC,
-  getPrice,
-} from "@/lib/metamask/wallet.js";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
-import Kilt from '@kiltprotocol/sdk-js'
-import { u8aToHex } from '@polkadot/util'
+import Kilt from "@kiltprotocol/sdk-js";
+import { u8aToHex } from "@polkadot/util";
 
 export default {
   name: "SendPaymentDialog",
@@ -146,11 +140,12 @@ export default {
       lastEventData: (state) => state.substrate.lastEventData,
       metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
       metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance,
-      mnemonic: state => state.substrate.mnemonicData.mnemonic,
+      mnemonic: (state) => state.substrate.mnemonicData.mnemonic,
+      configApp: (state) => state.auth.configApp,
     }),
   },
   mounted() {
-    this.coinName = process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME;
+    this.coinName = this.configApp.tokenName;
     this.priceOrder = this.totalPrice;
     this.priceOrder = parseFloat(this.priceOrder.replaceAll(",", "."));
     if (this.lab != null) {
@@ -162,48 +157,25 @@ export default {
   watch: {
     async lastEventData() {
       if (this.lastEventData != null) {
-        if (
-          this.lastEventData.method == "OrderCreated" ||
-          this.lastEventData.method == "OrderPaid"
-        ) {
+        if (this.lastEventData.method == "OrderCreated") {
           const dataEvent = JSON.parse(this.lastEventData.data.toString());
           let orderStatus = false;
           let orderId = "";
           for (let i = 0; i < dataEvent.length; i++) {
-            for (let x = 0; x < this.products.length; x++) {
-              const productDetail = this.products[x];
-              if (dataEvent[i].service_id == this.products[x].accountId) {
-                const specimenNumber = dataEvent[i].dna_sample_tracking_id;
-                const dataOrder = dataEvent[i];
-                this.receipts.push({
-                  dataOrder,
-                  specimenNumber,
-                  productDetail,
-                  lab: this.lab,
-                });
-                orderStatus = true;
-                orderId = dataEvent[i].id;
-              }
+            if (dataEvent[i].customer_id == this.wallet.address) {
+              orderStatus = true;
+              orderId = dataEvent[i].id;
             }
           }
           this.isLoading = false;
           this.password = "";
           if (orderStatus) {
-            if (this.lastEventData.method == "OrderPaid") {
-              //this.$emit("payment-sent", this.receipts);
-              this.closeDialog();
-              this.$router.push({
-                name: "order-history-detail",
-                params: { number: orderId },
-              });
-            } else {
-              await this.openMetamask();
-              this.closeDialog();
-              this.$router.push({
-                name: "order-history-detail",
-                params: { number: orderId },
-              });
-            }
+            this.closeDialog();
+            this.setOpenMetaMask(true);
+            this.$router.push({
+              name: "order-history-detail",
+              params: { number: orderId },
+            });
           }
         }
       }
@@ -213,36 +185,11 @@ export default {
     ...mapMutations({
       setMetamaskAddress: "metamask/SET_WALLET_ADDRESS",
       setMetamaskBalance: "metamask/SET_WALLET_BALANCE",
+      setOpenMetaMask: "metamask/SET_OPEN_PAY_METAMASK",
     }),
     ...mapActions({
       restoreAccountKeystore: "substrate/restoreAccountKeystore",
     }),
-    async openMetamask() {
-      switch (this.coinName) {
-        case "DAIC":
-          await addTokenDAIC();
-          break;
-        case "USDT":
-          await addTokenUsdt();
-          break;
-        default:
-          console.log("not trigger");
-          break;
-      }
-      try {
-        const price = await getPrice(this.priceOrder);
-        console.log('price -> ', price)
-        console.log('String(price) -> ', price)
-        let txreceipts = await transfer({
-          seller: process.env.VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS,
-          amount: String(price),
-          from: this.metamaskWalletAddress,
-        });
-        console.log(txreceipts);
-      } catch (err) {
-        console.log(err);
-      }
-    },
     async onSubmit() {
       this.isLoading = true;
       this.error = "";
@@ -326,13 +273,13 @@ export default {
 
               const balance = await getBalanceETH(this.metamaskWalletAddress);
               if (balance > 0) {
-                const customer_box_public_key = this.getKiltBoxPublicKey()
+                const customer_box_public_key = this.getKiltBoxPublicKey();
                 for (let i = 0; i < this.products.length; i++) {
                   await createOrder(
                     this.api,
                     this.wallet,
                     this.products[i].accountId,
-                    customer_box_public_key,
+                    customer_box_public_key
                   );
                 }
               } else {
@@ -360,8 +307,8 @@ export default {
       this.error = "";
     },
     getKiltBoxPublicKey() {
-      const cred = Kilt.Identity.buildFromMnemonic(this.mnemonic)
-      return u8aToHex(cred.boxKeyPair.publicKey)
+      const cred = Kilt.Identity.buildFromMnemonic(this.mnemonic);
+      return u8aToHex(cred.boxKeyPair.publicKey);
     },
   },
 };

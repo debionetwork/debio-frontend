@@ -3,21 +3,21 @@
     <v-container>
       <v-row>
         <v-col cols="12" md="8">
-          <div class="secondary--text mb-2"><b>Test Result Report</b></div>
+          <div class="secondary--text mb-2"><b>Document Record</b></div>
           <v-card class="dg-card" width="100%">
             <v-progress-linear
               v-if="resultLoading"
               indeterminate
               color="primary"
             ></v-progress-linear>
-            <v-card-title>{{ serviceName }} Report</v-card-title>
+            <v-card-title>{{ serviceName }} Record</v-card-title>
             <v-card-text>
               {{ reportResult }}
             </v-card-text>
           </v-card>
         </v-col>
         <v-col cols="12" md="4">
-          <div class="secondary--text mb-2"><b>Test Result Files</b></div>
+          <div class="secondary--text mb-2"><b>Action</b></div>
           <div v-for="(file, index) in files" :key="file.name" class="mb-2">
             <MenuCard
               icon="mdi-file-document-multiple-outline"
@@ -131,26 +131,25 @@
 import MenuCard from "@/components/MenuCard";
 import ipfsWorker from "@/web-workers/ipfs-worker";
 import { mapState } from "vuex";
-import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting";
-import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
-import { queryServicesById } from "@/lib/polkadotProvider/query/services";
-import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
 import { hexToU8a } from "@polkadot/util";
+import { downloadDecryptedFromIPFS } from "@/lib/ipfs";
+import { queryElectronicMedicalRecordInfoById } from "@/lib/polkadotProvider/query/electronicMedicalRecord";
 
 export default {
-  name: "test-result",
+  name: "document-detail",
   components: {
     MenuCard,
   },
   data: () => ({
     privateKey: "",
     publicKey: "",
-    specimentNumberInput: "",
+    docId: "",
+    typeDoc: "",
     ownerAddress: "",
     files: [],
     dialog: false,
     password: "",
-    speciment: {},
+    dataDetail: {},
     services: [],
     lab: null,
     order: null,
@@ -164,64 +163,47 @@ export default {
     baseUrl: "https://ipfs.io/ipfs/",
   }),
   async mounted() {
-    this.resultLoading = true;
-    this.specimentNumberInput = this.$route.params.number;
+    this.docId = this.$route.params.number;
+    this.typeDoc = this.$route.params.type;
     this.privateKey = hexToU8a(this.mnemonicData.privateKey);
+    this.publicKey = hexToU8a(this.mnemonicData.publicKey);
     this.ownerAddress = this.wallet.address;
-    await this.getSpciments();
-    await this.getLabServices();
-    await this.getFileUploaded();
-    await this.decryptWallet();
+
+    await this.initData();
   },
   methods: {
-    async getSpciments() {
+    async initData() {
+      this.isLoading = true;
+      if (this.typeDoc == "emr") {
+        await this.getDetailEMR();
+      }
+    },
+    async getDetailEMR() {
       try {
-        this.speciment = await queryDnaTestResults(
+        this.dataDetail = await queryElectronicMedicalRecordInfoById(
           this.api,
-          this.specimentNumberInput
+          this.docId
         );
-        console.log(this.speciment);
+        const fileType = "application/pdf";
+        const fileName = "EMR Record";
+        await this.getFileUploaded(fileType, fileName);
+        await this.decryptWallet();
       } catch (error) {
-        this.resultLoading = false;
         console.log(error);
       }
     },
-    async getLabServices() {
+    async getFileUploaded(fileType, fileName) {
       try {
-        this.lab = await queryLabsById(this.api, this.speciment.lab_id);
-        this.order = await getOrdersDetail(this.api, this.speciment.order_id);
-        this.ownerAddress = this.order.customer_eth_address;
-        this.services = await queryServicesById(
-          this.api,
-          this.order.service_id
-        );
-        console.log("Lab -> ", this.lab);
-        this.serviceName = this.services.info.name;
-      } catch (err) {
-        this.resultLoading = false;
-        this.services = [];
-      }
-    },
-    async getFileUploaded() {
-      try {
-        if (this.speciment.report_link != "") {
+        if (this.dataDetail.record_link != "") {
           this.files.push({
-            fileType: "report",
-            fileName: this.serviceName + " Report",
-            fileLink: this.speciment.report_link,
+            fileType: fileType,
+            fileName: fileName,
+            fileLink: this.dataDetail.record_link,
           });
         }
 
-        if (this.speciment.result_link != "") {
-          this.files.push({
-            fileType: "result",
-            fileName: this.serviceName + " Result",
-            fileLink: this.speciment.result_link,
-          });
-        }
         this.filesLoading = new Array(this.files.length).fill(false);
       } catch (error) {
-        this.resultLoading = false;
         console.log(error);
       }
     },
@@ -232,13 +214,12 @@ export default {
       // }
       try {
         //this.wallet.decodePkcs8(this.password);
-        this.publicKey = this.lab.info.box_public_key;
         if (this.actionType == "result") {
           await this.parseResult();
         }
 
         if (this.actionType == "download") {
-          await this.downloadDecryptedFromIPFS();
+          await this.downloadFile();
         }
         this.dialog = false;
         this.password = "";
@@ -246,100 +227,51 @@ export default {
       } catch (e) {
         console.log(e);
         this.isLoading = false;
-        this.resultLoading = false;
         this.password = "";
       }
     },
     async parseResult() {
-      try {
-        const path = this.files[0].fileLink.replace(this.baseUrl, "");
-        const secretKey = this.privateKey;
-        const publicKey = this.lab.info.box_public_key;
+      this.resultLoading = true;
+      const path = this.files[0].fileLink.replace(this.baseUrl, "");
 
-        const pair = {
-          secretKey,
-          publicKey,
-        };
+      const secretKey = this.privateKey;
+      const publicKey = this.publicKey;
 
-        const typeFile = "text/plain";
-        const channel = new MessageChannel();
-        channel.port1.onmessage = ipfsWorker.workerDownload;
-        ipfsWorker.workerDownload.postMessage({ path, pair, typeFile }, [
-          channel.port2,
-        ]);
-        ipfsWorker.workerDownload.onmessage = (event) => {
-          this.result = event.data;
-          this.resultLoading = false;
-        };
-        console.log(this.result);
-      } catch (e) {
-        this.resultLoading = false;
-      }
+      const pair = {
+        secretKey,
+        publicKey,
+      };
+
+      const typeFile = "application/pdf";
+      const channel = new MessageChannel();
+      channel.port1.onmessage = ipfsWorker.workerDownload;
+      ipfsWorker.workerDownload.postMessage({ path, pair, typeFile }, [
+        channel.port2,
+      ]);
+      ipfsWorker.workerDownload.onmessage = (event) => {
+        // const blob = new Blob([ event.data ], {type: 'text/plain'})
+        this.result = event.data;
+        //window.URL.createObjectURL(blob)
+      };
+      this.resultLoading = false;
+      console.log(this.result);
     },
-    async downloadDecryptedFromIPFS() {
-      try {
-        const channel = new MessageChannel();
-        channel.port1.onmessage = ipfsWorker.workerDownload;
-        const path = this.files[this.fileDownloadIndex].fileLink.replace(
-          this.baseUrl,
-          ""
+    async downloadFile() {
+      if (this.typeDoc == "emr") {
+        const path = this.dataDetail.record_link.replace(this.baseUrl, "");
+        await downloadDecryptedFromIPFS(
+          path,
+          this.privateKey,
+          this.publicKey,
+          this.dataDetail.id + ".pdf",
+          "application/pdf"
         );
-        const secretKey = this.privateKey;
-        const publicKey = this.publicKey;
-        const pair = {
-          secretKey,
-          publicKey,
-        };
-        const typeFile = "text/plain";
-
-        this.filesLoading[this.fileDownloadIndex] = true;
-        ipfsWorker.workerDownload.postMessage({ path, pair, typeFile }, [
-          channel.port2,
-        ]);
-        ipfsWorker.workerDownload.onmessage = (event) => {
-          this.download(
-            event.data,
-            this.files[this.fileDownloadIndex].fileName
-          );
-          this.$set(this.filesLoading, this.fileDownloadIndex, false);
-        };
-      } catch (e) {
-        console.log(e);
       }
     },
-
-    download(data, fileName) {
-      const blob = new Blob([data], { type: "text/plain" });
-      const e = document.createEvent("MouseEvents");
-      const a = document.createElement("a");
-      a.download = fileName;
-      a.href = window.URL.createObjectURL(blob);
-      a.dataset.downloadurl = ["text/json", a.download, a.href].join(":");
-      e.initEvent(
-        "click",
-        true,
-        false,
-        window,
-        0,
-        0,
-        0,
-        0,
-        0,
-        false,
-        false,
-        false,
-        false,
-        0,
-        null
-      );
-      a.dispatchEvent(e);
-    },
-
     showDialog(actionType, index) {
-      // this.dialog = true;
+      this.dialog = true;
       this.actionType = actionType;
       this.fileDownloadIndex = index;
-      this.decryptWallet();
     },
   },
 

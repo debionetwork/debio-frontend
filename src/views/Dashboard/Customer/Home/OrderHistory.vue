@@ -73,9 +73,22 @@ export default {
       walletBalance: (state) => state.substrate.walletBalance,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      lastEventData: (state) => state.substrate.lastEventData,
     }),
     userAddress() {
       return JSON.parse(localStorage.getKeystore())["address"];
+    },
+  },
+  watch: {
+    lastEventData() {
+      if (this.lastEventData != null) {
+        const dataEvent = JSON.parse(this.lastEventData.data.toString());
+        if (this.lastEventData.section == "orders") {
+          if (dataEvent[0].customer_id == this.wallet.address) {
+            this.getOrderHistory();
+          }
+        }
+      }
     },
   },
   mounted() {
@@ -91,10 +104,7 @@ export default {
       try {
         this.orderHistory = [];
         const address = this.wallet.address;
-        const listOrderId = await ordersByCustomer(
-          this.api,
-          address,
-        );
+        const listOrderId = await ordersByCustomer(this.api, address);
 
         var lengthMax = 3;
         if (listOrderId != null) {
@@ -136,7 +146,9 @@ export default {
       }
 
       const number = detailOrder.id;
-      const timestamp = (detailOrder.created_at.replace(/,/g, "") / 1000).toString();
+      const timestamp = (
+        detailOrder.created_at.replace(/,/g, "") / 1000
+      ).toString();
       const status = detailOrder.status;
       const dna_sample_tracking_id = detailOrder.dna_sample_tracking_id;
 

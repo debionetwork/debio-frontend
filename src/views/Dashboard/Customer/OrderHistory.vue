@@ -5,8 +5,8 @@
         <v-col>
           <v-dialog v-model="dialogInstruction" max-width="600px">
             <DNASampleSendingInstructions
-              :specimenNumber="selectedSpeciment.number"
-              :lab="selectedSpeciment.labData"
+              :specimenNumber="selectedSpeciment.dna_sample_tracking_id"
+              :lab="selectedSpeciment.detaillab"
               hide-order-history-link
             >
               <template v-slot:button>
@@ -64,7 +64,7 @@
             </template>
 
             <template v-slot:[`item.actions`]="{ item }">
-              <v-container v-if="item.status == SENDING">
+              <v-container v-if="item.status == ORDER_PAID">
                 <v-btn
                   class="btn-sending"
                   dark
@@ -94,13 +94,13 @@
                   >Pay</v-btn
                 >
               </v-container>
-              <v-container v-if="item.status == SUCCESS">
+              <v-container v-if="item.status == ORDER_FULFILLED">
                 <v-btn
                   class="success"
                   small
                   width="200"
-                  @click="gotoResult(item)"
-                  >View Result</v-btn
+                  @click="goToOrderDetail(item)"
+                  >View Order</v-btn
                 >
               </v-container>
 
@@ -193,9 +193,20 @@ export default {
       walletBalance: (state) => state.substrate.walletBalance,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      lastEventData: (state) => state.substrate.lastEventData,
     }),
   },
   watch: {
+    lastEventData() {
+      if (this.lastEventData != null) {
+        const dataEvent = JSON.parse(this.lastEventData.data.toString());
+        if (this.lastEventData.section == "orders") {
+          if (dataEvent[0].customer_id == this.wallet.address) {
+            this.getOrderHistory();
+          }
+        }
+      }
+    },
     async address() {
       await this.getOrderHistory();
     },
@@ -217,20 +228,28 @@ export default {
 
           for (let i = 0; i < lengthMax; i++) {
             const detailOrder = await getOrdersDetail(this.api, listOrderId[i]);
-            const detaillab = await queryLabsById(
-              this.api,
-              detailOrder.seller_id
-            );
-            const detailService = await queryServicesById(
-              this.api,
-              detailOrder.service_id
-            );
-            this.prepareOrderData(detailOrder, detaillab, detailService);
+            if (detailOrder != null) {
+              const detaillab = await queryLabsById(
+                this.api,
+                detailOrder.seller_id
+              );
+              if (detaillab != null) {
+                const detailService = await queryServicesById(
+                  this.api,
+                  detailOrder.service_id
+                );
+                if (detailService != null) {
+                  this.prepareOrderData(detailOrder, detaillab, detailService);
+                }
+              }
+            }
           }
 
-          this.orderHistory.sort(
-            (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
-          );
+          if (this.orderHistory.length > 0) {
+            this.orderHistory.sort(
+              (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
+            );
+          }
         }
 
         this.isLoading = false;
@@ -262,6 +281,7 @@ export default {
         timestamp,
         status,
         dna_sample_tracking_id,
+        detaillab,
       };
 
       this.orderHistory.push(order);
@@ -280,6 +300,7 @@ export default {
     },
     showDialogInstruction(item) {
       this.dialogInstruction = true;
+      console.log(item);
       this.selectedSpeciment = item;
     },
     showDialogRejected(item) {

@@ -5,6 +5,7 @@ const SingleEscrow = require('./abi/SingleEscrow.json')
 const EscrowFactory = require('./abi/EscrowFactory.json')
 const ERC20Interface = require('./abi/ERC20Interface.json')
 const SimpleEscrow = require('./abi/SimpleEscrow.json')
+import store from '@/store/index'
 
 const defaultState = {
   contractEscrow20: null,
@@ -54,18 +55,23 @@ export default {
       const SimpleEscrowContract = new web3.eth.Contract(SimpleEscrow, contractInfo.SimpleEscrow.address)
 
       let ERC20InterfaceContract;
-      const coinName = process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME;
+      const coinName = store.getters['auth/getConfig'].tokenName;
+      let contractAddress = "";
       switch (coinName) {
         case "DAIC":
-          ERC20InterfaceContract = new web3.eth.Contract(ERC20Interface, contractInfo.DAICToken.address);
+          contractAddress = contractInfo.DAICToken.address;
           break;
         case "USDT":
-          ERC20InterfaceContract = new web3.eth.Contract(ERC20Interface, contractInfo.ERC20Interface.address);
+          contractAddress = contractInfo.ERC20Interface.address;
+          break;
+        case "DAI":
+          contractAddress = contractInfo.DAIToken.address;
           break;
         default:
-          ERC20InterfaceContract = new web3.eth.Contract(ERC20Interface, contractInfo.ERC20Interface.address);
+          contractAddress = contractInfo.ERC20Interface.address;
           break;
       }
+      ERC20InterfaceContract = new web3.eth.Contract(ERC20Interface, contractAddress);
 
       commit('SET_CONTRACT_Escrow20', Escrow20Contract)
       commit('SET_CONTRACT_Escrow20Basic', Escrow20BasicContract)
