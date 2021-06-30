@@ -273,6 +273,7 @@ export default {
     baseUrl: "https://ipfs.io/ipfs/",
     encryptProgress: 0,
     countFileUploaded: 0,
+    fileType: "application/pdf",
   }),
   computed: {
     _show: {
@@ -310,7 +311,10 @@ export default {
         } else if (
           this.lastEventData.method == "ElectronicMedicalRecordAdded"
         ) {
-          if (dataEvent[0].owner_id == this.wallet.address && this.registerEMR) {
+          if (
+            dataEvent[0].owner_id == this.wallet.address &&
+            this.registerEMR
+          ) {
             for (let i = 0; i < this.listPendingUploadFile.length; i++) {
               await this.handleFileUpload(this.listPendingUploadFile[i]);
             }
@@ -375,7 +379,7 @@ export default {
             fileName: encFileName,
             fileType: encFileType,
           } = encrypted;
-      
+
           // Upload
           const uploaded = await context.upload({
             encryptedFileChunks: chunks,
@@ -400,7 +404,7 @@ export default {
           console.error(err);
         }
       };
-      fr.readAsText(file);
+      fr.readAsArrayBuffer(file);
     },
     encrypt({ text, fileType, fileName }) {
       const context = this;
@@ -412,8 +416,10 @@ export default {
           };
           const arrChunks = [];
           let chunksAmount;
-          cryptWorker.workerEncrypt.postMessage({ pair, text }); // Access this object in e.data in worker
-          cryptWorker.workerEncrypt.onmessage = (event) => {
+          const typeFr = this.fileType;
+          console.log(typeFr);
+          cryptWorker.workerEncryptFile.postMessage({ pair, text, typeFr }); // Access this object in e.data in worker
+          cryptWorker.workerEncryptFile.onmessage = (event) => {
             console.log(event);
             if (event.data.chunksAmount) {
               chunksAmount = event.data.chunksAmount;
@@ -442,8 +448,9 @@ export default {
     upload({ encryptedFileChunks, fileName, fileType }) {
       const chunkSize = 10 * 1024 * 1024; // 10 MB
       let offset = 0;
+      console.log(encryptedFileChunks);
       const data = JSON.stringify(encryptedFileChunks);
-      const blob = new Blob([data], { type: "application/pdf" });
+      const blob = new Blob([data], { type: this.fileType });
 
       return new Promise((resolve, reject) => {
         try {

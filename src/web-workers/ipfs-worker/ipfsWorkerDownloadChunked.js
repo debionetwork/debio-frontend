@@ -1,32 +1,14 @@
 /* eslint-disable */
-//import ipfsClient from 'ipfs-http-client';
 import IPFSHttpClient from 'ipfs-http-client';
-//import EthCrypto from 'eth-crypto';
 import Kilt from '@kiltprotocol/sdk-js';
 
-
-// const sortingFile = (a, b) => {
-//   if (a.seed < b.seed) {
-//     return -1;
-//   }
-//   if (a.seed > b.seed) {
-//     return 1;
-//   }
-//   return 0;
-// }
 onmessage = function (e) {
   console.log("Downloading...");
 
   const ipfs = IPFSHttpClient({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
-  // const ipfs = IPFSHttpClient({host: 'localhost', port: 5001, protocol: 'http'});
   (async (ipfs) => {
-    //let arrHash = e.data.file.sort(sortingFile);
     let dts;
     let objs = "";
-    // for (const hash of arrHash) {
-
-    // }
-    //console.log(hash);
     const res = await ipfs.get("/ipfs/" + e.data.path);
     const content = await res.next();
     let dt = await content.value.content.next();
@@ -38,8 +20,7 @@ onmessage = function (e) {
     }
 
     console.log('dts is -> ', dts)
-
-    const fl = new Blob([dts], { type: 'text/plain' });
+    const fl = new Blob([dts], { type: e.data.typeFile });
     let encrypted = await fl.text();
     encrypted = JSON.parse(encrypted)
     encrypted = encrypted[0]
@@ -53,7 +34,6 @@ onmessage = function (e) {
       box: Uint8Array.from(box),
       nonce: Uint8Array.from(nonce)
     }
-
     const decryptedObject = await Kilt.Utils.Crypto.decryptAsymmetricAsStr(toDecrypt, e.data.pair.publicKey, e.data.pair.secretKey);
     if (!decryptedObject) {
       console.log('undefined', decryptedObject);

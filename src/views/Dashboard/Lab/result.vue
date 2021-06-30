@@ -321,7 +321,8 @@ export default {
         channel.port1.onmessage = cryptWorker.workerDecrypt;
         let privateKey = this.privateKey;
         let fileList = this.files[index].ipfsPath;
-        ipfsWorker.workerDownload.postMessage({file: fileList, privateKey});
+        const typeFile = "text/plain";
+        ipfsWorker.workerDownload.postMessage({file: fileList, privateKey, typeFile});
         ipfsWorker.workerDownload.onmessage = event => {
           this.download(event.data, this.files[index].fileName)
         }
