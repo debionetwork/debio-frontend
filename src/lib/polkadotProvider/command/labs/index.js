@@ -11,9 +11,9 @@ export async function registerLab(api, pair, data){
 export async function updateLab(api, pair, data){
     await api.tx.labs
         .updateLab(data)
-        .signAndSend(pair, { nonce: -1, callback: async (res) => {
-            await labCommandCallback(api, pair, res) 
-        }})
+        .signAndSend(pair, { nonce: -1 }, async ({ status, events }) => {
+            await labCommandCallback(api, pair, { status, events }) 
+        })
 }
 
 export async function deregisterLab(api, pair){
