@@ -11,9 +11,9 @@ export async function registerHospital(api, pair, data){
 export async function updateHospital(api, pair, data){
     await api.tx.hospitals
         .updateHospital(data)
-        .signAndSend(pair, { nonce: -1, callback: async (res) => {
-            await hospitalCommandCallback(api, pair, res) 
-        }})
+        .signAndSend(pair, { nonce: -1 }, async ({ status, events }) => {
+            await hospitalCommandCallback(api, pair, { status, events }) 
+        })
 }
 
 export async function deregisterHospital(api, pair){

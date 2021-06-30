@@ -336,10 +336,7 @@ export default {
     async fetchCertifications() {
       this.certifications = []
       const certificationIds = this.labAccount.certifications
-      console.log(certificationIds)
       this.certifications = await getCertificationDetails(this.api, certificationIds)
-
-      console.log(this.certifications)
     },
     closeCertificationDialog() {
       this.certId = ""

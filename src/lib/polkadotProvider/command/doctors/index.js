@@ -11,9 +11,9 @@ export async function registerDoctor(api, pair, data){
 export async function updateDoctor(api, pair, data){
     await api.tx.doctors
         .updateDoctor(data)
-        .signAndSend(pair, { nonce: -1, callback: async (res) => {
-            await doctorCommandCallback(api, pair, res) 
-        }})
+        .signAndSend(pair, { nonce: -1 }, async ({ status, events }) => {
+            await doctorCommandCallback(api, pair, { status, events }) 
+        })
 }
 
 export async function deregisterDoctor(api, pair){
