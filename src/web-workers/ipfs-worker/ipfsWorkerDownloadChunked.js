@@ -8,7 +8,6 @@ onmessage = function (e) {
   const ipfs = IPFSHttpClient({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
   (async (ipfs) => {
     let dts;
-    let objs = "";
     const res = await ipfs.get("/ipfs/" + e.data.path);
     const content = await res.next();
     let dt = await content.value.content.next();
@@ -34,6 +33,13 @@ onmessage = function (e) {
       box: Uint8Array.from(box),
       nonce: Uint8Array.from(nonce)
     }
+
+    if (e.data.typeFile == 'application/pdf') {
+      const decryptedObject = await Kilt.Utils.Crypto.decryptAsymmetric(toDecrypt, e.data.pair.publicKey, e.data.pair.secretKey)
+      return decryptedObject
+    }
+
+    let objs = "";
     const decryptedObject = await Kilt.Utils.Crypto.decryptAsymmetricAsStr(toDecrypt, e.data.pair.publicKey, e.data.pair.secretKey);
     if (!decryptedObject) {
       console.log('undefined', decryptedObject);
