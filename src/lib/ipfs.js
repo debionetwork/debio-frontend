@@ -8,7 +8,8 @@ export async function downloadDecryptedFromIPFS(path, secretKey, publicKey, file
     publicKey,
   };
 
-  ipfsWorker.workerDownload.postMessage({ path, pair }, [channel.port2]);
+  const typeFile = type;
+  ipfsWorker.workerDownload.postMessage({ path, pair, typeFile }, [channel.port2]);
   ipfsWorker.workerDownload.onmessage = (event) => {
     if (type == "application/pdf") {
       downloadPDF(event.data, fileName);

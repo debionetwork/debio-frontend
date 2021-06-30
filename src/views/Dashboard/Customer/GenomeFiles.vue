@@ -292,9 +292,10 @@ export default {
       const channel = new MessageChannel();
       channel.port1.onmessage = ipfsWorker.workerDownload;
       let fileList = this.fileToDownload.ipfsPath;
+      const typeFile = "text/plain";
       return new Promise((resolve, reject) => {
         try {
-          ipfsWorker.workerDownload.postMessage({file: fileList, privateKey}, [channel.port2]);
+          ipfsWorker.workerDownload.postMessage({file: fileList, typeFile, privateKey}, [channel.port2]);
           ipfsWorker.workerDownload.onmessage = event => {
             this.download(event.data, this.fileToDownload.fileName)
             resolve(true)

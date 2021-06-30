@@ -242,9 +242,12 @@ export default {
         publicKey,
       };
 
+      const typeFile = "application/pdf";
       const channel = new MessageChannel();
       channel.port1.onmessage = ipfsWorker.workerDownload;
-      ipfsWorker.workerDownload.postMessage({ path, pair }, [channel.port2]);
+      ipfsWorker.workerDownload.postMessage({ path, pair, typeFile }, [
+        channel.port2,
+      ]);
       ipfsWorker.workerDownload.onmessage = (event) => {
         // const blob = new Blob([ event.data ], {type: 'text/plain'})
         this.result = event.data;

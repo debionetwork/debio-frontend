@@ -261,9 +261,12 @@ export default {
           publicKey,
         };
 
+        const typeFile = "text/plain";
         const channel = new MessageChannel();
         channel.port1.onmessage = ipfsWorker.workerDownload;
-        ipfsWorker.workerDownload.postMessage({ path, pair }, [channel.port2]);
+        ipfsWorker.workerDownload.postMessage({ path, pair, typeFile }, [
+          channel.port2,
+        ]);
         ipfsWorker.workerDownload.onmessage = (event) => {
           this.result = event.data;
           this.resultLoading = false;
@@ -287,9 +290,12 @@ export default {
           secretKey,
           publicKey,
         };
+        const typeFile = "text/plain";
 
         this.filesLoading[this.fileDownloadIndex] = true;
-        ipfsWorker.workerDownload.postMessage({ path, pair }, [channel.port2]);
+        ipfsWorker.workerDownload.postMessage({ path, pair, typeFile }, [
+          channel.port2,
+        ]);
         ipfsWorker.workerDownload.onmessage = (event) => {
           this.download(
             event.data,
