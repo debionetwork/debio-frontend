@@ -9,10 +9,11 @@ export async function registerDoctor(api, pair, data){
 }
 
 export async function updateDoctor(api, pair, data){
-    const result = await api.tx.doctors
+    await api.tx.doctors
         .updateDoctor(data)
-        .signAndSend(pair, { nonce: -1 })
-    return result.toHuman()
+        .signAndSend(pair, { nonce: -1, callback: async (res) => {
+            await doctorCommandCallback(api, pair, res) 
+        }})
 }
 
 export async function deregisterDoctor(api, pair){
