@@ -19,7 +19,7 @@
               ></SearchBar>
             </template>
             <!-- <template v-slot:[`item.dna_sample_tracking_id`]="{ item }">
-              {{ item.dna_sample_tracking_id | specimenNumber }}
+              {{ timestamp | timestampToDateTime }}
             </template>
              -->
 
@@ -27,13 +27,13 @@
               <v-container v-if="item.data.record_link != ''">
                 <div class="d-flex align-center">
                   <v-btn icon @click="goToDetail(item)">
-                    <v-icon color="green">mdi-book-open</v-icon>
+                    <v-icon color="grey">mdi-eye</v-icon>
                   </v-btn>
                   <v-btn icon @click="downloadFile(item)">
-                    <v-icon color="grey">mdi-file-download</v-icon>
+                    <v-icon color="grey">mdi-download</v-icon>
                   </v-btn>
                   <v-btn icon @click="confirmRemoveEMR(item)">
-                    <v-icon color="red">mdi-file-remove</v-icon>
+                    <v-icon color="grey">mdi-delete</v-icon>
                   </v-btn>
                 </div>
               </v-container>
@@ -42,6 +42,75 @@
           </DataTable>
         </v-col>
       </v-row>
+      <v-row class="pt-5">
+        <v-dialog :value="showDialogUseTypeFile" width="500" persistent>
+          <v-card class="pb-5">
+            <v-app-bar flat dense color="white">
+              <v-toolbar-title class="title">
+                Select Document Type
+              </v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-btn icon @click="showDialogUseTypeFile = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </v-app-bar>
+            <hr />
+            <div class="pt-5 pb-5 pl-5 pr-5">
+              <v-card
+                class="dg-card pb-2 pt-2 mb-4"
+                style="background: #eeeeee"
+                elevation="0"
+                outlined
+                @click="openUpload('emr')"
+              >
+                <div class="ml-5 mr-5">
+                  <v-row class="align-center">
+                    <v-col cols="12" lg="2" md="2" xl="2">
+                      <v-icon color="#BA8DBB" :size="48">
+                        mdi-file-document
+                      </v-icon>
+                    </v-col>
+                    <v-col cols="12" lg="10" md="10" xl="10">
+                      <div class="ml-3 text-left font-weight-bold">
+                        Electronic Medical Record
+                      </div>
+                      <div class="ml-3 text-left">EMR</div>
+                    </v-col>
+                  </v-row>
+                </div>
+              </v-card>
+              <v-card
+                class="dg-card pb-2 pt-2"
+                style="background: #eeeeee"
+                elevation="0"
+                outlined
+                @click="openUpload('other')"
+              >
+                <div class="ml-5 mr-5">
+                  <v-row class="align-center">
+                    <v-col cols="12" lg="2" md="2" xl="2">
+                      <v-icon color="#BA8DBB" :size="48">
+                        mdi-file-document
+                      </v-icon>
+                    </v-col>
+                    <v-col cols="12" lg="10" md="10" xl="10">
+                      <div class="ml-3 text-left font-weight-bold">Others</div>
+                      <div class="ml-3 text-left"></div>
+                    </v-col>
+                  </v-row>
+                </div>
+              </v-card>
+            </div>
+          </v-card>
+        </v-dialog>
+
+        <v-col lg="12" md="12" sm="12">
+          <Button @click="useTypeUpload" elevation="2" dark>
+            Upload a document
+          </Button>
+        </v-col>
+      </v-row>
+
       <DialogConfirmWithPassword
         :show="confirmDeleteEMR"
         :title="'Delete Data EMR'"
@@ -50,6 +119,15 @@
         @toggle="confirmDeleteEMR = $event"
         @status-confirm="({ status }) => removeEMRData(status)"
       ></DialogConfirmWithPassword>
+      <DialogLoading
+        :show="showDialogLoading"
+        @toggle="showDialogLoading = $event"
+      ></DialogLoading>
+      <UploadEMR
+        :show="uploadEMR"
+        @toggle="uploadEMR = $event"
+        @status-upload="({ status }) => uploadSuccess(status)"
+      ></UploadEMR>
     </v-container>
   </div>
 </template>
@@ -59,6 +137,9 @@ import { mapState } from "vuex";
 import DataTable from "@/components/DataTable";
 import SearchBar from "@/components/DataTable/SearchBar";
 import DialogConfirmWithPassword from "@/components/Dialog/DialogConfirmWithPassword";
+import DialogLoading from "@/components/Dialog/DialogLoading";
+import Button from "@/components/Button";
+import UploadEMR from "@/views/Dashboard/Customer/EMR/UploadEMR";
 import {
   queryGetEMRList,
   queryElectronicMedicalRecordInfoById,
@@ -73,10 +154,13 @@ export default {
     DataTable,
     SearchBar,
     DialogConfirmWithPassword,
+    DialogLoading,
+    Button,
+    UploadEMR,
   },
   data: () => ({
     headers: [
-      //{ text: "Date", value: "date" },
+      { text: "Date", value: "date" },
       { text: "Title", value: "title" },
       { text: "Description", value: "description" },
       {
@@ -93,6 +177,10 @@ export default {
     documentsHistory: [],
     confirmDeleteEMR: false,
     selectEMRRemoveId: "",
+    action: "",
+    showDialogLoading: false,
+    showDialogUseTypeFile: false,
+    uploadEMR: false,
   }),
   computed: {
     ...mapState({
@@ -100,6 +188,7 @@ export default {
       wallet: (state) => state.substrate.wallet,
       mnemonicData: (state) => state.substrate.mnemonicData,
       lastEventData: (state) => state.substrate.lastEventData,
+      loadingData: (state) => state.auth.loadingData,
     }),
   },
   watch: {
@@ -109,6 +198,18 @@ export default {
         if (this.lastEventData.method == "ElectronicMedicalRecordInfoRemoved") {
           if (dataEvent[0].owner_id == this.wallet.address) {
             this.getDocumentsHistory();
+          }
+        }
+      }
+    },
+    loadingData() {
+      if (this.loadingData != null) {
+        if (this.action == "download") {
+          if (this.loadingData.loading) {
+            this.showDialogLoading = true;
+            this.isLoading = true;
+          } else {
+            this.isLoading = false;
           }
         }
       }
@@ -130,7 +231,6 @@ export default {
     },
     async getEMRHistory() {
       try {
-        console.log(this.wallet.address);
         const dataEMR = await queryGetEMRList(this.api, this.wallet.address);
 
         if (dataEMR != null) {
@@ -142,11 +242,13 @@ export default {
                 this.api,
                 listEMR[i]
               );
-              this.prepareEMRData(emrDetail);
+              if (emrDetail != null) {
+                this.prepareEMRData(emrDetail);
+              }
             }
-            // this.documentsHistory.sort(
-            //   (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
-            // );
+            this.documentsHistory.sort(
+              (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
+            );
           }
         }
       } catch (err) {
@@ -156,16 +258,25 @@ export default {
     prepareEMRData(dataEMR) {
       const title = dataEMR.title;
       const description = dataEMR.description;
+      var d = new Date(parseInt(dataEMR.uploaded_at.replace(/,/g, "")));
+      const timestamp = d;
       const data = dataEMR;
+      const date = d.toLocaleString("en-US", {
+        weekday: "short", // long, short, narrow
+        day: "numeric", // numeric, 2-digit
+        year: "numeric", // numeric, 2-digit
+        month: "long", // numeric, 2-digit, long, short, narrow
+      });
       const order = {
         title,
         description,
         data,
+        date,
+        timestamp,
         type: "emr",
       };
 
       this.documentsHistory.push(order);
-      console.log(this.documentsHistory);
     },
     goToDetail(item) {
       if (item.type == "emr") {
@@ -181,6 +292,7 @@ export default {
       }
     },
     async downloadFile(item) {
+      this.action = "download";
       if (item.type == "emr") {
         const publicKey = hexToU8a(this.mnemonicData.publicKey);
         const privateKey = hexToU8a(this.mnemonicData.privateKey);
@@ -218,6 +330,20 @@ export default {
     },
     onSearchInput(val) {
       this.search = val;
+    },
+    useTypeUpload() {
+      this.showDialogUseTypeFile = true;
+    },
+    openUpload(typeFile) {
+      this.showDialogUseTypeFile = false;
+      if (typeFile == "emr") {
+        this.uploadEMR = true;
+      }
+    },
+    uploadSuccess(status) {
+      if (status) {
+        this.getDocumentsHistory();
+      }
     },
   },
 };

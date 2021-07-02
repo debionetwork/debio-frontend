@@ -306,6 +306,9 @@ export default {
               this.inputPassword = false;
               this.resultUpload = true;
               this.error = "";
+              this.$emit("status-upload", {
+                status: true,
+              });
             }
           }
         } else if (
