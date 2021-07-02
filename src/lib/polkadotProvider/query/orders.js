@@ -7,7 +7,8 @@ export async function ordersByCustomer(api, address) {
 }
 
 export async function getOrdersDetailByAddress(api, address) {
-  const orderIds = await ordersBySeller(api, address)
+  let orderIds = await ordersBySeller(api, address)
+  orderIds.reverse()
   
   if(orderIds == null){
     return []
@@ -32,6 +33,50 @@ export async function getOrdersDetailByAddress(api, address) {
     orders.push(orderDetail)
   }
   return orders
+}
+
+
+
+export async function getOrdersDetailByAddressPagination(api, address, page, pageSize) {
+  page -= 1 // Reduce page counter by 1
+  let beginItemIndex = page * pageSize // Get first item index of page
+  let lastItemIndex = beginItemIndex + pageSize // Get last item index of page
+
+  let orderIds = await ordersBySeller(api, address)
+  orderIds.reverse()
+  if(orderIds == null){
+    return {
+      orders: [],
+      totalOrders: 0
+    } // Return empty array on null
+  }
+  
+  let orders = []
+  if(lastItemIndex > orderIds.length){
+    lastItemIndex = orderIds.length
+  }
+  for(let i = beginItemIndex; i < lastItemIndex; i++){
+    let orderDetail = await getOrdersDetail(api, orderIds[i])
+    const service = await queryServicesById(api, orderDetail.service_id)
+    orderDetail['created_at'] = parseInt(orderDetail.created_at.replace(/,/g, ""))
+    
+    let lab = null
+    if(service){
+      orderDetail['service_name'] = service.info.name
+      lab = await queryLabsById(api, service.owner_id)
+    }
+
+    if(lab){
+      orderDetail['lab_name'] = lab.info.name
+    }
+
+    orders.push(orderDetail)
+  }
+
+  return {
+    orders: orders,
+    totalOrders: orderIds.length
+  }
 }
 
 export async function getOrdersDetail(api, orderId) {
