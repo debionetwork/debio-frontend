@@ -1,6 +1,11 @@
 import ipfsWorker from "@/web-workers/ipfs-worker";
+import store from '@/store/index'
 
 export async function downloadDecryptedFromIPFS(path, secretKey, publicKey, fileName, type) {
+  store.state.auth.loadingData = {
+    loading: true,
+    loadingText: "Decrypt File",
+  };
   const channel = new MessageChannel();
   channel.port1.onmessage = ipfsWorker.workerDownload;
   const pair = {
@@ -11,6 +16,10 @@ export async function downloadDecryptedFromIPFS(path, secretKey, publicKey, file
   const typeFile = type;
   ipfsWorker.workerDownload.postMessage({ path, pair, typeFile }, [channel.port2]);
   ipfsWorker.workerDownload.onmessage = (event) => {
+    store.state.auth.loadingData = {
+      loading: true,
+      loadingText: "Downloading File",
+    };
     if (type == "application/pdf") {
       downloadPDF(event.data, fileName);
     } else {
@@ -45,6 +54,10 @@ export async function download(data, fileName) {
     null
   );
   a.dispatchEvent(e);
+  store.state.auth.loadingData = {
+    loading: false,
+    loadingText: "Downloaded File",
+  };
 }
 
 export async function downloadPDF(data, fileName) {
@@ -72,4 +85,8 @@ export async function downloadPDF(data, fileName) {
     null
   );
   a.dispatchEvent(e);
+  store.state.auth.loadingData = {
+    loading: false,
+    loadingText: "Downloaded File",
+  };
 }

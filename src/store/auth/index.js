@@ -3,6 +3,7 @@ import localStorage from '../../lib/local-storage'
 const defaultState = {
   role: null,
   configApp: null,
+  loadingData: null,
 }
 
 export default {
@@ -16,6 +17,9 @@ export default {
     },
     SET_CONFIG(state, data) {
       state.configApp = data
+    },
+    SET_LOADING(state, data) {
+      state.loadingData = data
     },
     CLEAR(state) {
       state.role = defaultState.role
@@ -83,6 +87,9 @@ export default {
     },
     getConfig(state) {
       return state.configApp
+    },
+    getLoading(state) {
+      return state.loadingData
     }
   }
 }
