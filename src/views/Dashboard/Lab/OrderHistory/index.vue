@@ -4,13 +4,18 @@
       <v-container>
          <v-row>
             <v-col>
-               <DataTable
+               <ServerSideDataTable
                   :headers="headers"
                   :items="orders"
                   :search="search"
                   :sort-by="['created_at']"
                   :sort-desc="[true]"
                   :loading="isLoading"
+                  :total-item-length="totalOrders"
+                  :handle-page-change="handlePageChange"
+                  :handle-page-size-change="handlePageSizeChange"
+                  :current-page="page"
+                  :page-size="pageSize"
                   additional-class="laporan-table"
                >
                   <template v-slot:search-bar>
@@ -40,7 +45,7 @@
                      </v-container>
                   </template>
                   <!-- Rows -->
-               </DataTable>
+               </ServerSideDataTable>
             </v-col>
          </v-row>
       </v-container>
@@ -49,14 +54,14 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getOrdersDetailByAddress } from '@/lib/polkadotProvider/query/orders'
-import DataTable from '@/components/DataTable'
+import { getOrdersDetailByAddressPagination } from '@/lib/polkadotProvider/query/orders'
+import ServerSideDataTable from '@/components/DataTable/ServerSideDataTable'
 import SearchBar from '@/components/DataTable/SearchBar'
 
 export default {
   name: 'LabOrderHistory',
   components: {
-    DataTable,
+    ServerSideDataTable,
     SearchBar,
   },
   data: () => ({
@@ -68,23 +73,16 @@ export default {
       { text: 'Actions', value: 'actions', sortable: false, align: 'center', width: '5%' },
     ],
     orders: [],
+    page: 1,
+    pageSize: 10,
+    totalOrders: 0,
     address: '',
     password: '',
     search: '',
     isLoading: false,
   }),
   async mounted() {
-    this.isLoading = true
-    let orders = await getOrdersDetailByAddress(this.api, this.pair.address)
-    orders.sort(
-      (a, b) => parseInt(b.created_at) - parseInt(a.created_at)
-    )
-    for(let i = 0; i < orders.length; i++){
-      const order = orders[i]
-      order.created_at = (new Date(order.created_at)).toLocaleDateString()
-      this.orders.push(order)
-    }
-    this.isLoading = false
+    this.loadData()
   },
   computed: {
     ...mapGetters({
@@ -93,6 +91,18 @@ export default {
     }),
   },
   methods: {
+    async loadData(){
+      this.isLoading = true
+      this.orders = []
+      let { orders, totalOrders } = await getOrdersDetailByAddressPagination(this.api, this.pair.address, this.page, this.pageSize)
+      for(let i = 0; i < orders.length; i++){
+        const order = orders[i]
+        order.created_at = (new Date(order.created_at)).toLocaleDateString()
+        this.orders.push(order)
+      }
+      this.totalOrders = totalOrders
+      this.isLoading = false
+    },
     processOrder(item){
       this.$router.push({ name: 'lab-dashboard-process-order', params: { order_id: item.id }})
     },
@@ -101,6 +111,16 @@ export default {
         return "Success"
       }
       return "btn-sending"
+    },
+    async handlePageChange(value){
+      this.page = value
+      await this.loadData()
+
+    },
+    async handlePageSizeChange(value){
+      this.pageSize = value
+      this.page = 1 // If change page size restart from page 1
+      await this.loadData()
     }
   },
 }
@@ -109,7 +129,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../../../styles/variables.scss";
+@import "@/styles/variables.scss";
 
 .btn-sending {
    background-color: $color-primary !important;
