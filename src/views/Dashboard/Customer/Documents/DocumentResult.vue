@@ -10,10 +10,20 @@
               indeterminate
               color="primary"
             ></v-progress-linear>
-            <v-card-title>{{ serviceName }} Record</v-card-title>
-            <v-card-text>
-              {{ reportResult }}
-            </v-card-text>
+            <div v-else>
+              <v-card-title>{{ dataDetail.title }}</v-card-title>
+              <v-card-text>
+                {{ dataDetail.description }}
+              </v-card-text>
+              <div class="pt-5, pb-5, pl-5 pr-5">
+                <iframe
+                  :src="result"
+                  style="width: 100%; height: 600px; border: none"
+                >
+                  Oops! an error has occurred.
+                </iframe>
+              </div>
+            </div>
           </v-card>
         </v-col>
         <v-col cols="12" md="4">
@@ -77,52 +87,10 @@
           </div>
         </v-col>
       </v-row>
-      <v-dialog v-model="dialog" max-width="600px" persistent>
-        <template>
-          <v-card>
-            <v-card-title class="headline grey lighten-2">
-              Please Input your password to verify your account
-            </v-card-title>
-            <v-progress-linear
-              v-if="isLoading"
-              indeterminate
-              color="primary"
-            ></v-progress-linear>
-            <v-card-text>
-              <v-text-field
-                class="mt-4"
-                outlined
-                auto-grow
-                type="password"
-                v-model="password"
-                label="Input your password"
-              />
-            </v-card-text>
-
-            <v-divider></v-divider>
-
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn
-                v-if="actionType == 'result'"
-                color="primary"
-                text
-                @click="decryptWallet()"
-              >
-                decrypt wallet
-              </v-btn>
-              <v-btn
-                v-if="actionType == 'download'"
-                color="primary"
-                text
-                @click="decryptWallet()"
-              >
-                Download
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </template>
-      </v-dialog>
+      <DialogLoading
+        :show="showDialogLoading"
+        @toggle="showDialogLoading = $event"
+      ></DialogLoading>
     </v-container>
   </div>
 </template>
@@ -134,11 +102,13 @@ import { mapState } from "vuex";
 import { hexToU8a } from "@polkadot/util";
 import { downloadDecryptedFromIPFS } from "@/lib/ipfs";
 import { queryElectronicMedicalRecordInfoById } from "@/lib/polkadotProvider/query/electronicMedicalRecord";
+import DialogLoading from "@/components/Dialog/DialogLoading";
 
 export default {
   name: "document-detail",
   components: {
     MenuCard,
+    DialogLoading,
   },
   data: () => ({
     privateKey: "",
@@ -147,13 +117,7 @@ export default {
     typeDoc: "",
     ownerAddress: "",
     files: [],
-    dialog: false,
-    password: "",
     dataDetail: {},
-    services: [],
-    lab: null,
-    order: null,
-    serviceName: "",
     result: "",
     isLoading: false,
     actionType: "result",
@@ -161,6 +125,7 @@ export default {
     filesLoading: [],
     resultLoading: false,
     baseUrl: "https://ipfs.io/ipfs/",
+    showDialogLoading: false,
   }),
   async mounted() {
     this.docId = this.$route.params.number;
@@ -184,6 +149,7 @@ export default {
           this.api,
           this.docId
         );
+        console.log(this.dataDetail);
         const fileType = "application/pdf";
         const fileName = "EMR Record";
         await this.getFileUploaded(fileType, fileName);
@@ -208,12 +174,7 @@ export default {
       }
     },
     async decryptWallet() {
-      // this.dialog = true;
-      // if (this.password == "") {
-      //   return;
-      // }
       try {
-        //this.wallet.decodePkcs8(this.password);
         if (this.actionType == "result") {
           await this.parseResult();
         }
@@ -221,13 +182,10 @@ export default {
         if (this.actionType == "download") {
           await this.downloadFile();
         }
-        this.dialog = false;
-        this.password = "";
         this.isLoading = false;
       } catch (e) {
         console.log(e);
         this.isLoading = false;
-        this.password = "";
       }
     },
     async parseResult() {
@@ -249,15 +207,16 @@ export default {
         channel.port2,
       ]);
       ipfsWorker.workerDownload.onmessage = (event) => {
-        // const blob = new Blob([ event.data ], {type: 'text/plain'})
-        this.result = event.data;
+        const blob = new Blob([event.data], { type: typeFile });
+        this.result = window.URL.createObjectURL(blob);
+        console.log(this.result);
+        this.resultLoading = false;
         //window.URL.createObjectURL(blob)
       };
-      this.resultLoading = false;
-      console.log(this.result);
     },
     async downloadFile() {
       if (this.typeDoc == "emr") {
+        this.showDialogLoading = true;
         const path = this.dataDetail.record_link.replace(this.baseUrl, "");
         await downloadDecryptedFromIPFS(
           path,
@@ -269,9 +228,9 @@ export default {
       }
     },
     showDialog(actionType, index) {
-      this.dialog = true;
       this.actionType = actionType;
       this.fileDownloadIndex = index;
+      this.decryptWallet();
     },
   },
 
@@ -282,9 +241,6 @@ export default {
       mnemonicData: (state) => state.substrate.mnemonicData,
     }),
     reportResult() {
-      if (this.dialog) {
-        return "";
-      }
       if (this.resultLoading) {
         return "Decrypting report..";
       }
