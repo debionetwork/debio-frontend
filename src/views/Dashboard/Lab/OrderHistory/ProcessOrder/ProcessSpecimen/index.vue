@@ -119,6 +119,67 @@
         </div>
       </div>
     </div>
+
+    <Dialog :show="rejectionDialog" @close="rejectionDialog = false">
+      <template v-slot:title>
+        <div></div>
+      </template>
+      <template v-slot:body>
+        <div class="d-flex justify-center pb-5 pt-5">
+          <v-img v-bind:src="require('@/assets/degenics-logo.png')" max-width="50" />
+        </div>
+        <div align="center" class="pb-5">Are you sure you want to reject specimen?</div>
+      </template>
+      <template v-slot:actions>
+        <v-col col="8" md="4">
+          <Button @click="closeRejectionDialog" elevation="2" dark>Yes</Button>
+        </v-col>
+        <v-col col="8" md="4">
+          <Button @click="rejectionDialog = false" elevation="2" color="purple" dark>No</Button>
+        </v-col>
+      </template>
+    </Dialog>
+
+    <Dialog :show="rejectionStatementDialog" @close="rejectionStatementDialog = false">
+      <template v-slot:title>
+        <div class="secondary--text h6">
+          Rejection Statement
+        </div>
+      </template>
+      <template v-slot:body>
+        <v-form ref="certificationForm">
+          <v-text-field
+            dense
+            label="Title"
+            placeholder="Title"
+            outlined
+            v-model="rejectionTitle"
+            :rules="[val => !!val || 'Title is required']"
+            ></v-text-field>
+          <v-textarea
+            outlined
+            label="Description"
+            v-model="rejectionDescription"
+            :rules="[val => !!val || 'Description is required']"
+          ></v-textarea>
+        </v-form>
+      </template>
+      <template v-slot:actions>
+        <Button @click="submitRejectionStatementDialog" :loading="isLoading" color="primary" dark>
+          send
+        </Button>
+      </template>
+    </Dialog>
+
+    <DialogAlert
+      :show="rejectionAlertDialog"
+      btnText="Continue"
+      textAlert="Specimen has been rejected"
+      imgPath="success.png"
+      imgWidth="50"
+      @toggle="rejectionAlertDialog = $event"
+      @close="actionAlert()"
+    ></DialogAlert>
   </div>
 </template>
 
@@ -132,10 +193,16 @@ import specimenFilesTempStore from '@/lib/specimen-files-temp-store'
 import Kilt from '@kiltprotocol/sdk-js'
 import { processDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
 import { queryDnaTestResults } from '@/lib/polkadotProvider/query/geneticTesting'
+import Dialog from '@/components/Dialog'
+import DialogAlert from '@/components/Dialog/DialogAlert'
+import Button from '@/components/Button'
 
 export default {
   name: 'ProcessSpecimen',
   components: {
+    Dialog,
+    DialogAlert,
+    Button,
     FileCard,
   },
   props: {
@@ -173,7 +240,12 @@ export default {
     uploadProgress: {
       genome: 0,
       report: 0,
-    }
+    },
+    rejectionDialog: false,
+    rejectionStatementDialog: false,
+    rejectionTitle: '',
+    rejectionDescription: '',
+    rejectionAlertDialog: false,
   }),
   async mounted(){
     // Add file input event listener
@@ -217,6 +289,20 @@ export default {
     },
   },
   methods:{
+    closeRejectionDialog(){
+      this.rejectionDialog = false
+      this.rejectionStatementDialog = true
+    },
+    async submitRejectionStatementDialog(){
+      await rejectDnaSample(
+        this.api,
+        this.pair,
+        this.specimenNumber,
+      )
+      this.$emit('rejectSpecimen')
+      this.rejectionStatementDialog = false
+      this.rejectionAlertDialog = true
+    },
     uploadGenome() {
       this.$refs.encryptUploadGenome.click()
     },
@@ -243,13 +329,8 @@ export default {
       this.isProcessSuccess = true
       this.$emit('processWetwork')
     },
-    async rejectDnaSample() {
-      await rejectDnaSample(
-        this.api,
-        this.pair,
-        this.specimenNumber,
-      )
-      this.$emit('rejectSpecimen')
+    rejectDnaSample() {
+      this.rejectionDialog = true
     },
     async submitTestResult() {
       const genomeLink = this.getFileIpfsUrl(this.files.genome[0])
