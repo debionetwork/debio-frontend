@@ -221,7 +221,7 @@
             color="primary"
             large
             width="50%"
-            @click="closeDialog"
+            @click="closeUploadSuccess"
           >
             Continue
           </v-btn>
@@ -315,9 +315,6 @@ export default {
               this.loadingUploadText = "";
               this.countFileUploaded = 0;
               this.listPendingUploadFile = [];
-              this.$emit("status-upload", {
-                status: true,
-              });
             } else {
               this.handleFileUpload(
                 this.listPendingUploadFile[this.countFileUploaded],
@@ -570,6 +567,12 @@ export default {
       if (this.listPendingUploadFile.length > 0) {
         await this.handleFileUpload(this.listPendingUploadFile[0], 0);
       }
+    },
+    closeUploadSuccess() {
+      this.$emit("status-upload", {
+        status: true,
+      });
+      this.closeDialog();
     },
     closeDialog() {
       this._show = false;
