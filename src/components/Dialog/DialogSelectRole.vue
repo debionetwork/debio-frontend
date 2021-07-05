@@ -29,7 +29,7 @@
             <v-img src="@/assets/lab-icon.png" max-width="65" />
             <div>Lab</div>
           </v-col>
-          <!-- FIXME: Sementara di komen dulu untuk demo
+
           <v-col
             lg="3"
             md="3"
@@ -52,7 +52,6 @@
             <v-img src="@/assets/doctor-icon.png" max-width="65" />
             <div>Doctor</div>
           </v-col>
-          -->
         </v-row>
       </v-card-text>
     </v-card>
