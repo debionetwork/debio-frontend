@@ -221,7 +221,7 @@
             color="primary"
             large
             width="50%"
-            @click="closeDialog"
+            @click="closeUploadSuccess"
           >
             Continue
           </v-btn>
@@ -231,6 +231,9 @@
         <v-alert dense text type="error">
           {{ error }}
         </v-alert>
+      </div>
+      <div v-else-if="loadingUploadText" class="pb-0 pt-5 ml-10 mr-10">
+        <v-alert dense text type="info"> {{ loadingUploadText }} </v-alert>
       </div>
     </v-card>
   </v-dialog>
@@ -274,6 +277,7 @@ export default {
     encryptProgress: 0,
     countFileUploaded: 0,
     fileType: "application/pdf",
+    loadingUploadText: "",
   }),
   computed: {
     _show: {
@@ -295,20 +299,27 @@ export default {
     this.initialData();
   },
   watch: {
-    async lastEventData() {
+    lastEventData() {
       if (this.lastEventData != null) {
         const dataEvent = JSON.parse(this.lastEventData.data.toString());
         if (this.lastEventData.method == "ElectronicMedicalRecordInfoAdded") {
           if (dataEvent[0].owner_id == this.wallet.address) {
             this.countFileUploaded = this.countFileUploaded + 1;
+            this.loadingUploadText =
+              "Document EMR " + this.countFileUploaded + ": Saved";
             if (this.countFileUploaded == this.listPendingUploadFile.length) {
               this.isLoading = false;
               this.inputPassword = false;
               this.resultUpload = true;
               this.error = "";
-              this.$emit("status-upload", {
-                status: true,
-              });
+              this.loadingUploadText = "";
+              this.countFileUploaded = 0;
+              this.listPendingUploadFile = [];
+            } else {
+              this.handleFileUpload(
+                this.listPendingUploadFile[this.countFileUploaded],
+                this.countFileUploaded
+              );
             }
           }
         } else if (
@@ -318,9 +329,7 @@ export default {
             dataEvent[0].owner_id == this.wallet.address &&
             this.registerEMR
           ) {
-            for (let i = 0; i < this.listPendingUploadFile.length; i++) {
-              await this.handleFileUpload(this.listPendingUploadFile[i]);
-            }
+            this.prosesFiles();
           }
         }
       }
@@ -351,7 +360,6 @@ export default {
       this.formTitle = "";
       this.formDescription = "";
       this.formFilePath = null;
-      console.log(this.listPendingUploadFile);
     },
     /**
      * @returns {String} The first ipfs path (a file has multiple ipfs path, because a file may be chunked)
@@ -363,34 +371,22 @@ export default {
       const path = this.getFileIpfsPath(file);
       return `https://ipfs.io/ipfs/${path}`;
     },
-    async handleFileUpload(dataFile) {
+    async handleFileUpload(dataFile, index) {
       const file = dataFile.file;
-      file.fileType = "application/pdf"; // attach fileType to file, because fileType is not accessible in fr.onload scope
-
       const context = this;
       const fr = new FileReader();
       fr.onload = async function () {
         try {
-          // Encrypt
-          const encrypted = await context.encrypt({
-            text: fr.result,
-            fileType: file.fileType,
-            fileName: file.name,
-          });
-          const {
-            chunks,
-            fileName: encFileName,
-            fileType: encFileType,
-          } = encrypted;
-
           // Upload
           const uploaded = await context.upload({
-            encryptedFileChunks: chunks,
-            fileName: encFileName,
-            fileType: encFileType,
+            encryptedFileChunks: dataFile.chunks,
+            fileName: dataFile.fileName,
+            fileType: dataFile.fileType,
+            index: index,
+            dataFile: dataFile,
           });
+
           const link = context.baseUrl + "" + context.getFileIpfsPath(uploaded);
-          console.log(link);
           const dataBody = {
             title: dataFile.title,
             description: dataFile.desc,
@@ -403,35 +399,34 @@ export default {
           );
           console.log(result);
         } catch (err) {
-          this.isLoading = false;
+          context.isLoading = false;
           console.error(err);
         }
       };
       fr.readAsArrayBuffer(file);
     },
-    encrypt({ text, fileType, fileName }) {
+    encrypt({ text, fileType, fileName, index }) {
+      this.loadingUploadText = "Document EMR " + (index + 1) + ": Encrypt";
+      const typeFr = this.fileType;
       const context = this;
+      const arrChunks = [];
+      let chunksAmount;
+      const pair = {
+        secretKey: this.secretKey,
+        publicKey: this.publicKey,
+      };
+
       return new Promise((resolve, reject) => {
         try {
-          const pair = {
-            secretKey: context.secretKey,
-            publicKey: context.publicKey,
-          };
-          const arrChunks = [];
-          let chunksAmount;
-          const typeFr = this.fileType;
-          console.log(typeFr);
           cryptWorker.workerEncryptFile.postMessage({ pair, text, typeFr }); // Access this object in e.data in worker
-          cryptWorker.workerEncryptFile.onmessage = (event) => {
-            console.log(event);
+          cryptWorker.workerEncryptFile.onmessage = async (event) => {
             if (event.data.chunksAmount) {
               chunksAmount = event.data.chunksAmount;
               return;
             }
 
             arrChunks.push(event.data);
-            this.encryptProgress = (arrChunks.length / chunksAmount) * 100;
-            console.log(arrChunks.length, chunksAmount);
+            context.encryptProgress = (arrChunks.length / chunksAmount) * 100;
 
             if (arrChunks.length == chunksAmount) {
               resolve({
@@ -440,7 +435,9 @@ export default {
                 fileType: fileType,
               });
               // Cleanup
-              this.encryptProgress = 0;
+              context.encryptProgress = 0;
+              context.loadingUploadText =
+                "Document EMR " + (index + 1) + ": Encrypted";
             }
           };
         } catch (err) {
@@ -448,13 +445,12 @@ export default {
         }
       });
     },
-    upload({ encryptedFileChunks, fileName, fileType }) {
+    upload({ encryptedFileChunks, fileName, fileType, index }) {
       const chunkSize = 10 * 1024 * 1024; // 10 MB
       let offset = 0;
-      console.log(encryptedFileChunks);
       const data = JSON.stringify(encryptedFileChunks);
       const blob = new Blob([data], { type: this.fileType });
-
+      this.loadingUploadText = "Document EMR " + (index + 1) + ": Uploading";
       return new Promise((resolve, reject) => {
         try {
           const fileSize = blob.size;
@@ -479,6 +475,9 @@ export default {
                 fileType: fileType,
                 ipfsPath: uploadedResultChunks,
               });
+
+              this.loadingUploadText =
+                "Document EMR " + (index + 1) + ": Uploaded";
             }
           };
         } catch (err) {
@@ -486,13 +485,41 @@ export default {
         }
       });
     },
-    addToPending() {
-      this.listPendingUploadFile.push({
-        title: this.formTitle,
-        desc: this.formDescription,
-        file: this.formFilePath,
-      });
-      this.closeForm();
+    async addToPending() {
+      const file = this.formFilePath;
+      file.fileType = "application/pdf"; // attach fileType to file, because fileType is not accessible in fr.onload scope
+      const context = this;
+      const fr = new FileReader();
+      fr.onload = async function () {
+        try {
+          const index = context.listPendingUploadFile.length;
+          const encrypted = await context.encrypt({
+            text: fr.result,
+            fileType: file.fileType,
+            fileName: file.name,
+            index: index,
+          });
+          const {
+            chunks,
+            fileName: encFileName,
+            fileType: encFileType,
+          } = encrypted;
+
+          context.listPendingUploadFile.push({
+            title: context.formTitle,
+            desc: context.formDescription,
+            file: context.formFilePath,
+            chunks: chunks,
+            fileName: encFileName,
+            fileType: encFileType,
+          });
+          context.closeForm();
+        } catch (err) {
+          context.isLoading = false;
+          console.error(err);
+        }
+      };
+      fr.readAsArrayBuffer(file);
     },
     removePending(data) {
       const index = this.listPendingUploadFile
@@ -507,9 +534,12 @@ export default {
     uploadEMRData() {
       this.inputPassword = true;
       this.filePending = false;
+      this.loadingUploadText = "";
     },
     async onSubmit() {
       this.isLoading = true;
+      this.error = "";
+      this.loadingUploadText = "";
       try {
         this.wallet.decodePkcs8(this.password);
         if (this.listPendingUploadFile.length > 0) {
@@ -518,9 +548,7 @@ export default {
             this.registerEMR = true;
             await registerElectronicMedicalRecord(this.api, this.wallet);
           } else {
-            for (let i = 0; i < this.listPendingUploadFile.length; i++) {
-              await this.handleFileUpload(this.listPendingUploadFile[i]);
-            }
+            await this.prosesFiles();
           }
         } else {
           this.isLoading = false;
@@ -530,9 +558,21 @@ export default {
       } catch (e) {
         console.log(e);
         this.isLoading = false;
+        this.loadingUploadText = "";
         this.password = "";
         this.error = "The password you entered is wrong";
       }
+    },
+    async prosesFiles() {
+      if (this.listPendingUploadFile.length > 0) {
+        await this.handleFileUpload(this.listPendingUploadFile[0], 0);
+      }
+    },
+    closeUploadSuccess() {
+      this.$emit("status-upload", {
+        status: true,
+      });
+      this.closeDialog();
     },
     closeDialog() {
       this._show = false;

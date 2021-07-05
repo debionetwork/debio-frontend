@@ -107,6 +107,7 @@ export default {
       }
     },
     closeDialog() {
+      this.isLoading = false;
       this._show = false;
       this.password = "";
       this.error = "";

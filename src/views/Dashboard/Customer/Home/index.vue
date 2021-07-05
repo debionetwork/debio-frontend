@@ -56,7 +56,7 @@
       <UploadEMR
         :show="uploadEMR"
         @toggle="uploadEMR = $event"
-        @status-wallet="({ status, img }) => connectWalletResult(status, img)"
+        @status-upload="({ status }) => uploadSuccess(status)"
       ></UploadEMR>
     </v-container>
   </div>
@@ -93,7 +93,15 @@ export default {
   data: () => ({
     uploadEMR: false,
   }),
-  methods: {},
+  methods: {
+    uploadSuccess(status) {
+      if (status) {
+        this.$router.push({
+          name: "documents",
+        });
+      }
+    },
+  },
 };
 </script>
 
