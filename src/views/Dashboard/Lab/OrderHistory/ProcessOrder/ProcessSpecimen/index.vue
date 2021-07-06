@@ -147,7 +147,7 @@
         </div>
       </template>
       <template v-slot:body>
-        <v-form ref="certificationForm">
+        <v-form ref="rejectForm">
           <v-text-field
             dense
             label="Title"
@@ -294,10 +294,17 @@ export default {
       this.rejectionStatementDialog = true
     },
     async submitRejectionStatementDialog(){
+      if (!this.$refs.rejectForm.validate()) {
+        return
+      }
       await rejectDnaSample(
         this.api,
         this.pair,
-        this.specimenNumber,
+        {
+          tracking_id: this.specimenNumber,
+          rejected_title: this.rejectionTitle,
+          rejected_description: this.rejectionDescription,
+        },
       )
       this.$emit('rejectSpecimen')
       this.rejectionStatementDialog = false
