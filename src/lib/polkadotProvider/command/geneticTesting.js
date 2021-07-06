@@ -12,9 +12,9 @@ export async function receiveDnaSample(api, pair, tracking_id) {
   return result.toHuman()
 }
 
-export async function rejectDnaSample(api, pair, tracking_id) {
+export async function rejectDnaSample(api, pair, data) {
   const result = await api.tx.geneticTesting
-    .rejectDnaSample(tracking_id)
+    .rejectDnaSample(data.tracking_id, data.rejected_title, data.rejected_description)
     .signAndSend(pair, { nonce: -1 })
   return result.toHuman()
 }
