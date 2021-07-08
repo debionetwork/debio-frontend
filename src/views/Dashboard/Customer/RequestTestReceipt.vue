@@ -96,6 +96,8 @@
             v-if="receipts.length > 0"
             :specimenNumber="specimenNumber"
             :lab="receipts[0].lab"
+            :orderId="receipts[0].number"
+            :sourcePage="'order-history'"
           >
             <template v-slot:button>
               <v-btn

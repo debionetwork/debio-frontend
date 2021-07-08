@@ -7,6 +7,8 @@
             <DNASampleSendingInstructions
               :specimenNumber="selectedSpeciment.dna_sample_tracking_id"
               :lab="selectedSpeciment.detaillab"
+              :orderId="selectedSpeciment.number"
+              :sourcePage="'order-history'"
               hide-order-history-link
             >
               <template v-slot:button>
@@ -299,9 +301,8 @@ export default {
       });
     },
     showDialogInstruction(item) {
-      this.dialogInstruction = true;
-      console.log(item);
       this.selectedSpeciment = item;
+      this.dialogInstruction = true;
     },
     showDialogRejected(item) {
       this.dialogRejected = true;

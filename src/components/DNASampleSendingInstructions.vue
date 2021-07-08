@@ -15,10 +15,12 @@
               :href="
                 $router.resolve({
                   name: 'dna-collection-instructions',
-                  params: { number: specimenNumber },
+                  params: { number: orderId },
                 }).href
               "
-              target="_blank"
+              :target="
+                sourcePage == 'order-history-detail' ? '_self' : '_blank'
+              "
             >
               here
             </a>
@@ -69,6 +71,8 @@ export default {
   props: {
     specimenNumber: String,
     lab: Object,
+    orderId: String,
+    sourcePage: String,
     hideOrderHistoryLink: Boolean,
   },
   computed: {
