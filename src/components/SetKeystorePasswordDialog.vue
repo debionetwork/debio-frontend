@@ -169,6 +169,7 @@ export default {
             this._show = false;
             this.$emit("key-store-set");
             //this.$router.push("/");
+            this.setIsLoading(false);
             return;
           }
         }
@@ -181,9 +182,11 @@ export default {
           this._show = false;
           this.$emit("key-store-set");
           //this.$router.push("/");
+          this.setIsLoading(false);
           return;
         }
       } catch (err) {
+        this.setIsLoading(false);
         console.log(err);
       }
     },

@@ -152,6 +152,7 @@ export default {
       if (result.success) {
         this._show = false;
         this.clearInput();
+        this.setIsLoading(false);
         this.$router.push("/");
         return;
       }
