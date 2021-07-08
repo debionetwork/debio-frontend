@@ -161,6 +161,8 @@
           <DNASampleSendingInstructions
             :specimenNumber="order.dna_sample_tracking_id"
             :lab="lab"
+            :orderId="orderId"
+            :sourcePage="'order-history-detail'"
           >
           </DNASampleSendingInstructions>
         </v-col>
@@ -255,6 +257,7 @@ export default {
     logs: [],
     coinName: "",
     dialogReward: false,
+    orderId: "",
   }),
   computed: {
     ...mapState({
@@ -314,8 +317,8 @@ export default {
     }),
     async fetchOrderDetails() {
       this.isLoading = true;
-      const orderId = this.$route.params.number;
-      this.order = await getOrdersDetail(this.api, orderId);
+      this.orderId = this.$route.params.number;
+      this.order = await getOrdersDetail(this.api, this.orderId);
       this.lab = await queryLabsById(this.api, this.order.seller_id);
       this.service = await queryServicesById(this.api, this.order.service_id);
       this.priceOrder = parseFloat(
