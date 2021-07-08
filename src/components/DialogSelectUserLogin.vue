@@ -280,6 +280,7 @@ export default {
           this.keystoreInputErrors = result.error;
         }
       } else {
+        this.setIsLoading(false);
         this.keystoreInputErrors = "no keystore";
       }
     },
