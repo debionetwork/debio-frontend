@@ -110,7 +110,7 @@ export default {
     passwordConfirmRule: (password) => (val) =>
       (!!password && password == val) || "Passwords must match.",
     recaptchaVerified: false,
-    accountName: "mnemonic acc",
+    accountName: "",
   }),
   computed: {
     _show: {
