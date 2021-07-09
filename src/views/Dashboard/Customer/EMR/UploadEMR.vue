@@ -119,22 +119,19 @@
         <hr />
         <div v-if="!loading" class="pl-5 pt-5 pr-5">
           <div class="mb-0">
-            <div class="align-center mb-1">Title</div>
             <v-text-field
               dense
               label="Title"
-              placeholder="Title"
               outlined
               v-model="formTitle"
             ></v-text-field>
+             <!-- placeholder="Title" -->
           </div>
           <div class="mb-2">
-            <div class="align-center mb-1">Description</div>
             <v-textarea
               v-model="formDescription"
               dense
               label="Description"
-              placeholder="Description"
               outlined
               rows="3"
               row-height="25"
