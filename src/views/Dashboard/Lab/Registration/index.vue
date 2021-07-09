@@ -17,6 +17,7 @@
                 dense
                 label="Lab Name"
                 placeholder="Lab Name"
+                autocomplete="disabled"
                 outlined
                 v-model="labName"
                 ></v-text-field>
@@ -27,6 +28,7 @@
                 item-text="name"
                 item-value="alpha-2"
                 @change="onCountryChange"
+                autocomplete="disabled"
                 label="Select Country"
                 outlined
               ></v-autocomplete>
@@ -37,6 +39,7 @@
                 item-text="1"
                 item-value="0"
                 @change="onRegionChange"
+                autocomplete="disabled"
                 label="Select Region"
                 :disabled="!country"
                 outlined
@@ -48,6 +51,7 @@
                 item-text="1"
                 item-value="0"
                 @change="onCityChange"
+                autocomplete="disabled"
                 label="Select City"
                 :disabled="!region"
                 outlined
@@ -57,6 +61,7 @@
                 dense
                 label="Address"
                 placeholder="Address"
+                autocomplete="disabled"
                 outlined
                 v-model="address"
                 ></v-text-field>
