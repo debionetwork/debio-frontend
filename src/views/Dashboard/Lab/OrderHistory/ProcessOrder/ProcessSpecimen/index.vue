@@ -256,7 +256,6 @@ export default {
     
     if (this.isProcessed) {
       const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
-      console.log(testResult)
       const { result_link, report_link } = testResult
       const genomeFile = {
         fileName: 'Genome File', // FIXME: Harusnya di simpan di dan di ambil dari blockchain  
