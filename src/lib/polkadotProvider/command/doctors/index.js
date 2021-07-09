@@ -8,11 +8,11 @@ export async function registerDoctor(api, pair, data){
     return result.toHuman()
 }
 
-export async function updateDoctor(api, pair, data){
-    await api.tx.doctors
+export async function updateDoctor(api, pair, data, callback = () => {}){
+    const unsub = await api.tx.doctors
         .updateDoctor(data)
-        .signAndSend(pair, { nonce: -1 }, async ({ status, events }) => {
-            await doctorCommandCallback(api, pair, { status, events }) 
+        .signAndSend(pair, { nonce: -1 }, async ({ events = [], status }) => {
+            await doctorCommandCallback(api, pair, { events, status, callback, unsub })
         })
 }
 
@@ -23,14 +23,16 @@ export async function deregisterDoctor(api, pair){
     return result.toHuman()
 }
 
-export async function doctorCommandCallback(api, pair, {status, events}){
-    if (status.isInBlock || status.isFinalized) {
+export async function doctorCommandCallback(api, pair, { events, status, callback, unsub }){
+    if (status.isFinalized) {
         // find/filter for success events
         const eventList = events.filter(({ event }) =>
             api.events.system.ExtrinsicSuccess.is(event)
         )
         if(eventList.length > 0){
-            store.state.substrate.doctorAccount = await queryEntireDoctorDataById(api, pair.address)
+            store.state.substrate.labAccount = await queryEntireDoctorDataById(api, pair.address)
+            callback()
+            unsub()
         }
     }
 }
