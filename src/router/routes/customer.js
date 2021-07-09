@@ -13,7 +13,7 @@ const customerRoutes = [{
         drawerButtons: [
           { text: "Dashboard", disabled: false, active: true, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
-          { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
+          { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
           { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
@@ -28,7 +28,7 @@ const customerRoutes = [{
         drawerButtons: [
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
-          { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
+          { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
           { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
@@ -47,7 +47,7 @@ const customerRoutes = [{
         drawerButtons: [
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
-          { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
+          { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
           { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
@@ -68,7 +68,7 @@ const customerRoutes = [{
         drawerButtons: [
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
-          { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
+          { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
           { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
@@ -82,13 +82,13 @@ const customerRoutes = [{
         pageHeader: 'Test Result',
         breadcrumbs: [
           { text: 'Home', href: '/customer' },
-          { text: 'Order History', href: '/customer/order-history' },
-          { text: 'Test Result', disabled: true }
+          { text: 'Test Results', href: 'all-test-result' },
+          { text: 'Result', disabled: true }
         ],
         drawerButtons: [
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
-          { text: "Test Result", active: true, disabled: false, route: { name: "all-test-result" } },
+          { text: "Test Results", active: true, disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
           { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
@@ -107,7 +107,7 @@ const customerRoutes = [{
         drawerButtons: [
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
-          { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
+          { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
           { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
@@ -126,7 +126,7 @@ const customerRoutes = [{
         drawerButtons: [
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
-          { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
+          { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
           { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
@@ -147,7 +147,7 @@ const customerRoutes = [{
         drawerButtons: [
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
-          { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
+          { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
           { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
@@ -166,7 +166,7 @@ const customerRoutes = [{
         drawerButtons: [
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
-          { text: "Test Result", active: true, disabled: false, route: { name: "all-test-result" } },
+          { text: "Test Results", active: true, disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
           { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
@@ -185,7 +185,7 @@ const customerRoutes = [{
         drawerButtons: [
           { text: "Dashboard", disabled: false },
           { text: "Request Test", disabled: true },
-          { text: "Test Result", disabled: true },
+          { text: "Test Results", disabled: true },
           { text: "Order History", disabled: true },
           { text: "Documents", disabled: false, route: { name: "documents" } },
         ]
@@ -200,7 +200,7 @@ const customerRoutes = [{
         drawerButtons: [
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
-          { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
+          { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
           { text: "Documents", active: true, disabled: false, route: { name: "documents" } },
         ]
@@ -219,7 +219,7 @@ const customerRoutes = [{
         drawerButtons: [
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
-          { text: "Test Result", disabled: false, route: { name: "all-test-result" } },
+          { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
           { text: "Documents", active: true, disabled: false, route: { name: "documents" } },
         ]
