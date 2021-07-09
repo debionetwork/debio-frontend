@@ -296,7 +296,7 @@ export default {
               this.alertType = "cancel";
             }
             if (this.lastEventData.method == "OrderPaid") {
-              this.alertTextAlert = "Request Test Order Paid";
+              this.alertTextAlert = "Order Paid";
               this.dialogAlert = true;
               this.alertType = "paid";
             }
