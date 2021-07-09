@@ -8,11 +8,11 @@ export async function registerLab(api, pair, data){
     return result.toHuman()
 }
 
-export async function updateLab(api, pair, data){
-    await api.tx.labs
+export async function updateLab(api, pair, data, callback = () => {}){
+    const unsub = await api.tx.labs
         .updateLab(data)
-        .signAndSend(pair, { nonce: -1 }, async ({ status, events }) => {
-            await labCommandCallback(api, pair, { status, events }) 
+        .signAndSend(pair, { nonce: -1 }, async ({ events = [], status }) => {
+            await labCommandCallback(api, pair, { events, status, callback, unsub })
         })
 }
 
@@ -23,12 +23,16 @@ export async function deregisterLab(api, pair){
     return result.toHuman()
 }
 
-export async function labCommandCallback(api, pair, events){
-    // find/filter for success events
-    const eventList = events.filter(({ event }) =>
-        api.events.system.ExtrinsicSuccess.is(event)
-    )
-    if(eventList.length > 0){
-        store.state.substrate.labAccount = await queryEntireLabDataById(api, pair.address)
+export async function labCommandCallback(api, pair, { events, status, callback, unsub }){
+    if (status.isFinalized) {
+        // find/filter for success events
+        const eventList = events.filter(({ event }) =>
+            api.events.system.ExtrinsicSuccess.is(event)
+        )
+        if(eventList.length > 0){
+            store.state.substrate.labAccount = await queryEntireLabDataById(api, pair.address)
+            callback()
+            unsub()
+        }
     }
 }
