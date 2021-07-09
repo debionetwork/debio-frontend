@@ -8,11 +8,11 @@ export async function ordersByCustomer(api, address) {
 
 export async function getOrdersDetailByAddress(api, address) {
   let orderIds = await ordersBySeller(api, address)
-  orderIds.reverse()
   
   if(orderIds == null){
     return []
   }
+  orderIds.reverse()
   
   let orders = []
   for(let i = 0; i < orderIds.length; i++){
@@ -43,13 +43,13 @@ export async function getOrdersDetailByAddressPagination(api, address, page, pag
   let lastItemIndex = beginItemIndex + pageSize // Get last item index of page
 
   let orderIds = await ordersBySeller(api, address)
-  orderIds.reverse()
   if(orderIds == null){
     return {
       orders: [],
       totalOrders: 0
     } // Return empty array on null
   }
+  orderIds.reverse()
   
   let orders = []
   if(lastItemIndex > orderIds.length){
