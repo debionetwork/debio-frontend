@@ -91,6 +91,7 @@ export default {
   },
   methods: {
     async createService() {
+      if(this.isLoading) return // If function already running return.
       if (!this.$refs.addServiceForm.validate()) {
         return
       }
@@ -103,16 +104,12 @@ export default {
           price: this.price,
           description: this.description,
           long_description: this.longDescription
+        },
+        () => {
+          this.$router.push('/lab/services')
+          this.isLoading = false
         }
       )
-      // Wait for transaction to finish before refreshing Vuex store
-      // FIXME: Should use subscription to substrate 
-      await (async () => {
-        return new Promise(resolve => setTimeout(resolve, 3000));
-      })()
-      this.isLoading = false
-      await this.$store.dispatch('substrate/getLabAccount')
-      this.$router.push('/lab/services')
     },
   },
 }

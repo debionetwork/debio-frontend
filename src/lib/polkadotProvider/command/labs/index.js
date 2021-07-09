@@ -23,14 +23,12 @@ export async function deregisterLab(api, pair){
     return result.toHuman()
 }
 
-export async function labCommandCallback(api, pair, {status, events}){
-    if (status.isInBlock || status.isFinalized) {
-        // find/filter for success events
-        const eventList = events.filter(({ event }) =>
-            api.events.system.ExtrinsicSuccess.is(event)
-        )
-        if(eventList.length > 0){
-            store.state.substrate.labAccount = await queryEntireLabDataById(api, pair.address)
-        }
+export async function labCommandCallback(api, pair, events){
+    // find/filter for success events
+    const eventList = events.filter(({ event }) =>
+        api.events.system.ExtrinsicSuccess.is(event)
+    )
+    if(eventList.length > 0){
+        store.state.substrate.labAccount = await queryEntireLabDataById(api, pair.address)
     }
 }
