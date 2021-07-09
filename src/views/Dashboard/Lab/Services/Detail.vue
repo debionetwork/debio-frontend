@@ -10,6 +10,8 @@
                   color="light-blue"
                   class="mb-5 white--text"
                   @click="deleteService"
+                  :disabled="isLoading"
+                  :loading="isDeleteLoading"
                 >
                     <v-icon 
                       inline
@@ -65,6 +67,8 @@
                     color="primary"
                     block
                     large
+                    :disabled="isDeleteLoading"
+                    :loading="isLoading"
                     @click="updateService"
                     >Submit</v-btn>
                 </v-card-text>
@@ -88,14 +92,16 @@ export default {
     description: '',
     longDescription: '',
     files: [],
+    isLoading: false,
+    isDeleteLoading: false,
   }),
   mounted(){
     const item = this.$route.params.item
-    this.id = item.serviceId
-    this.name = item.name
-    this.price = item.price
-    this.description = item.description
-    this.longDescription = item.longDescription
+    this.id = item.id
+    this.name = item.info.name
+    this.price = item.info.price
+    this.description = item.info.description
+    this.longDescription = item.info.long_description
   },
   computed: {
     ...mapGetters({
@@ -105,41 +111,37 @@ export default {
   },
   methods: {
     async updateService() {
-      try{
-        await updateService(
-          this.api,
-          this.pair,
-          this.id,
-          {
-            name: this.name,
-            price: this.price,
-            category: 'genetics',
-            description: this.description,
-            long_description: this.longDescription
-          }
-        )
-        // Wait for transaction to finish before refreshing Vuex store
-        await this.$store.dispatch('substrate/getLabAccount')
-        this.$router.push('/lab/services')
-      }
-      catch(err){
-        console.error(err)
-      }
+      if(this.isLoading) return // If function already running return.
+      this.isLoading = true
+      await updateService(
+        this.api,
+        this.pair,
+        this.id,
+        {
+          name: this.name,
+          price: this.price,
+          category: 'genetics',
+          description: this.description,
+          long_description: this.longDescription
+        },
+        () => {
+          this.$router.push('/lab/services')
+          this.isLoading = false
+        }
+      )
     },
     async deleteService() {
-      try{
-        await deleteService(
-          this.api,
-          this.pair,
-          this.id
-        )
-        // Wait for transaction to finish before refreshing Vuex store
-        await this.$store.dispatch('substrate/getLabAccount')
-        this.$router.push('/lab/services')
-      }
-      catch(err){
-        console.error(err)
-      }
+      if(this.isDeleteLoading) return // If function already running return.
+      this.isDeleteLoading = true
+      await deleteService(
+        this.api,
+        this.pair,
+        this.id,
+        () => {
+          this.$router.push('/lab/services')
+          this.isDeleteLoading = false
+        }
+      )
     },
   },
 }
