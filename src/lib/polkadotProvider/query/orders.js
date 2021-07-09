@@ -17,6 +17,8 @@ export async function getOrdersDetailByAddress(api, address) {
   let orders = []
   for(let i = 0; i < orderIds.length; i++){
     let orderDetail = await getOrdersDetail(api, orderIds[i])
+    if(orderDetail['status'] == "Unpaid") continue // Skip unpaid orders
+    
     const service = await queryServicesById(api, orderDetail.service_id)
     orderDetail['created_at'] = parseInt(orderDetail.created_at.replace(/,/g, ""))
     
@@ -57,6 +59,8 @@ export async function getOrdersDetailByAddressPagination(api, address, page, pag
   }
   for(let i = beginItemIndex; i < lastItemIndex; i++){
     let orderDetail = await getOrdersDetail(api, orderIds[i])
+    if(orderDetail['status'] == "Unpaid") continue // Skip unpaid orders
+
     const service = await queryServicesById(api, orderDetail.service_id)
     orderDetail['created_at'] = parseInt(orderDetail.created_at.replace(/,/g, ""))
     
