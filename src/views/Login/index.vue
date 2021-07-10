@@ -217,7 +217,7 @@ export default {
         this.alertTextBtn = "OKE";
         this.alertImgPath = "warning.png";
         this.alertTextAlert =
-          "forgot account password is not the same as mnemonic phrase.";
+          "Supplied mnemonic phrase and account password does not match any existing accounts.";
         this.dialogAlert = true;
       }
     },
@@ -248,9 +248,9 @@ export default {
       this.alertTextBtn = "Continue";
       this.alertImgPath = "success.png";
       if (this.typelogin == "login") {
-        this.alertTextAlert = "Login is successful";
+        this.alertTextAlert = "Login successful, welcome back!";
       } else {
-        this.alertTextAlert = "Register is successful";
+        this.alertTextAlert = "Account registration successful!";
       }
       this.dialogAlert = true;
     },
