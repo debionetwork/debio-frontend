@@ -25,84 +25,97 @@
 
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-text class="px-8 mt-5">
-              <div class="secondary--text mb-10 h6">
+              <div class="secondary--text text-h6">
                 <b>Doctor Account Information</b>
               </div>
+              <v-container v-if="image" class="mb-10 mt-5">
+                  <img :src="image" class="rounded-xl" min-width="150" height="150" />
+              </v-container>
+              <v-form>
+                <v-file-input
+                  dense
+                  label="Profile Image"
+                  placeholder="Profile Image"
+                  prepend-icon="mdi-image"
+                  outlined
+                  v-model="files"
+                  @change="fileUploadEventListener"
+                  :rules="[val => !!val || 'Image is Required']"
+                ></v-file-input>
 
-              <v-file-input
-                dense
-                label="Profile Image"
-                placeholder="Profile Image"
-                prepend-icon="mdi-image"
-                outlined
-                v-model="files"
-              ></v-file-input>
+                <v-text-field
+                  dense
+                  label="Email"
+                  placeholder="Email"
+                  outlined
+                  v-model="email"
+                  :rules="[val => !!val || 'Email is Required']"
+                ></v-text-field>
+                
+                <v-text-field
+                  dense
+                  label="Doctor Name"
+                  placeholder="Doctor Name"
+                  outlined
+                  v-model="doctorName"
+                  :rules="[val => !!val || 'Name is Required']"
+                ></v-text-field>
 
-              <v-text-field
-                dense
-                label="Email"
-                placeholder="Email"
-                outlined
-                v-model="email"
-              ></v-text-field>
-              
-              <v-text-field
-                dense
-                label="Doctor Name"
-                placeholder="Doctor Name"
-                outlined
-                v-model="doctorName"
-              ></v-text-field>
+                <v-autocomplete
+                  dense
+                  :items="countries"
+                  item-text="name"
+                  item-value="alpha-2"
+                  @change="onCountryChange"
+                  label="Select Country"
+                  v-model="country"
+                  outlined
+                  :rules="[val => !!val || 'Country is Required']"
+                ></v-autocomplete>
 
-              <v-autocomplete
-                dense
-                :items="countries"
-                item-text="name"
-                item-value="alpha-2"
-                @change="onCountryChange"
-                label="Select Country"
-                v-model="country"
-                outlined
-              ></v-autocomplete>
+                <v-autocomplete
+                  dense
+                  :items="regions"
+                  item-text="1"
+                  item-value="0"
+                  @change="onRegionChange"
+                  label="Select Region"
+                  :disabled="!country"
+                  v-model="region"
+                  outlined
+                  :rules="[val => !!val || 'Region is Required']"
+                ></v-autocomplete>
 
-              <v-autocomplete
-                dense
-                :items="regions"
-                item-text="1"
-                item-value="0"
-                @change="onRegionChange"
-                label="Select Region"
-                :disabled="!country"
-                v-model="region"
-                outlined
-              ></v-autocomplete>
-
-              <v-autocomplete
-                dense
-                :items="cities"
-                item-text="1"
-                item-value="0"
-                @change="onCityChange"
-                label="Select City"
-                :disabled="!region"
-                v-model="city"
-                outlined
-              ></v-autocomplete>
-              
-              <v-text-field
-                dense
-                label="Address"
-                placeholder="Address"
-                outlined
-                v-model="address"
+                <v-autocomplete
+                  dense
+                  :items="cities"
+                  item-text="1"
+                  item-value="0"
+                  @change="onCityChange"
+                  label="Select City"
+                  :disabled="!region"
+                  v-model="city"
+                  outlined
+                  :rules="[val => !!val || 'City is Required']"
+                ></v-autocomplete>
+                
+                <v-text-field
+                  dense
+                  label="Address"
+                  placeholder="Address"
+                  outlined
+                  v-model="address"
+                  :rules="[val => !!val || 'Address is Required']"
                 ></v-text-field>
 
                 <v-btn
                   color="primary"
                   block
                   large
+                  :loading="isLoading"
                   @click="updateDoctor"
                 >Submit</v-btn>
+              </v-form>
             </v-card-text>
           </v-card>
         </v-col>
@@ -115,6 +128,7 @@
 import { mapGetters } from 'vuex'
 import { updateDoctor } from '@/lib/polkadotProvider/command/doctors'
 import countryData from "@/assets/json/country.json"
+import ipfsWorker from "@/web-workers/ipfs-worker"
 import cityData from "@/assets/json/city.json"
 
 export default {
@@ -124,6 +138,7 @@ export default {
     this.email = doctorInfo.email
     this.doctorName = doctorInfo.name
     this.address = doctorInfo.address
+    this.image = doctorInfo.profile_image
     
     await this.getCountries()
     this.country = doctorInfo.country
@@ -131,6 +146,12 @@ export default {
     this.cities = Object.entries(cityData[doctorInfo.country].divisions)
     this.region = doctorInfo.city
     this.city = doctorInfo.city
+
+    if(this.image){
+      const res = await fetch(this.image)
+      const blob = await res.blob() // Gets the response and returns it as a blob
+      this.files.push(new File([blob], this.image.substring(21)))
+    }
   },
   data: () => ({
     email: "",
@@ -142,7 +163,10 @@ export default {
     countries: [],
     regions: [],
     cities: [],
+    image: "",
     files: [],
+    isLoading: false,
+    isUploading: false,
   }),
   computed: {
     ...mapGetters({
@@ -173,22 +197,91 @@ export default {
     },
     async updateDoctor(){
       try{
+        this.isLoading = true
         await updateDoctor(
           this.api,
           this.pair,
           {
             name: this.doctorName,
             email: this.email,
+            profile_image: this.image,
             address: this.address,
             country: this.country,
             city: this.city,
+          },
+          () => {
+            this.isLoading = false
           }
         )
       }
       catch(err){
         console.error(err)
       }
-    }
+    },
+    fileUploadEventListener(file) {
+      this.isUploading = true
+      this.isLoading = true
+      if (file) {
+        if (file.name.lastIndexOf('.') <= 0) {
+          return
+        }
+        const fr = new FileReader()
+        fr.readAsArrayBuffer(file)
+
+        const context = this
+        fr.addEventListener('load', async () => {
+          // Upload
+          const uploaded = await context.upload({
+            fileChunk: fr.result,
+            fileType: file.type,
+            fileName: file.name,
+          })
+          context.image = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server...
+          context.isUploading = false
+          context.isLoading = false
+        })
+      }
+      else {
+        this.files = []
+        this.image = ''
+      }
+    },
+    upload({ fileChunk, fileName, fileType }) {
+      const chunkSize = 10 * 1024 * 1024 // 10 MB
+      let offset = 0
+      const blob = new Blob([ fileChunk ], { type: fileType })
+
+      return new Promise((resolve, reject) => {
+        try {
+          const fileSize = blob.size
+          do {
+            let chunk = blob.slice(offset, chunkSize + offset);
+            ipfsWorker.workerUpload.postMessage({
+              seed: chunk.seed, file: blob
+            })
+            offset += chunkSize
+          } while((chunkSize + offset) < fileSize)
+          
+          let uploadSize = 0
+          const uploadedResultChunks = []
+          ipfsWorker.workerUpload.onmessage = async event => {
+            uploadedResultChunks.push(event.data)
+            uploadSize += event.data.data.size
+              
+            if (uploadSize >= fileSize) {
+              resolve({
+                fileName: fileName,
+                fileType: fileType,
+                ipfsPath: uploadedResultChunks
+              })
+            }
+          }
+
+        } catch (err) {
+          reject(new Error(err.message))
+        }
+      })
+    },
   }
 }
 </script>

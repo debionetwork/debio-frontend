@@ -10,6 +10,7 @@ import masterConfigEvent from "./event-types.json"
 import { processEvent } from "@/lib/polkadotProvider/events"
 import Kilt from '@kiltprotocol/sdk-js'
 import store from '@/store/index'
+import { queryEntireDoctorDataById } from '@/lib/polkadotProvider/query/doctors'
 
 const {
   cryptoWaitReady,
@@ -236,11 +237,11 @@ export default {
 
         commit('SET_DOCTOR_ACCOUNT', null)
         commit('SET_IS_DOCTOR_ACCOUNT_EXIST', false)
-        // const doctorAccount = await queryEntireDoctorDataById(state.api, address)
-        // if (doctorAccount) {
-        //   commit('SET_DOCTOR_ACCOUNT', doctorAccount)
-        //   commit('SET_IS_DOCTOR_ACCOUNT_EXIST', true)
-        // }
+        const doctorAccount = await queryEntireDoctorDataById(state.api, address)
+        if (doctorAccount) {
+          commit('SET_DOCTOR_ACCOUNT', doctorAccount)
+          commit('SET_IS_DOCTOR_ACCOUNT_EXIST', true)
+        }
 
         commit('SET_HOSPITAL_ACCOUNT', null)
         commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', false)
