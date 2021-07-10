@@ -8,7 +8,7 @@
     class="dg-selectable-card-badge"
   >
     <MenuCard
-      :icon="_icon"
+      :icon="icon"
       :title="title"
       :sub-title="subTitle"
       @click="onClick"
@@ -36,13 +36,6 @@ export default {
     hoverText: String,
     isSelected: Boolean,
     disabled: Boolean,
-  },
-  computed: {
-    _icon() {
-      return this.icon && (this.icon.startsWith('mdi') || this.icon.startsWith('$'))
-        ? this.icon
-        : ''
-    }
   },
   methods: {
     onClick() {

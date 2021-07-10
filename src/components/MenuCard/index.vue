@@ -35,11 +35,11 @@
             <div v-on="on" v-bind="attrs" class="d-flex flex-column justify-space-around fill-height pr-4 py-2">
                <div class="d-flex align-center">
                   <div class="my-3 ml-5">
-                     <v-icon v-if="icon" color="#BA8DBB" :size="48">
+                     <v-icon v-if="_icon" color="#BA8DBB" :size="48">
                         {{ icon }}
                      </v-icon>
                      <v-avatar v-else>
-                        <img src="../../assets/degenics-logo.png" />
+                        <img :src="icon" />
                      </v-avatar>
                   </div>
                   <div class="ml-5" style="width: 100%;">
@@ -91,6 +91,9 @@ export default {
     cardComponent() {
       return this.disabled ? 'DisabledMenuCard' : 'EnabledMenuCard'
     },
+    _icon() {
+      return this.icon && (this.icon.startsWith('mdi') || this.icon.startsWith('$'))
+    }
   },
   methods: {
     onClick() {
