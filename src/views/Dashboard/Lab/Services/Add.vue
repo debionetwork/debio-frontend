@@ -41,8 +41,7 @@
                       outlined
                       v-model="longDescription"
                     ></v-textarea>
-                        
-                    <!--
+                    
                     <v-file-input
                       dense
                       label="Image"
@@ -50,13 +49,14 @@
                       prepend-icon="mdi-image"
                       outlined
                       v-model="files"
+                      @change="fileUploadEventListener"
                     ></v-file-input>
-                    -->
 
                     <v-btn
                       color="primary"
                       block
                       large
+                      :disabled="isUploading"
                       :loading="isLoading"
                       @click="createService"
                     >Submit</v-btn>
@@ -71,6 +71,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import ipfsWorker from '@/web-workers/ipfs-worker'
 import { createService } from '@/lib/polkadotProvider/command/services'
 
 export default {
@@ -80,8 +81,10 @@ export default {
     price: '',
     description: '',
     longDescription: '',
+    imageUrl: "",
     files: [],
-    isLoading: false
+    isLoading: false,
+    isUploading: false,
   }),
   computed: {
     ...mapGetters({
@@ -102,6 +105,7 @@ export default {
         {
           name: this.name,
           price: this.price,
+          image: this.imageUrl,
           description: this.description,
           long_description: this.longDescription
         },
@@ -110,6 +114,70 @@ export default {
           this.isLoading = false
         }
       )
+    },
+    fileUploadEventListener(file) {
+      this.isUploading = true
+      this.isLoading = true
+      if (file) {
+        if (file.name.lastIndexOf('.') <= 0) {
+          return
+        }
+        const fr = new FileReader()
+        fr.readAsArrayBuffer(file)
+
+        const context = this
+        fr.addEventListener('load', async () => {
+          // Upload
+          const uploaded = await context.upload({
+            fileChunk: fr.result,
+            fileType: file.type,
+            fileName: file.name,
+          })
+          context.imageUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server...
+          this.isUploading = false
+          this.isLoading = false
+        })
+      }
+      else {
+        this.files = []
+        this.imageUrl = ''
+      }
+    },
+    upload({ fileChunk, fileName, fileType }) {
+      const chunkSize = 10 * 1024 * 1024 // 10 MB
+      let offset = 0
+      const blob = new Blob([ fileChunk ], { type: fileType })
+
+      return new Promise((resolve, reject) => {
+        try {
+          const fileSize = blob.size
+          do {
+            let chunk = blob.slice(offset, chunkSize + offset);
+            ipfsWorker.workerUpload.postMessage({
+              seed: chunk.seed, file: blob
+            })
+            offset += chunkSize
+          } while((chunkSize + offset) < fileSize)
+          
+          let uploadSize = 0
+          const uploadedResultChunks = []
+          ipfsWorker.workerUpload.onmessage = async event => {
+            uploadedResultChunks.push(event.data)
+            uploadSize += event.data.data.size
+              
+            if (uploadSize >= fileSize) {
+              resolve({
+                fileName: fileName,
+                fileType: fileType,
+                ipfsPath: uploadedResultChunks
+              })
+            }
+          }
+
+        } catch (err) {
+          reject(new Error(err.message))
+        }
+      })
     },
   },
 }
