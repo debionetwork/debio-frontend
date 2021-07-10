@@ -52,9 +52,16 @@
                         <div class="d-flex justify-space-between">
                             <div class="d-flex align-center">
                                 <div>
-                                    <v-icon color="#BA8DBB" :size="52">
-                                      {{ this.serviceImage }}
+                                    <v-icon
+                                    v-if="_icon"
+                                    color="#BA8DBB"
+                                    :size="52"
+                                    >
+                                    {{ _icon }}
                                     </v-icon>
+                                    <v-avatar v-else>
+                                    <img :src="getImageLink(serviceImage)" />
+                                    </v-avatar>
                                 </div>
                                 <div class="ml-5">
                                     <div style="">
@@ -160,7 +167,7 @@ export default {
       this.serviceImage = order.service_image
       this.publicKey = order.customer_box_public_key
       this.createdAt = order.created_at
-      this.customerEthAddress = order.customer_eth_address
+      this.customerEthAddress = order.customer_eth_address ? order.customer_eth_address : "Address not set"
       this.sellerEthAddress = order.seller_eth_address
       this.specimenNumber = order.dna_sample_tracking_id
       this.setCheckboxByDnaStatus()
@@ -207,7 +214,13 @@ export default {
       } catch (err) {
         console.log(err)
       }
-    }
+    },
+    getImageLink(val){
+        if(val && val != ""){
+          return val
+        }
+        return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
+    },
   },
   computed: {
     ...mapGetters({
@@ -224,9 +237,11 @@ export default {
         return this.receivedCheckbox
         // return this.receivedCheckbox && !this.sentCheckbox
     },
-    // showSentDialog(){
-    //     return this.sentCheckbox
-    // }
+    _icon() {
+      return this.serviceImage && (this.serviceImage.startsWith('mdi') || this.serviceImage.startsWith('$'))
+        ? this.serviceImage
+        : false
+    },
   },
 }
 </script>

@@ -10,7 +10,7 @@
           {{ _icon }}
         </v-icon>
         <v-avatar v-else>
-          <img src="../assets/degenics-logo.png" />
+          <img :src="getImageLink(icon)" />
         </v-avatar>
       </div>
       <div class="ml-5" style="width: 100%; overflow:hidden;">
@@ -59,13 +59,19 @@ export default {
     _icon() {
       return this.icon && (this.icon.startsWith('mdi') || this.icon.startsWith('$'))
         ? this.icon
-        : ''
+        : false
     },
   },
   methods: {
     onClick() {
       this.$emit('click')
-    }
+    },
+    getImageLink(val){
+        if(val && val != ""){
+          return val
+        }
+        return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
+    },
   },
 }
 </script>
