@@ -42,6 +42,7 @@ export async function getOrdersDetailByAddress(api, address) {
     let lab = null
     if(service != null){
       orderDetail['service_name'] = service.info.name
+      orderDetail['service_image'] = service.info.image
       lab = await queryLabsById(api, service.owner_id)
     }
 
@@ -82,6 +83,7 @@ export async function getOrdersDetailByAddressPagination(api, address, page, pag
     let lab = null
     if(service){
       orderDetail['service_name'] = service.info.name
+      orderDetail['service_image'] = service.info.image
       lab = await queryLabsById(api, service.owner_id)
     }
 
