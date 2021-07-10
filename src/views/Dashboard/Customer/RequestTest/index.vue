@@ -15,6 +15,7 @@
                 item-value="alpha-2"
                 @change="onCountryChange"
                 label="Select Country"
+                autocomplete="disabled"
                 outlined
               ></v-autocomplete>
 
@@ -26,6 +27,7 @@
                 @change="onRegionChange"
                 label="Select Region"
                 :disabled="!country"
+                autocomplete="disabled"
                 outlined
               ></v-autocomplete>
 
@@ -37,6 +39,7 @@
                 @change="onCityChange"
                 label="Select City"
                 :disabled="!region"
+                autocomplete="disabled"
                 outlined
               ></v-autocomplete>
 
@@ -49,6 +52,7 @@
                 menu-props="auto"
                 label="Select Lab"
                 :disabled="!city"
+                autocomplete="disabled"
                 outlined
               ></v-select>
             </v-card-text>
@@ -275,11 +279,11 @@ export default {
         this.country + "-" + this.region,
         this.city
       );
-      if (listLabID != null) {
+      if (listLabID) {
         for (let i = 0; i < listLabID.length; i++) {
           const detaillab = await queryLabsById(this.api, listLabID[i]);
 
-          if (detaillab != null) {
+          if (detaillab) {
             const labName = detaillab.info.name;
             const accountId = detaillab.account_id;
             const address = detaillab.info.address;
@@ -306,17 +310,17 @@ export default {
       this.products = [];
 
       try {
-        if (this.labAccount != null) {
+        if (this.labAccount) {
           for (let i = 0; i < this.labAccount.services.length; i++) {
             const detailService = await queryServicesById(
               this.api,
               this.labAccount.services[i]
             );
 
-            if (detailService != null) {
+            if (detailService) {
               const serviceName = detailService.info.name;
               let icon = "mdi-needle";
-              if (detailService.info.image != null) {
+              if (detailService.info.image) {
                 icon = detailService.info.image;
               }
               const accountId = this.labAccount.services[i];
