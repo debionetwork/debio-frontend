@@ -1,34 +1,52 @@
-export async function processDnaSample(api, pair, tracking_id) {
-  const result = await api.tx.geneticTesting
+export async function processDnaSample(api, pair, tracking_id, callback = ()=>{}) {
+  const unsub = await api.tx.geneticTesting
     .processDnaSample(tracking_id)
-    .signAndSend(pair, { nonce: -1 })
-  return result.toHuman()
+    .signAndSend(pair, { nonce: -1 }, ({ events, status }) => 
+      successCallback(api, { events, status, callback, unsub })
+    )
 }
 
-export async function receiveDnaSample(api, pair, tracking_id) {
-  const result = await api.tx.geneticTesting
+export async function receiveDnaSample(api, pair, tracking_id, callback = ()=>{}) {
+  const unsub = await api.tx.geneticTesting
     .receiveDnaSample(tracking_id)
-    .signAndSend(pair, { nonce: -1 })
-  return result.toHuman()
+    .signAndSend(pair, { nonce: -1 }, ({ events, status }) => 
+      successCallback(api, { events, status, callback, unsub })
+    )
 }
 
-export async function rejectDnaSample(api, pair, data) {
-  const result = await api.tx.geneticTesting
+export async function rejectDnaSample(api, pair, data, callback = ()=>{}) {
+  const unsub = await api.tx.geneticTesting
     .rejectDnaSample(data.tracking_id, data.rejected_title, data.rejected_description)
-    .signAndSend(pair, { nonce: -1 })
-  return result.toHuman()
+    .signAndSend(pair, { nonce: -1 }, ({ events, status }) => 
+      successCallback(api, { events, status, callback, unsub })
+    )
 }
 
-export async function submitIndependentTestResult(api, pair, submission) {
-  const result = await api.tx.geneticTesting
+export async function submitIndependentTestResult(api, pair, submission, callback = ()=>{}) {
+  const unsub = await api.tx.geneticTesting
     .submitIndependentTestResult(submission)
-    .signAndSend(pair, { nonce: -1 })
-  return result.toHuman()
+    .signAndSend(pair, { nonce: -1 }, ({ events, status }) => 
+      successCallback(api, { events, status, callback, unsub })
+    )
 }
 
-export async function submitTestResult(api, pair, tracking_id, is_success, submission) {
-  const result = await api.tx.geneticTesting
+export async function submitTestResult(api, pair, tracking_id, is_success, submission, callback = ()=>{}) {
+  const unsub = await api.tx.geneticTesting
     .submitTestResult(tracking_id, is_success, submission)
-    .signAndSend(pair, { nonce: -1 })
-  return result.toHuman()
+    .signAndSend(pair, { nonce: -1 }, ({ events, status }) => 
+      successCallback(api, { events, status, callback, unsub })
+    )
+}
+
+function successCallback(api, { events, status, callback, unsub }){
+  if (status.isFinalized) {
+    // find/filter for success events
+    const eventList = events.filter(({ event }) =>
+      api.events.system.ExtrinsicSuccess.is(event)
+    )
+    if(eventList.length > 0){
+        callback()
+        unsub()
+    }
+  }
 }

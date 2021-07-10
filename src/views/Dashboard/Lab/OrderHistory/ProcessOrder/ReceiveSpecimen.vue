@@ -15,6 +15,7 @@
                 style="width: 35%"
                 color="primary"
                 large
+                :loading="isLoading"
                 @click="receiveDnaSample"
                 >RECEIVE SPECIMEN</v-btn>
         </v-form>
@@ -32,6 +33,7 @@ export default {
     specimenNumber: String,
   },
   data: () => ({
+    isLoading: false,
     valid: false,
     confirmSpecimenNumber: "",
     confirmSpecimenNumberRule: (password) => (val) =>
@@ -45,14 +47,18 @@ export default {
   },
   methods:{
     async receiveDnaSample() {
-        if(this.valid){
-            await receiveDnaSample(
-              this.api,
-              this.pair,
-              this.specimenNumber,
-            )
+      if(this.valid){
+        this.isLoading = true
+        await receiveDnaSample(
+          this.api,
+          this.pair,
+          this.specimenNumber,
+          () => {
+            this.isLoading = false
             this.$emit('specimenReceived')
-        }
+          }
+        )
+      }
     },
   },
 }

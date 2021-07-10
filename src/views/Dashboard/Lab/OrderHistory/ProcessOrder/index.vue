@@ -107,8 +107,9 @@
                     @specimenReceived="receivedCheckbox = true" />
                 <ProcessSpecimen 
                     v-if="showGenomeReportDialog"
-                    :specimenNumber="specimenNumber"
-                    :publicKey="publicKey"
+                    :order-id="orderId"
+                    :specimen-number="specimenNumber"
+                    :public-key="publicKey"
                     :is-processed="isOrderProcessed"
                     :wetwork-checkbox="wetworkCheckbox"
                     @processWetwork="wetworkCheckbox = true"
@@ -128,7 +129,6 @@ import { mapGetters } from 'vuex'
 // import OrderFinished from './OrderFinished'
 import ReceiveSpecimen from './ReceiveSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
-import { fulfillOrder } from '@/lib/polkadotProvider/command/orders'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
 import { queryDnaSamples } from '@/lib/polkadotProvider/query/geneticTesting'
 
@@ -205,11 +205,6 @@ export default {
     async submitTestResult(){
       try {
         console.log('Submitting test result!')
-        await fulfillOrder(
-            this.api,
-            this.pair,
-            this.orderId,
-        )
         this.sentCheckbox = true
       } catch (err) {
         console.log(err)
