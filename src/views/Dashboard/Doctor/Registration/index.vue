@@ -5,78 +5,97 @@
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-text class="px-8 mt-5">
-              <v-text-field
-                dense
-                label="Email"
-                placeholder="Email"
-                outlined
-                v-model="email"
-                ></v-text-field>
-              
-              <v-text-field
-                dense
-                label="Doctor Name"
-                placeholder="Doctor Name"
-                outlined
-                v-model="doctorName"
-                ></v-text-field>
-
-              <v-autocomplete
-                dense
-                :items="countries"
-                item-text="name"
-                item-value="alpha-2"
-                @change="onCountryChange"
-                label="Select Country"
-                outlined
-              ></v-autocomplete>
-
-              <v-autocomplete
-                dense
-                :items="regions"
-                item-text="1"
-                item-value="0"
-                @change="onRegionChange"
-                label="Select Region"
-                :disabled="!country"
-                outlined
-              ></v-autocomplete>
-
-              <v-autocomplete
-                dense
-                :items="cities"
-                item-text="1"
-                item-value="0"
-                @change="onCityChange"
-                label="Select City"
-                :disabled="!region"
-                outlined
-              ></v-autocomplete>
-              
-              <v-text-field
-                dense
-                label="Address"
-                placeholder="Address"
-                outlined
-                v-model="address"
-                ></v-text-field>
+              <v-form>
+                <v-text-field
+                  dense
+                  label="Email"
+                  placeholder="Email"
+                  autocomplete="new-password"
+                  outlined
+                  v-model="email"
+                  :rules="[val => !!val || 'Email is Required']"
+                  ></v-text-field>
                 
-              
-              <v-file-input
-                dense
-                label="Profile Image"
-                placeholder="Profile Image"
-                prepend-icon="mdi-image"
-                outlined
-                v-model="files"
+                <v-text-field
+                  dense
+                  label="Doctor Name"
+                  placeholder="Doctor Name"
+                  autocomplete="new-password"
+                  outlined
+                  v-model="doctorName"
+                  :rules="[val => !!val || 'Name is Required']"
+                  ></v-text-field>
+
+                <v-autocomplete
+                  dense
+                  :items="countries"
+                  item-text="name"
+                  item-value="alpha-2"
+                  @change="onCountryChange"
+                  autocomplete="new-password"
+                  label="Select Country"
+                  outlined
+                  :rules="[val => !!val || 'Country is Required']"
+                ></v-autocomplete>
+
+                <v-autocomplete
+                  dense
+                  :items="regions"
+                  item-text="1"
+                  item-value="0"
+                  @change="onRegionChange"
+                  autocomplete="new-password"
+                  label="Select Region"
+                  :disabled="!country"
+                  outlined
+                  :rules="[val => !!val || 'Region is Required']"
+                ></v-autocomplete>
+
+                <v-autocomplete
+                  dense
+                  :items="cities"
+                  item-text="1"
+                  item-value="0"
+                  @change="onCityChange"
+                  autocomplete="new-password"
+                  label="Select City"
+                  :disabled="!region"
+                  outlined
+                  :rules="[val => !!val || 'City is Required']"
+                ></v-autocomplete>
+                
+                <v-text-field
+                  dense
+                  label="Address"
+                  placeholder="Address"
+                  autocomplete="new-password"
+                  outlined
+                  v-model="address"
+                  :rules="[val => !!val || 'Address is Required']"
+                  ></v-text-field>
+                  
+                
+                <v-file-input
+                  dense
+                  label="Profile Image"
+                  placeholder="Profile Image"
+                  prepend-icon="mdi-image"
+                  autocomplete="new-password"
+                  outlined
+                  v-model="files"
+                  @change="fileUploadEventListener"
+                  :rules="[val => !!val || 'Image is Required']"
                 ></v-file-input>
 
                 <v-btn
                   color="primary"
                   block
                   large
+                  :disabled="isUploading"
+                  :loading="isLoading"
                   @click="registerDoctor"
                 >Submit</v-btn>
+              </v-form>
             </v-card-text>
           </v-card>
         </v-col>
@@ -86,16 +105,16 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
-import { queryDoctorsById } from '@/lib/polkadotProvider/query/doctors'
-import { registerDoctor } from '@/lib/polkadotProvider/command/doctors'
-import { setEthAddress } from '@/lib/polkadotProvider/command/userProfile'
-import { getWalletAddress } from '@/lib/metamask/wallet'
+import { mapState, mapGetters } from "vuex"
+import { registerDoctor } from "@/lib/polkadotProvider/command/doctors"
+import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile"
+import { getWalletAddress } from "@/lib/metamask/wallet"
 import countryData from "@/assets/json/country.json"
+import ipfsWorker from "@/web-workers/ipfs-worker"
 import cityData from "@/assets/json/city.json"
 
 export default {
-  name: 'DoctorRegistration',
+  name: "DoctorRegistration",
   data: () => ({
     country: "",
     region: "",
@@ -106,17 +125,20 @@ export default {
     email: "",
     doctorName: "",
     address: "",
+    image: "",
     files: [],
+    isLoading: false,
+    isUploading: false,
   }),
   async mounted() {
     await this.getCountries();
   },
   computed: {
     ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
-      doctorAccount: 'substrate/doctorAccount',
-      isDoctorAccountExist: 'substrate/isDoctorAccountExist',
+      api: "substrate/getAPI",
+      pair: "substrate/wallet",
+      doctorAccount: "substrate/doctorAccount",
+      isDoctorAccountExist: "substrate/isDoctorAccountExist",
     }),
     ...mapState({
       locationContract: state => state.ethereum.contracts.contractLocation,
@@ -135,8 +157,7 @@ export default {
     },
   },
   methods: {
-    setDoctorAccount(doctorAccount) {
-      this.$store.state.substrate.doctorAccount = doctorAccount
+    setDoctorAccount() {
       this.$store.state.substrate.isDoctorAccountExist = true
     },
     async getCountries() {
@@ -155,33 +176,101 @@ export default {
     },
     async registerDoctor(){
       try{
+        this.isLoading = true
         const ethAddress = await getWalletAddress()
-        await registerDoctor(
-          this.api,
-          this.pair,
-          {
-            name: this.doctorName,
-            email: this.email,
-            address: this.address,
-            country: this.country,
-            city: this.city,
-          }
-        )
-        
         await setEthAddress(
           this.api,
           this.pair,
-          ethAddress
+          ethAddress,
+          async () => {
+            await registerDoctor(
+              this.api,
+              this.pair,
+              {
+                name: this.doctorName,
+                email: this.email,
+                profile_image: this.image,
+                address: this.address,
+                country: this.country,
+                city: this.city,
+              },
+              async () => {
+                this.setDoctorAccount()
+                this.isLoading = false
+                this.$router.push("/doctor")
+              }
+            )
+          }
         )
-        
-        const doctorAccount = await queryDoctorsById(this.api, this.pair.address)
-        this.setDoctorAccount(doctorAccount)
-        this.$router.push('/doctor')
       }
       catch(e){
         console.error(e)
       }
-    }
+    },
+    fileUploadEventListener(file) {
+      this.isUploading = true
+      this.isLoading = true
+      if (file) {
+        if (file.name.lastIndexOf(".") <= 0) {
+          return
+        }
+        const fr = new FileReader()
+        fr.readAsArrayBuffer(file)
+
+        const context = this
+        fr.addEventListener("load", async () => {
+          // Upload
+          const uploaded = await context.upload({
+            fileChunk: fr.result,
+            fileType: file.type,
+            fileName: file.name,
+          })
+          context.image = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server...
+          context.isUploading = false
+          context.isLoading = false
+        })
+      }
+      else {
+        this.files = []
+        this.image = ""
+      }
+    },
+    upload({ fileChunk, fileName, fileType }) {
+      const chunkSize = 10 * 1024 * 1024 // 10 MB
+      let offset = 0
+      const blob = new Blob([ fileChunk ], { type: fileType })
+
+      return new Promise((resolve, reject) => {
+        try {
+          const fileSize = blob.size
+          do {
+            let chunk = blob.slice(offset, chunkSize + offset);
+            ipfsWorker.workerUpload.postMessage({
+              seed: chunk.seed, file: blob
+            })
+            offset += chunkSize
+          } while((chunkSize + offset) < fileSize)
+          
+          let uploadSize = 0
+          const uploadedResultChunks = []
+          ipfsWorker.workerUpload.onmessage = async event => {
+            uploadedResultChunks.push(event.data)
+            uploadSize += event.data.data.size
+              
+            if (uploadSize >= fileSize) {
+              resolve({
+                fileName: fileName,
+                fileType: fileType,
+                ipfsPath: uploadedResultChunks
+              })
+            }
+          }
+
+        } catch (err) {
+          reject(new Error(err.message))
+        }
+      })
+    },
   }
 }
 </script>

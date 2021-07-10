@@ -134,8 +134,8 @@ export default {
             fileName: file.name,
           })
           context.imageUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server...
-          this.isUploading = false
-          this.isLoading = false
+          context.isUploading = false
+          context.isLoading = false
         })
       }
       else {

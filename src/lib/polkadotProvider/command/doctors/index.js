@@ -1,11 +1,12 @@
 import { queryEntireDoctorDataById } from '@/lib/polkadotProvider/query/doctors'
 import store from '@/store/index'
 
-export async function registerDoctor(api, pair, data){
-    const result = await api.tx.doctors
+export async function registerDoctor(api, pair, data, callback = () => {}){
+    const unsub = await api.tx.doctors
         .registerDoctor(data)
-        .signAndSend(pair, { nonce: -1 })
-    return result.toHuman()
+        .signAndSend(pair, { nonce: -1 }, async ({ events = [], status }) => {
+            await doctorCommandCallback(api, pair, { events, status, callback, unsub })
+        })
 }
 
 export async function updateDoctor(api, pair, data, callback = () => {}){
@@ -30,7 +31,7 @@ export async function doctorCommandCallback(api, pair, { events, status, callbac
             api.events.system.ExtrinsicSuccess.is(event)
         )
         if(eventList.length > 0){
-            store.state.substrate.labAccount = await queryEntireDoctorDataById(api, pair.address)
+            store.state.substrate.doctorAccount = await queryEntireDoctorDataById(api, pair.address)
             callback()
             unsub()
         }

@@ -11,18 +11,21 @@ const doctorRoutes = [
               path: '/',
               name: 'doctor-dashboard',
               meta: {
-                  pageHeader: 'Doctor Dashboard',
-                  drawerButtons: [
-                    { text: "Dashboard", active: true, disabled: false, route: { name: "doctor-dashboard" } },
-                    { text: "Account", disabled: false, route: { name: "doctor-dashboard-account" } },
-                  ]
+                pageHeader: 'Doctor Dashboard',
               },
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Doctor'),
               beforeEnter: (to, from, next) => {
+                // Set drawer buttons here to make it dynamic :)
                 if(!store.state.substrate.isDoctorAccountExist){
                   to.meta.drawerButtons = [
                     { text: "Dashboard", active: true, disabled: false, route: { name: "doctor-dashboard" } },
                     { text: "Account" },
+                  ]
+                }
+                else{
+                  to.meta.drawerButtons = [
+                    { text: "Dashboard", active: true, disabled: false, route: { name: "doctor-dashboard" } },
+                    { text: "Account", disabled: false, route: { name: "doctor-dashboard-account" } },
                   ]
                 }
                 next()
