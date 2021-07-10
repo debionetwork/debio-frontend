@@ -29,6 +29,7 @@
                 <b>Lab Account Information</b>
               </div>
 
+              <v-form>
               <!-- <v-file-input
                 dense
                 label="Profile Image"
@@ -42,6 +43,7 @@
                 dense
                 label="Email"
                 placeholder="Email"
+                autocomplete="new-password"
                 outlined
                 v-model="email"
               ></v-text-field>
@@ -50,6 +52,7 @@
                 dense
                 label="Lab Name"
                 placeholder="Lab Name"
+                autocomplete="new-password"
                 outlined
                 v-model="labName"
               ></v-text-field>
@@ -61,6 +64,7 @@
                 item-value="alpha-2"
                 @change="onCountryChange"
                 label="Select Country"
+                autocomplete="new-password"
                 v-model="country"
                 outlined
               ></v-autocomplete>
@@ -73,6 +77,7 @@
                 @change="onRegionChange"
                 label="Select Region"
                 :disabled="!country"
+                autocomplete="new-password"
                 v-model="region"
                 outlined
               ></v-autocomplete>
@@ -85,6 +90,7 @@
                 @change="onCityChange"
                 label="Select City"
                 :disabled="!region"
+                autocomplete="new-password"
                 v-model="city"
                 outlined
               ></v-autocomplete>
@@ -93,6 +99,7 @@
                 dense
                 label="Address"
                 placeholder="Address"
+                autocomplete="new-password"
                 outlined
                 v-model="address"
                 ></v-text-field>
@@ -103,6 +110,7 @@
                   large
                   @click="updateLab"
                 >Submit</v-btn>
+              </v-form>
             </v-card-text>
           </v-card>
 
@@ -212,7 +220,6 @@
 import { mapState, mapGetters } from 'vuex'
 import { updateLab } from '@/lib/polkadotProvider/command/labs'
 import { createCertification, updateCertification, deleteCertification } from '@/lib/polkadotProvider/command/labs/certifications'
-import { getCertificationDetails } from '@/lib/polkadotProvider/query/labs/certifications'
 import countryData from "@/assets/json/country.json"
 import cityData from "@/assets/json/city.json"
 import Kilt from '@kiltprotocol/sdk-js'
@@ -222,10 +229,6 @@ import Button from '@/components/Button'
 
 updateCertification
 deleteCertification
-
-async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
 
 export default {
   name: 'LabAccount',
@@ -333,10 +336,9 @@ export default {
         console.error(err)
       }
     },
-    async fetchCertifications() {
+    fetchCertifications() {
       this.certifications = []
-      const certificationIds = this.labAccount.certifications
-      this.certifications = await getCertificationDetails(this.api, certificationIds)
+      this.certifications = this.labAccount.certifications
     },
     closeCertificationDialog() {
       this.certId = ""
@@ -364,13 +366,9 @@ export default {
           description: this.certDescription,
         }
 
-        const result = await createCertification(this.api, this.pair, certificationInfo)
-        console.log(result)
-        await sleep(3000) // FIXME: Should use subscription to know when transaction has been in block
-
+        await createCertification(this.api, this.pair, certificationInfo)
         this.closeCertificationDialog()
-
-        await this.fetchCertifications()
+        this.fetchCertifications()
 
         this.isLoading = false
       } catch (err) {
@@ -404,13 +402,9 @@ export default {
           description: this.certDescription,
         }
 
-        const res = await updateCertification(this.api, this.pair, this.certId, certificationInfo)
-        console.log(res)
-        await sleep(3000) // FIXME: Should use subscription to know when transaction has been in block
-
+        await updateCertification(this.api, this.pair, this.certId, certificationInfo)
         this.closeCertificationDialog()
-
-        await this.fetchCertifications()
+        this.fetchCertifications()
 
         this.isLoading = false
 
@@ -424,12 +418,8 @@ export default {
       if (isConfirmed) {
         this.isLoading = true
 
-        const result = await deleteCertification(this.api, this.pair, cert.id)
-        console.log(result)
-
-        await sleep(3000) // FIXME: Should use subscription to know when transaction has been in block
-
-        await this.fetchCertifications()
+        await deleteCertification(this.api, this.pair, cert.id)
+        this.fetchCertifications()
         this.isLoading = false
 
         return
