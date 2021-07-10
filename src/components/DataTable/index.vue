@@ -50,7 +50,7 @@
             :length="pageCount"
             :total-visible="10"
             circle
-            color="highlight"
+            color="secondary"
           ></v-pagination>
         </div>
       </template>
