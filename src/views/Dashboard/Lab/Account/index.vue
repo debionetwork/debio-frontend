@@ -124,16 +124,22 @@
                   <v-icon>mdi-plus</v-icon>
                 </v-btn>
               </div>
-              <div v-if="certifications.length == 0">
+              <div v-if="labAccount.certifications.length == 0">
                 You don’t have any certifications
               </div>
-              <v-skeleton-loader v-if="isLoading" height="250" min-width="200">
-              </v-skeleton-loader>
-              <div v-if="certifications.length > 0 && !isLoading" class="mt-5">
+              <div v-if="isLoading" class="mt-5">
+                <v-skeleton-loader 
+                  v-for="data in labAccount.certifications"
+                  :key="data.idx"
+                  type="list-item-three-line"
+                  min-width="200"
+                ></v-skeleton-loader>
+              </div>
+              <div v-if="labAccount.certifications.length > 0 && !isLoading" class="mt-5">
                 <div
-                  v-for="(cert, idx) in certifications"
+                  v-for="(cert, idx) in labAccount.certifications"
                   :key="cert.id"
-                  :style="idx < (certifications.length - 1) && 'border-bottom: 1px solid #555454;'"
+                  :style="idx < (labAccount.certifications.length - 1) && 'border-bottom: 1px solid #555454;'"
                   class="my-3"
                 >
                   <div class="d-flex justify-space-between align-center" style="width: 100%;">
@@ -153,10 +159,10 @@
       </v-row>
     </v-container>
 
-    <Dialog :show="certificationDialog" @close="certificationDialog = false">
+    <Dialog :show="certificationDialog" @close="closeCertificationDialog">
       <template v-slot:title>
         <div class="secondary--text h6">
-          Add Certification
+          {{ isEditCertificationDialog ? "Edit" : "Add" }} Certification
         </div>
       </template>
       <template v-slot:body>
@@ -242,8 +248,6 @@ export default {
     this.labName = labInfo.name
     this.address = labInfo.address
     
-    await this.fetchCertifications()
-    
     await this.getCountries()
     this.country = labInfo.country
     this.regions = Object.entries(cityData[labInfo.country].divisions)
@@ -272,6 +276,7 @@ export default {
     certDescription: "",
     selectMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     isLoading: false,
+    isEditCertificationDialog: false,
   }),
   computed: {
     ...mapGetters({
@@ -336,13 +341,10 @@ export default {
         console.error(err)
       }
     },
-    fetchCertifications() {
-      this.certifications = []
-      this.certifications = this.labAccount.certifications
-    },
     closeCertificationDialog() {
       this.certId = ""
       this.certificationDialog = false
+      this.isEditCertificationDialog = false
       this.$refs.certificationForm.reset()
     },
     async submitCertification() {
@@ -366,11 +368,10 @@ export default {
           description: this.certDescription,
         }
 
-        await createCertification(this.api, this.pair, certificationInfo)
-        this.closeCertificationDialog()
-        this.fetchCertifications()
-
-        this.isLoading = false
+        await createCertification(this.api, this.pair, certificationInfo, () => {
+          this.closeCertificationDialog()
+          this.isLoading = false
+        })
       } catch (err) {
         console.log(err)
         this.isLoading = false
@@ -385,6 +386,7 @@ export default {
       this.certDescription = cert.info.description
 
       this.certificationDialog = true
+      this.isEditCertificationDialog = true
     },
     async updateCertification() {
       if (!this.$refs.certificationForm.validate()) {
@@ -402,12 +404,10 @@ export default {
           description: this.certDescription,
         }
 
-        await updateCertification(this.api, this.pair, this.certId, certificationInfo)
-        this.closeCertificationDialog()
-        this.fetchCertifications()
-
-        this.isLoading = false
-
+        await updateCertification(this.api, this.pair, this.certId, certificationInfo, () => {
+          this.closeCertificationDialog()
+          this.isLoading = false
+        })
       } catch (err) {
         console.log(err)
         this.isLoading = false
@@ -418,11 +418,9 @@ export default {
       if (isConfirmed) {
         this.isLoading = true
 
-        await deleteCertification(this.api, this.pair, cert.id)
-        this.fetchCertifications()
-        this.isLoading = false
-
-        return
+        await deleteCertification(this.api, this.pair, cert.id, () => {
+          this.isLoading = false
+        })
       }
       return
     },
