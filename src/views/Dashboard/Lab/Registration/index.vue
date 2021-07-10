@@ -5,10 +5,12 @@
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-text class="px-8 mt-5">
+              <v-form>
               <v-text-field
                 dense
                 label="Email"
                 placeholder="Email"
+                autocomplete="new-password"
                 outlined
                 v-model="email"
                 ></v-text-field>
@@ -17,7 +19,7 @@
                 dense
                 label="Lab Name"
                 placeholder="Lab Name"
-                autocomplete="disabled"
+                autocomplete="new-password"
                 outlined
                 v-model="labName"
                 ></v-text-field>
@@ -28,7 +30,7 @@
                 item-text="name"
                 item-value="alpha-2"
                 @change="onCountryChange"
-                autocomplete="disabled"
+                autocomplete="new-password"
                 label="Select Country"
                 outlined
               ></v-autocomplete>
@@ -39,7 +41,7 @@
                 item-text="1"
                 item-value="0"
                 @change="onRegionChange"
-                autocomplete="disabled"
+                autocomplete="new-password"
                 label="Select Region"
                 :disabled="!country"
                 outlined
@@ -51,7 +53,7 @@
                 item-text="1"
                 item-value="0"
                 @change="onCityChange"
-                autocomplete="disabled"
+                autocomplete="new-password"
                 label="Select City"
                 :disabled="!region"
                 outlined
@@ -61,7 +63,7 @@
                 dense
                 label="Address"
                 placeholder="Address"
-                autocomplete="disabled"
+                autocomplete="new-password"
                 outlined
                 v-model="address"
                 ></v-text-field>
@@ -83,6 +85,7 @@
                   large
                   @click="registerLab"
                 >Submit</v-btn>
+              </v-form>
             </v-card-text>
           </v-card>
         </v-col>
