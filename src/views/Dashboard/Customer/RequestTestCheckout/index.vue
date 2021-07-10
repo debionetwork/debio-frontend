@@ -57,9 +57,7 @@
                 <v-spacer></v-spacer>
                 <div class="align-self-end pb-2">
                   <span class="text-h6">
-                    {{
-                      parseFloat(product.price.replaceAll(",", ".")).toFixed(2)
-                    }}
+                    {{ product.price }}
                   </span>
                   <span class="primary--text text-caption">
                     {{ coinName }}
@@ -156,7 +154,7 @@ export default {
     totalPrice() {
       return this.products.reduce(
         (sum, { price }) =>
-          (sum += parseFloat(price.replaceAll(",", "."))).toFixed(2),
+          (sum += parseInt(price.replaceAll(",", ""))),
         0
       );
     },
