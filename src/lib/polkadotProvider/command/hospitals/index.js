@@ -1,11 +1,12 @@
 import { queryEntireHospitalDataById } from '@/lib/polkadotProvider/query/hospitals'
 import store from '@/store/index'
 
-export async function registerHospital(api, pair, data){
-    const result = await api.tx.hospitals
+export async function registerHospital(api, pair, data, callback = () => {}){
+    const unsub = await api.tx.hospitals
         .registerHospital(data)
-        .signAndSend(pair, { nonce: -1 })
-    return result.toHuman()
+        .signAndSend(pair, { nonce: -1 }, async ({ events = [], status }) => {
+            await hospitalCommandCallback(api, pair, { events, status, callback, unsub })
+        })
 }
 
 export async function updateHospital(api, pair, data, callback = () => {}){
@@ -30,7 +31,7 @@ export async function hospitalCommandCallback(api, pair, { events, status, callb
             api.events.system.ExtrinsicSuccess.is(event)
         )
         if(eventList.length > 0){
-            store.state.substrate.labAccount = await queryEntireHospitalDataById(api, pair.address)
+            store.state.substrate.hospitalAccount = await queryEntireHospitalDataById(api, pair.address)
             callback()
             unsub()
         }

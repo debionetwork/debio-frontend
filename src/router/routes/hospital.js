@@ -11,11 +11,7 @@ const hospitalRoutes = [
               path: '/',
               name: 'hospital-dashboard',
               meta: {
-                  pageHeader: 'Hospital Dashboard',
-                  drawerButtons: [
-                    { text: "Dashboard", active: true, disabled: false, route: { name: "hospital-dashboard" } },
-                    { text: "Account", disabled: false, route: { name: "hospital-dashboard-account" } },
-                  ]
+                pageHeader: 'Hospital Dashboard',
               },
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Hospital'),
               beforeEnter: (to, from, next) => {
@@ -23,6 +19,12 @@ const hospitalRoutes = [
                   to.meta.drawerButtons = [
                     { text: "Dashboard", active: true, disabled: false, route: { name: "hospital-dashboard" } },
                     { text: "Account" },
+                  ]
+                }
+                else{
+                  to.meta.drawerButtons = [
+                    { text: "Dashboard", active: true, disabled: false, route: { name: "hospital-dashboard" } },
+                    { text: "Account", disabled: false, route: { name: "hospital-dashboard-account" } },
                   ]
                 }
                 next()
