@@ -24,35 +24,38 @@
             <v-card class="dg-card" elevation="0" outlined>
                 <v-card-text class="px-8 pb-8 pt-10">              
                     <v-text-field
-                        dense
-                        label="Service Name"
-                        placeholder="Service Name"
-                        outlined
-                        v-model="name"
+                      dense
+                      label="Service Name"
+                      placeholder="Service Name"
+                      outlined
+                      v-model="name"
+                      :rules="[val => !!val || 'Name is Required']"
                     ></v-text-field>
                     
                     <v-text-field
-                        dense
-                        label="Price"
-                        placeholder="Price"
-                        outlined
-                        v-model="price"
+                      dense
+                      label="Price"
+                      placeholder="Price"
+                      outlined
+                      v-model="price"
+                      :rules="[val => !!val || 'Price is Required']"
                     ></v-text-field>
 
                     <v-text-field
-                        dense
-                        label="Description"
-                        placeholder="Description"
-                        outlined
-                        v-model="description"
-                        ></v-text-field>
+                      dense
+                      label="Description"
+                      placeholder="Description"
+                      outlined
+                      v-model="description"
+                      :rules="[val => !!val || 'Description is Required']"
+                    ></v-text-field>
                     
                     <v-textarea
-                        label="Long Description"
-                        placeholder="Long Description"
-                        outlined
-                        v-model="longDescription"
-                        ></v-textarea>
+                      label="Long Description"
+                      placeholder="Long Description"
+                      outlined
+                      v-model="longDescription"
+                    ></v-textarea>
                         
                     <v-file-input
                       dense
@@ -65,12 +68,12 @@
                     ></v-file-input>
 
                     <v-btn
-                    color="primary"
-                    block
-                    large
-                    :disabled="isDeleteLoading || isUploading"
-                    :loading="isLoading"
-                    @click="updateService"
+                      color="primary"
+                      block
+                      large
+                      :disabled="isDeleteLoading || isUploading"
+                      :loading="isLoading"
+                      @click="updateService"
                     >Submit</v-btn>
                 </v-card-text>
             </v-card>

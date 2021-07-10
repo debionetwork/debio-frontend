@@ -442,7 +442,6 @@ export default {
     encrypt({ text, fileType, fileName }) {
       const context = this
       this.loadingStatus[fileType] = 'Encrypting'
-      console.log("customer's box public key -> ", this.publicKey)
 
       return new Promise((resolve, reject) => {
         try {
@@ -454,7 +453,6 @@ export default {
           let chunksAmount
           cryptWorker.workerEncrypt.postMessage({ pair, text }) // Access this object in e.data in worker
           cryptWorker.workerEncrypt.onmessage = event => {
-            console.log(event)
             // The first returned data is the chunksAmount
             if(event.data.chunksAmount) {
               chunksAmount = event.data.chunksAmount
@@ -463,7 +461,6 @@ export default {
 
             arrChunks.push(event.data)
             this.encryptProgress[fileType] = arrChunks.length / chunksAmount * 100
-            console.log(arrChunks.length, chunksAmount)
 
             if (arrChunks.length == chunksAmount ) {
               resolve({
