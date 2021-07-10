@@ -23,7 +23,7 @@
                       max="30"
                       outlined
                       v-model="price"
-                      :rules="[val => val <= 30 || 'Max Price is 30 DAIC']"
+                      :rules="[val => !!val || 'Price is Required']"
                     ></v-text-field>
 
                     <v-text-field
