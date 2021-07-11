@@ -1,20 +1,19 @@
-import { mnemonicGenerate } from '@polkadot/util-crypto'
-import { Keyring } from '@polkadot/keyring'
-import { ApiPromise, WsProvider } from '@polkadot/api'
-import types from '@/types.json'
+import { queryBalance } from "@/lib/polkadotProvider/query/balance"
+import store from '@/store/index'
 
-export function generateAccount() {
-    // type: ed25519, ssFormat: 42 (all defaults)
-    const keyring = new Keyring()
-    const mnemonic = mnemonicGenerate()
-    const pair = keyring.addFromUri(mnemonic, 'ed25519')
-    return {mnemonic: mnemonic, pair: pair}
-}
-
-export async function connectToBlockchain() {
-    const wsProvider = new WsProvider('wss://debio.theapps.dev/node')
-    return await ApiPromise.create({
-        provider: wsProvider,
-        types: types
-    })
+export async function toFormatDebioCoin(valueCoin) {
+	let addCoin = "";
+	if (valueCoin.toString().includes("0x")) {
+		const decimal = parseInt(valueCoin.toString(), 16).toString()
+		addCoin = decimal.replace("000000000000000", "")
+	} else {
+		addCoin = valueCoin.toString().replace("000000000000000", "")
+	}
+	if (addCoin != "") {
+		const balance = await queryBalance(
+			store.getters['substrate/getAPI'],
+			store.getters['substrate/wallet'].address
+		)
+		store.state.substrate.walletBalance = balance
+	}
 }
