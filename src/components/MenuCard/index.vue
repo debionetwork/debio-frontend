@@ -12,7 +12,7 @@
                   {{ icon }}
                </v-icon>
                <v-avatar v-else>
-                  <img src="../../assets/degenics-logo.png" />
+                  <img src="../../assets/debio-logo.png" />
                </v-avatar>
             </div>
          </div>

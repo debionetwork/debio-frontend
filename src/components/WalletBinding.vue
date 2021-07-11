@@ -49,9 +49,9 @@
 
         <div class="mt-10 mb-10 ml-10 mr-10" v-if="putAccount">
           <div align="center" class="align-center mb-2">
-            <v-img src="@/assets/degenics-logo.png" max-width="50" />
+            <v-img src="@/assets/debio-logo.png" max-width="50" />
           </div>
-          <div align="center" class="align-center mb-5">Degenics</div>
+          <div align="center" class="align-center mb-5">DeBio</div>
           <div align="center" class="align-center mb-2">Select account(s)</div>
           <div v-for="account in accountList" :key="account.address">
             <v-card
