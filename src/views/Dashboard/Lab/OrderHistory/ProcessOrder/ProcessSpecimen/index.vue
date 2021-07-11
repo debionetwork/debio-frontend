@@ -126,7 +126,7 @@
       </template>
       <template v-slot:body>
         <div class="d-flex justify-center pb-5 pt-5">
-          <v-img v-bind:src="require('@/assets/degenics-logo.png')" max-width="50" />
+          <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
         </div>
         <div align="center" class="pb-5">Are you sure you want to reject specimen?</div>
       </template>

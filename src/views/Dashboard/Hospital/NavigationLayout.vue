@@ -12,12 +12,12 @@
               alt="Vuetify Logo"
               class="shrink mr-2"
               contain
-              src="@/assets/degenics-logo.png"
+              src="@/assets/debio-logo.png"
               transition="scale-transition"
               width="40"
             />
             <div class="text-h6 font-weight-bold light_primary--text">
-              Debio {{ isHospital ? "Hospital" : "" }}
+              DeBio {{ isHospital ? "Hospital" : "" }}
             </div>
           </div>
         </a>

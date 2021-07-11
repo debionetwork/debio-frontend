@@ -2,15 +2,22 @@
   <v-app>
     <v-main class="login-main">
       <v-container fill-height>
-        <div style="margin: 0 auto;">
-          <div class="d-flex justify-center">
-            <v-img src="@/assets/debio-logo-words-grey.png" max-width="40%" />
-          </div>
-
-          <div class="d-flex justify-center white--text text-lg-h6 mt-3">
-            The Privacy-First Platform for Personal Genetic Testing
-          </div>
-        </div>
+        <v-row align="center">
+          <v-col cols="12" lg="12" md="12" sm="12">
+            <v-row class="justify-center">
+              <v-col cols="12" lg="5" md="5" sm="5" align="center">
+                <v-img src="@/assets/debio-logo-words-grey.png" />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12" lg="12" md="12" sm="12" align="center">
+                <div class="white--text text-lg-h6 mt-3">
+                  The Privacy-First Platform for Personal Genetic Testing
+                </div>
+              </v-col>
+            </v-row>
+          </v-col>
+        </v-row>
       </v-container>
 
       <DialogSelectRole
