@@ -34,7 +34,7 @@
               @click="$router.push({ name: 'doctor-dashboard-account' })"
           ></MenuCard>
           </v-col>
-          <v-col cols="12" md="8">
+          <!-- <v-col cols="12" md="8">
             <v-card class="dg-card" elevation="0" outlined>
               <div class="secondary--text mt-5 ml-8"><b>Doctor Verification</b></div>
               <v-card-text class="px-8">
@@ -48,15 +48,15 @@
                   </p>
                   <v-row>
                       <v-col cols="12" md="12">
-                              <v-btn
-                                  color="primary"
-                                  block
-                                  medium>Verify Account</v-btn>
+                        <v-btn
+                            color="primary"
+                            block
+                            medium>Verify Account</v-btn>
                       </v-col>
                   </v-row>
               </v-card-text>
             </v-card>
-          </v-col>
+          </v-col> -->
        </v-row>
    </v-container>
 </template>

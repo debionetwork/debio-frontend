@@ -1,15 +1,16 @@
-import keyring from '@polkadot/ui-keyring';
-import { Keyring } from '@polkadot/keyring';
-import { ApiPromise, WsProvider } from '@polkadot/api'
-import types from './types.json'
-import localStorage from '@/lib/local-storage'
-// u8aToString, stringToU8a
-import { u8aToHex } from '@polkadot/util'
-import { queryEntireLabDataById } from '@/lib/polkadotProvider/query/labs'
+import types from "./types.json"
+import store from "@/store/index"
+import Kilt from "@kiltprotocol/sdk-js"
+import { u8aToHex } from "@polkadot/util" // u8aToString, stringToU8a
+import keyring from "@polkadot/ui-keyring"
+import { Keyring } from "@polkadot/keyring"
+import localStorage from "@/lib/local-storage"
 import masterConfigEvent from "./event-types.json"
+import { ApiPromise, WsProvider } from "@polkadot/api"
 import { processEvent } from "@/lib/polkadotProvider/events"
-import Kilt from '@kiltprotocol/sdk-js'
-import store from '@/store/index'
+import { queryEntireLabDataById } from "@/lib/polkadotProvider/query/labs"
+import { queryEntireDoctorDataById } from "@/lib/polkadotProvider/query/doctors"
+import { queryEntireHospitalDataById } from "@/lib/polkadotProvider/query/hospitals"
 
 const {
   cryptoWaitReady,
@@ -236,19 +237,19 @@ export default {
 
         commit('SET_DOCTOR_ACCOUNT', null)
         commit('SET_IS_DOCTOR_ACCOUNT_EXIST', false)
-        // const doctorAccount = await queryEntireDoctorDataById(state.api, address)
-        // if (doctorAccount) {
-        //   commit('SET_DOCTOR_ACCOUNT', doctorAccount)
-        //   commit('SET_IS_DOCTOR_ACCOUNT_EXIST', true)
-        // }
+        const doctorAccount = await queryEntireDoctorDataById(state.api, address)
+        if (doctorAccount) {
+          commit('SET_DOCTOR_ACCOUNT', doctorAccount)
+          commit('SET_IS_DOCTOR_ACCOUNT_EXIST', true)
+        }
 
         commit('SET_HOSPITAL_ACCOUNT', null)
         commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', false)
-        // const hospitalAccount = await queryEntireHospitalDataById(state.api, address)
-        // if (hospitalAccount) {
-        //   commit('SET_HOSPITAL_ACCOUNT', hospitalAccount)
-        //   commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', true)
-        // }
+        const hospitalAccount = await queryEntireHospitalDataById(state.api, address)
+        if (hospitalAccount) {
+          commit('SET_HOSPITAL_ACCOUNT', hospitalAccount)
+          commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', true)
+        }
 
         return { success: true }
       } catch (err) {
@@ -278,12 +279,11 @@ export default {
       try {
         commit('SET_DOCTOR_ACCOUNT', null)
         commit('SET_IS_DOCTOR_ACCOUNT_EXIST', false)
-        console.log(state) // TODO: Remove when certification pallet added
-        // const doctorAccount = await queryEntireDoctorDataById(state.api, state.wallet.address)
-        // if (doctorAccount) {
-        //   commit('SET_DOCTOR_ACCOUNT', doctorAccount)
-        //   commit('SET_IS_DOCTOR_ACCOUNT_EXIST', true)
-        // }
+        const doctorAccount = await queryEntireDoctorDataById(state.api, state.wallet.address)
+        if (doctorAccount) {
+          commit('SET_DOCTOR_ACCOUNT', doctorAccount)
+          commit('SET_IS_DOCTOR_ACCOUNT_EXIST', true)
+        }
 
         return { success: true }
       } catch (err) {
@@ -295,12 +295,11 @@ export default {
       try {
         commit('SET_HOSPITAL_ACCOUNT', null)
         commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', false)
-        console.log(state) // TODO: Remove when certification pallet added
-        // const hospitalAccount = await queryEntireHospitalDataById(state.api, state.wallet.address)
-        // if (hospitalAccount) {
-        //   commit('SET_HOSPITAL_ACCOUNT', hospitalAccount)
-        //   commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', true)
-        // }
+        const hospitalAccount = await queryEntireHospitalDataById(state.api, state.wallet.address)
+        if (hospitalAccount) {
+          commit('SET_HOSPITAL_ACCOUNT', hospitalAccount)
+          commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', true)
+        }
 
         return { success: true }
       } catch (err) {

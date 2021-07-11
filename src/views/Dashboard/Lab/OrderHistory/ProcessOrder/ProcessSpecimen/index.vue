@@ -25,8 +25,8 @@
     </div>
     <div v-else>
       <v-checkbox
-          v-model="wetworkCheckbox"
-          :disabled="wetworkCheckbox"
+          v-model="isWetworkProcessed"
+          :disabled="isWetworkProcessed"
           @change="processDnaSample()"
           label="Wetwork is done"
       ></v-checkbox>
@@ -36,7 +36,7 @@
             color="primary"
             large
             block
-            :disabled="loading.genome || loading.report || genomeSucceed || !wetworkCheckbox"
+            :disabled="loading.genome || loading.report || genomeSucceed || !isWetworkProcessed"
             @click="uploadGenome"
           >
             <v-icon left dark class="pr-4">
@@ -68,7 +68,7 @@
             color="primary"
             large
             block
-            :disabled="loading.genome || loading.report || reportSucceed || !wetworkCheckbox"
+            :disabled="loading.genome || loading.report || reportSucceed || !isWetworkProcessed"
             @click="uploadReport"
           >
             <v-icon left dark class="pr-4">
@@ -103,7 +103,7 @@
             large
             block
             :disabled="disableSendButton"
-            @click="submitTestResult"
+            @click="sendTestResult"
             :loading="isLoading"
             >SEND</v-btn>
         </div>
@@ -131,10 +131,10 @@
         <div align="center" class="pb-5">Are you sure you want to reject specimen?</div>
       </template>
       <template v-slot:actions>
-        <v-col col="8" md="4">
+        <v-col col="12" md="6">
           <Button @click="closeRejectionDialog" elevation="2" dark>Yes</Button>
         </v-col>
-        <v-col col="8" md="4">
+        <v-col col="12" md="6">
           <Button @click="rejectionDialog = false" elevation="2" color="purple" dark>No</Button>
         </v-col>
       </template>
@@ -147,7 +147,7 @@
         </div>
       </template>
       <template v-slot:body>
-        <v-form ref="certificationForm">
+        <v-form ref="rejectForm">
           <v-text-field
             dense
             label="Title"
@@ -165,8 +165,8 @@
         </v-form>
       </template>
       <template v-slot:actions>
-        <Button @click="submitRejectionStatementDialog" :loading="isLoading" color="primary" dark>
-          send
+        <Button @click="submitRejectionStatementDialog" :loading="isRejectLoading" color="primary" dark>
+          Send
         </Button>
       </template>
     </Dialog>
@@ -178,7 +178,7 @@
       imgPath="success.png"
       imgWidth="50"
       @toggle="rejectionAlertDialog = $event"
-      @close="actionAlert()"
+      @close="$router.push('/lab/orders')"
     ></DialogAlert>
   </div>
 </template>
@@ -191,6 +191,7 @@ import ipfsWorker from '@/web-workers/ipfs-worker'
 import cryptWorker from '@/web-workers/crypt-worker'
 import specimenFilesTempStore from '@/lib/specimen-files-temp-store'
 import Kilt from '@kiltprotocol/sdk-js'
+import { fulfillOrder } from '@/lib/polkadotProvider/command/orders'
 import { processDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
 import { queryDnaTestResults } from '@/lib/polkadotProvider/query/geneticTesting'
 import Dialog from '@/components/Dialog'
@@ -206,21 +207,24 @@ export default {
     FileCard,
   },
   props: {
+    orderId: String,
     specimenNumber: String,
     publicKey: [Uint8Array, String],
     isProcessed: Boolean,
     wetworkCheckbox: Boolean
   },
   data: () => ({
+    isProcessing: false,
+    isWetworkProcessed: false,
     identity: null,
     genomeSucceed: false,
     reportSucceed: false,
     comment: "",
     reportLink: "",
     resultLink: "",
-    isProcessSuccess: false,
     submitted: false,
     isLoading: false,
+    isRejectLoading: false,
     files: {
       genome: [],
       report: [],
@@ -248,30 +252,17 @@ export default {
     rejectionAlertDialog: false,
   }),
   async mounted(){
+    // Set wetwork model
+    this.isWetworkProcessed = this.wetworkCheckbox
+    
     // Add file input event listener
     this.addFileUploadEventListener(this.$refs.encryptUploadGenome, 'genome')
     this.addFileUploadEventListener(this.$refs.encryptUploadReport, 'report')
 
     this.identity = Kilt.Identity.buildFromMnemonic(this.mnemonic)
     
-    if (this.isProcessed) {
-      const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
-      console.log(testResult)
-      const { result_link, report_link } = testResult
-      const genomeFile = {
-        fileName: 'Genome File', // FIXME: Harusnya di simpan di dan di ambil dari blockchain  
-        ipfsPath: [{ data: { path: result_link.split('/')[result_link.split('/').length-1] } }]
-      }
-      const reportFile = {
-        fileName: 'Report File', // FIXME: Harusnya di simpan di dan di ambil dari blockchain
-        ipfsPath: [{ data: { path: report_link.split('/')[report_link.split('/').length-1] } }]
-      }
-      this.files = {
-        genome: [genomeFile],
-        report: [reportFile]
-      }
-      this.submitted = true
-    }
+    const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
+    if(testResult) this.setUploadFields(testResult)
   },
   computed: {
     ...mapGetters({
@@ -289,19 +280,50 @@ export default {
     },
   },
   methods:{
+    setUploadFields(testResult){
+      const { result_link, report_link } = testResult
+      if(result_link){
+        const genomeFile = {
+          fileName: 'Genome File', // FIXME: Harusnya di simpan di dan di ambil dari blockchain  
+          ipfsPath: [{ data: { path: result_link.split('/')[result_link.split('/').length-1] } }]
+        }
+        this.files.genome.push(genomeFile)
+      }
+      if(report_link){
+        const reportFile = {
+          fileName: 'Report File', // FIXME: Harusnya di simpan di dan di ambil dari blockchain
+          ipfsPath: [{ data: { path: report_link.split('/')[report_link.split('/').length-1] } }]
+        }
+        this.files.report.push(reportFile)
+      }
+      if (this.isProcessed) {
+        this.submitted = true
+      }
+    },
     closeRejectionDialog(){
       this.rejectionDialog = false
       this.rejectionStatementDialog = true
     },
     async submitRejectionStatementDialog(){
+      if (!this.$refs.rejectForm.validate()) {
+        return
+      }
+      this.isRejectLoading = true
       await rejectDnaSample(
         this.api,
         this.pair,
-        this.specimenNumber,
+        {
+          tracking_id: this.specimenNumber,
+          rejected_title: this.rejectionTitle,
+          rejected_description: this.rejectionDescription,
+        },
+        () => {
+          this.isRejectLoading = false
+          this.$emit('rejectSpecimen')
+          this.rejectionStatementDialog = false
+          this.rejectionAlertDialog = true
+        }
       )
-      this.$emit('rejectSpecimen')
-      this.rejectionStatementDialog = false
-      this.rejectionAlertDialog = true
     },
     uploadGenome() {
       this.$refs.encryptUploadGenome.click()
@@ -324,38 +346,51 @@ export default {
         this.api,
         this.pair,
         this.specimenNumber,
+        () => {
+          this.$emit('processWetwork')
+        }
       )
-
-      this.isProcessSuccess = true
-      this.$emit('processWetwork')
     },
     rejectDnaSample() {
       this.rejectionDialog = true
     },
-    async submitTestResult() {
-      const genomeLink = this.getFileIpfsUrl(this.files.genome[0])
-      const reportLink = this.getFileIpfsUrl(this.files.report[0])
+    async submitTestResult(isProcessSuccess = false, callback = ()=>{}) {
+      let genomeLink = ""
+      if(this.files.genome.length){
+        genomeLink = this.getFileIpfsUrl(this.files.genome[0])
+      }
 
-      this.isLoading = true
-      
+      let reportLink = ""
+      if(this.files.report.length){
+        reportLink = this.getFileIpfsUrl(this.files.report[0])      
+      }
+
       await submitTestResult(
         this.api,
         this.pair,
         this.specimenNumber,
-        this.isProcessSuccess,
+        isProcessSuccess,
         {
           comment: this.comment,
           report_link: reportLink,
           result_link: genomeLink
-        }
+        },
+        callback
       )
+    },
+    sendTestResult() {
+      this.isLoading = true
+      this.submitTestResult(true, async () => {
+        await fulfillOrder(
+          this.api,
+          this.pair,
+          this.orderId,
+        )
 
-      this.$emit('submitTestResult')
-      setTimeout(() => {
+        this.$emit('submitTestResult')
         this.submitted = true
         this.isLoading = false
-      }, 2000)
-
+      })
     },
     addFileUploadEventListener(fileInputRef, fileType) {
       const context = this
@@ -407,7 +442,6 @@ export default {
     encrypt({ text, fileType, fileName }) {
       const context = this
       this.loadingStatus[fileType] = 'Encrypting'
-      console.log("customer's box public key -> ", this.publicKey)
 
       return new Promise((resolve, reject) => {
         try {
@@ -419,7 +453,6 @@ export default {
           let chunksAmount
           cryptWorker.workerEncrypt.postMessage({ pair, text }) // Access this object in e.data in worker
           cryptWorker.workerEncrypt.onmessage = event => {
-            console.log(event)
             // The first returned data is the chunksAmount
             if(event.data.chunksAmount) {
               chunksAmount = event.data.chunksAmount
@@ -428,7 +461,6 @@ export default {
 
             arrChunks.push(event.data)
             this.encryptProgress[fileType] = arrChunks.length / chunksAmount * 100
-            console.log(arrChunks.length, chunksAmount)
 
             if (arrChunks.length == chunksAmount ) {
               resolve({

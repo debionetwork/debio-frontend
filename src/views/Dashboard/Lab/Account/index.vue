@@ -29,6 +29,7 @@
                 <b>Lab Account Information</b>
               </div>
 
+              <v-form>
               <!-- <v-file-input
                 dense
                 label="Profile Image"
@@ -42,6 +43,7 @@
                 dense
                 label="Email"
                 placeholder="Email"
+                autocomplete="new-password"
                 outlined
                 v-model="email"
               ></v-text-field>
@@ -50,6 +52,7 @@
                 dense
                 label="Lab Name"
                 placeholder="Lab Name"
+                autocomplete="new-password"
                 outlined
                 v-model="labName"
               ></v-text-field>
@@ -61,6 +64,7 @@
                 item-value="alpha-2"
                 @change="onCountryChange"
                 label="Select Country"
+                autocomplete="new-password"
                 v-model="country"
                 outlined
               ></v-autocomplete>
@@ -73,6 +77,7 @@
                 @change="onRegionChange"
                 label="Select Region"
                 :disabled="!country"
+                autocomplete="new-password"
                 v-model="region"
                 outlined
               ></v-autocomplete>
@@ -85,6 +90,7 @@
                 @change="onCityChange"
                 label="Select City"
                 :disabled="!region"
+                autocomplete="new-password"
                 v-model="city"
                 outlined
               ></v-autocomplete>
@@ -93,6 +99,7 @@
                 dense
                 label="Address"
                 placeholder="Address"
+                autocomplete="new-password"
                 outlined
                 v-model="address"
                 ></v-text-field>
@@ -103,6 +110,7 @@
                   large
                   @click="updateLab"
                 >Submit</v-btn>
+              </v-form>
             </v-card-text>
           </v-card>
 
@@ -116,16 +124,22 @@
                   <v-icon>mdi-plus</v-icon>
                 </v-btn>
               </div>
-              <div v-if="certifications.length == 0">
+              <div v-if="labAccount.certifications.length == 0">
                 You don’t have any certifications
               </div>
-              <v-skeleton-loader v-if="isLoading" height="250" min-width="200">
-              </v-skeleton-loader>
-              <div v-if="certifications.length > 0 && !isLoading" class="mt-5">
+              <div v-if="isLoading" class="mt-5">
+                <v-skeleton-loader 
+                  v-for="data in labAccount.certifications"
+                  :key="data.idx"
+                  type="list-item-three-line"
+                  min-width="200"
+                ></v-skeleton-loader>
+              </div>
+              <div v-if="labAccount.certifications.length > 0 && !isLoading" class="mt-5">
                 <div
-                  v-for="(cert, idx) in certifications"
+                  v-for="(cert, idx) in labAccount.certifications"
                   :key="cert.id"
-                  :style="idx < (certifications.length - 1) && 'border-bottom: 1px solid #555454;'"
+                  :style="idx < (labAccount.certifications.length - 1) && 'border-bottom: 1px solid #555454;'"
                   class="my-3"
                 >
                   <div class="d-flex justify-space-between align-center" style="width: 100%;">
@@ -145,10 +159,10 @@
       </v-row>
     </v-container>
 
-    <Dialog :show="certificationDialog" @close="certificationDialog = false">
+    <Dialog :show="certificationDialog" @close="closeCertificationDialog">
       <template v-slot:title>
         <div class="secondary--text h6">
-          Add Certification
+          {{ isEditCertificationDialog ? "Edit" : "Add" }} Certification
         </div>
       </template>
       <template v-slot:body>
@@ -212,7 +226,6 @@
 import { mapState, mapGetters } from 'vuex'
 import { updateLab } from '@/lib/polkadotProvider/command/labs'
 import { createCertification, updateCertification, deleteCertification } from '@/lib/polkadotProvider/command/labs/certifications'
-import { getCertificationDetails } from '@/lib/polkadotProvider/query/labs/certifications'
 import countryData from "@/assets/json/country.json"
 import cityData from "@/assets/json/city.json"
 import Kilt from '@kiltprotocol/sdk-js'
@@ -222,10 +235,6 @@ import Button from '@/components/Button'
 
 updateCertification
 deleteCertification
-
-async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
 
 export default {
   name: 'LabAccount',
@@ -238,8 +247,6 @@ export default {
     this.email = labInfo.email
     this.labName = labInfo.name
     this.address = labInfo.address
-    
-    await this.fetchCertifications()
     
     await this.getCountries()
     this.country = labInfo.country
@@ -269,6 +276,7 @@ export default {
     certDescription: "",
     selectMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     isLoading: false,
+    isEditCertificationDialog: false,
   }),
   computed: {
     ...mapGetters({
@@ -333,14 +341,10 @@ export default {
         console.error(err)
       }
     },
-    async fetchCertifications() {
-      this.certifications = []
-      const certificationIds = this.labAccount.certifications
-      this.certifications = await getCertificationDetails(this.api, certificationIds)
-    },
     closeCertificationDialog() {
       this.certId = ""
       this.certificationDialog = false
+      this.isEditCertificationDialog = false
       this.$refs.certificationForm.reset()
     },
     async submitCertification() {
@@ -364,15 +368,10 @@ export default {
           description: this.certDescription,
         }
 
-        const result = await createCertification(this.api, this.pair, certificationInfo)
-        console.log(result)
-        await sleep(3000) // FIXME: Should use subscription to know when transaction has been in block
-
-        this.closeCertificationDialog()
-
-        await this.fetchCertifications()
-
-        this.isLoading = false
+        await createCertification(this.api, this.pair, certificationInfo, () => {
+          this.closeCertificationDialog()
+          this.isLoading = false
+        })
       } catch (err) {
         console.log(err)
         this.isLoading = false
@@ -387,6 +386,7 @@ export default {
       this.certDescription = cert.info.description
 
       this.certificationDialog = true
+      this.isEditCertificationDialog = true
     },
     async updateCertification() {
       if (!this.$refs.certificationForm.validate()) {
@@ -404,16 +404,10 @@ export default {
           description: this.certDescription,
         }
 
-        const res = await updateCertification(this.api, this.pair, this.certId, certificationInfo)
-        console.log(res)
-        await sleep(3000) // FIXME: Should use subscription to know when transaction has been in block
-
-        this.closeCertificationDialog()
-
-        await this.fetchCertifications()
-
-        this.isLoading = false
-
+        await updateCertification(this.api, this.pair, this.certId, certificationInfo, () => {
+          this.closeCertificationDialog()
+          this.isLoading = false
+        })
       } catch (err) {
         console.log(err)
         this.isLoading = false
@@ -424,15 +418,9 @@ export default {
       if (isConfirmed) {
         this.isLoading = true
 
-        const result = await deleteCertification(this.api, this.pair, cert.id)
-        console.log(result)
-
-        await sleep(3000) // FIXME: Should use subscription to know when transaction has been in block
-
-        await this.fetchCertifications()
-        this.isLoading = false
-
-        return
+        await deleteCertification(this.api, this.pair, cert.id, () => {
+          this.isLoading = false
+        })
       }
       return
     },

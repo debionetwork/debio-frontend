@@ -29,6 +29,16 @@
               <v-list-item-title>Lab</v-list-item-title>
             </v-list-item>
           </router-link>
+          <router-link to="/hospital">
+            <v-list-item link>
+              <v-list-item-title>Hospital</v-list-item-title>
+            </v-list-item>
+          </router-link>
+          <router-link to="/doctor">
+            <v-list-item link>
+              <v-list-item-title>Doctor</v-list-item-title>
+            </v-list-item>
+          </router-link>
         </v-list>
       </v-card>
     </div>

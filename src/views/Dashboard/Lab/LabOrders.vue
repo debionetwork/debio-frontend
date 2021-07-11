@@ -55,7 +55,7 @@ import { mapState } from "vuex"
 import OrderCard from "@/components/OrderCard"
 import PrimaryButton from "@/components/PrimaryButton"
 import {
-  getOrdersDetailByAddress,
+  getOrdersDetailByAddressPagination,
 } from "@/lib/polkadotProvider/query/orders"
 
 export default {
@@ -84,20 +84,10 @@ export default {
       this.isLoadingOrderHistory = true
       try {
         const address = this.wallet.address
-        let orders = await getOrdersDetailByAddress(
-          this.api,
-          address,
-        )
-        
-        orders.sort(
-          (a, b) => parseInt(b.created_at) - parseInt(a.created_at)
-        )
+        let orders = (await getOrdersDetailByAddressPagination( this.api, address, 1, 3)).orders
 
-        let lengthMax = 3
-        if(orders.length > 0){
-          for (let i = 0; i < lengthMax; i++) {
-            this.prepareOrderData(orders[i])
-          }
+        for (let i = 0; i < orders.length; i++) {
+          this.prepareOrderData(orders[i])
         }
         
         this.isLoadingOrderHistory = false
@@ -110,9 +100,10 @@ export default {
 
       const title = detailOrder.lab_name
       const labName = detailOrder.service_name
+      
       let icon = "mdi-needle"
-      if (detailOrder.image != null) {
-        icon = detailOrder.image
+      if (detailOrder.service_image) {
+        icon = detailOrder.service_image
       }
 
       const number = detailOrder.id
@@ -144,7 +135,6 @@ export default {
           item = this.orderHistory[i]
         }
       }
-      console.log(item)
       this.$router.push({ 
         name: 'lab-dashboard-process-order', 
         params: { item: item }

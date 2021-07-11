@@ -22,7 +22,7 @@
                 </v-container>
                <DataTable
                   :headers="headers"
-                  :items="services"
+                  :items="labAccount.services"
                   :search="search"
                   :sort-by="['timestamp']"
                   :sort-desc="[true]"
@@ -35,10 +35,10 @@
                         @input="onSearchInput"
                      ></SearchBar>
                   </template>
-                  <template v-slot:[`item.image`]="{ item }">
+                  <template v-slot:[`item.info.image`]="{ item }">
                      <v-container rounded>
                         <v-img 
-                           src="@/assets/degenics-logo.png" 
+                           :src="getImageLink(item.info.image)" 
                            :alt="item.name" 
                            max-height="70px"
                            max-width="70px"
@@ -89,42 +89,19 @@ export default {
   },
   data: () => ({
     headers: [
-        { text: 'Image', value: 'image' },
-        { text: 'Name', value: 'name' },
-        { text: 'Description', value: 'description' },
-        { text: 'Price', value: 'price' },
+        { text: 'Image', value: 'info.image' },
+        { text: 'Name', value: 'info.name' },
+        { text: 'Description', value: 'info.description' },
+        { text: 'Price', value: 'info.price' },
         { text: 'Action', value: 'actions', sortable: false, align: 'center', width: '10%' },
     ],
-    services: [{
-       serviceId: 'serviceId',
-       name: 'name',
-       image: 'image',
-       description: 'description',
-       price: 'price',
-       action: 'action'
-    }],
     search: '',
     isLoading: false,
   }),
-  async mounted(){
-     this.services.pop()
-     const labServices = this.labAccount.services
-     for(let i = 0; i < labServices.length; i++){
-        let s = {}
-        s["serviceId"] = labServices[i].id
-        s["name"] = labServices[i].info.name
-        s["image"] = labServices[i].info.image
-        s["price"] = labServices[i].info.price
-        s["description"] = labServices[i].info.description
-        s["longDescription"] = labServices[i].info.long_description
-        s["action"] = 'action'
-        this.services.push(s)
-     }
-  },
   computed:{
-    ...mapGetters({
+   ...mapGetters({
       labAccount: 'substrate/labAccount',
-    }),
+   }),
   },
   methods:{
    onSearchInput(val) {
@@ -132,7 +109,13 @@ export default {
    },
    gotoDetails(item){
       this.$router.push({ name: 'lab-dashboard-services-detail', params: { item: item }})
-   }
+   },
+   getImageLink(val){
+      if(val && val != ""){
+         return val
+      }
+      return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
+   },
   },
 }
 

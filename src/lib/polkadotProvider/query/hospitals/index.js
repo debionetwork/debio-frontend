@@ -1,4 +1,4 @@
-import { getHospitalCertificationDetails } from '@/lib/polkadotProvider/query/hospitals/certifications'
+import { getHospitalCertificationDetail } from '@/lib/polkadotProvider/query/hospitals/certifications'
 
 export async function queryHospitalsById(api, hospitalId){
     const res = await api.query.hospitals.hospitals(hospitalId)
@@ -28,7 +28,7 @@ export async function queryEntireHospitalDataById(api, hospitalId){
     // If not null continue
     const certificationsDetailedList = []
     for(let i = 0; i < res.certifications.length; i++){
-        let certificationDetail = await getHospitalCertificationDetails(api, res.certifications[i])
+        let certificationDetail = await getHospitalCertificationDetail(api, res.certifications[i])
         certificationsDetailedList.push(certificationDetail)
     }
     res.certifications = certificationsDetailedList

@@ -52,16 +52,23 @@
                         <div class="d-flex justify-space-between">
                             <div class="d-flex align-center">
                                 <div>
-                                    <v-icon color="#BA8DBB" :size="52">
-                                      {{ serviceInfo.image }}
+                                    <v-icon
+                                    v-if="_icon"
+                                    color="#BA8DBB"
+                                    :size="52"
+                                    >
+                                    {{ _icon }}
                                     </v-icon>
+                                    <v-avatar v-else>
+                                    <img :src="getImageLink(serviceImage)" />
+                                    </v-avatar>
                                 </div>
                                 <div class="ml-5">
                                     <div style="">
-                                      <b>{{ serviceInfo.name }}</b>
+                                      <b>{{ this.serviceName }}</b>
                                     </div>
                                     <div class="text-caption grey--text text--darken-1">
-                                      {{ serviceInfo.description.substring(0, 60) }}...
+                                      {{ this.serviceDescription.substring(0, 60) }}...
                                     </div>
                                 </div>
                             </div>
@@ -100,8 +107,9 @@
                     @specimenReceived="receivedCheckbox = true" />
                 <ProcessSpecimen 
                     v-if="showGenomeReportDialog"
-                    :specimenNumber="specimenNumber"
-                    :publicKey="publicKey"
+                    :order-id="orderId"
+                    :specimen-number="specimenNumber"
+                    :public-key="publicKey"
                     :is-processed="isOrderProcessed"
                     :wetwork-checkbox="wetworkCheckbox"
                     @processWetwork="wetworkCheckbox = true"
@@ -121,10 +129,8 @@ import { mapGetters } from 'vuex'
 // import OrderFinished from './OrderFinished'
 import ReceiveSpecimen from './ReceiveSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
-import { fulfillOrder } from '@/lib/polkadotProvider/command/orders'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
 import { queryDnaSamples } from '@/lib/polkadotProvider/query/geneticTesting'
-import { queryServicesById } from '@/lib/polkadotProvider/query/services'
 
 export default {
   name: 'ProcessOrderHistory',
@@ -145,11 +151,9 @@ export default {
     sellerEthAddress: "",
     specimenNumber: "",
     isOrderProcessed: false,
-    serviceInfo: {
-      name: "",
-      description: "",
-      image: "",
-    }
+    serviceName: "",
+    serviceDescription: "",
+    serviceImage: "",
   }),
   async mounted(){
     try {
@@ -158,15 +162,12 @@ export default {
         this.$router.push({ name: 'lab-dashboard-order-history' })
       }
       const order = await getOrdersDetail(this.api, this.orderId)
-
-      await this.getServiceDetail(order.service_id)
-
-      // Get data from route param
-      //const keyring = new Keyring();
-      //this.publicKey = keyring.decodeAddress(order.customer_id)
+      this.serviceName = order.service_name
+      this.serviceDescription = order.service_description
+      this.serviceImage = order.service_image
       this.publicKey = order.customer_box_public_key
       this.createdAt = order.created_at
-      this.customerEthAddress = order.customer_eth_address
+      this.customerEthAddress = order.customer_eth_address ? order.customer_eth_address : "Address not set"
       this.sellerEthAddress = order.seller_eth_address
       this.specimenNumber = order.dna_sample_tracking_id
       this.setCheckboxByDnaStatus()
@@ -175,12 +176,9 @@ export default {
     }
   },
   methods: {
-    async getServiceDetail(serviceId) {
-      const service = await queryServicesById(this.api, serviceId)
-      this.serviceInfo = { ...service.info }
-    },
     async setCheckboxByDnaStatus(){
         const dna = await queryDnaSamples(this.api, this.specimenNumber)
+        if(!dna) return
 
         if(dna.status == "Received") {
             this.receivedCheckbox = true
@@ -207,16 +205,17 @@ export default {
     async submitTestResult(){
       try {
         console.log('Submitting test result!')
-        await fulfillOrder(
-            this.api,
-            this.pair,
-            this.orderId,
-        )
         this.sentCheckbox = true
       } catch (err) {
         console.log(err)
       }
-    }
+    },
+    getImageLink(val){
+        if(val && val != ""){
+          return val
+        }
+        return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
+    },
   },
   computed: {
     ...mapGetters({
@@ -233,9 +232,11 @@ export default {
         return this.receivedCheckbox
         // return this.receivedCheckbox && !this.sentCheckbox
     },
-    // showSentDialog(){
-    //     return this.sentCheckbox
-    // }
+    _icon() {
+      return this.serviceImage && (this.serviceImage.startsWith('mdi') || this.serviceImage.startsWith('$'))
+        ? this.serviceImage
+        : false
+    },
   },
 }
 </script>
