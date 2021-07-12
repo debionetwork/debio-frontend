@@ -73,7 +73,7 @@
           <div>
             <div style="font-size: 14px">{{ notif.message }}</div>
             <div style="font-size: 12px">
-              {{ notif.timestamp | timestampToDateTime }}
+              {{ notif.notifDate }}
             </div>
           </div>
         </div>

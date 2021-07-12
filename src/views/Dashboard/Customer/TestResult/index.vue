@@ -34,6 +34,7 @@
               :specimenNumber="order.number"
               :labName="order.labName"
               :timestamp="order.timestamp"
+              :orderDate="order.orderDate"
             />
           </v-col>
         </template>
@@ -168,12 +169,22 @@ export default {
         icon = detailService.info.image;
       }
 
-      let timestamp = Math.floor(Date.now() / 1000).toString();
+      let dateSet = new Date();
+      let timestamp = dateSet.getTime().toString();
       if (dnaTestResults.updated_at != null) {
-        timestamp = (
-          dnaTestResults.updated_at.replace(/,/g, "") / 1000
-        ).toString();
+        dateSet = new Date(
+          parseInt(dnaTestResults.updated_at.replace(/,/g, ""))
+        );
+        timestamp = dateSet.getTime().toString();
       }
+      const orderDate = dateSet.toLocaleString("en-US", {
+        weekday: "short", // long, short, narrow
+        day: "numeric", // numeric, 2-digit
+        year: "numeric", // numeric, 2-digit
+        month: "long", // numeric, 2-digit, long, short, narrow
+        hour: "numeric", // numeric, 2-digit
+        minute: "numeric",
+      });
 
       const number = dnaTestResults.tracking_id;
       const status = SUCCESS;
@@ -188,6 +199,7 @@ export default {
         timestamp,
         date,
         status,
+        orderDate,
       };
 
       this.testResults.push(order);

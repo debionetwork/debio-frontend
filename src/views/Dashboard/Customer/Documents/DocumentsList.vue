@@ -259,7 +259,7 @@ export default {
       const title = dataEMR.title;
       const description = dataEMR.description;
       var d = new Date(parseInt(dataEMR.uploaded_at.replace(/,/g, "")));
-      const timestamp = d;
+      const timestamp = d.getTime().toString();
       const data = dataEMR;
       const date = d.toLocaleString("en-US", {
         weekday: "short", // long, short, narrow

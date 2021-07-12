@@ -117,12 +117,12 @@ export default {
           console.log(`\nReceived ${events.length} events:`);
           events.forEach((record) => {
             const { event, phase } = record;
-            if(event.section == "orders" || event.section == "geneticTesting" || event.section == "balances" || event.section == "electronicMedicalRecord"){
+            if (event.section == "orders" || event.section == "geneticTesting" || event.section == "balances" || event.section == "electronicMedicalRecord") {
               console.log("Method :" + event.method);
               console.log(`Phase: ${phase.toString()}`)
               commit('SET_LAST_EVENT', event);
             }
-            else{
+            else {
               console.log("event no mapping");
             }
           })
@@ -349,12 +349,21 @@ export default {
         if (listNotificationJson != null && listNotificationJson != "") {
           listNotification = JSON.parse(listNotificationJson);
         }
-        
+
         // If event section defined then process event
-        if(state.configEvent["role"][role][event.section] && state.configEvent["role"][role][event.section][event.method]){
+        if (state.configEvent["role"][role][event.section] && state.configEvent["role"][role][event.section][event.method]) {
           const { statusAdd, message, data, params } = await processEvent(state, address, event, role)
           const route = state.configEvent["role"][role][event.section][event.method].route;
-          const timestamp = Math.floor(Date.now() / 1000).toString();
+          const dateSet = new Date();
+          const timestamp = dateSet.getTime().toString();
+          const notifDate = dateSet.toLocaleString("en-US", {
+            weekday: "short", // long, short, narrow
+            day: "numeric", // numeric, 2-digit
+            year: "numeric", // numeric, 2-digit
+            month: "long", // numeric, 2-digit, long, short, narrow
+            hour: "numeric", // numeric, 2-digit
+            minute: "numeric",
+          });
           if (statusAdd) {
             listNotification.push({
               message: message,
@@ -363,6 +372,7 @@ export default {
               route: route,
               params: params,
               read: false,
+              notifDate: notifDate,
             });
           }
         }
