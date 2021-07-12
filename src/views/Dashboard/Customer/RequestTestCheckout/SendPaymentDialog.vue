@@ -30,7 +30,7 @@
             </div>
             <div>
               <span class="text-h6">
-                {{ totalPrice }}
+                {{ priceOrder }}
               </span>
               <span class="primary--text text-caption"> {{ coinName }} </span>
             </div>
@@ -95,7 +95,7 @@ import { startApp } from "@/lib/metamask";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
 import {
   lastOrderByCustomer,
-  getOrdersDetail,
+  getOrdersData,
 } from "@/lib/polkadotProvider/query/orders";
 import { createOrder } from "@/lib/polkadotProvider/command/orders";
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile";
@@ -147,7 +147,10 @@ export default {
   mounted() {
     this.coinName = this.configApp.tokenName;
     this.priceOrder = this.totalPrice;
-    this.priceOrder = parseFloat(this.priceOrder.replaceAll(",", "."));
+    this.priceOrder = parseFloat(
+      this.priceOrder.toString().replaceAll(",", ".")
+    ).toFixed(2);
+
     if (this.lab != null) {
       console.log(this.lab);
       this.country = cityData[this.lab.info.country].name;
@@ -213,7 +216,7 @@ export default {
           if (lastOrder == null) {
             sendOrder = true;
           } else {
-            const detailOrder = await getOrdersDetail(this.api, lastOrder);
+            const detailOrder = await getOrdersData(this.api, lastOrder);
             if (detailOrder != null) {
               if (detailOrder.status != "Unpaid") {
                 sendOrder = true;

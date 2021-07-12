@@ -59,7 +59,7 @@ import PrimaryButton from "@/components/PrimaryButton";
 import localStorage from "@/lib/local-storage";
 import {
   ordersByCustomer,
-  getOrdersDetail,
+  getOrdersData,
 } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
@@ -116,7 +116,7 @@ export default {
           }
 
           for (let i = 0; i < lengthMax; i++) {
-            const detailOrder = await getOrdersDetail(this.api, listOrderId[i]);
+            const detailOrder = await getOrdersData(this.api, listOrderId[i]);
             const detaillab = await queryLabsById(
               this.api,
               detailOrder.seller_id

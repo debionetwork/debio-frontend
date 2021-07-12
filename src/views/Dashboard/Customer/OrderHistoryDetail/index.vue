@@ -212,7 +212,7 @@ import {
   ORDER_REFUNDED,
   ORDER_FULFILLED,
 } from "@/constants/specimen-status";
-import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
+import { getOrdersData } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { transfer, getPrice, addToken } from "@/lib/metamask/wallet.js";
@@ -318,7 +318,7 @@ export default {
     async fetchOrderDetails() {
       this.isLoading = true;
       this.orderId = this.$route.params.number;
-      this.order = await getOrdersDetail(this.api, this.orderId);
+      this.order = await getOrdersData(this.api, this.orderId);
       this.lab = await queryLabsById(this.api, this.order.seller_id);
       this.service = await queryServicesById(this.api, this.order.service_id);
       this.priceOrder = parseFloat(

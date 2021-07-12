@@ -56,7 +56,7 @@ import {
 } from "@/lib/polkadotProvider/query/geneticTesting";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
-import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
+import { getOrdersData } from "@/lib/polkadotProvider/query/orders";
 
 export default {
   name: "test-result-all",
@@ -136,7 +136,7 @@ export default {
                 this.api,
                 dnaTestResults.lab_id
               );
-              const detailOrder = await getOrdersDetail(
+              const detailOrder = await getOrdersData(
                 this.api,
                 dnaTestResults.order_id
               );

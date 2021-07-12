@@ -144,7 +144,7 @@ import {
 } from "@/constants/specimen-status";
 import {
   ordersByCustomer,
-  getOrdersDetail,
+  getOrdersData,
 } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
@@ -229,7 +229,7 @@ export default {
           lengthMax = listOrderId.length;
 
           for (let i = 0; i < lengthMax; i++) {
-            const detailOrder = await getOrdersDetail(this.api, listOrderId[i]);
+            const detailOrder = await getOrdersData(this.api, listOrderId[i]);
             if (detailOrder != null) {
               const detaillab = await queryLabsById(
                 this.api,

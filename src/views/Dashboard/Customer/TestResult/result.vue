@@ -134,7 +134,7 @@ import { mapState } from "vuex";
 import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
-import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
+import { getOrdersData } from "@/lib/polkadotProvider/query/orders";
 import { hexToU8a } from "@polkadot/util";
 
 export default {
@@ -189,7 +189,7 @@ export default {
     async getLabServices() {
       try {
         this.lab = await queryLabsById(this.api, this.speciment.lab_id);
-        this.order = await getOrdersDetail(this.api, this.speciment.order_id);
+        this.order = await getOrdersData(this.api, this.speciment.order_id);
         this.ownerAddress = this.order.customer_eth_address;
         this.services = await queryServicesById(
           this.api,

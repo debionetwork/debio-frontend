@@ -154,9 +154,9 @@ export default {
     totalPrice() {
       return this.products.reduce(
         (sum, { price }) =>
-          (sum += parseInt(price.replaceAll(",", ""))),
+          (sum += parseInt(price.replaceAll(",", "."))),
         0
-      );
+      ).toFixed(2);
     },
   },
   mounted() {
