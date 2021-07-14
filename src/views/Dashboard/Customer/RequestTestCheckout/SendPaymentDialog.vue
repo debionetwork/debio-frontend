@@ -25,29 +25,44 @@
         <div class="mt-6">
           <div class="text-h5">Payment Details</div>
           <div class="d-flex align-center justify-space-between mt-4">
-            <div class="text-body-1">
-              <b>Total Price</b>
+            <div class="text-body-2">
+              <b>Price</b>
             </div>
             <div>
-              <span class="text-h6">
+              <span class="text-h7">
                 {{ priceOrder }}
               </span>
-              <span class="primary--text text-caption"> {{ coinName }} </span>
+              <span class="primary--text text-caption">
+                {{ products.currency }}
+              </span>
             </div>
           </div>
-          <!-- <div class="d-flex align-center justify-space-between">
+          <div class="d-flex align-center justify-space-between">
+            <div class="text-body-2">
+              <b>QC Price</b>
+            </div>
+            <div>
+              <span class="text-h7">
+                {{ totalQcPrice }}
+              </span>
+              <span class="text-caption">
+                {{ products.currency }}
+              </span>
+            </div>
+          </div>
+          <div class="d-flex align-center justify-space-between mt-4">
             <div class="text-body-1">
-              <b>Transaction Fee</b>
+              <b>Total Pay</b>
             </div>
             <div>
               <span class="text-h6">
-                {{ transactionFee }}
+                {{ totalPay.toFixed(2) }}
               </span>
-              <span class="text-caption">
-                Gwei
+              <span class="primary--text text-caption">
+                {{ products.currency }}
               </span>
             </div>
-          </div> -->
+          </div>
         </div>
 
         <!-- Prompt password to sign transaction -->
@@ -109,12 +124,14 @@ export default {
     show: Boolean,
     lab: Object,
     totalPrice: [String, Number],
+    qcPrice: [String, Number],
     products: Array,
   },
   data: () => ({
     password: "",
     isLoading: false,
-    transactionFee: "TODO",
+    totalQcPrice: 0,
+    totalPay: 0,
     error: "",
     country: "",
     city: "",
@@ -122,7 +139,6 @@ export default {
     metamaskStatus: false,
     ethSellerAddress: null,
     ethAccount: null,
-    coinName: "",
     priceOrder: 0,
   }),
   computed: {
@@ -145,11 +161,17 @@ export default {
     }),
   },
   mounted() {
-    this.coinName = this.configApp.tokenName;
     this.priceOrder = this.totalPrice;
     this.priceOrder = parseFloat(
       this.priceOrder.toString().replaceAll(",", ".")
     ).toFixed(2);
+
+    this.totalQcPrice = this.qcPrice;
+    this.totalQcPrice = parseFloat(
+      this.totalQcPrice.toString().replaceAll(",", ".")
+    ).toFixed(2);
+
+    this.totalPay = parseFloat(this.priceOrder) + parseFloat(this.totalQcPrice);
 
     if (this.lab != null) {
       console.log(this.lab);
@@ -282,7 +304,8 @@ export default {
                     this.api,
                     this.wallet,
                     this.products[i].accountId,
-                    customer_box_public_key
+                    customer_box_public_key,
+                    this.products[i].indexPrice
                   );
                 }
               } else {

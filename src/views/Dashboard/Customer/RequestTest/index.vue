@@ -356,6 +356,7 @@ export default {
                 price,
                 currency,
                 additionalPrices,
+                indexPrice: 0,
               };
 
               this.products.push(product);

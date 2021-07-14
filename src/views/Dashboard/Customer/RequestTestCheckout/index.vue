@@ -60,7 +60,7 @@
                     {{ product.price }}
                   </span>
                   <span class="primary--text text-caption">
-                    {{ coinName }}
+                    {{ product.currency }}
                   </span>
                 </div>
               </div>
@@ -80,7 +80,7 @@
                     {{ totalPrice }}
                   </span>
                   <span class="primary--text text-caption">
-                    {{ coinName }}
+                    {{ product.currency }}
                   </span>
                 </div>
               </div>
@@ -105,6 +105,7 @@
       :lab="lab"
       :products="products"
       :totalPrice="totalPrice"
+      :qcPrice="qcPrice"
       @toggle="sendPaymentDialog = $event"
       @payment-sent="onPaymentSent"
     ></SendPaymentDialog>
@@ -136,7 +137,6 @@ export default {
     sendPaymentDialog: false,
     country: "",
     city: "",
-    coinName: "",
     dialogAlert: false,
     alertTextBtn: "Close",
     alertImgPath: "warning.png",
@@ -152,15 +152,24 @@ export default {
       configApp: (state) => state.auth.configApp,
     }),
     totalPrice() {
-      return this.products.reduce(
-        (sum, { price }) =>
-          (sum += parseInt(price.replaceAll(",", "."))),
-        0
-      ).toFixed(2);
+      return this.products
+        .reduce(
+          (sum, { price }) => (sum += parseInt(price.replaceAll(",", "."))),
+          0
+        )
+        .toFixed(2);
+    },
+    qcPrice() {
+      return this.products
+        .reduce(
+          (sum, { additionalPrices }) =>
+            (sum += parseInt(additionalPrices.replaceAll(",", "."))),
+          0
+        )
+        .toFixed(2);
     },
   },
   mounted() {
-    this.coinName = this.configApp.tokenName;
     this.checkingData();
   },
   methods: {

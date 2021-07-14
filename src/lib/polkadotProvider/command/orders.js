@@ -1,6 +1,6 @@
-export async function createOrder(api, pair, service_id, customer_box_public_key) {
+export async function createOrder(api, pair, service_id, customer_box_public_key, priceIndex) {
   const result = await api.tx.orders
-    .createOrder(service_id, customer_box_public_key)
+    .createOrder(service_id, priceIndex, customer_box_public_key)
     .signAndSend(pair, { nonce: -1 })
   return result.toHuman()
 }
@@ -32,7 +32,7 @@ export async function fulfillOrder(api, pair, order_id) {
           });
       }
     })
-  
+
   console.log(result)
 }
 
