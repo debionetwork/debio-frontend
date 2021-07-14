@@ -30,39 +30,46 @@
                 :key="product.serviceName"
                 class="d-flex align-center fill-height mb-2"
               >
-                <div class="my-3 ml-0">
-                  <v-icon
-                    v-if="
-                      product.icon &&
-                      (product.icon.startsWith('mdi') ||
-                        product.icon.startsWith('$'))
-                    "
-                    color="#BA8DBB"
-                    :size="48"
-                  >
-                    {{ product.icon }}
-                  </v-icon>
-                  <v-avatar v-else>
-                    <img :src="product.icon" />
-                  </v-avatar>
-                </div>
-                <div class="ml-5">
-                  <div class="text-h6">
-                    <b>{{ product.serviceName }}</b>
-                  </div>
-                  <div class="text-caption grey--text text--darken-1">
-                    {{ product.serviceData.info.description }}
-                  </div>
-                </div>
-                <v-spacer></v-spacer>
-                <div class="align-self-end pb-2">
-                  <span class="text-h6">
-                    {{ product.price }}
-                  </span>
-                  <span class="primary--text text-caption">
-                    {{ product.currency }}
-                  </span>
-                </div>
+                <v-row>
+                  <v-col cols="12" lg="1" md="1" xl="1">
+                    <div class="my-3 ml-0">
+                      <v-icon
+                        v-if="
+                          product.icon &&
+                          (product.icon.startsWith('mdi') ||
+                            product.icon.startsWith('$'))
+                        "
+                        color="#BA8DBB"
+                        :size="48"
+                      >
+                        {{ product.icon }}
+                      </v-icon>
+                      <v-avatar v-else>
+                        <img :src="getImageLink(product.icon)" />
+                      </v-avatar>
+                    </div>
+                  </v-col>
+                  <v-col cols="12" lg="9" md="9" xl="9">
+                    <div class="ml-5">
+                      <div class="text-h6">
+                        <b>{{ product.serviceName }}</b>
+                      </div>
+                      <div class="text-caption grey--text text--darken-1">
+                        {{ product.serviceData.info.description }}
+                      </div>
+                    </div>
+                  </v-col>
+                  <v-col cols="12" lg="2" md="2" xl="2">
+                    <div class="align-self-end pb-2">
+                      <span class="text-h6">
+                        {{ product.price }}
+                      </span>
+                      <span class="primary--text text-caption">
+                        {{ product.currency }}
+                      </span>
+                    </div>
+                  </v-col>
+                </v-row>
               </div>
             </v-card-text>
           </v-card>
@@ -80,7 +87,7 @@
                     {{ totalPrice }}
                   </span>
                   <span class="primary--text text-caption">
-                    {{ product.currency }}
+                    {{ currency }}
                   </span>
                 </div>
               </div>
@@ -142,6 +149,7 @@ export default {
     alertImgPath: "warning.png",
     alertTextAlert: "",
     imgWidth: "50",
+    currency: "",
   }),
   computed: {
     ...mapState({
@@ -203,7 +211,17 @@ export default {
         this.country = cityData[this.lab.info.country].name;
         this.city =
           cityData[this.lab.info.country].divisions[this.lab.info.city];
+
+        if (this.products.length > 0) {
+          this.currency = this.products[0].currency;
+        }
       }
+    },
+    getImageLink(val) {
+      if (val && val != "") {
+        return val;
+      }
+      return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr";
     },
     actionAlert() {
       this.dialogAlert = false;

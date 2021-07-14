@@ -32,8 +32,8 @@
               <span class="text-h7">
                 {{ priceOrder }}
               </span>
-              <span class="primary--text text-caption">
-                {{ products.currency }}
+              <span class="text-caption">
+                {{ currency }}
               </span>
             </div>
           </div>
@@ -46,7 +46,7 @@
                 {{ totalQcPrice }}
               </span>
               <span class="text-caption">
-                {{ products.currency }}
+                {{ currency }}
               </span>
             </div>
           </div>
@@ -59,7 +59,7 @@
                 {{ totalPay.toFixed(2) }}
               </span>
               <span class="primary--text text-caption">
-                {{ products.currency }}
+                {{ currency }}
               </span>
             </div>
           </div>
@@ -140,6 +140,7 @@ export default {
     ethSellerAddress: null,
     ethAccount: null,
     priceOrder: 0,
+    currency: "",
   }),
   computed: {
     _show: {
@@ -161,22 +162,26 @@ export default {
     }),
   },
   mounted() {
-    this.priceOrder = this.totalPrice;
-    this.priceOrder = parseFloat(
-      this.priceOrder.toString().replaceAll(",", ".")
-    ).toFixed(2);
-
-    this.totalQcPrice = this.qcPrice;
-    this.totalQcPrice = parseFloat(
-      this.totalQcPrice.toString().replaceAll(",", ".")
-    ).toFixed(2);
-
-    this.totalPay = parseFloat(this.priceOrder) + parseFloat(this.totalQcPrice);
-
     if (this.lab != null) {
-      console.log(this.lab);
       this.country = cityData[this.lab.info.country].name;
       this.city = cityData[this.lab.info.country].divisions[this.lab.info.city];
+
+      this.priceOrder = this.totalPrice;
+      this.priceOrder = parseFloat(
+        this.priceOrder.toString().replaceAll(",", ".")
+      ).toFixed(2);
+
+      this.totalQcPrice = this.qcPrice;
+      this.totalQcPrice = parseFloat(
+        this.totalQcPrice.toString().replaceAll(",", ".")
+      ).toFixed(2);
+
+      this.totalPay =
+        parseFloat(this.priceOrder) + parseFloat(this.totalQcPrice);
+
+      if (this.products.length > 0) {
+        this.currency = this.products[0].currency;
+      }
     }
   },
   watch: {
