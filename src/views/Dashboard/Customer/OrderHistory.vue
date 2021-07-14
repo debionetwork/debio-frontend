@@ -59,7 +59,7 @@
               {{ item.dna_sample_tracking_id | specimenNumber }}
             </template>
             <template v-slot:[`item.timestamp`]="{ item }">
-              {{ item.timestamp | timestampToDateTime }}
+              {{ item.orderDate }}
             </template>
             <template v-slot:[`item.status`]="{ item }">
               {{ item.status | customerSpecimenStatus }}
@@ -144,7 +144,7 @@ import {
 } from "@/constants/specimen-status";
 import {
   ordersByCustomer,
-  getOrdersDetail,
+  getOrdersData,
 } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
@@ -229,7 +229,7 @@ export default {
           lengthMax = listOrderId.length;
 
           for (let i = 0; i < lengthMax; i++) {
-            const detailOrder = await getOrdersDetail(this.api, listOrderId[i]);
+            const detailOrder = await getOrdersData(this.api, listOrderId[i]);
             if (detailOrder != null) {
               const detaillab = await queryLabsById(
                 this.api,
@@ -269,9 +269,18 @@ export default {
       }
 
       const number = detailOrder.id;
-      const timestamp = (
-        detailOrder.created_at.replace(/,/g, "") / 1000
-      ).toString();
+      const dateSet = new Date(
+        parseInt(detailOrder.created_at.replace(/,/g, ""))
+      );
+      const timestamp = dateSet.getTime().toString();
+      const orderDate = dateSet.toLocaleString("en-US", {
+        weekday: "short", // long, short, narrow
+        day: "numeric", // numeric, 2-digit
+        year: "numeric", // numeric, 2-digit
+        month: "long", // numeric, 2-digit, long, short, narrow
+        hour: "numeric", // numeric, 2-digit
+        minute: "numeric",
+      });
       const status = detailOrder.status;
       const dna_sample_tracking_id = detailOrder.dna_sample_tracking_id;
 
@@ -284,6 +293,7 @@ export default {
         status,
         dna_sample_tracking_id,
         detaillab,
+        orderDate,
       };
 
       this.orderHistory.push(order);

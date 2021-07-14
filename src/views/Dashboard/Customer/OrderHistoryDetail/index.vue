@@ -36,35 +36,42 @@
 
               <template>
                 <div class="d-flex align-center fill-height mb-2">
-                  <div class="my-3 ml-0">
-                    <v-icon
-                      v-if="isValidIcon(service.info.image)"
-                      color="#BA8DBB"
-                      :size="48"
-                    >
-                      {{ service.info.image }}
-                    </v-icon>
-                    <v-avatar v-else>
-                      <img src="../../../../assets/debio-logo.png" />
-                    </v-avatar>
-                  </div>
-                  <div class="ml-5">
-                    <div class="text-h6">
-                      <b>{{ service.info.name }}</b>
-                    </div>
-                    <div class="text-caption grey--text text--darken-1">
-                      {{ service.info.description }}
-                    </div>
-                  </div>
-                  <v-spacer></v-spacer>
-                  <div class="align-self-end pb-2">
-                    <span class="text-h6">
-                      {{ priceOrder }}
-                    </span>
-                    <span class="primary--text text-caption">
-                      {{ coinName }}
-                    </span>
-                  </div>
+                  <v-row>
+                    <v-col cols="12" lg="1" md="1" xl="1">
+                      <div class="my-3 ml-0">
+                        <v-icon
+                          v-if="isValidIcon(service.info.image)"
+                          color="#BA8DBB"
+                          :size="48"
+                        >
+                          {{ service.info.image }}
+                        </v-icon>
+                        <v-avatar v-else>
+                          <img :src="getImageLink(service.info.image)" />
+                        </v-avatar>
+                      </div>
+                    </v-col>
+                    <v-col cols="12" lg="9" md="9" xl="9">
+                      <div class="ml-5">
+                        <div class="text-h6">
+                          <b>{{ service.info.name }}</b>
+                        </div>
+                        <div class="text-caption grey--text text--darken-1">
+                          {{ service.info.description }}
+                        </div>
+                      </div>
+                    </v-col>
+                    <v-col cols="12" lg="2" md="2" xl="2">
+                      <div class="align-self-end pb-2">
+                        <span class="text-h7">
+                          {{ priceOrder }}
+                        </span>
+                        <span class="primary--text text-caption">
+                          {{ coinName }}
+                        </span>
+                      </div>
+                    </v-col>
+                  </v-row>
                 </div>
                 <div>
                   <div><b>Specimen Number:</b></div>
@@ -97,10 +104,32 @@
             </v-card-title>
             <v-card-text class="px-8">
               <div class="d-flex justify-space-between">
+                <div class="text-h7">Price</div>
+                <div>
+                  <span class="text-h7">
+                    {{ priceOrder }}
+                  </span>
+                  <span class="primary--text text-caption">
+                    {{ coinName }}
+                  </span>
+                </div>
+              </div>
+              <div class="d-flex justify-space-between">
+                <div class="text-h7">QC Price</div>
+                <div>
+                  <span class="text-h7">
+                    {{ totalQcPrice }}
+                  </span>
+                  <span class="primary--text text-caption">
+                    {{ coinName }}
+                  </span>
+                </div>
+              </div>
+              <div class="d-flex justify-space-between">
                 <div class="text-h6">Total Price</div>
                 <div>
                   <span class="text-h6">
-                    {{ priceOrder }}
+                    {{ totalPay }}
                   </span>
                   <span class="primary--text text-caption">
                     {{ coinName }}
@@ -212,7 +241,7 @@ import {
   ORDER_REFUNDED,
   ORDER_FULFILLED,
 } from "@/constants/specimen-status";
-import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
+import { getOrdersData } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { transfer, getPrice, addToken } from "@/lib/metamask/wallet.js";
@@ -258,6 +287,8 @@ export default {
     coinName: "",
     dialogReward: false,
     orderId: "",
+    totalQcPrice: 0,
+    totalPay: 0,
   }),
   computed: {
     ...mapState({
@@ -275,7 +306,6 @@ export default {
     },
   },
   mounted() {
-    this.coinName = this.configApp.tokenName;
     this.fetchOrderDetails();
   },
   watch: {
@@ -318,12 +348,22 @@ export default {
     async fetchOrderDetails() {
       this.isLoading = true;
       this.orderId = this.$route.params.number;
-      this.order = await getOrdersDetail(this.api, this.orderId);
+      this.order = await getOrdersData(this.api, this.orderId);
+      this.coinName = this.order.currency;
+      this.priceOrder = parseFloat(
+        this.order.prices[0].value.replaceAll(",", ".")
+      ).toFixed(2);
+
+      this.totalQcPrice = parseFloat(
+        this.order.additional_prices[0].value.replaceAll(",", ".")
+      ).toFixed(2);
+
+      this.totalPay = (
+        parseFloat(this.priceOrder) + parseFloat(this.totalQcPrice)
+      ).toFixed(2);
+
       this.lab = await queryLabsById(this.api, this.order.seller_id);
       this.service = await queryServicesById(this.api, this.order.service_id);
-      this.priceOrder = parseFloat(
-        this.service.info.price.replaceAll(",", ".")
-      ).toFixed(2);
 
       if (this.openPayMetamask) {
         console.log(this.order);
@@ -387,7 +427,7 @@ export default {
 
       try {
         await addToken(this.coinName);
-        const price = await getPrice(this.priceOrder);
+        const price = await getPrice(this.totalPay);
         let txreceipts = await transfer({
           seller: this.configApp.escrowETHAddress,
           amount: String(price),
@@ -421,6 +461,12 @@ export default {
     },
     isValidIcon(icon) {
       return icon && (icon.startsWith("mdi") || icon.startsWith("$"));
+    },
+    getImageLink(val) {
+      if (val && val != "") {
+        return val;
+      }
+      return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr";
     },
     goToResult() {
       this.$router.push({

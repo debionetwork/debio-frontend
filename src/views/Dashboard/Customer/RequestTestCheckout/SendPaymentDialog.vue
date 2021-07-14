@@ -25,29 +25,44 @@
         <div class="mt-6">
           <div class="text-h5">Payment Details</div>
           <div class="d-flex align-center justify-space-between mt-4">
-            <div class="text-body-1">
-              <b>Total Price</b>
+            <div class="text-body-2">
+              <b>Price</b>
             </div>
             <div>
-              <span class="text-h6">
-                {{ totalPrice }}
-              </span>
-              <span class="primary--text text-caption"> {{ coinName }} </span>
-            </div>
-          </div>
-          <!-- <div class="d-flex align-center justify-space-between">
-            <div class="text-body-1">
-              <b>Transaction Fee</b>
-            </div>
-            <div>
-              <span class="text-h6">
-                {{ transactionFee }}
+              <span class="text-h7">
+                {{ priceOrder }}
               </span>
               <span class="text-caption">
-                Gwei
+                {{ currency }}
               </span>
             </div>
-          </div> -->
+          </div>
+          <div class="d-flex align-center justify-space-between">
+            <div class="text-body-2">
+              <b>QC Price</b>
+            </div>
+            <div>
+              <span class="text-h7">
+                {{ totalQcPrice }}
+              </span>
+              <span class="text-caption">
+                {{ currency }}
+              </span>
+            </div>
+          </div>
+          <div class="d-flex align-center justify-space-between mt-4">
+            <div class="text-body-1">
+              <b>Total Pay</b>
+            </div>
+            <div>
+              <span class="text-h6">
+                {{ totalPay.toFixed(2) }}
+              </span>
+              <span class="primary--text text-caption">
+                {{ currency }}
+              </span>
+            </div>
+          </div>
         </div>
 
         <!-- Prompt password to sign transaction -->
@@ -95,7 +110,7 @@ import { startApp } from "@/lib/metamask";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
 import {
   lastOrderByCustomer,
-  getOrdersDetail,
+  getOrdersData,
 } from "@/lib/polkadotProvider/query/orders";
 import { createOrder } from "@/lib/polkadotProvider/command/orders";
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile";
@@ -109,12 +124,14 @@ export default {
     show: Boolean,
     lab: Object,
     totalPrice: [String, Number],
+    qcPrice: [String, Number],
     products: Array,
   },
   data: () => ({
     password: "",
     isLoading: false,
-    transactionFee: "TODO",
+    totalQcPrice: 0,
+    totalPay: 0,
     error: "",
     country: "",
     city: "",
@@ -122,8 +139,8 @@ export default {
     metamaskStatus: false,
     ethSellerAddress: null,
     ethAccount: null,
-    coinName: "",
     priceOrder: 0,
+    currency: "",
   }),
   computed: {
     _show: {
@@ -145,13 +162,26 @@ export default {
     }),
   },
   mounted() {
-    this.coinName = this.configApp.tokenName;
-    this.priceOrder = this.totalPrice;
-    this.priceOrder = parseFloat(this.priceOrder.replaceAll(",", "."));
     if (this.lab != null) {
-      console.log(this.lab);
       this.country = cityData[this.lab.info.country].name;
       this.city = cityData[this.lab.info.country].divisions[this.lab.info.city];
+
+      this.priceOrder = this.totalPrice;
+      this.priceOrder = parseFloat(
+        this.priceOrder.toString().replaceAll(",", ".")
+      ).toFixed(2);
+
+      this.totalQcPrice = this.qcPrice;
+      this.totalQcPrice = parseFloat(
+        this.totalQcPrice.toString().replaceAll(",", ".")
+      ).toFixed(2);
+
+      this.totalPay =
+        parseFloat(this.priceOrder) + parseFloat(this.totalQcPrice);
+
+      if (this.products.length > 0) {
+        this.currency = this.products[0].currency;
+      }
     }
   },
   watch: {
@@ -213,7 +243,7 @@ export default {
           if (lastOrder == null) {
             sendOrder = true;
           } else {
-            const detailOrder = await getOrdersDetail(this.api, lastOrder);
+            const detailOrder = await getOrdersData(this.api, lastOrder);
             if (detailOrder != null) {
               if (detailOrder.status != "Unpaid") {
                 sendOrder = true;
@@ -279,7 +309,8 @@ export default {
                     this.api,
                     this.wallet,
                     this.products[i].accountId,
-                    customer_box_public_key
+                    customer_box_public_key,
+                    this.products[i].indexPrice
                   );
                 }
               } else {

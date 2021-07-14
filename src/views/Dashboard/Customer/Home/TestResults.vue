@@ -23,6 +23,7 @@
           :specimenNumber="order.number"
           :labName="order.labName"
           :timestamp="order.timestamp"
+          :orderDate="order.orderDate"
         />
       </div>
       <PrimaryButton @click="goToTestResults">Show all results</PrimaryButton>
@@ -41,7 +42,7 @@ import {
 } from "@/lib/polkadotProvider/query/geneticTesting";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
-import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
+import { getOrdersData } from "@/lib/polkadotProvider/query/orders";
 
 export default {
   name: "TestResults",
@@ -66,7 +67,7 @@ export default {
           }
         }
       }
-    }
+    },
   },
   mounted() {
     this.getTestResults();
@@ -102,7 +103,7 @@ export default {
                 this.api,
                 dnaTestResults.lab_id
               );
-              const detailOrder = await getOrdersDetail(
+              const detailOrder = await getOrdersData(
                 this.api,
                 dnaTestResults.order_id
               );
@@ -130,12 +131,22 @@ export default {
         icon = detailService.info.image;
       }
 
-      let timestamp = Math.floor(Date.now() / 1000).toString();
+      let dateSet = new Date();
+      let timestamp = dateSet.getTime().toString();
       if (dnaTestResults.updated_at != null) {
-        timestamp = (
-          dnaTestResults.updated_at.replace(/,/g, "") / 1000
-        ).toString();
+        dateSet = new Date(
+          parseInt(dnaTestResults.updated_at.replace(/,/g, ""))
+        );
+        timestamp = dateSet.getTime().toString();
       }
+      const orderDate = dateSet.toLocaleString("en-US", {
+        weekday: "short", // long, short, narrow
+        day: "numeric", // numeric, 2-digit
+        year: "numeric", // numeric, 2-digit
+        month: "long", // numeric, 2-digit, long, short, narrow
+        hour: "numeric", // numeric, 2-digit
+        minute: "numeric",
+      });
 
       const number = dnaTestResults.tracking_id;
       const status = SUCCESS;
@@ -147,6 +158,7 @@ export default {
         labName,
         timestamp,
         status,
+        orderDate,
       };
 
       this.testResults.push(order);

@@ -137,8 +137,8 @@
               :title="product.serviceName"
               :sub-title="product.serviceData.info.description"
               :hover-text="
-                product.serviceData.info.longDescription
-                  ? product.serviceData.info.longDescription
+                product.serviceData.info.long_description
+                  ? product.serviceData.info.long_description
                   : product.serviceData.info.description
               "
               :is-selected="isProductSelected(product)"
@@ -149,7 +149,9 @@
                 <span class="text-h6">
                   {{ product.price }}
                 </span>
-                <span class="primary--text text-caption"> {{ coinName }} </span>
+                <span class="primary--text text-caption">
+                  {{ product.currency }}
+                </span>
               </template>
             </SelectableMenuCard>
           </v-col>
@@ -325,7 +327,26 @@ export default {
               }
               const accountId = this.labAccount.services[i];
               const serviceData = detailService;
-              const price = detailService.info.price;
+              let currency = this.coinName;
+              let price = 0;
+              let additionalPrices = 0;
+              if (detailService.info.prices_by_currency != null) {
+                currency = detailService.info.prices_by_currency[0].currency;
+                if (
+                  detailService.info.prices_by_currency[0].prices.length > 0
+                ) {
+                  price =
+                    detailService.info.prices_by_currency[0].prices[0].value;
+                }
+                if (
+                  detailService.info.prices_by_currency[0].additional_prices
+                    .length > 0
+                ) {
+                  additionalPrices =
+                    detailService.info.prices_by_currency[0]
+                      .additional_prices[0].value;
+                }
+              }
 
               const product = {
                 accountId,
@@ -333,6 +354,9 @@ export default {
                 icon,
                 serviceData,
                 price,
+                currency,
+                additionalPrices,
+                indexPrice: 0,
               };
 
               this.products.push(product);

@@ -16,4 +16,5 @@ export async function toFormatDebioCoin(valueCoin) {
 		)
 		store.state.substrate.walletBalance = balance
 	}
+	return addCoin;
 }

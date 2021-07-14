@@ -25,8 +25,9 @@
                 :title="order.title"
                 :specimenNumber="order.dna_sample_tracking_id"
                 :labName="order.labName"
-                :timestamp="order.dateOrder"
+                :timestamp="order.timestamp"
                 :status="order.status"
+                :orderDate="order.orderDate"
               />
             </div>
           </template>
@@ -40,6 +41,7 @@
             :labName="order.labName"
             :timestamp="order.timestamp"
             :status="order.status"
+            :orderDate="order.orderDate"
           />
         </template>
       </div>
@@ -57,7 +59,7 @@ import PrimaryButton from "@/components/PrimaryButton";
 import localStorage from "@/lib/local-storage";
 import {
   ordersByCustomer,
-  getOrdersDetail,
+  getOrdersData,
 } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
@@ -114,7 +116,7 @@ export default {
           }
 
           for (let i = 0; i < lengthMax; i++) {
-            const detailOrder = await getOrdersDetail(this.api, listOrderId[i]);
+            const detailOrder = await getOrdersData(this.api, listOrderId[i]);
             const detaillab = await queryLabsById(
               this.api,
               detailOrder.seller_id
@@ -146,12 +148,20 @@ export default {
       }
 
       const number = detailOrder.id;
-      const timestamp = (
-        detailOrder.created_at.replace(/,/g, "") / 1000
-      ).toString();
+      const dateSet = new Date(
+        parseInt(detailOrder.created_at.replace(/,/g, ""))
+      );
+      const timestamp = dateSet.getTime().toString();
+      const orderDate = dateSet.toLocaleString("en-US", {
+        weekday: "short", // long, short, narrow
+        day: "numeric", // numeric, 2-digit
+        year: "numeric", // numeric, 2-digit
+        month: "long", // numeric, 2-digit, long, short, narrow
+        hour: "numeric", // numeric, 2-digit
+        minute: "numeric",
+      });
       const status = detailOrder.status;
       const dna_sample_tracking_id = detailOrder.dna_sample_tracking_id;
-
       const order = {
         icon,
         title,
@@ -160,6 +170,7 @@ export default {
         timestamp,
         status,
         dna_sample_tracking_id,
+        orderDate,
       };
 
       this.orderHistory.push(order);
