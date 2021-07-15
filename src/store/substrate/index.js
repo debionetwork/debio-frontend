@@ -396,6 +396,45 @@ export default {
         console.log(err);
       }
     },
+    async addAnyNotification({ commit }, { address, dataAdd, role }) {
+      try {
+        const storageName = "LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role;
+        const listNotificationJson = localStorage.getLocalStorageByName(storageName);
+
+        let listNotification = [];
+        if (listNotificationJson != null && listNotificationJson != "") {
+          listNotification = JSON.parse(listNotificationJson);
+        }
+
+        if (dataAdd != null) {
+          const dateSet = new Date();
+          const timestamp = dateSet.getTime().toString();
+          const notifDate = dateSet.toLocaleString("en-US", {
+            weekday: "short", // long, short, narrow
+            day: "numeric", // numeric, 2-digit
+            year: "numeric", // numeric, 2-digit
+            month: "long", // numeric, 2-digit, long, short, narrow
+            hour: "numeric", // numeric, 2-digit
+            minute: "numeric",
+          });
+          listNotification.push({
+            message: dataAdd.message,
+            timestamp: timestamp,
+            data: dataAdd.data,
+            route: dataAdd.route,
+            params: dataAdd.params,
+            read: false,
+            notifDate: notifDate,
+          });
+        }
+
+        localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotification));
+        listNotification.reverse();
+        commit('SET_LIST_NOTIFICATION', listNotification);
+      } catch (err) {
+        console.log(err);
+      }
+    },
   },
   getters: {
     wallet(state) {
