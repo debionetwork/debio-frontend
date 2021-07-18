@@ -106,7 +106,9 @@
                   </div>
                 </v-col>
                 <v-col cols="12" lg="2" md="2" xl="2">
-                  <v-icon color="green" :size="25"> mdi-check-bold </v-icon>
+                  <v-icon color="orange" :size="25">
+                    mdi-radiobox-marked
+                  </v-icon>
                 </v-col>
               </v-row>
             </div>
@@ -158,7 +160,7 @@ import { mapState, mapMutations } from "vuex";
 import { startApp } from "@/lib/metamask";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile";
-import { getEthFromFaucet, getDaicFromFaucet } from '@/lib/faucet'
+import { getEthFromFaucet, getDaicFromFaucet } from "@/lib/faucet";
 
 export default {
   name: "WalletBinding",
@@ -192,14 +194,27 @@ export default {
       metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
     }),
   },
+  watch: {
+    show() {
+      if (this.show) {
+        this.password = "";
+        this.error = "";
+        this.loading = false;
+        this.putAccount = false;
+        this.putWallet = true;
+        this.inputPassword = false;
+        this.isLoading = false;
+      }
+    },
+  },
   mounted() {},
   methods: {
     ...mapMutations({
       setMetamaskAddress: "metamask/SET_WALLET_ADDRESS",
     }),
     async getMunnyFromFaucet(address) {
-      await getEthFromFaucet(address)
-      await getDaicFromFaucet(address)
+      await getEthFromFaucet(address);
+      await getDaicFromFaucet(address);
     },
     async setWalllet(walletName) {
       this.error = "";
@@ -219,7 +234,9 @@ export default {
                 this.ethAccount.accountList[x].length - 4
               );
               let isActive = false;
-              if (this.metamaskWalletAddress == this.ethAccount.accountList[x]) {
+              if (
+                this.metamaskWalletAddress == this.ethAccount.accountList[x]
+              ) {
                 isActive = true;
               }
               this.accountList.push({
@@ -259,11 +276,11 @@ export default {
           status: true,
           img: "metamask-account-connected.png",
         });
-        await this.getMunnyFromFaucet(this.selectAccount.address)
-        this.isLoading = false
+        await this.getMunnyFromFaucet(this.selectAccount.address);
+        this.isLoading = false;
         this.closeDialog();
       } catch (err) {
-        console.log(err)
+        console.log(err);
         this.isLoading = false;
         this.password = "";
         this.error = "The password you entered is wrong";
@@ -284,6 +301,3 @@ export default {
 
 <style>
 </style>
-
-
-

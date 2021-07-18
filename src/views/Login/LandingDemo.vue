@@ -1,13 +1,16 @@
 <template>
-  <v-dialog :value="_show" width="500" persistent>
+  <v-dialog :value="_show" max-width="500" persistent>
     <v-card>
-      <div class="d-flex justify-center pb-5 pt-5">
-        <v-img v-bind:src="require('../../assets/'+imgPath)" :max-width="imgWidth" />
+      <div class="d-flex justify-center pb-5 pt-8">
+        <v-img src="@/assets/icon-demo.png" max-width="30%" />
       </div>
-      <div align="center" class="pb-5 pl-5 pr-5">{{ textAlert }}</div>
+      <div align="center" class="pb-5 pr-8 pl-8 font-weight-bold">
+        This is a demo version for testing purposes. <br />We're still working
+        on this site and will have more information available to you soon.
+      </div>
       <div class="d-flex justify-center pb-5">
-        <v-col lg="5" md="5" sm="8">
-          <Button @click="closeDialog" elevation="2" dark> {{ btnText }} </Button>
+        <v-col cols="12" lg="11" md="11" sm="11">
+          <Button @click="closeDialog" elevation="2" dark> Continue </Button>
         </v-col>
       </div>
     </v-card>
@@ -18,16 +21,12 @@
 import Button from "@/components/Button";
 
 export default {
-  name: "DialogAlert",
+  name: "LandingDemo",
   components: {
     Button,
   },
   props: {
     show: Boolean,
-    textAlert: String,
-    imgPath: String,
-    btnText: String,
-    imgWidth: String,
   },
   data: () => ({}),
   computed: {
