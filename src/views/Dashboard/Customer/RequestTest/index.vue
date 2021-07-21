@@ -14,7 +14,7 @@
                 :key="country"
                 :items="countries"
                 item-text="name"
-                item-value="alpha-2"
+                item-value="code"
                 @change="onCountryChange"
                 label="Select Country"
                 autocomplete="disabled"
@@ -27,8 +27,8 @@
                 v-model="region"
                 :key="region"
                 :items="regions"
-                item-text="1"
-                item-value="0"
+                item-text="name"
+                item-value="code"
                 @change="onRegionChange"
                 label="Select Region"
                 :disabled="country == 'country' || showRequestNoLab"
@@ -41,8 +41,8 @@
                 v-model="city"
                 :key="city"
                 :items="cities"
-                item-text="1"
-                item-value="0"
+                item-text="name"
+                item-value="code"
                 @change="onCityChange"
                 label="Select City"
                 :disabled="region == 'region' || showRequestNoLab"
@@ -293,14 +293,13 @@ import _ from "lodash";
 import { mapState, mapMutations } from "vuex";
 import SelectableMenuCard from "@/components/SelectableMenuCard";
 import DnaCollectionRequirements from "./DnaCollectionRequirements";
-import countryData from "@/assets/json/country.json";
-import cityData from "@/assets/json/city.json";
 import {
   queryLabsByCountryRegionCity,
   queryLabsById,
 } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import DialogAlert from "@/components/Dialog/DialogAlert";
+import { getLocation } from "@/lib/api";
 
 export default {
   name: "RequestTest",
@@ -425,24 +424,23 @@ export default {
     }),
     async getCountries() {
       this.showNoLab = false;
-      this.countries = countryData;
+      this.countries = await getLocation(null, null);
     },
-    onCountryChange(selectedCountry) {
+    async onCountryChange(selectedCountry) {
       this.showNoLab = false;
       this.regions = [];
       this.region = "region";
       this.city = "city";
       this.cities = [];
       this.country = selectedCountry;
-
-      this.regions = Object.entries(cityData[this.country].divisions);
+      this.regions = await getLocation(this.country, null);
     },
-    onRegionChange(selectedRegion) {
+    async onRegionChange(selectedRegion) {
       this.showNoLab = false;
       this.city = "city";
       this.cities = [];
       this.region = selectedRegion;
-      this.cities = Object.entries(cityData[this.country].divisions);
+      this.cities = await getLocation(this.country, this.region);
     },
     onCityChange(selectedCity) {
       this.showNoLab = false;
@@ -454,16 +452,13 @@ export default {
         return;
       }
 
-      // this.country = "WL";
-      // this.city = "WL";
-      // this.region = "WL";
       this.labAccount = "";
       this.labs = [];
       this.products = [];
       const listLabID = await queryLabsByCountryRegionCity(
         this.api,
-        this.country + "-" + this.region,
-        this.city
+        this.country.trim() + "-" + this.region.trim(),
+        this.city.trim()
       );
       if (listLabID) {
         for (let i = 0; i < listLabID.length; i++) {

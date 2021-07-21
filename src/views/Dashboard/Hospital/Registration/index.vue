@@ -30,7 +30,7 @@
                   dense
                   :items="countries"
                   item-text="name"
-                  item-value="alpha-2"
+                  item-value="code"
                   @change="onCountryChange"
                   autocomplete="new-password"
                   label="Select Country"
@@ -41,8 +41,8 @@
                 <v-autocomplete
                   dense
                   :items="regions"
-                  item-text="1"
-                  item-value="0"
+                  item-text="name"
+                  item-value="code"
                   @change="onRegionChange"
                   autocomplete="new-password"
                   label="Select Region"
@@ -54,8 +54,8 @@
                 <v-autocomplete
                   dense
                   :items="cities"
-                  item-text="1"
-                  item-value="0"
+                  item-text="name"
+                  item-value="code"
                   @change="onCityChange"
                   autocomplete="new-password"
                   label="Select City"
@@ -109,9 +109,8 @@ import { mapState, mapGetters } from "vuex"
 import { registerHospital } from "@/lib/polkadotProvider/command/hospitals"
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile"
 import { getWalletAddress } from "@/lib/metamask/wallet"
-import countryData from "@/assets/json/country.json"
 import ipfsWorker from "@/web-workers/ipfs-worker"
-import cityData from "@/assets/json/city.json"
+import { getLocation } from "@/lib/api"
 
 export default {
   name: "HospitalRegistration",
@@ -161,15 +160,15 @@ export default {
       this.$store.state.substrate.isHospitalAccountExist = true
     },
     async getCountries() {
-      this.countries = countryData;
+      this.countries = await getLocation(null, null);
     },
-    onCountryChange(selectedCountry) {
+    async onCountryChange(selectedCountry) {
       this.country = selectedCountry;
-      this.regions = Object.entries(cityData[this.country].divisions);
+      this.regions = await getLocation(this.country, null);
     },
-    onRegionChange(selectedRegion) {
+    async onRegionChange(selectedRegion) {
       this.region = selectedRegion;
-      this.cities = Object.entries(cityData[this.country].divisions);
+      this.cities = await getLocation(this.country, this.region);
     },
     onCityChange(selectedCity) {
       this.city = selectedCity;
@@ -191,8 +190,8 @@ export default {
                 email: this.email,
                 profile_image: this.image,
                 address: this.address,
-                country: this.country,
-                city: this.city,
+                country: this.country.trim(),
+                city: this.city.trim(),
               },
               async () => {
                 this.setHospitalAccount()

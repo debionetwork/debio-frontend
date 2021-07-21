@@ -61,7 +61,7 @@
                 dense
                 :items="countries"
                 item-text="name"
-                item-value="alpha-2"
+                item-value="code"
                 @change="onCountryChange"
                 label="Select Country"
                 autocomplete="new-password"
@@ -72,8 +72,8 @@
               <v-autocomplete
                 dense
                 :items="regions"
-                item-text="1"
-                item-value="0"
+                item-text="name"
+                item-value="code"
                 @change="onRegionChange"
                 label="Select Region"
                 :disabled="!country"
@@ -85,8 +85,8 @@
               <v-autocomplete
                 dense
                 :items="cities"
-                item-text="1"
-                item-value="0"
+                item-text="name"
+                item-value="code"
                 @change="onCityChange"
                 label="Select City"
                 :disabled="!region"
@@ -226,12 +226,11 @@
 import { mapState, mapGetters } from 'vuex'
 import { updateLab } from '@/lib/polkadotProvider/command/labs'
 import { createCertification, updateCertification, deleteCertification } from '@/lib/polkadotProvider/command/labs/certifications'
-import countryData from "@/assets/json/country.json"
-import cityData from "@/assets/json/city.json"
 import Kilt from '@kiltprotocol/sdk-js'
 import { u8aToHex } from '@polkadot/util'
 import Dialog from '@/components/Dialog'
 import Button from '@/components/Button'
+import { getLocation } from "@/lib/api"
 
 updateCertification
 deleteCertification
@@ -250,9 +249,9 @@ export default {
     
     await this.getCountries()
     this.country = labInfo.country
-    this.regions = Object.entries(cityData[labInfo.country].divisions)
-    this.cities = Object.entries(cityData[labInfo.country].divisions)
-    this.region = labInfo.city
+    this.regions = await getLocation(this.country, null);
+    this.region = labInfo.region
+    this.cities = await getLocation(this.country, this.region); 
     this.city = labInfo.city
   },
   data: () => ({
@@ -303,15 +302,15 @@ export default {
   },
   methods: {
     async getCountries() {
-      this.countries = countryData;
+      this.countries = await getLocation(null, null);
     },
-    onCountryChange(selectedCountry) {
+    async onCountryChange(selectedCountry) {
       this.country = selectedCountry;
-      this.regions = Object.entries(cityData[this.country].divisions);
+      this.regions = await getLocation(this.country, null);
     },
-    onRegionChange(selectedRegion) {
+    async onRegionChange(selectedRegion) {
       this.region = selectedRegion;
-      this.cities = Object.entries(cityData[this.country].divisions);
+      this.cities = await getLocation(this.country, this.region);
     },
     onCityChange(selectedCity) {
       this.city = selectedCity;
@@ -331,9 +330,9 @@ export default {
             name: this.labName,
             email: this.email,
             address: this.address,
-            country: this.country,
-            region: this.region,
-            city: this.city,
+            country: this.country.trim(),
+            region: this.region.trim(),
+            city: this.city.trim(),
           }
         )
       }

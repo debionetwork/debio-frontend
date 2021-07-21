@@ -28,7 +28,7 @@
                 dense
                 :items="countries"
                 item-text="name"
-                item-value="alpha-2"
+                item-value="code"
                 @change="onCountryChange"
                 autocomplete="new-password"
                 label="Select Country"
@@ -38,8 +38,8 @@
               <v-autocomplete
                 dense
                 :items="regions"
-                item-text="1"
-                item-value="0"
+                item-text="name"
+                item-value="code"
                 @change="onRegionChange"
                 autocomplete="new-password"
                 label="Select Region"
@@ -50,8 +50,8 @@
               <v-autocomplete
                 dense
                 :items="cities"
-                item-text="1"
-                item-value="0"
+                item-text="name"
+                item-value="code"
                 @change="onCityChange"
                 autocomplete="new-password"
                 label="Select City"
@@ -99,10 +99,9 @@ import { mapState, mapGetters } from 'vuex'
 import { registerLab } from '@/lib/polkadotProvider/command/labs'
 import { setEthAddress } from '@/lib/polkadotProvider/command/userProfile'
 import { getWalletAddress } from '@/lib/metamask/wallet'
-import countryData from "@/assets/json/country.json"
-import cityData from "@/assets/json/city.json"
 import Kilt from '@kiltprotocol/sdk-js'
 import { u8aToHex } from '@polkadot/util'
+import { getLocation } from "@/lib/api"
 
 
 export default {
@@ -152,15 +151,15 @@ export default {
       this.$store.state.substrate.isLabAccountExist = true
     },
     async getCountries() {
-      this.countries = countryData;
+      this.countries = await getLocation(null, null);
     },
-    onCountryChange(selectedCountry) {
+    async onCountryChange(selectedCountry) {
       this.country = selectedCountry;
-      this.regions = Object.entries(cityData[this.country].divisions);
+      this.regions = await getLocation(this.country, null);
     },
-    onRegionChange(selectedRegion) {
+    async onRegionChange(selectedRegion) {
       this.region = selectedRegion;
-      this.cities = Object.entries(cityData[this.country].divisions);
+      this.cities = await getLocation(this.country, this.region);
     },
     onCityChange(selectedCity) {
       this.city = selectedCity;
@@ -181,9 +180,9 @@ export default {
             name: this.labName,
             email: this.email,
             address: this.address,
-            country: this.country,
-            region: this.region,
-            city: this.city,
+            country: this.country.trim(),
+            region: this.region.trim(),
+            city: this.city.trim(),
           }
         )
         

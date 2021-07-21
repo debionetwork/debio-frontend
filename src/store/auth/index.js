@@ -36,12 +36,14 @@ export default {
         const substrateWs = process.env.VUE_APP_DEV_DEGENICS_SUBSTRATE_WS;
         const urlFaucet = process.env.VUE_APP_DEV_URL_FAUCET;
         const web3Rpc = process.env.VUE_APP_WEB3_RPC;
+        const apiUrl = process.env.VUE_APP_BACKEND_API;
         configApp = {
           tokenName,
           escrowETHAddress,
           substrateWs,
           urlFaucet,
-          web3Rpc
+          web3Rpc,
+          apiUrl
         };
       } else {
         const tokenName = process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME;
@@ -49,12 +51,14 @@ export default {
         const substrateWs = process.env.VUE_APP_DEGENICS_SUBSTRATE_WS;
         const urlFaucet = process.env.VUE_APP_URL_FAUCET;
         const web3Rpc = process.env.VUE_APP_DEV_WEB3_RPC;
+        const apiUrl = process.env.VUE_APP_BACKEND_API;
         configApp = {
           tokenName,
           escrowETHAddress,
           substrateWs,
           urlFaucet,
-          web3Rpc
+          web3Rpc,
+          apiUrl
         };
       }
       commit('SET_CONFIG', configApp)
