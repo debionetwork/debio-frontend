@@ -389,6 +389,7 @@ export default {
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
       configApp: (state) => state.auth.configApp,
+      countryData: (state) => state.auth.countryData,
     }),
     citiesSelection() {
       return this.cities
@@ -424,7 +425,7 @@ export default {
     }),
     async getCountries() {
       this.showNoLab = false;
-      this.countries = await getLocation(null, null);
+      this.countries = this.countryData;
     },
     async onCountryChange(selectedCountry) {
       this.showNoLab = false;

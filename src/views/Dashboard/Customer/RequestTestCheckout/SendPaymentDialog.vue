@@ -18,7 +18,7 @@
           <div v-if="lab.info.address" class="text-body-2">
             {{ lab.info.address }}
           </div>
-          <div class="text-body-2">{{ city }}, {{ country }}</div>
+          <div class="text-body-2">{{ city }}, {{ region }}, {{ country }}</div>
         </div>
 
         <!-- Payment Details -->
@@ -105,7 +105,6 @@
 <script>
 /* eslint-disable */
 import { mapState, mapActions, mapMutations } from "vuex";
-import cityData from "@/assets/json/city.json";
 import { startApp } from "@/lib/metamask";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
 import {
@@ -117,6 +116,7 @@ import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
 import Kilt from "@kiltprotocol/sdk-js";
 import { u8aToHex } from "@polkadot/util";
+import { getLocation } from "@/lib/api";
 
 export default {
   name: "SendPaymentDialog",
@@ -135,6 +135,7 @@ export default {
     error: "",
     country: "",
     city: "",
+    region: "",
     receipts: [],
     metamaskStatus: false,
     ethSellerAddress: null,
@@ -159,12 +160,12 @@ export default {
       metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance,
       mnemonic: (state) => state.substrate.mnemonicData.mnemonic,
       configApp: (state) => state.auth.configApp,
+      countryData: (state) => state.auth.countryData,
     }),
   },
   mounted() {
     if (this.lab != null) {
-      this.country = cityData[this.lab.info.country].name;
-      this.city = cityData[this.lab.info.country].divisions[this.lab.info.city];
+      this.getDataLocation();
 
       this.priceOrder = this.totalPrice;
       this.priceOrder = parseFloat(
@@ -220,6 +221,32 @@ export default {
     ...mapActions({
       restoreAccountKeystore: "substrate/restoreAccountKeystore",
     }),
+    async getDataLocation() {
+      const countries = this.countryData;
+      let result = countries.find(function (data) {
+        return data.code == this.lab.info.country;
+      });
+      if (result != undefined) {
+        this.country = result.name;
+      }
+
+      const regions = await getLocation(this.country, null);
+      result = regions.find(function (data) {
+        return data.code == this.lab.info.region;
+      });
+      if (result != undefined) {
+        this.region = result.name;
+      }
+
+      const cities = await getLocation(this.country, this.region);
+      result = cities.find(function (data) {
+        return data.code == this.lab.info.city;
+      });
+
+      if (result != undefined) {
+        this.city = result.name;
+      }
+    },
     async onSubmit() {
       this.isLoading = true;
       this.error = "";

@@ -228,7 +228,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { updateHospital } from '@/lib/polkadotProvider/command/hospitals'
 import { createCertification, updateCertification, deleteCertification } from '@/lib/polkadotProvider/command/hospitals/certifications'
 import ipfsWorker from "@/web-workers/ipfs-worker"
@@ -293,6 +293,9 @@ export default {
       pair: 'substrate/wallet',
       hospitalAccount: 'substrate/hospitalAccount',
     }),
+    ...mapState({
+      countryData: state => state.auth.countryData,
+    }),
     citiesSelection() {
       return this.cities
         .filter((c) => c.country == this.country)
@@ -309,7 +312,7 @@ export default {
   },
   methods: {
     async getCountries() {
-      this.countries = await getLocation(null, null);
+      this.countries = this.countryData;
     },
     async onCountryChange(selectedCountry) {
       this.country = selectedCountry;

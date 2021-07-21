@@ -142,6 +142,7 @@ export default {
     ...mapState({
       locationContract: state => state.ethereum.contracts.contractLocation,
       degenicsContract: state => state.ethereum.contracts.contractDegenics,
+      countryData: state => state.auth.countryData,
     }),
     citiesSelection() {
       return this.cities
@@ -160,7 +161,7 @@ export default {
       this.$store.state.substrate.isHospitalAccountExist = true
     },
     async getCountries() {
-      this.countries = await getLocation(null, null);
+      this.countries = this.countryData;
     },
     async onCountryChange(selectedCountry) {
       this.country = selectedCountry;

@@ -24,7 +24,9 @@
                 <div class="text-body-2">
                   {{ lab.info.address }}
                 </div>
-                <div class="text-body-2">{{ city }}, {{ country }}</div>
+                <div class="text-body-2">
+                  {{ city }}, {{ region }}, {{ country }}
+                </div>
                 <!-- <div v-if="lab.phone" class="text-body-2"> -->
                 <!-- Phone: {{ lab.phone }} -->
                 <!-- </div> -->
@@ -118,8 +120,9 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import DNASampleSendingInstructions from "@/components/DNASampleSendingInstructions";
-import cityData from "@/assets/json/city.json";
+import { getLocation } from "@/lib/api";
 
 export default {
   name: "RequestTestSuccess",
@@ -130,8 +133,12 @@ export default {
     receipts: [],
     country: "",
     city: "",
+    region: "",
   }),
   computed: {
+    ...mapState({
+      countryData: (state) => state.auth.countryData,
+    }),
     specimenNumber() {
       const { receipts } = this.$router.history.current.params;
       return receipts[0].specimenNumber;
@@ -148,8 +155,7 @@ export default {
     }
     this.receipts = receipts;
     if (this.lab != null) {
-      this.country = cityData[this.lab.info.country].name;
-      this.city = cityData[this.lab.info.country].divisions[this.lab.info.city];
+      this.getDataLocation();
     }
   },
   methods: {
@@ -158,6 +164,32 @@ export default {
     },
     goToHome() {
       this.$router.push({ name: "customer-home" });
+    },
+    async getDataLocation() {
+      const countries = this.countryData;
+      let result = countries.find(function (data) {
+        return data.code == this.lab.info.country;
+      });
+      if (result != undefined) {
+        this.country = result.name;
+      }
+
+      const regions = await getLocation(this.country, null);
+      result = regions.find(function (data) {
+        return data.code == this.lab.info.region;
+      });
+      if (result != undefined) {
+        this.region = result.name;
+      }
+
+      const cities = await getLocation(this.country, this.region);
+      result = cities.find(function (data) {
+        return data.code == this.lab.info.city;
+      });
+
+      if (result != undefined) {
+        this.city = result.name;
+      }
     },
   },
 };

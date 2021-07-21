@@ -15,7 +15,9 @@
                 <div class="text-body-2">
                   {{ lab.info.address }}
                 </div>
-                <div class="text-body-2">{{ city }}, {{ country }}</div>
+                <div class="text-body-2">
+                  {{ city }}, {{ region }}, {{ country }}
+                </div>
               </template>
             </v-card-text>
             <div class="px-8">
@@ -131,9 +133,9 @@
 <script>
 import { mapState, mapMutations } from "vuex";
 import SendPaymentDialog from "./SendPaymentDialog";
-import cityData from "@/assets/json/city.json";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
 import DialogAlert from "@/components/Dialog/DialogAlert";
+import { getLocation } from "@/lib/api";
 
 export default {
   components: {
@@ -144,6 +146,7 @@ export default {
     sendPaymentDialog: false,
     country: "",
     city: "",
+    region: "",
     dialogAlert: false,
     alertTextBtn: "Close",
     alertImgPath: "warning.png",
@@ -158,6 +161,7 @@ export default {
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
       configApp: (state) => state.auth.configApp,
+      countryData: (state) => state.auth.countryData,
     }),
     totalPrice() {
       return this.products
@@ -208,10 +212,7 @@ export default {
       if (this.lab == null) {
         this.$router.push({ name: "request-test" });
       } else {
-        this.country = cityData[this.lab.info.country].name;
-        this.city =
-          cityData[this.lab.info.country].divisions[this.lab.info.city];
-
+        this.getDataLocation();
         if (this.products.length > 0) {
           this.currency = this.products[0].currency;
         }
@@ -225,6 +226,32 @@ export default {
     },
     actionAlert() {
       this.dialogAlert = false;
+    },
+    async getDataLocation() {
+      const countries = this.countryData;
+      let result = countries.find(function (data) {
+        return data.code == this.lab.info.country;
+      });
+      if (result != undefined) {
+        this.country = result.name;
+      }
+
+      const regions = await getLocation(this.country, null);
+      result = regions.find(function (data) {
+        return data.code == this.lab.info.region;
+      });
+      if (result != undefined) {
+        this.region = result.name;
+      }
+
+      const cities = await getLocation(this.country, this.region);
+      result = cities.find(function (data) {
+        return data.code == this.lab.info.city;
+      });
+
+      if (result != undefined) {
+        this.city = result.name;
+      }
     },
   },
 };

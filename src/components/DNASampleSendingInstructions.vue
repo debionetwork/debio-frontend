@@ -57,7 +57,8 @@
 <script>
 import BulletPoint from "@/components/BulletPoint";
 import { fmtSpecimenNumber } from "../lib/string-format";
-import cityData from "@/assets/json/city.json";
+import { getLocation } from "@/lib/api";
+import { mapState } from "vuex";
 
 export default {
   name: "DNASampleSendingInstructions",
@@ -67,6 +68,7 @@ export default {
   data: () => ({
     country: "",
     city: "",
+    region: "",
   }),
   props: {
     specimenNumber: String,
@@ -76,6 +78,9 @@ export default {
     hideOrderHistoryLink: Boolean,
   },
   computed: {
+    ...mapState({
+      countryData: (state) => state.auth.countryData,
+    }),
     instructions() {
       return [
         `Write down the specimen number <b>${fmtSpecimenNumber(
@@ -87,16 +92,38 @@ export default {
         ` Send the envelope (without return address for maximum privacy), to
           <div><b>${this.lab.info.name}</b></div>
           <div><b>${this.lab.info.address ?? ""}</b></div>
-          <div><b>${this.city}, ${this.country}</b></div>
+          <div><b>${this.city}, ${this.region}, ${this.country}</b></div>
           <div style="margin-top: 12px; text-decoration: underline;"><b>You do not need to mention your name, address, or any personal information</b></div>
         `,
       ];
     },
   },
-  mounted() {
+  async mounted() {
     if (this.lab != null) {
-      this.country = cityData[this.lab.info.country].name;
-      this.city = cityData[this.lab.info.country].divisions[this.lab.info.city];
+      const countries = this.countryData;
+      let result = countries.find(function (data) {
+        return data.code == this.lab.info.country;
+      });
+      if (result != undefined) {
+        this.country = result.name;
+      }
+
+      const regions = await getLocation(this.country, null);
+      result = regions.find(function (data) {
+        return data.code == this.lab.info.region;
+      });
+      if (result != undefined) {
+        this.region = result.name;
+      }
+
+      const cities = await getLocation(this.country, this.region);
+      result = cities.find(function (data) {
+        return data.code == this.lab.info.city;
+      });
+
+      if (result != undefined) {
+        this.city = result.name;
+      }
     }
   },
 };

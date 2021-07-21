@@ -285,6 +285,7 @@ export default {
     }),
     ...mapState({
       mnemonic: state => state.substrate.mnemonicData.mnemonic,
+      countryData: state => state.auth.countryData,
     }),
     citiesSelection() {
       return this.cities
@@ -302,7 +303,7 @@ export default {
   },
   methods: {
     async getCountries() {
-      this.countries = await getLocation(null, null);
+      this.countries = this.countryData;
     },
     async onCountryChange(selectedCountry) {
       this.country = selectedCountry;

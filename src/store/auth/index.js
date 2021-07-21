@@ -1,8 +1,10 @@
-import localStorage from '../../lib/local-storage'
+import localStorage from '../../lib/local-storage';
+import { getLocation } from "@/lib/api";
 
 const defaultState = {
   role: null,
   configApp: null,
+  countryData: [],
   loadingData: null,
 }
 
@@ -17,6 +19,9 @@ export default {
     },
     SET_CONFIG(state, data) {
       state.configApp = data
+    },
+    SET_COUNTRY(state, data) {
+      state.countryData = data
     },
     SET_LOADING(state, data) {
       state.loadingData = data
@@ -61,7 +66,9 @@ export default {
           apiUrl
         };
       }
-      commit('SET_CONFIG', configApp)
+      commit('SET_CONFIG', configApp);
+      const countries = await getLocation(null, null);
+      commit('SET_COUNTRY', countries);
     },
     async getRole({ commit, rootGetters }) {
       try {
