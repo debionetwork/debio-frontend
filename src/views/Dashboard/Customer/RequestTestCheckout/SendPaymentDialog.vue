@@ -223,28 +223,32 @@ export default {
     }),
     async getDataLocation() {
       const countries = this.countryData;
-      let result = countries.find(function (data) {
-        return data.code == this.lab.info.country;
+      const vm = this;
+      const resultCountry = countries.find(function (data) {
+        return data.code == vm.lab.info.country;
       });
-      if (result != undefined) {
-        this.country = result.name;
-      }
+      if (resultCountry != undefined) {
+        this.country = resultCountry.name;
 
-      const regions = await getLocation(this.country, null);
-      result = regions.find(function (data) {
-        return data.code == this.lab.info.region;
-      });
-      if (result != undefined) {
-        this.region = result.name;
-      }
+        const regions = await getLocation(resultCountry.code, null);
+        const resultRegions = regions.find(function (data) {
+          return data.code.trim() == vm.lab.info.region;
+        });
+        if (resultRegions != undefined) {
+          this.region = resultRegions.name;
 
-      const cities = await getLocation(this.country, this.region);
-      result = cities.find(function (data) {
-        return data.code == this.lab.info.city;
-      });
+          const cities = await getLocation(
+            resultCountry.code,
+            resultRegions.code
+          );
+          const resultCities = cities.find(function (data) {
+            return data.code.trim() == vm.lab.info.city;
+          });
 
-      if (result != undefined) {
-        this.city = result.name;
+          if (resultCities != undefined) {
+            this.city = resultCities.name;
+          }
+        }
       }
     },
     async onSubmit() {

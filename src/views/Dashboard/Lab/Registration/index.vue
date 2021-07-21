@@ -202,8 +202,9 @@ export default {
             name: this.labName,
             email: this.email,
             address: this.address,
-            country: this.country,
-            city: this.city,
+            country: this.country.trim(),
+            city: this.city.trim(),
+            region: this.region.trim(),
           }
         }
         this.setLabAccount(labAccount)
