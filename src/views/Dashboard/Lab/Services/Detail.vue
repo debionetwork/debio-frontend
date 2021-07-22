@@ -84,9 +84,9 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import ipfsWorker from '@/web-workers/ipfs-worker'
-import { updateService, deleteService } from '@/lib/polkadotProvider/command/services'
+import { mapGetters } from "vuex"
+import { upload } from "@/lib/ipfs/upload"
+import { updateService, deleteService } from "@/lib/polkadotProvider/command/services"
 
 export default {
   name: 'LabAddServices',
@@ -173,7 +173,7 @@ export default {
         const context = this
         fr.addEventListener('load', async () => {
           // Upload
-          const uploaded = await context.upload({
+          const uploaded = await upload({
             fileChunk: fr.result,
             fileType: file.type,
             fileName: file.name,
@@ -187,42 +187,6 @@ export default {
         this.files = []
         this.imageUrl = ''
       }
-    },
-    upload({ fileChunk, fileName, fileType }) {
-      const chunkSize = 10 * 1024 * 1024 // 10 MB
-      let offset = 0
-      const blob = new Blob([ fileChunk ], { type: fileType })
-
-      return new Promise((resolve, reject) => {
-        try {
-          const fileSize = blob.size
-          do {
-            let chunk = blob.slice(offset, chunkSize + offset);
-            ipfsWorker.workerUpload.postMessage({
-              seed: chunk.seed, file: blob
-            })
-            offset += chunkSize
-          } while((chunkSize + offset) < fileSize)
-          
-          let uploadSize = 0
-          const uploadedResultChunks = []
-          ipfsWorker.workerUpload.onmessage = async event => {
-            uploadedResultChunks.push(event.data)
-            uploadSize += event.data.data.size
-              
-            if (uploadSize >= fileSize) {
-              resolve({
-                fileName: fileName,
-                fileType: fileType,
-                ipfsPath: uploadedResultChunks
-              })
-            }
-          }
-
-        } catch (err) {
-          reject(new Error(err.message))
-        }
-      })
     },
   },
 }
