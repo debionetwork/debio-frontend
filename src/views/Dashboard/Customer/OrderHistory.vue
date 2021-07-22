@@ -62,62 +62,78 @@
               {{ item.orderDate }}
             </template>
             <template v-slot:[`item.status`]="{ item }">
-              {{ item.status | customerSpecimenStatus }}
+              <div v-if="dataStatus.length > 0">
+                {{ getStatus(item) }}
+              </div>
+              <div v-else>
+                <v-progress-linear
+                  indeterminate
+                  color="grey"
+                ></v-progress-linear>
+              </div>
             </template>
 
             <template v-slot:[`item.actions`]="{ item }">
-              <v-container v-if="item.status == ORDER_PAID">
-                <v-btn
-                  class="btn-sending"
-                  dark
-                  small
-                  width="200"
-                  @click="showDialogInstruction(item)"
-                  >View Instructions</v-btn
-                >
-              </v-container>
-              <v-container v-if="item.status == ORDER_PAID">
-                <v-btn
-                  class="Received"
-                  dark
-                  small
-                  width="200"
-                  @click="goToOrderDetail(item)"
-                  >View Order</v-btn
-                >
-              </v-container>
-              <v-container v-if="item.status == ORDER_UNPAID">
-                <v-btn
-                  class="btn-sending"
-                  dark
-                  small
-                  width="200"
-                  @click="goToOrderDetail(item)"
-                  >Pay</v-btn
-                >
-              </v-container>
-              <v-container v-if="item.status == ORDER_FULFILLED">
-                <v-btn
-                  class="success"
-                  small
-                  width="200"
-                  @click="goToOrderDetail(item)"
-                  >View Order</v-btn
-                >
-              </v-container>
+              <div v-if="dataStatus.length > 0">
+                <v-container v-if="getStatus(item) == ORDER_UNPAID">
+                  <v-btn
+                    class="btn-sending"
+                    dark
+                    small
+                    width="200"
+                    @click="goToOrderDetail(item)"
+                    >Pay</v-btn
+                  >
+                </v-container>
+                <v-container v-if="getStatus(item) == SENDING">
+                  <v-btn
+                    class="btn-sending"
+                    dark
+                    small
+                    width="200"
+                    @click="showDialogInstruction(item)"
+                    >View Instructions</v-btn
+                  >
+                </v-container>
+                <v-container v-if="getStatus(item) == SENDING">
+                  <v-btn
+                    class="Received"
+                    dark
+                    small
+                    width="200"
+                    @click="goToOrderDetail(item)"
+                    >View Order</v-btn
+                  >
+                </v-container>
 
-              <v-container v-if="item.status == REJECTED">
-                <v-btn
-                  class="Reject"
-                  dark
-                  small
-                  width="200"
-                  @click="showDialogRejected(item)"
-                  >View Reason</v-btn
-                >
-              </v-container>
+                <v-container v-if="getStatus(item) == ORDER_FULFILLED">
+                  <v-btn
+                    class="success"
+                    small
+                    width="200"
+                    @click="goToOrderDetail(item)"
+                    >View Order</v-btn
+                  >
+                </v-container>
+
+                <v-container v-if="getStatus(item) == REJECTED">
+                  <v-btn
+                    class="Reject"
+                    dark
+                    small
+                    width="200"
+                    @click="showDialogRejected(item)"
+                    >View Reason</v-btn
+                  >
+                </v-container>
+              </div>
+              <div v-else>
+                <v-progress-linear
+                  indeterminate
+                  color="grey"
+                ></v-progress-linear>
+              </div>
             </template>
-
             <!-- Rows -->
           </DataTable>
         </v-col>
@@ -133,21 +149,32 @@ import SearchBar from "@/components/DataTable/SearchBar";
 import DNASampleSendingInstructions from "@/components/DNASampleSendingInstructions";
 import RejectedReasonDialog from "@/components/RejectedReasonDialog";
 import {
-  SENDING,
-  RECEIVED,
-  SUCCESS,
-  REJECTED,
-  ORDER_UNPAID,
-  ORDER_PAID,
-  ORDER_FULFILLED,
-  ORDER_REFUNDED,
-} from "@/constants/specimen-status";
-import {
   ordersByCustomer,
   getOrdersData,
 } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
+import { getStatusAllOrder } from "@/lib/functions";
+import {
+  SENDING,
+  REGISTERED,
+  ARRIVED,
+  REJECTED,
+  PREPARED,
+  EXTRACTED,
+  GENOTYPED,
+  REVIEWED,
+  COMPUTED,
+  SUCCESS,
+  FAILED,
+} from "@/constants/specimen-status";
+import {
+  ORDER_UNPAID,
+  ORDER_PAID,
+  ORDER_CANCEL,
+  ORDER_REFUNDED,
+  ORDER_FULFILLED,
+} from "@/constants/order-status";
 
 export default {
   name: "history-test",
@@ -159,13 +186,21 @@ export default {
   },
   data: () => ({
     SENDING,
-    RECEIVED,
-    SUCCESS,
+    REGISTERED,
+    ARRIVED,
     REJECTED,
+    PREPARED,
+    EXTRACTED,
+    GENOTYPED,
+    REVIEWED,
+    COMPUTED,
+    SUCCESS,
+    FAILED,
     ORDER_UNPAID,
     ORDER_PAID,
-    ORDER_FULFILLED,
+    ORDER_CANCEL,
     ORDER_REFUNDED,
+    ORDER_FULFILLED,
     headers: [
       { text: "Lab Name", value: "labName" },
       { text: "Product Name", value: "title" },
@@ -189,6 +224,7 @@ export default {
     dialogInstruction: false,
     dialogRejected: false,
     orderHistory: [],
+    dataStatus: [],
   }),
   computed: {
     ...mapState({
@@ -211,6 +247,7 @@ export default {
     },
     async address() {
       await this.getOrderHistory();
+      this.dataStatus = await getStatusAllOrder(this.orderHistory);
     },
   },
   async mounted() {
@@ -221,6 +258,7 @@ export default {
       this.isLoading = true;
       try {
         this.orderHistory = [];
+        this.dataStatus = [];
         const listOrderId = await ordersByCustomer(this.api, this.address);
 
         var lengthMax = 3;
@@ -320,6 +358,13 @@ export default {
     },
     onSearchInput(val) {
       this.search = val;
+    },
+    getStatus(item) {
+      return this.dataStatus[
+        this.orderHistory.findIndex(
+          (x) => x.dna_sample_tracking_id === item.dna_sample_tracking_id
+        )
+      ];
     },
   },
 };

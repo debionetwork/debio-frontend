@@ -101,6 +101,9 @@ export default {
     },
     getLoading(state) {
       return state.loadingData
+    },
+    getCountryData(state) {
+      return state.countryData
     }
   }
 }

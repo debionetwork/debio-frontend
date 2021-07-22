@@ -15,7 +15,7 @@
             <v-card-text class="px-8">
               <div class="d-flex justify-space-between">
                 <div class="text-h5">Lab Details</div>
-                <StatusChip :status="order.status" />
+                <StatusChip :status="statusOrder" />
               </div>
               <div v-if="lab">
                 <div class="text-subtitle-1">
@@ -25,7 +25,7 @@
                   {{ lab.info.address }}
                 </div>
                 <div class="text-body-2">
-                  {{ lab.info.city }}, {{ lab.info.country }}
+                  {{ locationlab }}
                 </div>
                 <div v-if="lab.info.email" class="text-body-2">
                   Email: {{ lab.info.email }}
@@ -83,7 +83,7 @@
             </v-card-text>
           </v-card>
           <!-- If order Success -->
-          <div v-if="order.status == ORDER_FULFILLED" class="mt-2">
+          <div v-if="statusOrder == ORDER_FULFILLED" class="mt-2">
             <Button color="green" @click="goToResult" dark>
               View Result
             </Button>
@@ -96,7 +96,7 @@
           lg="6"
           md="6"
           xl="5"
-          v-if="order.status == ORDER_UNPAID"
+          v-if="statusOrder == ORDER_UNPAID"
         >
           <v-card class="dg-card pb-3" elevation="0" outlined>
             <v-card-title class="px-8">
@@ -186,7 +186,7 @@
         ></DialogReward>
 
         <!-- If order is sending -->
-        <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == ORDER_PAID">
+        <v-col cols="12" lg="6" md="6" xl="5" v-if="statusOrder == SENDING">
           <DNASampleSendingInstructions
             :specimenNumber="order.dna_sample_tracking_id"
             :lab="lab"
@@ -197,7 +197,7 @@
         </v-col>
 
         <!-- If order is received -->
-        <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == RECEIVED">
+        <v-col cols="12" lg="6" md="6" xl="5" v-if="statusOrder == REJECTED">
           <Refund
             :order="order"
             :receivedLog="receivedLog"
@@ -206,7 +206,7 @@
         </v-col>
 
         <!-- If order is rejected -->
-        <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == REJECTED">
+        <v-col cols="12" lg="6" md="6" xl="5" v-if="statusOrder == REJECTED">
           <v-card class="dg-card">
             <v-card-title class="px-8">
               <div class="text-h6">Rejection Reason</div>
@@ -231,16 +231,25 @@ import Button from "@/components/Button";
 import Refund from "./Refund";
 import DialogReward from "@/components/Dialog/DialogReward";
 import {
+  SENDING,
+  REGISTERED,
+  ARRIVED,
+  REJECTED,
+  PREPARED,
+  EXTRACTED,
+  GENOTYPED,
+  REVIEWED,
+  COMPUTED,
+  SUCCESS,
+  FAILED,
+} from "@/constants/specimen-status";
+import {
   ORDER_UNPAID,
   ORDER_PAID,
   ORDER_CANCEL,
-  SENDING,
-  RECEIVED,
-  SUCCESS,
-  REJECTED,
   ORDER_REFUNDED,
   ORDER_FULFILLED,
-} from "@/constants/specimen-status";
+} from "@/constants/order-status";
 import { getOrdersData } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
@@ -249,6 +258,7 @@ import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile"
 import { cancelOrder } from "@/lib/polkadotProvider/command/orders";
 import { startApp } from "@/lib/metamask";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
+import { getStatusOrder, getDataLocation } from "@/lib/functions";
 
 export default {
   name: "RequestTestSuccess",
@@ -262,13 +272,20 @@ export default {
     DialogReward,
   },
   data: () => ({
+    SENDING,
+    REGISTERED,
+    ARRIVED,
+    REJECTED,
+    PREPARED,
+    EXTRACTED,
+    GENOTYPED,
+    REVIEWED,
+    COMPUTED,
+    SUCCESS,
+    FAILED,
     ORDER_UNPAID,
     ORDER_PAID,
     ORDER_CANCEL,
-    SENDING,
-    RECEIVED,
-    SUCCESS,
-    REJECTED,
     ORDER_REFUNDED,
     ORDER_FULFILLED,
     isLoading: false,
@@ -289,6 +306,8 @@ export default {
     orderId: "",
     totalQcPrice: 0,
     totalPay: 0,
+    statusOrder: "",
+    locationlab: "",
   }),
   computed: {
     ...mapState({
@@ -364,17 +383,20 @@ export default {
 
       this.lab = await queryLabsById(this.api, this.order.seller_id);
       this.service = await queryServicesById(this.api, this.order.service_id);
+      this.statusOrder = await getStatusOrder(this.order);
+      this.locationlab = await getDataLocation(
+        this.lab.info.country,
+        this.lab.info.region,
+        this.lab.info.city
+      );
 
       if (this.openPayMetamask) {
-        console.log(this.order);
-        console.log(this.lab);
-        console.log(this.service);
         this.openMetamask();
       } else {
         this.isLoading = false;
       }
 
-      if (this.order.status == ORDER_FULFILLED) {
+      if (this.statusOrder == ORDER_FULFILLED) {
         this.dialogReward = true;
       }
     },

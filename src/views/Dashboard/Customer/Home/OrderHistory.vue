@@ -63,6 +63,27 @@ import {
 } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
+import {
+  SENDING,
+  REGISTERED,
+  ARRIVED,
+  REJECTED,
+  PREPARED,
+  EXTRACTED,
+  GENOTYPED,
+  REVIEWED,
+  COMPUTED,
+  SUCCESS,
+  FAILED,
+} from "@/constants/specimen-status";
+import {
+  ORDER_UNPAID,
+  ORDER_PAID,
+  ORDER_CANCEL,
+  ORDER_REFUNDED,
+  ORDER_FULFILLED,
+} from "@/constants/order-status";
+import { getStatusOrder } from "@/lib/functions";
 
 export default {
   name: "OrderHistory",
@@ -70,6 +91,26 @@ export default {
     OrderCard,
     PrimaryButton,
   },
+  data: () => ({
+    SENDING,
+    REGISTERED,
+    ARRIVED,
+    REJECTED,
+    PREPARED,
+    EXTRACTED,
+    GENOTYPED,
+    REVIEWED,
+    COMPUTED,
+    SUCCESS,
+    FAILED,
+    ORDER_UNPAID,
+    ORDER_PAID,
+    ORDER_CANCEL,
+    ORDER_REFUNDED,
+    ORDER_FULFILLED,
+    orderHistory: [],
+    isLoadingOrderHistory: false,
+  }),
   computed: {
     ...mapState({
       walletBalance: (state) => state.substrate.walletBalance,
@@ -96,10 +137,6 @@ export default {
   mounted() {
     this.getOrderHistory();
   },
-  data: () => ({
-    orderHistory: [],
-    isLoadingOrderHistory: false,
-  }),
   methods: {
     async getOrderHistory() {
       this.isLoadingOrderHistory = true;
@@ -125,7 +162,7 @@ export default {
               this.api,
               detailOrder.service_id
             );
-            this.prepareOrderData(detailOrder, detaillab, detailService);
+            await this.prepareOrderData(detailOrder, detaillab, detailService);
           }
 
           this.orderHistory.sort(
@@ -139,7 +176,7 @@ export default {
         this.isLoadingOrderHistory = false;
       }
     },
-    prepareOrderData(detailOrder, detaillab, detailService) {
+    async prepareOrderData(detailOrder, detaillab, detailService) {
       const title = detailService.info.name;
       const labName = detaillab.info.name;
       let icon = "mdi-needle";
@@ -160,7 +197,7 @@ export default {
         hour: "numeric", // numeric, 2-digit
         minute: "numeric",
       });
-      const status = detailOrder.status;
+      const status = await getStatusOrder(detailOrder);
       const dna_sample_tracking_id = detailOrder.dna_sample_tracking_id;
       const order = {
         icon,

@@ -116,7 +116,7 @@ import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
 import Kilt from "@kiltprotocol/sdk-js";
 import { u8aToHex } from "@polkadot/util";
-import { getLocation } from "@/lib/api";
+import { getDataLocation } from "@/lib/functions";
 
 export default {
   name: "SendPaymentDialog",
@@ -133,9 +133,7 @@ export default {
     totalQcPrice: 0,
     totalPay: 0,
     error: "",
-    country: "",
-    city: "",
-    region: "",
+    locationlab: "",
     receipts: [],
     metamaskStatus: false,
     ethSellerAddress: null,
@@ -160,12 +158,15 @@ export default {
       metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance,
       mnemonic: (state) => state.substrate.mnemonicData.mnemonic,
       configApp: (state) => state.auth.configApp,
-      countryData: (state) => state.auth.countryData,
     }),
   },
-  mounted() {
+  async mounted() {
     if (this.lab != null) {
-      this.getDataLocation();
+      this.locationlab = await getDataLocation(
+        this.lab.info.country,
+        this.lab.info.region,
+        this.lab.info.city
+      );
 
       this.priceOrder = this.totalPrice;
       this.priceOrder = parseFloat(
@@ -221,36 +222,6 @@ export default {
     ...mapActions({
       restoreAccountKeystore: "substrate/restoreAccountKeystore",
     }),
-    async getDataLocation() {
-      const countries = this.countryData;
-      const vm = this;
-      const resultCountry = countries.find(function (data) {
-        return data.code == vm.lab.info.country;
-      });
-      if (resultCountry != undefined) {
-        this.country = resultCountry.name;
-
-        const regions = await getLocation(resultCountry.code, null);
-        const resultRegions = regions.find(function (data) {
-          return data.code.trim() == vm.lab.info.region;
-        });
-        if (resultRegions != undefined) {
-          this.region = resultRegions.name;
-
-          const cities = await getLocation(
-            resultCountry.code,
-            resultRegions.code
-          );
-          const resultCities = cities.find(function (data) {
-            return data.code.trim() == vm.lab.info.city;
-          });
-
-          if (resultCities != undefined) {
-            this.city = resultCities.name;
-          }
-        }
-      }
-    },
     async onSubmit() {
       this.isLoading = true;
       this.error = "";

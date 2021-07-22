@@ -1,0 +1,5 @@
+export const ORDER_UNPAID = 'Unpaid'
+export const ORDER_PAID = 'Paid'
+export const ORDER_FULFILLED = 'Success'
+export const ORDER_REFUNDED = 'Refunded'
+export const ORDER_CANCEL = 'Cancelled'

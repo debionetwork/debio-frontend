@@ -16,7 +16,7 @@
                   {{ lab.info.address }}
                 </div>
                 <div class="text-body-2">
-                  {{ city }}, {{ region }}, {{ country }}
+                  {{ locationlab }}
                 </div>
               </template>
             </v-card-text>
@@ -83,10 +83,32 @@
             </v-card-title>
             <v-card-text class="px-8">
               <div class="d-flex justify-space-between">
-                <div class="text-h6">Total Price</div>
+                <div class="text-h7">Price</div>
+                <div>
+                  <span class="text-h7">
+                    {{ totalPrice }}
+                  </span>
+                  <span class="primary--text text-caption">
+                    {{ currency }}
+                  </span>
+                </div>
+              </div>
+              <div class="d-flex justify-space-between">
+                <div class="text-h7">QC Price</div>
+                <div>
+                  <span class="text-h7">
+                    {{ qcPrice }}
+                  </span>
+                  <span class="primary--text text-caption">
+                    {{ currency }}
+                  </span>
+                </div>
+              </div>
+              <div class="d-flex justify-space-between">
+                <div class="text-h6">Total Pay</div>
                 <div>
                   <span class="text-h6">
-                    {{ totalPrice }}
+                    {{ totalPay }}
                   </span>
                   <span class="primary--text text-caption">
                     {{ currency }}
@@ -135,7 +157,7 @@ import { mapState, mapMutations } from "vuex";
 import SendPaymentDialog from "./SendPaymentDialog";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
 import DialogAlert from "@/components/Dialog/DialogAlert";
-import { getLocation } from "@/lib/api";
+import { getDataLocation } from "@/lib/functions";
 
 export default {
   components: {
@@ -144,9 +166,7 @@ export default {
   },
   data: () => ({
     sendPaymentDialog: false,
-    country: "",
-    city: "",
-    region: "",
+    locationlab: "",
     dialogAlert: false,
     alertTextBtn: "Close",
     alertImgPath: "warning.png",
@@ -161,7 +181,6 @@ export default {
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
       configApp: (state) => state.auth.configApp,
-      countryData: (state) => state.auth.countryData,
     }),
     totalPrice() {
       return this.products
@@ -179,6 +198,11 @@ export default {
           0
         )
         .toFixed(2);
+    },
+    totalPay() {
+      return (parseFloat(this.totalPrice) + parseFloat(this.qcPrice)).toFixed(
+        2
+      );
     },
   },
   mounted() {
@@ -208,11 +232,15 @@ export default {
 
       console.log("Receipt in RequestTestCheckout", receipts);
     },
-    checkingData() {
+    async checkingData() {
       if (this.lab == null) {
         this.$router.push({ name: "request-test" });
       } else {
-        this.getDataLocation();
+        this.locationlab = await getDataLocation(
+          this.lab.info.country,
+          this.lab.info.region,
+          this.lab.info.city
+        );
         if (this.products.length > 0) {
           this.currency = this.products[0].currency;
         }
@@ -226,36 +254,6 @@ export default {
     },
     actionAlert() {
       this.dialogAlert = false;
-    },
-    async getDataLocation() {
-      const countries = this.countryData;
-      const vm = this;
-      const resultCountry = countries.find(function (data) {
-        return data.code == vm.lab.info.country;
-      });
-      if (resultCountry != undefined) {
-        this.country = resultCountry.name;
-
-        const regions = await getLocation(resultCountry.code, null);
-        const resultRegions = regions.find(function (data) {
-          return data.code.trim() == vm.lab.info.region;
-        });
-        if (resultRegions != undefined) {
-          this.region = resultRegions.name;
-
-          const cities = await getLocation(
-            resultCountry.code,
-            resultRegions.code
-          );
-          const resultCities = cities.find(function (data) {
-            return data.code.trim() == vm.lab.info.city;
-          });
-
-          if (resultCities != undefined) {
-            this.city = resultCities.name;
-          }
-        }
-      }
     },
   },
 };
