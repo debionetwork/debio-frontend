@@ -120,7 +120,7 @@
                 <div class="secondary--text text-h6">
                   <b>Certifications</b>
                 </div>
-                <v-btn small dark color="#75DEE4" fab style="border-radius:10px;" @click="certificationDialog = true">
+                <v-btn small dark color="#75DEE4" fab style="border-radius:10px;" @click="openCertificationDialog">
                   <v-icon>mdi-plus</v-icon>
                 </v-btn>
               </div>
@@ -151,6 +151,12 @@
                   </div>
                   <div>{{ cert.info.month }} {{ cert.info.year }} • {{ cert.info.issuer }}</div>
                   <div class="mt-3 mb-3">{{ cert.info.description }}</div>
+                  <div v-if="cert.info.supporting_document" class="mt-3 mb-3">
+                    <a :href="cert.info.supporting_document" class="support-url" target="_blank">
+                      <v-icon class="mx-1" small>mdi-file-document</v-icon>
+                      Supporting Documents
+                    </a>
+                  </div>
                 </div>
               </div>
             </v-card-text>
@@ -211,10 +217,19 @@
             v-model="certDescription"
             :rules="[val => !!val || 'Description is required']"
           ></v-textarea>
+          <v-file-input
+            dense
+            label="Supporting Document"
+            placeholder="Supporting Document"
+            prepend-icon="mdi-file-document"
+            outlined
+            v-model="supportingDocuments"
+            @change="fileUploadEventListener"
+          ></v-file-input>
         </v-form>
       </template>
       <template v-slot:actions>
-        <Button @click="submitCertification" :loading="isLoading" color="primary" dark>
+        <Button @click="submitCertification" :loading="isLoading" :disabled="isUploading" color="primary" dark>
           Save
         </Button>
       </template>
@@ -232,6 +247,7 @@ import Kilt from '@kiltprotocol/sdk-js'
 import { u8aToHex } from '@polkadot/util'
 import Dialog from '@/components/Dialog'
 import Button from '@/components/Button'
+import { upload } from "@/lib/ipfs/upload"
 
 updateCertification
 deleteCertification
@@ -262,10 +278,11 @@ export default {
     country: "",
     region: "",
     city: "",
+    supportingDocumentsUrl: "",
     countries: [],
     regions: [],
     cities: [],
-    files: [],
+    supportingDocuments: [],
     certifications: [],
     certificationDialog: false,
     certId: "", // for update certification
@@ -276,6 +293,7 @@ export default {
     certDescription: "",
     selectMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     isLoading: false,
+    isUploading: false,
     isEditCertificationDialog: false,
   }),
   computed: {
@@ -341,6 +359,9 @@ export default {
         console.error(err)
       }
     },
+    openCertificationDialog() {
+      this.certificationDialog = true
+    },
     closeCertificationDialog() {
       this.certId = ""
       this.certificationDialog = false
@@ -366,6 +387,7 @@ export default {
           month: this.certMonth,
           year: this.certYear,
           description: this.certDescription,
+          supporting_document: this.supportingDocumentsUrl
         }
 
         await createCertification(this.api, this.pair, certificationInfo, () => {
@@ -384,6 +406,15 @@ export default {
       this.certMonth = cert.info.month
       this.certYear = cert.info.year
       this.certDescription = cert.info.description
+      this.supportingDocumentsUrl = cert.info.supporting_document
+    
+      if(this.supportingDocumentsUrl){
+        fetch(this.supportingDocumentsUrl)
+          .then(res => res.blob()) // Gets the response and returns it as a blob
+          .then(blob => {
+            this.supportingDocuments.push(new File([blob], this.supportingDocumentsUrl.substring(21)))
+        });
+      }
 
       this.certificationDialog = true
       this.isEditCertificationDialog = true
@@ -402,6 +433,7 @@ export default {
           month: this.certMonth,
           year: this.certYear,
           description: this.certDescription,
+          supporting_document: this.supportingDocumentsUrl
         }
 
         await updateCertification(this.api, this.pair, this.certId, certificationInfo, () => {
@@ -424,6 +456,35 @@ export default {
       }
       return
     },
+    fileUploadEventListener(file) {
+      if (file && file.name) {
+        if (file.name.lastIndexOf(".") <= 0) {
+          return
+        }
+        this.isUploading = true
+        this.isLoading = true
+
+        const fr = new FileReader()
+        fr.readAsArrayBuffer(file)
+
+        const context = this
+        fr.addEventListener("load", async () => {
+          // Upload
+          const uploaded = await upload({
+            fileChunk: fr.result,
+            fileType: file.type,
+            fileName: file.name,
+          })
+          context.supportingDocumentsUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server...
+          context.isUploading = false
+          context.isLoading = false
+        })
+      }
+      else {
+        this.supportingDocuments = []
+        this.supportingDocumentsUrl = ""
+      }
+    },
   }
 }
 </script>
@@ -431,5 +492,9 @@ export default {
 <style lang="scss" scoped>
 .on-hover {
   cursor: pointer;
+}
+.support-url{
+  text-decoration: none;
+  color: gray;
 }
 </style>
