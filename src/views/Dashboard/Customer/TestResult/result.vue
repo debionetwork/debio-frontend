@@ -3,14 +3,14 @@
     <v-container>
       <v-row>
         <v-col cols="12" md="8">
-          <div class="secondary--text mb-2"><b>Test Result Report</b></div>
+          <div class="secondary--text mb-2"><b>DNA Test Report</b></div>
           <v-card class="dg-card" width="100%">
             <v-progress-linear
               v-if="resultLoading"
               indeterminate
               color="primary"
             ></v-progress-linear>
-            <v-card-title>{{ serviceName }} Report</v-card-title>
+            <!-- <v-card-title>{{ serviceName }} Report</v-card-title> -->
             <v-card-text>
               {{ reportResult }}
             </v-card-text>
@@ -21,8 +21,8 @@
           <div v-for="(file, index) in files" :key="file.name" class="mb-2">
             <MenuCard
               icon="mdi-file-document-multiple-outline"
-              :title="file.fileType"
-              :sub-title="file.fileName"
+              :title="file.fileTitle"
+              :sub-title="file.fileSubTitle"
               :loading="filesLoading[index]"
               :disabled="filesLoading[index]"
               @click="showDialog('download', index)"
@@ -209,6 +209,8 @@ export default {
             fileType: "report",
             fileName: this.serviceName + " Report",
             fileLink: this.speciment.report_link,
+            fileTitle: "Download Report",
+            fileSubTitle: "Download Your Test Report"
           });
         }
 
@@ -217,8 +219,11 @@ export default {
             fileType: "result",
             fileName: this.serviceName + " Result",
             fileLink: this.speciment.result_link,
+            fileTitle: "Download Raw Data",
+            fileSubTitle: "Download Your Genomic Data"
           });
         }
+        console.log(this.files, 'FILES <==========');//TESTING
         this.filesLoading = new Array(this.files.length).fill(false);
       } catch (error) {
         this.resultLoading = false;
