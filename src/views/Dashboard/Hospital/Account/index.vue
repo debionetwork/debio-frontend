@@ -233,7 +233,7 @@ import { updateHospital } from '@/lib/polkadotProvider/command/hospitals'
 import { createCertification, updateCertification, deleteCertification } from '@/lib/polkadotProvider/command/hospitals/certifications'
 import countryData from "@/assets/json/country.json"
 import cityData from "@/assets/json/city.json"
-import { upload } from "@/lib/ipfs/upload"
+import { upload } from "@/lib/ipfs"
 import Dialog from '@/components/Dialog'
 import Button from '@/components/Button'
 

@@ -111,7 +111,7 @@ import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile"
 import { getWalletAddress } from "@/lib/metamask/wallet"
 import countryData from "@/assets/json/country.json"
 import cityData from "@/assets/json/city.json"
-import { upload } from "@/lib/ipfs/upload"
+import { upload } from "@/lib/ipfs"
 
 export default {
   name: "HospitalRegistration",

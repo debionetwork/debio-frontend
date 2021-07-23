@@ -247,7 +247,7 @@ import Kilt from '@kiltprotocol/sdk-js'
 import { u8aToHex } from '@polkadot/util'
 import Dialog from '@/components/Dialog'
 import Button from '@/components/Button'
-import { upload } from "@/lib/ipfs/upload"
+import { upload } from "@/lib/ipfs"
 
 updateCertification
 deleteCertification
