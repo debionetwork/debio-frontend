@@ -25,89 +25,111 @@
 
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-text class="px-8 mt-5">
-              <div class="secondary--text mb-10 text-h6">
-                <b>Lab Account Information</b>
+              <div class="d-flex justify-space-between align-center">
+                <div class="secondary--text text-h6">
+                  <b>Lab Account Information</b>
+                </div>
+                <v-btn small dark color="#75DEE4" fab style="border-radius:10px;" @click="isEditable = !isEditable">
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
               </div>
 
-              <v-form>
-              <!-- <v-file-input
-                dense
-                label="Profile Image"
-                placeholder="Profile Image"
-                prepend-icon="mdi-image"
-                outlined
-                v-model="files"
-              ></v-file-input> -->
+              <v-form class="mt-5">
+                <v-container :class="imageUrl ? 'mb-2 d-flex align-center' : ''">
+                  <v-avatar
+                    class="mr-2"
+                    rounded
+                    size="150"
+                    v-if="imageUrl">
+                    <img :src="imageUrl" />
+                  </v-avatar>
+                  <v-file-input
+                    dense
+                    label="Logo Image"
+                    placeholder="Logo Image"
+                    prepend-icon="mdi-image"
+                    outlined
+                    :disabled="!isEditable"
+                    v-model="files"
+                    @change="fileUploadEventListener"
+                  ></v-file-input>
+                </v-container>
 
-              <v-text-field
-                dense
-                label="Email"
-                placeholder="Email"
-                autocomplete="new-password"
-                outlined
-                v-model="email"
-              ></v-text-field>
-              
-              <v-text-field
-                dense
-                label="Lab Name"
-                placeholder="Lab Name"
-                autocomplete="new-password"
-                outlined
-                v-model="labName"
-              ></v-text-field>
+                <v-text-field
+                  dense
+                  label="Email"
+                  placeholder="Email"
+                  autocomplete="new-password"
+                  outlined
+                  :disabled="!isEditable"
+                  v-model="email"
+                ></v-text-field>
+                
+                <v-text-field
+                  dense
+                  label="Lab Name"
+                  placeholder="Lab Name"
+                  autocomplete="new-password"
+                  outlined
+                  :disabled="!isEditable"
+                  v-model="labName"
+                ></v-text-field>
 
-              <v-autocomplete
-                dense
-                :items="countries"
-                item-text="name"
-                item-value="alpha-2"
-                @change="onCountryChange"
-                label="Select Country"
-                autocomplete="new-password"
-                v-model="country"
-                outlined
-              ></v-autocomplete>
+                <v-autocomplete
+                  dense
+                  :items="countries"
+                  item-text="name"
+                  item-value="alpha-2"
+                  @change="onCountryChange"
+                  label="Select Country"
+                  autocomplete="new-password"
+                  v-model="country"
+                  :disabled="!isEditable"
+                  outlined
+                ></v-autocomplete>
 
-              <v-autocomplete
-                dense
-                :items="regions"
-                item-text="1"
-                item-value="0"
-                @change="onRegionChange"
-                label="Select Region"
-                :disabled="!country"
-                autocomplete="new-password"
-                v-model="region"
-                outlined
-              ></v-autocomplete>
+                <v-autocomplete
+                  dense
+                  :items="regions"
+                  item-text="1"
+                  item-value="0"
+                  @change="onRegionChange"
+                  label="Select Region"
+                  :disabled="!country || !isEditable"
+                  autocomplete="new-password"
+                  v-model="region"
+                  outlined
+                ></v-autocomplete>
 
-              <v-autocomplete
-                dense
-                :items="cities"
-                item-text="1"
-                item-value="0"
-                @change="onCityChange"
-                label="Select City"
-                :disabled="!region"
-                autocomplete="new-password"
-                v-model="city"
-                outlined
-              ></v-autocomplete>
-              
-              <v-text-field
-                dense
-                label="Address"
-                placeholder="Address"
-                autocomplete="new-password"
-                outlined
-                v-model="address"
+                <v-autocomplete
+                  dense
+                  :items="cities"
+                  item-text="1"
+                  item-value="0"
+                  @change="onCityChange"
+                  label="Select City"
+                  :disabled="!region || !isEditable"
+                  autocomplete="new-password"
+                  v-model="city"
+                  outlined
+                ></v-autocomplete>
+                
+                <v-text-field
+                  dense
+                  label="Address"
+                  placeholder="Address"
+                  autocomplete="new-password"
+                  outlined
+                  v-model="address"
+                  :disabled="!isEditable"
                 ></v-text-field>
 
                 <v-btn
                   color="primary"
                   block
                   large
+                  :loading="isLoading || isUploading"
+                  :disabled="isUploading || !isEditable"
                   @click="updateLab"
                 >Submit</v-btn>
               </v-form>
@@ -141,6 +163,15 @@ export default {
     this.email = labInfo.email
     this.labName = labInfo.name
     this.address = labInfo.address
+    this.imageUrl = labInfo.profile_image
+    
+    if(this.imageUrl){
+      fetch(this.imageUrl)
+        .then(res => res.blob()) // Gets the response and returns it as a blob
+        .then(blob => {
+          this.files.push(new File([blob], this.imageUrl.substring(21)))
+      });
+    }
     
     await this.getCountries()
     this.country = labInfo.country
@@ -156,14 +187,14 @@ export default {
     country: "",
     region: "",
     city: "",
-    supportingDocumentsUrl: "",
+    imageUrl: "",
     countries: [],
     regions: [],
     cities: [],
     files: [],
     isLoading: false,
+    isEditable: false,
     isUploading: false,
-    isEditCertificationDialog: false,
   }),
   computed: {
     ...mapGetters({
@@ -200,6 +231,7 @@ export default {
       return u8aToHex(cred.boxKeyPair.publicKey)
     },
     async updateLab(){
+      this.isLoading = true
       try{
         const box_public_key = this.getKiltBoxPublicKey()
         await updateLab(
@@ -213,6 +245,11 @@ export default {
             country: this.country,
             region: this.region,
             city: this.city,
+            profile_image: this.imageUrl,
+          },
+          () => {
+            this.isLoading = false
+            this.isEditable = false
           }
         )
       }
@@ -239,14 +276,14 @@ export default {
             fileType: file.type,
             fileName: file.name,
           })
-          context.supportingDocumentsUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server...
+          context.imageUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server...
           context.isUploading = false
           context.isLoading = false
         })
       }
       else {
-        this.supportingDocuments = []
-        this.supportingDocumentsUrl = ""
+        this.files = []
+        this.imageUrl = ""
       }
     },
   }
