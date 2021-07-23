@@ -71,7 +71,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { upload } from "@/lib/ipfs/upload"
+import { upload } from "@/lib/ipfs"
 import { createService } from '@/lib/polkadotProvider/command/services'
 
 export default {

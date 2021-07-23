@@ -232,7 +232,7 @@ import { mapGetters } from 'vuex'
 import { updateDoctor } from '@/lib/polkadotProvider/command/doctors'
 import { createCertification, updateCertification, deleteCertification } from '@/lib/polkadotProvider/command/doctors/certifications'
 import countryData from "@/assets/json/country.json"
-import { upload } from "@/lib/ipfs/upload"
+import { upload } from "@/lib/ipfs"
 import cityData from "@/assets/json/city.json"
 import Dialog from '@/components/Dialog'
 import Button from '@/components/Button'
