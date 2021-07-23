@@ -130,7 +130,6 @@ import { mapGetters } from 'vuex'
 import ReceiveSpecimen from './ReceiveSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
-import { queryDnaSamples } from '@/lib/polkadotProvider/query/geneticTesting'
 
 export default {
   name: 'ProcessOrderHistory',
@@ -150,6 +149,7 @@ export default {
     customerEthAddress: "",
     sellerEthAddress: "",
     specimenNumber: "",
+    specimenStatus: "",
     isOrderProcessed: false,
     serviceName: "",
     serviceDescription: "",
@@ -170,6 +170,7 @@ export default {
       this.customerEthAddress = order.customer_eth_address ? order.customer_eth_address : "Address not set"
       this.sellerEthAddress = order.seller_eth_address
       this.specimenNumber = order.dna_sample_tracking_id
+      this.specimenStatus = order.dna_sample_status
       this.setCheckboxByDnaStatus()
     } catch (err) {
       console.log(err)
@@ -177,23 +178,21 @@ export default {
   },
   methods: {
     async setCheckboxByDnaStatus(){
-        const dna = await queryDnaSamples(this.api, this.specimenNumber)
-        if(!dna) return
-
-        if(dna.status == "Received") {
+        console.log(this)
+        if(this.specimenStatus == "Arrived") {
             this.receivedCheckbox = true
         }
 
-        if(dna.status == "Rejected") {
+        if(this.specimenStatus == "Rejected") {
             this.receivedCheckbox = true
         }
 
-        if(dna.status == "Processing") {
+        if(this.specimenStatus == "Processing") {
             this.receivedCheckbox = true
             this.wetworkCheckbox = true
         }
 
-        if(dna.status == "Success") {
+        if(this.specimenStatus == "Success") {
             this.receivedCheckbox = true
             this.wetworkCheckbox = true
             this.uploadedGenomeCheckbox = true
