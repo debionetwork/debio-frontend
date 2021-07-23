@@ -58,7 +58,8 @@
     "issuer": "Text",
     "month": "Text",
     "year": "Text",
-    "description": "Text"
+    "description": "Text",
+    "supporting_document": "Option<Text>"
   },
   "Certification": {
     "id": "H256",
