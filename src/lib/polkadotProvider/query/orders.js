@@ -1,5 +1,6 @@
 import { queryServicesById } from './services'
 import { queryLabsById } from './labs'
+import { queryDnaSamples } from './geneticTesting'
 import { ethAddressByAccountId } from './userProfile'
 
 export async function getOrdersDetail(api, orderId){
@@ -76,6 +77,11 @@ export async function getOrdersDetailByAddressPagination(api, address, page, pag
   for(let i = beginItemIndex; i < lastItemIndex; i++){
     let orderDetail = await getOrdersData(api, orderIds[i])
     if(orderDetail['status'] == "Unpaid") continue // Skip unpaid orders
+
+    const dna = await queryDnaSamples(api, orderDetail.dna_sample_tracking_id)
+    if(dna){
+      orderDetail['dna_sample_status'] = dna.status
+    }
 
     const service = await queryServicesById(api, orderDetail.service_id)
     orderDetail['created_at'] = parseInt(orderDetail.created_at.replace(/,/g, ""))
