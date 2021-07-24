@@ -15,10 +15,21 @@
                 style="width: 35%"
                 color="primary"
                 large
+                :disabled="!(specimenNumber == confirmSpecimenNumber)"
                 :loading="isLoading"
                 @click="receiveDnaSample"
                 >RECEIVE SPECIMEN</v-btn>
         </v-form>
+
+        <DialogAlert
+          :show="specimenAlertDialog"
+          btnText="Continue"
+          textAlert="Specimen has been received"
+          imgPath="success.png"
+          imgWidth="50"
+          @toggle="specimenAlertDialog = $event"
+          @close="$emit('specimenReceived')"
+        ></DialogAlert>
     </v-card>
 </template>
 
@@ -26,9 +37,13 @@
 <script>
 import { mapGetters } from 'vuex'
 import { receiveDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
+import DialogAlert from '@/components/Dialog/DialogAlert'
 
 export default {
   name: 'ReceiveSpecimen',
+  components: {
+    DialogAlert,
+  },
   props: {
     specimenNumber: String,
   },
@@ -38,6 +53,7 @@ export default {
     confirmSpecimenNumber: "",
     confirmSpecimenNumberRule: (password) => (val) =>
         (!!password && password == val) || "Specimen number must match.",
+    specimenAlertDialog: false,
   }),
   computed: {
     ...mapGetters({
@@ -55,7 +71,7 @@ export default {
           this.specimenNumber,
           () => {
             this.isLoading = false
-            this.$emit('specimenReceived')
+            this.specimenAlertDialog = true
           }
         )
       }

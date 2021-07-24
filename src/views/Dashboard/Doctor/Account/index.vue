@@ -231,7 +231,7 @@
 import { mapGetters, mapState } from 'vuex'
 import { updateDoctor } from '@/lib/polkadotProvider/command/doctors'
 import { createCertification, updateCertification, deleteCertification } from '@/lib/polkadotProvider/command/doctors/certifications'
-import { upload } from "@/lib/ipfs/upload"
+import { upload } from "@/lib/ipfs"
 import Dialog from '@/components/Dialog'
 import Button from '@/components/Button'
 import { getLocation } from "@/lib/api"

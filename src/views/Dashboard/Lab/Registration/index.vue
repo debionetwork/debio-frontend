@@ -197,6 +197,7 @@ export default {
         const labAccount = {
           account_id: this.pair.address,
           services: [],
+          certifications: [],
           info: {
             box_public_key,
             name: this.labName,

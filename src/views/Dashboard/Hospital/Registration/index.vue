@@ -109,8 +109,8 @@ import { mapState, mapGetters } from "vuex"
 import { registerHospital } from "@/lib/polkadotProvider/command/hospitals"
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile"
 import { getWalletAddress } from "@/lib/metamask/wallet"
-import { upload } from "@/lib/ipfs/upload"
 import { getLocation } from "@/lib/api"
+import { upload } from "@/lib/ipfs"
 
 export default {
   name: "HospitalRegistration",
