@@ -103,8 +103,12 @@
                 </v-card>
                 <ReceiveSpecimen 
                     v-if="showReceiveDialog" 
-                    :specimenNumber="specimenNumber" 
+                    :specimen-number="specimenNumber"
                     @specimenReceived="receivedCheckbox = true" />
+                <QualityControlSpecimen
+                    v-if="showQualityControlDialog"
+                    :specimen-number="specimenNumber"
+                    @qualityControlPassed="qualityControl = true" />
                 <ProcessSpecimen 
                     v-if="showGenomeReportDialog"
                     :order-id="orderId"
@@ -116,7 +120,6 @@
                     @uploadGenome="uploadedGenomeCheckbox = true"
                     @uploadReport="uploadedReportCheckbox = true"
                     @submitTestResult="submitTestResult" />
-                <!-- <OrderFinished v-if="showSentDialog" /> -->
             </v-col>
         </v-row>
       </v-container>
@@ -125,9 +128,8 @@
 
 <script>
 import { mapGetters } from 'vuex'
-//import { Keyring } from '@polkadot/keyring'
-// import OrderFinished from './OrderFinished'
 import ReceiveSpecimen from './ReceiveSpecimen'
+import QualityControlSpecimen from './QualityControlSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
 
@@ -136,10 +138,11 @@ export default {
   components: {
     ReceiveSpecimen,
     ProcessSpecimen,
-    // OrderFinished,
+    QualityControlSpecimen,
   },
   data: () => ({
     receivedCheckbox: false,
+    qualityControl: false,
     wetworkCheckbox: false,
     uploadedGenomeCheckbox: false,
     uploadedReportCheckbox: false,
@@ -227,8 +230,11 @@ export default {
     showReceiveDialog(){
         return !this.receivedCheckbox
     },
-    showGenomeReportDialog(){
+    showQualityControlDialog(){
         return this.receivedCheckbox
+    },
+    showGenomeReportDialog(){
+        return this.qualityControl
         // return this.receivedCheckbox && !this.sentCheckbox
     },
     _icon() {
