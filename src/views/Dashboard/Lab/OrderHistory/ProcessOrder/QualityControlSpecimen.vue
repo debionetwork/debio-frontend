@@ -176,6 +176,7 @@ export default {
     },
     closeQcCompletionDialogProceed(){
       this.qcCompletionDialog = false
+      this.$emit('qualityControlPassed')
     },
     closeQcCompletionDialogReject(){
       this.qcCompletionDialog = false
@@ -211,9 +212,9 @@ export default {
         },
         () => {
           this.isRejectLoading = false
-          this.$emit('rejectSpecimen')
           this.rejectionConfirmationDialog = false
           this.rejectionAlertDialog = true
+          this.$emit('rejectSpecimen')
         }
       )
     },
