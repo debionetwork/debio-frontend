@@ -109,6 +109,10 @@
                     v-if="showQualityControlDialog"
                     :specimen-number="specimenNumber"
                     @qualityControlPassed="qualityControl = true" />
+                <WetworkSpecimen
+                    v-if="showWetworkDialog"
+                    :specimen-number="specimenNumber"
+                    @wetworkFinished="wetworkCheckbox = true" />
                 <ProcessSpecimen 
                     v-if="showGenomeReportDialog"
                     :order-id="orderId"
@@ -130,6 +134,7 @@
 import { mapGetters } from 'vuex'
 import ReceiveSpecimen from './ReceiveSpecimen'
 import QualityControlSpecimen from './QualityControlSpecimen'
+import WetworkSpecimen from './WetworkSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
 
@@ -137,8 +142,9 @@ export default {
   name: 'ProcessOrderHistory',
   components: {
     ReceiveSpecimen,
-    ProcessSpecimen,
     QualityControlSpecimen,
+    WetworkSpecimen,
+    ProcessSpecimen,
   },
   data: () => ({
     receivedCheckbox: false,
@@ -181,17 +187,17 @@ export default {
   },
   methods: {
     async setCheckboxByDnaStatus(){
-        console.log(this)
+        if(this.specimenStatus == "Rejected") {
+            return
+        }
+
         if(this.specimenStatus == "Arrived") {
             this.receivedCheckbox = true
         }
 
-        if(this.specimenStatus == "Rejected") {
+        if(this.specimenStatus == "Computed") {
             this.receivedCheckbox = true
-        }
-
-        if(this.specimenStatus == "Processing") {
-            this.receivedCheckbox = true
+            this.qualityControl = true
             this.wetworkCheckbox = true
         }
 
@@ -231,11 +237,13 @@ export default {
         return !this.receivedCheckbox
     },
     showQualityControlDialog(){
-        return this.receivedCheckbox
+        return this.receivedCheckbox && !this.qualityControl
+    },
+    showWetworkDialog(){
+        return this.qualityControl && !this.wetworkCheckbox
     },
     showGenomeReportDialog(){
-        return this.qualityControl
-        // return this.receivedCheckbox && !this.sentCheckbox
+        return this.wetworkCheckbox
     },
     _icon() {
       return this.serviceImage && (this.serviceImage.startsWith('mdi') || this.serviceImage.startsWith('$'))

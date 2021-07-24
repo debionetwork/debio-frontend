@@ -24,19 +24,13 @@
           >Specimen Processed</v-alert>
     </div>
     <div v-else>
-      <v-checkbox
-          v-model="isWetworkProcessed"
-          :disabled="isWetworkProcessed"
-          @change="processDnaSample()"
-          label="Wetwork is done"
-      ></v-checkbox>
-      <div class="d-flex justify-space-evenly">
+      <div class="d-flex justify-space-evenly mt-5">
         <div class="mb-3 mr-3" style="width: 50%">
           <v-btn
             color="primary"
             large
             block
-            :disabled="loading.genome || loading.report || genomeSucceed || !isWetworkProcessed"
+            :disabled="loading.genome || loading.report || genomeSucceed"
             @click="uploadGenome"
           >
             <v-icon left dark class="pr-4">
@@ -68,7 +62,7 @@
             color="primary"
             large
             block
-            :disabled="loading.genome || loading.report || reportSucceed || !isWetworkProcessed"
+            :disabled="loading.genome || loading.report || reportSucceed"
             @click="uploadReport"
           >
             <v-icon left dark class="pr-4">
@@ -114,72 +108,10 @@
             large
             block
             :disabled="disableRejectButton"
-            @click="rejectDnaSample"
             >REJECT</v-btn>
         </div>
       </div>
     </div>
-
-    <Dialog :show="rejectionDialog" @close="rejectionDialog = false">
-      <template v-slot:title>
-        <div></div>
-      </template>
-      <template v-slot:body>
-        <div class="d-flex justify-center pb-5 pt-5">
-          <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
-        </div>
-        <div align="center" class="pb-5">Are you sure you want to reject specimen?</div>
-      </template>
-      <template v-slot:actions>
-        <v-col col="12" md="6">
-          <Button @click="closeRejectionDialog" elevation="2" dark>Yes</Button>
-        </v-col>
-        <v-col col="12" md="6">
-          <Button @click="rejectionDialog = false" elevation="2" color="purple" dark>No</Button>
-        </v-col>
-      </template>
-    </Dialog>
-
-    <Dialog :show="rejectionStatementDialog" @close="rejectionStatementDialog = false">
-      <template v-slot:title>
-        <div class="secondary--text h6">
-          Rejection Statement
-        </div>
-      </template>
-      <template v-slot:body>
-        <v-form ref="rejectForm">
-          <v-text-field
-            dense
-            label="Title"
-            placeholder="Title"
-            outlined
-            v-model="rejectionTitle"
-            :rules="[val => !!val || 'Title is required']"
-            ></v-text-field>
-          <v-textarea
-            outlined
-            label="Description"
-            v-model="rejectionDescription"
-            :rules="[val => !!val || 'Description is required']"
-          ></v-textarea>
-        </v-form>
-      </template>
-      <template v-slot:actions>
-        <Button @click="submitRejectionStatementDialog" :loading="isRejectLoading" color="primary" dark>
-          Send
-        </Button>
-      </template>
-    </Dialog>
-
-    <DialogAlert
-      :show="rejectionAlertDialog"
-      btnText="Continue"
-      textAlert="Specimen has been rejected"
-      imgPath="success.png"
-      imgWidth="50"
-      @toggle="rejectionAlertDialog = $event"
-      @close="$router.push('/lab/orders')"
-    ></DialogAlert>
   </div>
 </template>
 
@@ -192,30 +124,20 @@ import cryptWorker from '@/web-workers/crypt-worker'
 import specimenFilesTempStore from '@/lib/specimen-files-temp-store'
 import Kilt from '@kiltprotocol/sdk-js'
 import { fulfillOrder } from '@/lib/polkadotProvider/command/orders'
-import { processDnaSample, rejectDnaSample, submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
+import { submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
 import { queryDnaTestResults } from '@/lib/polkadotProvider/query/geneticTesting'
-import Dialog from '@/components/Dialog'
-import DialogAlert from '@/components/Dialog/DialogAlert'
-import Button from '@/components/Button'
 
 export default {
   name: 'ProcessSpecimen',
   components: {
-    Dialog,
-    DialogAlert,
-    Button,
     FileCard,
   },
   props: {
     orderId: String,
     specimenNumber: String,
     publicKey: [Uint8Array, String],
-    isProcessed: Boolean,
-    wetworkCheckbox: Boolean
   },
   data: () => ({
-    isProcessing: false,
-    isWetworkProcessed: false,
     identity: null,
     genomeSucceed: false,
     reportSucceed: false,
@@ -224,7 +146,6 @@ export default {
     resultLink: "",
     submitted: false,
     isLoading: false,
-    isRejectLoading: false,
     files: {
       genome: [],
       report: [],
@@ -245,16 +166,8 @@ export default {
       genome: 0,
       report: 0,
     },
-    rejectionDialog: false,
-    rejectionStatementDialog: false,
-    rejectionTitle: '',
-    rejectionDescription: '',
-    rejectionAlertDialog: false,
   }),
-  async mounted(){
-    // Set wetwork model
-    this.isWetworkProcessed = this.wetworkCheckbox
-    
+  async mounted(){    
     // Add file input event listener
     this.addFileUploadEventListener(this.$refs.encryptUploadGenome, 'genome')
     this.addFileUploadEventListener(this.$refs.encryptUploadReport, 'report')
@@ -300,31 +213,6 @@ export default {
         this.submitted = true
       }
     },
-    closeRejectionDialog(){
-      this.rejectionDialog = false
-      this.rejectionStatementDialog = true
-    },
-    async submitRejectionStatementDialog(){
-      if (!this.$refs.rejectForm.validate()) {
-        return
-      }
-      this.isRejectLoading = true
-      await rejectDnaSample(
-        this.api,
-        this.pair,
-        {
-          tracking_id: this.specimenNumber,
-          rejected_title: this.rejectionTitle,
-          rejected_description: this.rejectionDescription,
-        },
-        () => {
-          this.isRejectLoading = false
-          this.$emit('rejectSpecimen')
-          this.rejectionStatementDialog = false
-          this.rejectionAlertDialog = true
-        }
-      )
-    },
     uploadGenome() {
       this.$refs.encryptUploadGenome.click()
     },
@@ -341,20 +229,7 @@ export default {
       const path = this.getFileIpfsPath(file)
       return `https://ipfs.io/ipfs/${path}`
     },
-    async processDnaSample() {
-      await processDnaSample(
-        this.api,
-        this.pair,
-        this.specimenNumber,
-        () => {
-          this.$emit('processWetwork')
-        }
-      )
-    },
-    rejectDnaSample() {
-      this.rejectionDialog = true
-    },
-    async submitTestResult(isProcessSuccess = false, callback = ()=>{}) {
+    async submitTestResult(callback = ()=>{}) {
       let genomeLink = ""
       if(this.files.genome.length){
         genomeLink = this.getFileIpfsUrl(this.files.genome[0])
@@ -369,7 +244,7 @@ export default {
         this.api,
         this.pair,
         this.specimenNumber,
-        isProcessSuccess,
+        true,
         {
           comment: this.comment,
           report_link: reportLink,
@@ -380,7 +255,7 @@ export default {
     },
     sendTestResult() {
       this.isLoading = true
-      this.submitTestResult(true, async () => {
+      this.submitTestResult(async () => {
         await fulfillOrder(
           this.api,
           this.pair,
