@@ -106,7 +106,7 @@
 
         <v-col lg="12" md="12" sm="12">
           <Button @click="useTypeUpload" elevation="2" dark>
-            Upload a document
+            Upload an EMR document
           </Button>
         </v-col>
       </v-row>
@@ -149,7 +149,7 @@ import { downloadDecryptedFromIPFS } from "@/lib/ipfs";
 import { hexToU8a } from "@polkadot/util";
 
 export default {
-  name: "documents",
+  name: "emr",
   components: {
     DataTable,
     SearchBar,
