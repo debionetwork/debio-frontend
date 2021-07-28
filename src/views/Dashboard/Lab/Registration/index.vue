@@ -67,22 +67,23 @@
                 outlined
                 v-model="address"
                 ></v-text-field>
-                
-              <!--
-              <v-file-input
-                dense
-                label="Profile Image"
-                placeholder="Profile Image"
-                prepend-icon="mdi-image"
-                outlined
-                v-model="files"
+                              
+                <v-file-input
+                  dense
+                  label="Profile Image"
+                  placeholder="Profile Image"
+                  prepend-icon="mdi-image"
+                  outlined
+                  v-model="files"
+                  @change="fileUploadEventListener"
                 ></v-file-input>
-              -->
 
                 <v-btn
                   color="primary"
                   block
                   large
+                  :disabled="isUploading"
+                  :loading="isLoading || isUploading"
                   @click="registerLab"
                 >Submit</v-btn>
               </v-form>
@@ -95,14 +96,15 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
-import { registerLab } from '@/lib/polkadotProvider/command/labs'
-import { setEthAddress } from '@/lib/polkadotProvider/command/userProfile'
-import { getWalletAddress } from '@/lib/metamask/wallet'
+import { mapState, mapGetters } from "vuex"
+import { registerLab } from "@/lib/polkadotProvider/command/labs"
+import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile"
+import { getWalletAddress } from "@/lib/metamask/wallet"
 import countryData from "@/assets/json/country.json"
 import cityData from "@/assets/json/city.json"
-import Kilt from '@kiltprotocol/sdk-js'
-import { u8aToHex } from '@polkadot/util'
+import Kilt from "@kiltprotocol/sdk-js"
+import { u8aToHex } from "@polkadot/util"
+import { upload } from "@/lib/ipfs"
 
 
 export default {
@@ -117,7 +119,10 @@ export default {
     email: "",
     labName: "",
     address: "",
+    imageUrl: "",
     files: [],
+    isLoading: false,
+    isUploading: false,
   }),
   async mounted() {
     await this.getCountries();
@@ -171,6 +176,7 @@ export default {
     },
     async registerLab(){
       try{
+        this.isLoading = true
         const ethAddress = await getWalletAddress()
         const box_public_key = this.getKiltBoxPublicKey()
         await registerLab(
@@ -184,35 +190,68 @@ export default {
             country: this.country,
             region: this.region,
             city: this.city,
+          },
+          async () => {
+            await setEthAddress(
+              this.api,
+              this.pair,
+              ethAddress,
+              () => {
+                this.isLoading = false
+                const labAccount = {
+                  account_id: this.pair.address,
+                  services: [],
+                  certifications: [],
+                  info: {
+                    box_public_key,
+                    name: this.labName,
+                    email: this.email,
+                    address: this.address,
+                    country: this.country,
+                    city: this.city,
+                    profile_image: this.imageUrl,
+                  }
+                }
+                this.setLabAccount(labAccount)
+                this.$router.push('/lab')
+              }
+            )
           }
         )
-        
-        await setEthAddress(
-          this.api,
-          this.pair,
-          ethAddress
-        )
-        
-        const labAccount = {
-          account_id: this.pair.address,
-          services: [],
-          certifications: [],
-          info: {
-            box_public_key,
-            name: this.labName,
-            email: this.email,
-            address: this.address,
-            country: this.country,
-            city: this.city,
-          }
-        }
-        this.setLabAccount(labAccount)
-        this.$router.push('/lab')
       }
       catch(e){
         console.error(e)
       }
-    }
+    },
+    fileUploadEventListener(file) {
+      if (file && file.name) {
+        if (file.name.lastIndexOf(".") <= 0) {
+          return
+        }
+        this.isUploading = true
+        this.isLoading = true
+
+        const fr = new FileReader()
+        fr.readAsArrayBuffer(file)
+
+        const context = this
+        fr.addEventListener("load", async () => {
+          // Upload
+          const uploaded = await upload({
+            fileChunk: fr.result,
+            fileType: file.type,
+            fileName: file.name,
+          })
+          context.imageUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server...
+          context.isUploading = false
+          context.isLoading = false
+        })
+      }
+      else {
+        this.files = []
+        this.imageUrl = ""
+      }
+    },
   }
 }
 </script>
