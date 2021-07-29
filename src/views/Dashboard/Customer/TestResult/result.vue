@@ -223,7 +223,6 @@ export default {
             fileSubTitle: "Download Your Genomic Data"
           });
         }
-        console.log(this.files, 'FILES <==========');//TESTING
         this.filesLoading = new Array(this.files.length).fill(false);
       } catch (error) {
         this.resultLoading = false;
