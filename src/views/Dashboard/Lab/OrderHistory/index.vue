@@ -25,23 +25,14 @@
                      ></SearchBar>
                   </template>
                   <template v-slot:[`item.actions`]="{ item }">
-                     <v-container v-if="item.status == 'Success'">
+                     <v-container>
                         <v-btn
                           :class="buttonClass(item)"
                           dark
                           small
                           width="200"
                           @click="processOrder(item)"
-                          >View</v-btn>
-                     </v-container>
-                     <v-container v-if="item.status == 'Paid' || item.status == 'Unpaid'">
-                        <v-btn
-                          :class="buttonClass(item)"
-                          dark
-                          small
-                          width="200"
-                          @click="processOrder(item)"
-                        >Process</v-btn>
+                        >{{ item.dna_sample_status }}</v-btn>
                      </v-container>
                   </template>
                   <!-- Rows -->
