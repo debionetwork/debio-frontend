@@ -103,8 +103,16 @@
                 </v-card>
                 <ReceiveSpecimen 
                     v-if="showReceiveDialog" 
-                    :specimenNumber="specimenNumber" 
+                    :specimen-number="specimenNumber"
                     @specimenReceived="receivedCheckbox = true" />
+                <QualityControlSpecimen
+                    v-if="showQualityControlDialog"
+                    :specimen-number="specimenNumber"
+                    @qualityControlPassed="qualityControl = true" />
+                <WetworkSpecimen
+                    v-if="showWetworkDialog"
+                    :specimen-number="specimenNumber"
+                    @wetworkFinished="wetworkCheckbox = true" />
                 <ProcessSpecimen 
                     v-if="showGenomeReportDialog"
                     :order-id="orderId"
@@ -116,7 +124,6 @@
                     @uploadGenome="uploadedGenomeCheckbox = true"
                     @uploadReport="uploadedReportCheckbox = true"
                     @submitTestResult="submitTestResult" />
-                <!-- <OrderFinished v-if="showSentDialog" /> -->
             </v-col>
         </v-row>
       </v-container>
@@ -125,22 +132,23 @@
 
 <script>
 import { mapGetters } from 'vuex'
-//import { Keyring } from '@polkadot/keyring'
-// import OrderFinished from './OrderFinished'
 import ReceiveSpecimen from './ReceiveSpecimen'
+import QualityControlSpecimen from './QualityControlSpecimen'
+import WetworkSpecimen from './WetworkSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
-import { queryDnaSamples } from '@/lib/polkadotProvider/query/geneticTesting'
 
 export default {
   name: 'ProcessOrderHistory',
   components: {
     ReceiveSpecimen,
+    QualityControlSpecimen,
+    WetworkSpecimen,
     ProcessSpecimen,
-    // OrderFinished,
   },
   data: () => ({
     receivedCheckbox: false,
+    qualityControl: false,
     wetworkCheckbox: false,
     uploadedGenomeCheckbox: false,
     uploadedReportCheckbox: false,
@@ -150,6 +158,7 @@ export default {
     customerEthAddress: "",
     sellerEthAddress: "",
     specimenNumber: "",
+    specimenStatus: "",
     isOrderProcessed: false,
     serviceName: "",
     serviceDescription: "",
@@ -170,6 +179,7 @@ export default {
       this.customerEthAddress = order.customer_eth_address ? order.customer_eth_address : "Address not set"
       this.sellerEthAddress = order.seller_eth_address
       this.specimenNumber = order.dna_sample_tracking_id
+      this.specimenStatus = order.dna_sample_status
       this.setCheckboxByDnaStatus()
     } catch (err) {
       console.log(err)
@@ -177,23 +187,21 @@ export default {
   },
   methods: {
     async setCheckboxByDnaStatus(){
-        const dna = await queryDnaSamples(this.api, this.specimenNumber)
-        if(!dna) return
+        if(this.specimenStatus == "Rejected") {
+            return
+        }
 
-        if(dna.status == "Received") {
+        if(this.specimenStatus == "Arrived") {
             this.receivedCheckbox = true
         }
 
-        if(dna.status == "Rejected") {
+        if(this.specimenStatus == "Computed") {
             this.receivedCheckbox = true
-        }
-
-        if(dna.status == "Processing") {
-            this.receivedCheckbox = true
+            this.qualityControl = true
             this.wetworkCheckbox = true
         }
 
-        if(dna.status == "Success") {
+        if(this.specimenStatus == "Success") {
             this.receivedCheckbox = true
             this.wetworkCheckbox = true
             this.uploadedGenomeCheckbox = true
@@ -228,9 +236,14 @@ export default {
     showReceiveDialog(){
         return !this.receivedCheckbox
     },
+    showQualityControlDialog(){
+        return this.receivedCheckbox && !this.qualityControl
+    },
+    showWetworkDialog(){
+        return this.qualityControl && !this.wetworkCheckbox
+    },
     showGenomeReportDialog(){
-        return this.receivedCheckbox
-        // return this.receivedCheckbox && !this.sentCheckbox
+        return this.wetworkCheckbox
     },
     _icon() {
       return this.serviceImage && (this.serviceImage.startsWith('mdi') || this.serviceImage.startsWith('$'))
