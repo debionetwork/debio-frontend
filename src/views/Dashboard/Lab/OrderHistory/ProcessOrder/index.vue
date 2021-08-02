@@ -195,10 +195,29 @@ export default {
             this.receivedCheckbox = true
         }
 
+        if(this.specimenStatus == "Extracted") {
+            this.receivedCheckbox = true
+            this.qualityControl = true
+        }
+
         if(this.specimenStatus == "Computed") {
             this.receivedCheckbox = true
             this.qualityControl = true
             this.wetworkCheckbox = true
+        }
+
+        if(this.specimenStatus == "Genotyped") {
+            this.receivedCheckbox = true
+            this.qualityControl = true
+            this.wetworkCheckbox = true
+            this.uploadedGenomeCheckbox = true
+        }
+
+        if(this.specimenStatus == "Reviewed") {
+            this.receivedCheckbox = true
+            this.qualityControl = true
+            this.wetworkCheckbox = true
+            this.uploadedReportCheckbox = true
         }
 
         if(this.specimenStatus == "Success") {
