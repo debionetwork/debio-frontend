@@ -63,7 +63,21 @@
                 :disabled="city == 'city' || showRequestNoLab"
                 autocomplete="disabled"
                 outlined
-              ></v-select>
+              >
+                <template slot='item' slot-scope='{ item }'>
+                  <v-list-tile-content>
+                    <v-list-tile-title>
+                      {{item.labName}}
+                    </v-list-tile-title>
+                    <v-list-tile-sub-title 
+                      class="d-flex justify-start ms-8 grey--text"
+                      flat
+                    >
+                    {{item.address}}
+                    </v-list-tile-sub-title>
+                  </v-list-tile-content>
+                </template>
+              </v-select>
             </v-card-text>
             <div
               class="ml-8 mr-8 mb-8 grey--text text--darken-1"
