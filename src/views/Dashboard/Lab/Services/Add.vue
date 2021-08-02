@@ -43,6 +43,8 @@
                     ></v-textarea>
                     
                     <v-file-input
+                      :rules="rules"
+                      accept="image/png, image/jpeg, image/bmp"
                       dense
                       label="Image"
                       placeholder="Image"
@@ -85,6 +87,9 @@ export default {
     files: [],
     isLoading: false,
     isUploading: false,
+    rules: [
+      value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
+    ],
   }),
   computed: {
     ...mapGetters({
@@ -118,7 +123,7 @@ export default {
     fileUploadEventListener(file) {
       this.isUploading = true
       this.isLoading = true
-      if (file) {
+      if (file && file.size < 2000000 ) {
         if (file.name.lastIndexOf('.') <= 0) {
           return
         }

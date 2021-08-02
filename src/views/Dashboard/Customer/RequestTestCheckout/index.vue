@@ -124,6 +124,7 @@
       :imgPath="alertImgPath"
       :imgWidth="imgWidth"
       @toggle="dialogAlert = $event"
+      @click="bindingWallet()"
       @close="actionAlert()"
     ></DialogAlert>
   </div>
