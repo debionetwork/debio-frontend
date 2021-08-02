@@ -137,7 +137,7 @@ export default {
       }
       this.$router.push({ 
         name: 'lab-dashboard-process-order', 
-        params: { item: item }
+        params: { order_id: item.id }
       })
     },
   },
