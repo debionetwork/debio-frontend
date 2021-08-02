@@ -1,6 +1,6 @@
-export async function processDnaSample(api, pair, tracking_id, callback = ()=>{}) {
+export async function processDnaSample(api, pair, tracking_id, process_status, callback = ()=>{}) {
   const unsub = await api.tx.geneticTesting
-    .processDnaSample(tracking_id)
+    .processDnaSample(tracking_id, process_status)
     .signAndSend(pair, { nonce: -1 }, ({ events, status }) => 
       successCallback(api, { events, status, callback, unsub })
     )
