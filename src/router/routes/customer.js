@@ -121,7 +121,6 @@ const customerRoutes = [{
         pageHeader: 'Find a Lab',
         breadcrumbs: [
           { text: 'Request a Test', href: '/customer/request-test' },
-          // { text: 'Checkout', disabled: true },
         ],
         drawerButtons: [
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
