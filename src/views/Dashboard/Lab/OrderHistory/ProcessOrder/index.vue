@@ -26,7 +26,7 @@
                     ></v-checkbox>
                     <v-checkbox
                         v-model="uploadedGenomeCheckbox"
-                        label="Genome"
+                        label="Raw Data"
                         disabled
                     ></v-checkbox>
                     <v-checkbox
