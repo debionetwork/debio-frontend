@@ -537,10 +537,10 @@ export default {
               if (detailService.info.prices_by_currency != null) {
                 currency = detailService.info.prices_by_currency[0].currency;
                 if (
-                  detailService.info.prices_by_currency[0].prices.length > 0
+                  detailService.info.prices_by_currency[0].price_components.length > 0
                 ) {
                   price =
-                    detailService.info.prices_by_currency[0].prices[0].value;
+                    detailService.info.prices_by_currency[0].price_components[0].value;
                 }
                 if (
                   detailService.info.prices_by_currency[0].additional_prices
