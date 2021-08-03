@@ -38,7 +38,15 @@
                   <template v-slot:[`item.info.image`]="{ item }">
                      <v-container rounded>
                         <v-img 
-                           :src="getImageLink(item.info.image)" 
+                           v-if="item.info.image"
+                           :src="item.info.image" 
+                           :alt="item.name" 
+                           max-height="70px"
+                           max-width="70px"
+                        ></v-img>
+                        <v-img 
+                           v-else
+                           src="@/assets/debio-logo.png" 
                            :alt="item.name" 
                            max-height="70px"
                            max-width="70px"
@@ -109,12 +117,6 @@ export default {
    },
    gotoDetails(item){
       this.$router.push({ name: 'lab-dashboard-services-detail', params: { item: item }})
-   },
-   getImageLink(val){
-      if(val && val != ""){
-         return val
-      }
-      return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
    },
   },
 }
