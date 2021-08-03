@@ -94,22 +94,32 @@ export default {
     id: "",
     name: "",
     price: "",
+    qcPrice: '',
     description: "",
     longDescription: "",
     imageUrl: "",
     files: [],
+    testResultSampleFile: [],
     isLoading: false,
     isUploading: false,
     isDeleteLoading: false,
+    listPrice: ['DAI', 'Ethereum'],
+    selecPrice: '',
+    selecQCprice: '',
+    listExpectedDuration: ['WorkingDays', 'Hours', 'Days'],
+    selecExpectedDuration: '',
+    expectedDuration: ''
   }),
   mounted(){
     const item = this.$route.params.item
     this.id = item.id
     this.name = item.info.name
     this.price = item.info.price
+    this.qcPrice = item.info.qc_price
     this.description = item.info.description
     this.longDescription = item.info.long_description
     this.imageUrl = item.info.image
+    this.expectedDuration = item.info.expected_duration
     
     if(this.imageUrl){
       fetch(this.imageUrl)
@@ -139,7 +149,7 @@ export default {
           image: this.imageUrl,
           category: 'genetics',
           description: this.description,
-          long_description: this.longDescription
+          long_description: this.longDescription //make data entry base on service function on add service.js
         },
         () => {
           this.$router.push('/lab/services')
