@@ -71,6 +71,7 @@ export default {
         this.api,
         this.pair,
         this.specimenNumber,
+        "Computed",
         () => {
           this.isProcessing = false
           this.wetworkDialog = false

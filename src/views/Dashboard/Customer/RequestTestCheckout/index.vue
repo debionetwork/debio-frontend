@@ -143,10 +143,12 @@
     <DialogAlert
       :show="dialogAlert"
       :btnText="alertTextBtn"
+      :titleAlert="alertTitleAlert"
       :textAlert="alertTextAlert"
       :imgPath="alertImgPath"
       :imgWidth="imgWidth"
       @toggle="dialogAlert = $event"
+      @click="bindingWallet()"
       @close="actionAlert()"
     ></DialogAlert>
   </div>
@@ -158,6 +160,7 @@ import SendPaymentDialog from "./SendPaymentDialog";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
 import DialogAlert from "@/components/Dialog/DialogAlert";
 import { getDataLocation } from "@/lib/functions";
+import { getBalanceETH } from "@/lib/metamask/wallet.js";
 
 export default {
   components: {
@@ -168,8 +171,9 @@ export default {
     sendPaymentDialog: false,
     locationlab: "",
     dialogAlert: false,
-    alertTextBtn: "Close",
+    alertTextBtn: "Continue",
     alertImgPath: "warning.png",
+    alertTitleAlert: "",
     alertTextAlert: "",
     imgWidth: "50",
     currency: "",
@@ -181,6 +185,7 @@ export default {
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
       configApp: (state) => state.auth.configApp,
+      metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
     }),
     totalPrice() {
       return this.products
@@ -218,9 +223,18 @@ export default {
         this.wallet.address
       );
       if (ethAddress != null && ethAddress != "") {
-        this.sendPaymentDialog = true;
+        const balance = await getBalanceETH(this.metamaskWalletAddress);
+        if (balance > 0) {
+          console.log("balance >>", balance);
+          this.sendPaymentDialog = true;
+        } else {
+          this.alertTitleAlert = "Payment Failed!"
+          this.alertTextAlert = "Your payment failed due to insufficient fund. Please check your wallet balance before making a transaction."
+          this.dialogAlert = true;
+        }
       } else {
-        this.alertTextAlert = "Please do Wallet Binding first.";
+        this.alertTitleAlert = "Payment Failed!"
+        this.alertTextAlert = "You have not connected to any wallet. Please do a wallet binding to continue your transaction."
         this.dialogAlert = true;
       }
     },

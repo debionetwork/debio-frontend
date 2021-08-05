@@ -1,6 +1,8 @@
 export async function queryServicesById(api, serviceId){
-    const res = await api.query.services.services(serviceId)
-    return res.toHuman()
+    let res = (await api.query.services.services(serviceId))
+        .toHuman()
+    res.info.price = `${res.info.prices_by_currency[0].total_price} ${res.info.prices_by_currency[0].currency}`
+    return res
 }
 
 export async function queryServicesInfoIdList(api, serviceIdList){

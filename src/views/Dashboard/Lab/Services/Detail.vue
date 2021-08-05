@@ -58,6 +58,8 @@
                     ></v-textarea>
                         
                     <v-file-input
+                      :rules="rules"
+                      accept="image/png, image/jpeg, image/bmp"
                       dense
                       label="Image"
                       placeholder="Image"
@@ -101,6 +103,9 @@ export default {
     isLoading: false,
     isUploading: false,
     isDeleteLoading: false,
+    rules: [
+      value => !value || !value.size || value.size < 2000000 || 'Image size should be less than 2 MB!',
+    ],
   }),
   mounted(){
     const item = this.$route.params.item
@@ -161,7 +166,7 @@ export default {
       )
     },
     fileUploadEventListener(file) {
-      if (file) {
+      if (file && file.size < 2000000) {
         this.isUploading = true
         this.isLoading = true
         if (file.name.lastIndexOf('.') <= 0) {

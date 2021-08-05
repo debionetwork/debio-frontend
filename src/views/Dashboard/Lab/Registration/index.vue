@@ -67,22 +67,23 @@
                 outlined
                 v-model="address"
                 ></v-text-field>
-                
-              <!--
-              <v-file-input
-                dense
-                label="Profile Image"
-                placeholder="Profile Image"
-                prepend-icon="mdi-image"
-                outlined
-                v-model="files"
+                              
+                <v-file-input
+                  dense
+                  label="Profile Image"
+                  placeholder="Profile Image"
+                  prepend-icon="mdi-image"
+                  outlined
+                  v-model="files"
+                  @change="fileUploadEventListener"
                 ></v-file-input>
-              -->
 
                 <v-btn
                   color="primary"
                   block
                   large
+                  :disabled="isUploading"
+                  :loading="isLoading || isUploading"
                   @click="registerLab"
                 >Submit</v-btn>
               </v-form>
@@ -102,6 +103,7 @@ import { getWalletAddress } from '@/lib/metamask/wallet'
 import Kilt from '@kiltprotocol/sdk-js'
 import { u8aToHex } from '@polkadot/util'
 import { getLocation } from "@/lib/api"
+import { upload } from '@/lib/ipfs'
 
 
 export default {
@@ -116,7 +118,10 @@ export default {
     email: "",
     labName: "",
     address: "",
+    imageUrl: "",
     files: [],
+    isLoading: false,
+    isUploading: false,
   }),
   async mounted() {
     await this.getCountries();
@@ -172,6 +177,7 @@ export default {
     },
     async registerLab(){
       try{
+        this.isLoading = true
         const ethAddress = await getWalletAddress()
         const box_public_key = this.getKiltBoxPublicKey()
         await registerLab(
@@ -214,7 +220,36 @@ export default {
       catch(e){
         console.error(e)
       }
-    }
+    },
+    fileUploadEventListener(file) {
+      if (file && file.name) {
+        if (file.name.lastIndexOf(".") <= 0) {
+          return
+        }
+        this.isUploading = true
+        this.isLoading = true
+
+        const fr = new FileReader()
+        fr.readAsArrayBuffer(file)
+
+        const context = this
+        fr.addEventListener("load", async () => {
+          // Upload
+          const uploaded = await upload({
+            fileChunk: fr.result,
+            fileType: file.type,
+            fileName: file.name,
+          })
+          context.imageUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server...
+          context.isUploading = false
+          context.isLoading = false
+        })
+      }
+      else {
+        this.files = []
+        this.imageUrl = ""
+      }
+    },
   }
 }
 </script>
