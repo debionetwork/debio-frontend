@@ -18,7 +18,7 @@
         </v-btn>
       </v-app-bar>
       <v-card-text class="pb-0 text-subtitle-1 text-center">      
-        <b>Tap the words to pull them next to each other in the correct order</b>
+        <b>Tap the words to put them next to each other in the correct order</b>
         <MnemonicTextbox
             :mnemonicCollection="mnemonicCollectionTextbox"
             @mnemonic-index-remove="({ idx }) => removeMnemonicCollectionTextbox(idx)"
