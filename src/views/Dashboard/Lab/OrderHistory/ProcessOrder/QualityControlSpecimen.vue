@@ -38,8 +38,8 @@
             </template>
             <template v-slot:actions>
                 <div>
-                    <Button @click="closeQcCompletionDialogProceed" class="mb-4" elevation="2" dark>Yes, Proceed to wetwork</Button>
-                    <Button @click="closeQcCompletionDialogReject" elevation="2" color="purple" dark>No, Reject Specimen</Button>
+                    <Button :loading="isLoading" @click="closeQcCompletionDialogProceed" class="mb-4" elevation="2" dark>Yes, Proceed to wetwork</Button>
+                    <Button :disabled="isLoading" @click="closeQcCompletionDialogReject" elevation="2" color="purple" dark>No, Reject Specimen</Button>
                 </div>
             </template>
         </Dialog>
@@ -113,10 +113,10 @@
             </template>
             <template v-slot:actions>
                 <div>
-                    <Button class="mb-4"  @click="submitRejectionStatementDialog" :loading="isRejectLoading" color="primary" dark>
+                    <Button class="mb-4"  @click="submitRejectionStatementDialog" :loading="isLoading" color="primary" dark>
                         Yes, send message to customer
                     </Button>
-                    <Button :disabled="isRejectLoading" @click="backToRejectionStatementDialog" color="purple" dark>
+                    <Button :disabled="isLoading" @click="backToRejectionStatementDialog" color="purple" dark>
                         No, back to message editor
                     </Button>
                 </div>
@@ -137,7 +137,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { rejectDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
+import { rejectDnaSample, processDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
 import Dialog from '@/components/Dialog'
 import DialogAlert from '@/components/Dialog/DialogAlert'
 import Button from '@/components/Button'
@@ -153,7 +153,7 @@ export default {
     specimenNumber: String,
   },
   data: () => ({
-    isRejectLoading: false,
+    isLoading: false,
     qcDialog: false,
     qcCompletionDialog: false,
     rejectionDialog: false,
@@ -174,9 +174,19 @@ export default {
       this.qcDialog = false
       this.qcCompletionDialog = true
     },
-    closeQcCompletionDialogProceed(){
-      this.qcCompletionDialog = false
-      this.$emit('qualityControlPassed')
+    async closeQcCompletionDialogProceed(){
+      this.isLoading = true
+      await processDnaSample(
+        this.api,
+        this.pair,
+        this.specimenNumber,
+        "Extracted",
+        () => {
+            this.isLoading = false
+            this.qcCompletionDialog = false
+            this.$emit('qualityControlPassed')
+        }
+      )
     },
     closeQcCompletionDialogReject(){
       this.qcCompletionDialog = false
@@ -201,7 +211,7 @@ export default {
       if (!this.$refs.rejectForm.validate()) {
         return
       }
-      this.isRejectLoading = true
+      this.isLoading = true
       await rejectDnaSample(
         this.api,
         this.pair,
@@ -211,7 +221,7 @@ export default {
           rejected_description: this.rejectionDescription,
         },
         () => {
-          this.isRejectLoading = false
+          this.isLoading = false
           this.rejectionConfirmationDialog = false
           this.rejectionAlertDialog = true
           this.$emit('rejectSpecimen')
