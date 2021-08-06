@@ -305,7 +305,7 @@ export default {
               if (balance > 0) {
                 const customer_box_public_key = this.getKiltBoxPublicKey();
                 for (let i = 0; i < this.products.length; i++) {
-                  await createOrder(
+                  await createOrder(//customer udah create order, notif dari cust apa dari lab nya.
                     this.api,
                     this.wallet,
                     this.products[i].accountId,
