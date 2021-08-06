@@ -82,14 +82,34 @@
               </template>
             </v-card-text>
           </v-card>
-          <!-- If order Success -->
-          <div v-if="order.status == ORDER_FULFILLED" class="mt-2">
-            <Button color="green" @click="goToResult" dark>
-              View Result
-            </Button>
-          </div>
         </v-col>
-
+          <!-- If order Success -->
+          <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == ORDER_FULFILLED" class="mt-2">
+            <v-card class="dg-card mb-10" elevation="0" outlined>
+              <v-card-title class="px-8 p4">
+                <div class="text-h6" align="center">Success!</div>
+              </v-card-title>
+              <v-card-text>
+                <v-row>
+                  <v-col class="px-8">
+                  <h3> Your order has been fulfilled</h3>
+                  </v-col>
+                </v-row>
+                <v-row class="justify-center mt-10 align-center">
+                  <v-col cols="12" lg="5" md="5" sm="8" align="center">
+                    <Button color="green" @click="goToResult" dark>
+                      View Result
+                    </Button>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+              <v-card-actions class="px-8 pb-5">
+                <slot name="button"> </slot>
+              </v-card-actions>
+            </v-card>
+            <RatingBox>
+            </RatingBox>
+        </v-col>
         <!-- If Order Unpaid -->
         <v-col
           cols="12"
@@ -230,6 +250,7 @@ import StatusChip from "@/components/StatusChip";
 import Button from "@/components/Button";
 import Refund from "./Refund";
 import DialogReward from "@/components/Dialog/DialogReward";
+import RatingBox from "@/components/RatingBox"
 import {
   ORDER_UNPAID,
   ORDER_PAID,
@@ -260,6 +281,7 @@ export default {
     Button,
     Refund,
     DialogReward,
+    RatingBox
   },
   data: () => ({
     ORDER_UNPAID,

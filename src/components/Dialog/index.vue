@@ -1,7 +1,7 @@
 <template>
   <v-dialog
     :value="show"
-    width="500"
+    :width="width == null ? '500' : width"
     persistent
   >
     <v-card>
@@ -28,7 +28,8 @@
 export default {
   name: 'Dialog',
   props: {
-    show: Boolean
+    show: Boolean,
+    width: Number,
   },
   methods: {
     closeDialog() {

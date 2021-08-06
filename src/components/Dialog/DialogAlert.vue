@@ -4,10 +4,11 @@
       <div class="d-flex justify-center pb-5 pt-5">
         <v-img v-bind:src="require('../../assets/'+imgPath)" :max-width="imgWidth" />
       </div>
+      <div align="center" class="pb-5" > <b>{{ titleAlert }} </b></div>
       <div align="center" class="pb-5 pl-5 pr-5">{{ textAlert }}</div>
       <div class="d-flex justify-center pb-5">
         <v-col lg="5" md="5" sm="8">
-          <Button @click="closeDialog" elevation="2" dark> {{ btnText }} </Button>
+          <Button @click="closeDialog" elevation="2" dark color="blue"> {{ btnText }} </Button>
         </v-col>
       </div>
     </v-card>
@@ -24,6 +25,7 @@ export default {
   },
   props: {
     show: Boolean,
+    titleAlert: String,
     textAlert: String,
     imgPath: String,
     btnText: String,

@@ -1,5 +1,6 @@
 import { queryServicesById } from './services'
 import { queryLabsById } from './labs'
+import { queryDnaSamples } from './geneticTesting'
 import { ethAddressByAccountId } from './userProfile'
 
 export async function getOrdersDetail(api, orderId){
@@ -7,6 +8,11 @@ export async function getOrdersDetail(api, orderId){
   orderDetail['customer_eth_address'] = await ethAddressByAccountId(api, orderDetail.customer_id)
   orderDetail['seller_eth_address'] = await ethAddressByAccountId(api, orderDetail.seller_id)
   orderDetail['created_at'] = parseInt(orderDetail.created_at.replace(/,/g, ""))
+
+  const dna = await queryDnaSamples(api, orderDetail.dna_sample_tracking_id)
+  if(dna){
+    orderDetail['dna_sample_status'] = dna.status
+  }
 
   const service = await queryServicesById(api, orderDetail.service_id)
   if(service != null){
@@ -21,38 +27,6 @@ export async function getOrdersDetail(api, orderId){
 export async function ordersByCustomer(api, address) {
   const res = await api.query.orders.ordersByCustomer(address)
   return res.toHuman()
-}
-
-export async function getOrdersDetailByAddress(api, address) {
-  let orderIds = await ordersBySeller(api, address)
-  
-  if(orderIds == null){
-    return []
-  }
-  orderIds.reverse()
-  
-  let orders = []
-  for(let i = 0; i < orderIds.length; i++){
-    let orderDetail = await getOrdersData(api, orderIds[i])
-    if(orderDetail['status'] == "Unpaid") continue // Skip unpaid orders
-
-    const service = await queryServicesById(api, orderDetail.service_id)
-    orderDetail['created_at'] = parseInt(orderDetail.created_at.replace(/,/g, ""))
-    
-    let lab = null
-    if(service != null){
-      orderDetail['service_name'] = service.info.name
-      orderDetail['service_image'] = service.info.image
-      lab = await queryLabsById(api, service.owner_id)
-    }
-
-    if(lab != null){
-      orderDetail['lab_name'] = lab.info.name
-    }
-
-    orders.push(orderDetail)
-  }
-  return orders
 }
 
 export async function getOrdersDetailByAddressPagination(api, address, page, pageSize) {
@@ -76,6 +50,11 @@ export async function getOrdersDetailByAddressPagination(api, address, page, pag
   for(let i = beginItemIndex; i < lastItemIndex; i++){
     let orderDetail = await getOrdersData(api, orderIds[i])
     if(orderDetail['status'] == "Unpaid") continue // Skip unpaid orders
+
+    const dna = await queryDnaSamples(api, orderDetail.dna_sample_tracking_id)
+    if(dna){
+      orderDetail['dna_sample_status'] = dna.status
+    }
 
     const service = await queryServicesById(api, orderDetail.service_id)
     orderDetail['created_at'] = parseInt(orderDetail.created_at.replace(/,/g, ""))
