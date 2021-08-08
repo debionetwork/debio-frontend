@@ -127,7 +127,7 @@ const customerRoutes = [{
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
-          { text: "Documents", disabled: false, route: { name: "documents" } },
+          { text: "EMR", disabled: false, route: { name: "documents" } },
         ]
       },
       component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/RequestTest/FindLab')

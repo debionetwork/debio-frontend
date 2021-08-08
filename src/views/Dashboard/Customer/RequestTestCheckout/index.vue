@@ -111,7 +111,7 @@
       :show="sendPaymentDialog"
       :lab="lab"
       :products="products"
-      :totalPrice="totalPrice"
+      :totalPrice="price"
       :qcPrice="qcPrice"
       @toggle="sendPaymentDialog = $event"
       @payment-sent="onPaymentSent"
@@ -154,6 +154,7 @@ export default {
     alertTextAlert: "",
     imgWidth: "50",
     currency: "",
+    totalPrice: "",
   }),
   computed: {
     ...mapState({
@@ -164,7 +165,7 @@ export default {
       configApp: (state) => state.auth.configApp,
       metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
     }),
-    totalPrice() {
+    price() {
       return this.products
         .reduce(
           (sum, { price }) => (sum += parseInt(price.replaceAll(",", "."))),
@@ -230,6 +231,7 @@ export default {
           this.currency = this.products[0].currency;
         }
       }
+      this.totalProductPrice()
     },
     getImageLink(val) {
       if (val && val != "") {
@@ -240,6 +242,16 @@ export default {
     actionAlert() {
       this.dialogAlert = false;
     },
+    totalProductPrice() {
+      let products = this.products[0]
+      let productPrice = 0
+      productPrice = parseFloat(products.price.toString().replaceAll(",", ".")).toFixed(2);
+
+      let productQcPrice = 0
+      productQcPrice = parseFloat(products.additionalPrices.toString().replaceAll(",", ".")).toFixed(2);
+
+      this.totalPrice = (parseFloat(productPrice) + parseFloat(productQcPrice)).toFixed(2)
+    }
   },
 };
 </script>
