@@ -124,6 +124,15 @@
                     @uploadGenome="uploadedGenomeCheckbox = true"
                     @uploadReport="uploadedReportCheckbox = true"
                     @submitTestResult="submitTestResult" />
+                <DialogAlert
+                    :show="cancelledOrderDialog"
+                    btnText="Back"
+                    textAlert="Order has been cancelled"
+                    imgPath="warning.png"
+                    imgWidth="50"
+                    @toggle="cancelledOrderDialog = $event"
+                    @close="$router.push('/lab/orders')"
+                ></DialogAlert>
             </v-col>
         </v-row>
       </v-container>
@@ -137,6 +146,7 @@ import QualityControlSpecimen from './QualityControlSpecimen'
 import WetworkSpecimen from './WetworkSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
+import DialogAlert from '@/components/Dialog/DialogAlert'
 
 export default {
   name: 'ProcessOrderHistory',
@@ -145,6 +155,7 @@ export default {
     QualityControlSpecimen,
     WetworkSpecimen,
     ProcessSpecimen,
+    DialogAlert,
   },
   data: () => ({
     receivedCheckbox: false,
@@ -163,6 +174,7 @@ export default {
     serviceName: "",
     serviceDescription: "",
     serviceImage: "",
+    cancelledOrderDialog: false,
   }),
   async mounted(){
     try {
@@ -171,6 +183,9 @@ export default {
         this.$router.push({ name: 'lab-dashboard-order-history' })
       }
       const order = await getOrdersDetail(this.api, this.orderId)
+      if(order.status == "Cancelled"){
+          this.cancelledOrderDialog = true
+      }
       this.serviceName = order.service_name
       this.serviceDescription = order.service_description
       this.serviceImage = order.service_image
