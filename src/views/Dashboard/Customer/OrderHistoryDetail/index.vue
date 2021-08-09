@@ -438,7 +438,7 @@ export default {
         return;
       }
       const balance = await getBalanceETH(this.metamaskWalletAddress);
-      if (balance < 1) {
+      if (balance == 0) {
         this.alertTextBtn = "Close";
         this.alertImgPath = "warning.png";
         this.alertTextAlert = "Your ETH balance is 0.";
