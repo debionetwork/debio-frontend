@@ -527,7 +527,6 @@ export default {
       try {
         if (this.labAccount) {
           for (let i = 0; i < this.labAccount.services.length; i++) {
-<<<<<<< HEAD
             try {
               const detailService = await queryServicesById(
                 this.api,
@@ -539,30 +538,6 @@ export default {
                 let icon = "mdi-needle";
                 if (detailService.info.image) {
                   icon = detailService.info.image;
-=======
-            const detailService = await queryServicesById(
-              this.api,
-              this.labAccount.services[i]
-            );
-            if (detailService) {
-              const serviceName = detailService.info.name;
-              let icon = "mdi-needle";
-              if (detailService.info.image) {
-                icon = detailService.info.image;
-              }
-              const accountId = this.labAccount.services[i];
-              const serviceData = detailService;
-              let currency = this.coinName;
-              let price = 0;
-              let additionalPrices = 0;
-              if (detailService.info.prices_by_currency != null) {
-                currency = detailService.info.prices_by_currency[0].currency;
-                if (
-                  detailService.info.prices_by_currency[0].price_components.length > 0
-                ) {
-                  price =
-                    detailService.info.prices_by_currency[0].price_components[0].value;
->>>>>>> feat: create request test by category page (dbio-308)
                 }
                 const accountId = this.labAccount.services[i];
                 const serviceData = detailService;
