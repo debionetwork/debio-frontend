@@ -11,6 +11,14 @@ export async function getOrdersDetail(api, orderId){
 
   const dna = await queryDnaSamples(api, orderDetail.dna_sample_tracking_id)
   if(dna){
+    if (dna.status == "Failed") {
+      let message = {
+        title: dna.rejected_title,
+        description: dna.rejected_description
+      }
+      //add field for rejection message if dna status failed
+      orderDetail['dna_sample_message'] = message
+    }
     orderDetail['dna_sample_status'] = dna.status
   }
 
@@ -20,7 +28,6 @@ export async function getOrdersDetail(api, orderId){
     orderDetail['service_description'] = service.info.description
     orderDetail['service_image'] = service.info.image
   }
-
   return orderDetail
 }
 

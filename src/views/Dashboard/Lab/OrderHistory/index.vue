@@ -93,6 +93,7 @@ export default {
       }
       this.totalOrders = totalOrders
       this.isLoading = false
+      console.log(this.orders, '<= orderssss')
     },
     processOrder(item){
       this.$router.push({ name: 'lab-dashboard-process-order', params: { order_id: item.id }})

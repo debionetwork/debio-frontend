@@ -130,7 +130,7 @@
             imgPath="success.png"
             imgWidth="50"
             @toggle="rejectionAlertDialog = $event"
-            @close="$router.push('/lab/orders')"
+            @close="closeDialogRejection"
         ></DialogAlert>
     </div>
 </template>
@@ -208,6 +208,7 @@ export default {
       this.rejectionStatementDialog = true
     },
     async submitRejectionStatementDialog(){
+        // console.log('masuk ke submit rejection statement dialog')
       if (!this.$refs.rejectForm.validate()) {
         return
       }
@@ -225,9 +226,18 @@ export default {
           this.rejectionConfirmationDialog = false
           this.rejectionAlertDialog = true
           this.$emit('rejectSpecimen')
+        //   this.rejectMessage.title = this.rejectionTitle
+        //   this.rejectMessage.description = this.rejectionDescription
+        //   this.$emit('rejectSpecimenMessage, rejectMessage')
         }
       )
+    //   console.log('reject specimen done')
     },
+    closeDialogRejection() {
+        console.log('close dialog rejection ke trigger')
+        this.$emit('specimentRejected')
+        this.rejectionAlertDialog = false
+    }
   },
 }
 </script>

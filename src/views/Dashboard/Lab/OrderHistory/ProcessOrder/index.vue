@@ -101,6 +101,10 @@
                         </div>
                     </v-card-text>
                 </v-card>
+                <SpecimenRejected
+                    v-if="isStatusRejected"
+                    :rejectMessage="rejectMessage"
+                />
                 <ReceiveSpecimen 
                     v-if="showReceiveDialog" 
                     :specimen-number="specimenNumber"
@@ -108,13 +112,14 @@
                 <QualityControlSpecimen
                     v-if="showQualityControlDialog"
                     :specimen-number="specimenNumber"
-                    @qualityControlPassed="qualityControl = true" />
+                    @qualityControlPassed="qualityControl = true" 
+                    @specimentRejected="isStatusRejected = true"/>
                 <WetworkSpecimen
-                    v-if="showWetworkDialog"
+                    v-if="showWetworkDialog && !isStatusRejected"
                     :specimen-number="specimenNumber"
                     @wetworkFinished="wetworkCheckbox = true" />
                 <ProcessSpecimen 
-                    v-if="showGenomeReportDialog"
+                    v-if="showGenomeReportDialog && !isStatusRejected"
                     :order-id="orderId"
                     :specimen-number="specimenNumber"
                     :public-key="publicKey"
@@ -124,6 +129,7 @@
                     @uploadGenome="uploadedGenomeCheckbox = true"
                     @uploadReport="uploadedReportCheckbox = true"
                     @submitTestResult="submitTestResult" />
+                
             </v-col>
         </v-row>
       </v-container>
@@ -137,6 +143,7 @@ import QualityControlSpecimen from './QualityControlSpecimen'
 import WetworkSpecimen from './WetworkSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
+import SpecimenRejected from './SpecimenRejected'
 
 export default {
   name: 'ProcessOrderHistory',
@@ -145,6 +152,7 @@ export default {
     QualityControlSpecimen,
     WetworkSpecimen,
     ProcessSpecimen,
+    SpecimenRejected,
   },
   data: () => ({
     receivedCheckbox: false,
@@ -163,6 +171,11 @@ export default {
     serviceName: "",
     serviceDescription: "",
     serviceImage: "",
+    isStatusRejected: false,// Params if order rejected 
+    rejectMessage: {
+        title: '',
+        description: '',
+    },
   }),
   async mounted(){
     try {
@@ -180,13 +193,20 @@ export default {
       this.sellerEthAddress = order.seller_eth_address
       this.specimenNumber = order.dna_sample_tracking_id
       this.specimenStatus = order.dna_sample_status
+      this.rejectMessage = order.dna_sample_message
       this.setCheckboxByDnaStatus()
+      this.checkStatus(this.specimenStatus)
+      console.log(order.status, '<= order status')//deleted soon
+      console.log(this.specimenStatus, '<= specimen status')//deleted soon
+      console.log(order, '<= order')//deleted soon
     } catch (err) {
       console.log(err)
     }
   },
   methods: {
     async setCheckboxByDnaStatus(){
+        console.log(this.specimenStatus, '<= specimen status / dna status')
+        console.log(this.isStatusRejected, '<= IS FAILED')
         if(this.specimenStatus == "Rejected") {
             return
         }
@@ -243,6 +263,24 @@ export default {
         }
         return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
     },
+    checkStatus(status) {
+        console.log('masuk check status')
+        console.log(status)
+        console.log(this.isStatusRejected, 'sebelum kondisi')
+        if (status == "Failed") {
+            this.isStatusRejected = true
+        } else {
+            this.isStatusRejected = false
+        }
+        console.log(this.isStatusRejected, 'setelah kondisi')
+    },
+    // rejectSpecimenMessage(data) {
+    //     console.log(data, '<= data')
+    //     console.log(data.title, '<= title')
+    //     console.log(data.description, '<= description') gimana caranya kalo udah keupdate messagenya langsung keupdate juga page nya
+    //     // this.rejectMessage.title = data.title
+    //     // this.rejectMessage.description = data.description
+    // },
   },
   computed: {
     ...mapGetters({
