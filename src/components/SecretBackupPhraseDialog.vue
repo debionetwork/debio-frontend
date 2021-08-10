@@ -22,7 +22,7 @@
             :mnemonicCollection="mnemonicCollection"
         ></MnemonicKeypad>
         <p class="pl-5 pr-5">
-            <b>Write down or copy these words in the right order and save them safely</b>
+            <b>Write down these words in the right order and save them safely</b>
         </p>
       </v-card-text>
       <v-card-actions class="px-6 pb-4">
