@@ -5,7 +5,7 @@
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-title class="px-8">
-              <div class="text-h6">Select a Lab</div>
+              <div class="text-h6">Select a Test</div>
             </v-card-title>
             <v-card-text class="px-8">
               <v-autocomplete
@@ -18,7 +18,7 @@
                 @change="onCountryChange"
                 label="Select Country"
                 autocomplete="disabled"
-                :disabled="showRequestNoLab"
+                :disabled="showRequestNoCategory"
                 outlined
               ></v-autocomplete>
 
@@ -31,7 +31,7 @@
                 item-value="0"
                 @change="onRegionChange"
                 label="Select Region"
-                :disabled="country == 'country' || showRequestNoLab"
+                :disabled="country == 'country' || showRequestNoCategory"
                 autocomplete="disabled"
                 outlined
               ></v-autocomplete>
@@ -45,45 +45,30 @@
                 item-value="0"
                 @change="onCityChange"
                 label="Select City"
-                :disabled="region == 'region' || showRequestNoLab"
+                :disabled="region == 'region' || showRequestNoCategory"
                 autocomplete="disabled"
                 outlined
               ></v-autocomplete>
 
               <v-select
                 dense
-                :items="labs"
-                item-value="labData"
-                item-text="labName"
-                @change="onLabChange"
+                :items="services"
+                item-value="serviceName"
+                item-text="serviceName"
+                @change="onCategoryChange"
                 menu-props="auto"
-                :label="
-                  showNoLab ? 'There are no available labs' : 'Select Lab'
-                "
-                :disabled="city == 'city' || showRequestNoLab"
+                :label="noCategory"
+                :disabled="city == 'city' || showRequestNoCategory"
                 autocomplete="disabled"
                 outlined
               >
-                <template slot='item' slot-scope='{ item }'>
-                  <v-list-tile-content>
-                    <v-list-tile-title>
-                      {{item.labName}}
-                    </v-list-tile-title>
-                    <v-list-tile-sub-title 
-                      class="d-flex justify-start ms-8 grey--text"
-                      flat
-                    >
-                    {{item.address}}
-                    </v-list-tile-sub-title>
-                  </v-list-tile-content>
-                </template>
               </v-select>
             </v-card-text>
             <div
               class="ml-8 mr-8 mb-8 grey--text text--darken-1"
-              v-if="showNoLab"
+              v-if="showNoCategory"
             >
-              <div v-if="showRequestNoLab">
+              <div v-if="showRequestNoCategory">
                 <v-row>
                   <v-col
                     cols="12"
@@ -109,7 +94,7 @@
                       :id="item.alias"
                       :value="item.value"
                       v-model="requestNoLabItem"
-                      :disabled="isLoadingRequestNoLab"
+                      :disabled="isLoadingRequestNoService"
                     />
                     <label class="ml-2" :for="item.alias">{{
                       item.text
@@ -152,26 +137,12 @@
               </div>
             </v-card-text>
           </v-card>
-
-          <v-card class="dg-card mt-3" elevation="0">
-            <v-card-text>
-              <div>
-                For demo purposes, available labs are located in
-              </div>
-              <div>
-                <ul>
-                  <li>Indonesia -> Jakarta Raya -> Jakarta Raya</li>
-                  <li>Malaysia -> Johor -> Johor</li>
-                </ul>
-              </div>
-            </v-card-text>
-          </v-card>
         </v-col>
       </v-row>
 
-      <div class="mt-5" v-if="showNoLab">
+      <div class="mt-5" v-if="showNoCategory">
         <v-row>
-          <v-col v-if="isLoadingRequestNoLab" cols="12" lg="12" md="12" sm="12">
+          <v-col v-if="isLoadingRequestNoService" cols="12" lg="12" md="12" sm="12">
             <v-progress-linear
               indeterminate
               color="primary"
@@ -181,11 +152,11 @@
         <v-row>
           <v-col cols="12" lg="8" md="8" sm="8">
             <v-btn
-              v-if="showRequestNoLab"
+              v-if="showRequestNoCategory"
               depressed
               color="primary"
               large
-              :disabled="isLoadingRequestNoLab || requestNoLabItem.length == 0"
+              :disabled="isLoadingRequestNoService || requestNoLabItem.length == 0"
               width="100%"
               @click="sendRequestNoLab"
             >
@@ -197,20 +168,20 @@
               color="primary"
               large
               width="100%"
-              @click="showRequestNoLab = true"
+              @click="showRequestNoCategory = true"
             >
               Request a Lab
             </v-btn>
           </v-col>
           <v-col cols="12" lg="4" md="4" sm="4">
             <v-btn
-              v-if="showRequestNoLab"
+              v-if="showRequestNoCategory"
               depressed
               color="orange"
               large
               width="100%"
-              :disabled="isLoadingRequestNoLab"
-              @click="showRequestNoLab = false"
+              :disabled="isLoadingRequestNoService"
+              @click="showRequestNoCategory = false"
             >
               Cancel
             </v-btn>
@@ -218,7 +189,7 @@
         </v-row>
       </div>
 
-      <div v-if="isLoadingProducts" class="d-flex justify-center mt-10">
+      <div v-if="isLoadingCategory" class="d-flex justify-center mt-10">
         <v-progress-circular
           :size="50"
           color="primary"
@@ -226,12 +197,12 @@
         ></v-progress-circular>
       </div>
 
-      <template v-if="labAccount && !isLoadingProducts">
+      <template v-if="serviceAccount && !isLoadingCategory">
         <v-row class="mt-4">
           <v-col cols="12">
             <div class="px-2">
               <div class="text-h5 secondary--text text--lighten-2">
-                <b>{{ labAccount.info.name }}</b>
+                <b>{{ serviceName }}</b>
               </div>
             </div>
           </v-col>
@@ -255,7 +226,7 @@
           <v-col cols="12">
             <div class="px-2">
               <div class="text-h6">
-                <b>Select Product</b>
+                <b>Select Lab</b>
               </div>
             </div>
           </v-col>
@@ -263,8 +234,8 @@
 
         <v-row class="pt-1">
           <v-col
-            v-for="product in products"
-            :key="product.serviceData.id"
+            v-for="lab in labs"
+            :key="lab.accountId"
             cols="12"
             xl="4"
             lg="4"
@@ -272,26 +243,13 @@
             :class="$vuetify.breakpoint.smAndDown ? 'py-0' : 'py-1'"
           >
             <SelectableMenuCard
-              :icon="product.icon"
-              :title="product.serviceName"
-              :sub-title="product.serviceData.info.description"
-              :hover-text="
-                product.serviceData.info.long_description
-                  ? product.serviceData.info.long_description
-                  : product.serviceData.info.description
-              "
-              :is-selected="isProductSelected(product)"
-              :disabled="isProductDisabled(product)"
-              @click="selectOneProduct(product)"
+              :icon="labIcon"
+              :title="lab.labName"
+              :sub-title="lab.labData.info.address"
+              :is-selected="isLabSelected(lab)"
+              :disabled="isLabDisabled(lab)"
+              @click="selectOneLab(lab)"
             >
-              <template v-slot:footer>
-                <span class="text-h6">
-                  {{ product.price }}
-                </span>
-                <span class="primary--text text-caption">
-                  {{ product.currency }}
-                </span>
-              </template>
             </SelectableMenuCard>
           </v-col>
         </v-row>
@@ -303,11 +261,11 @@
               color="primary"
               x-large
               width="100%"
-              :disabled="selectedProducts.length == 0"
+              :disabled="selectedLab.length == 0"
               @click="onContinue"
               height="64"
             >
-            Checkout Order
+              Checkout Order
             </v-btn>
           </v-col>
         </v-row>
@@ -327,7 +285,6 @@ import {
   queryLabsByCountryRegionCity,
   queryLabsById,
 } from "@/lib/polkadotProvider/query/labs";
-import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import DialogAlert from "@/components/Dialog/DialogAlert";
 
 export default {
@@ -342,27 +299,68 @@ export default {
     city: "city",
     region: "region",
     labAccount: "",
-    selectedProducts: [],
-    isLoadingProducts: false,
+    selectedLab: [],
+    isLoadingCategory: false,
     countries: [],
     cities: [],
     regions: [],
+    services: [],
     labs: [],
-    products: [],
+    lab: {},
     coinName: "",
     listProducsNoLab: [],
-    showRequestNoLab: false,
-    showNoLab: false,
+    showRequestNoCategory: false,
+    showNoCategory: false,
     requestNoLabItem: [],
-    isLoadingRequestNoLab: false,
+    isLoadingRequestNoService: false,
     dialogAlert: false,
     alertTextBtn: "",
     alertImgPath: "warning.png",
     alertTextAlert: "",
     imgWidth: "50",
     statusSendReqNoLab: false,
+    labIcon: 'mdi-test-tube',
+    dummyProduct: [{
+      accountId: "0xe88f0531fea1654b6a24197ec1025fd7217bb8b19d619bd488105504ec244df8",
+      additionalPrices: "5",
+      currency: "Dai",
+      icon: "mdi-dna",
+      indexPrice: 0,
+      price: "15",
+      serviceData: {
+        id: "0xe88f0531fea1654b6a24197ec1025fd7217bb8b19d619bd488105504ec244df8",
+        info: {
+          category: "Whole-Genome Sequencing",
+          description: "Analyze your entire genomic DNA sequence. Genomic information 			has been instrumental in identifying inherited disorders, characterizing the 		mutations that drive cancer progression, and tracking disease outbreaks.",
+          dna_collection_process: null,
+          expected_duration: {
+            duration: "7",
+            duration_type: "WorkingDays",
+          },
+        image: "mdi-dna",
+        long_description: null,
+        name: "Whole Genome Sequencing",
+        price: "20 Dai",
+        prices_by_currency: [{
+          additional_prices: [{
+            component: "qc_price",
+            value: "5",
+          }],
+          currency: "Dai",
+          price_components: [{
+            component: "testing_price",
+            value: "15"
+          }],
+          total_price: "20"
+        }],
+        test_result_sample: ""
+      },	
+      owner_id: "5ESGhRuAhECXu96Pz9L8pwEEd1AeVhStXX67TWE1zHRuvJNU"	
+      },
+      serviceName: "Whole Genome Sequencing"
+    }]
   }),
-  async mounted() {
+    async mounted() {
     this.coinName = this.configApp.tokenName;
     this.listProducsNoLab = [
       {
@@ -420,14 +418,10 @@ export default {
       configApp: (state) => state.auth.configApp,
     }),
     citiesSelection() {
-      return this.cities
-        .filter((c) => c.country == this.country)
-        .map((c) => ({ value: c.city, text: c.city, country: c.country }));
-    },
-    labsSelection() {
-      return this.labs
-        .filter((lab) => lab.country == this.country && lab.city == this.city)
-        .map((lab) => ({ value: lab.labAccount, text: lab.name }));
+      return this.cities.reduce((filtered, c) => {
+        if (c.country == this.country) filtered.push({ value: c.city, text: c.city, country: c.country })
+        return filtered
+      }, [])
     },
     productsSelection() {
       return this.products.map((prod) => {
@@ -445,6 +439,13 @@ export default {
       }
       return this.labs.filter((l) => l.labAccount == this.labAccount)[0];
     },
+    noCategory() {
+      if (this.showNoCategory) {
+        return 'There are no available category'
+      } else {
+        return 'Select Test Category'
+      }
+    }
   },
   methods: {
     ...mapMutations({
@@ -452,43 +453,64 @@ export default {
       setProductsToRequest: "testRequest/SET_PRODUCTS",
     }),
     async getCountries() {
-      this.showNoLab = false;
+      this.showNoCategory = false;
       this.countries = countryData;
     },
     onCountryChange(selectedCountry) {
-      this.showNoLab = false;
+      this.showNoCategory = false;
       this.regions = [];
       this.region = "region";
       this.city = "city";
       this.cities = [];
       this.country = selectedCountry;
-
       this.regions = Object.entries(cityData[this.country].divisions);
     },
     onRegionChange(selectedRegion) {
-      this.showNoLab = false;
+      this.showNoCategory = false;
       this.city = "city";
       this.cities = [];
       this.region = selectedRegion;
       this.cities = Object.entries(cityData[this.country].divisions);
     },
     onCityChange(selectedCity) {
-      this.showNoLab = false;
+      this.showNoCategory = false;
       this.city = selectedCity;
-      this.getLabs();
+      this.getServices();
     },
-    async getLabs() {
+    async getServices() {
       if (!this.cities) {
         return;
-      }
+      } 
+      this.serviceAccount = "";
+      this.services = [];
+      this.products = [];
+      if (this.city == "ID-JK") {
+        const serviceList = ['Whole-Genome Sequencing']
+        for (let i = 0; i < serviceList.length; i++) {
+          if (serviceList) {          
+            this.services.push(serviceList[i]);
+          }
+        }
+      } else {
+        this.showNoCategory = true
+      } 
+    },
+    async onCategoryChange(serviceAccount) {
+      this.serviceAccount = serviceAccount
+      this.getLabs()
+    },
+    async getLabs() {
+      this.isLoadingCategory = true;
       this.labAccount = "";
       this.labs = [];
       this.products = [];
+
       const listLabID = await queryLabsByCountryRegionCity(
         this.api,
         this.country + "-" + this.region,
         this.city
       );
+      
       if (listLabID) {
         for (let i = 0; i < listLabID.length; i++) {
           const detaillab = await queryLabsById(this.api, listLabID[i]);
@@ -504,155 +526,55 @@ export default {
               address,
               labData,
             };
-
-            this.labs.push(lab);
+            this.labs.push(lab)
           }
+          this.labAccount = detaillab
         }
       }
-      if (this.labs.length == 0) {
-        this.showNoLab = true;
-        this.showRequestNoLab = false;
-        this.isLoadingRequestNoLab = false;
-        this.requestNoLabItem = [];
-      }
+      this.isLoadingCategory = false;
     },
-    async onLabChange(labAccount) {
-      this.labAccount = labAccount;
-      await this.getLabProducts();
-    },
-    async getLabProducts() {
-      this.isLoadingProducts = true;
-      this.products = [];
-
-      try {
-        if (this.labAccount) {
-          for (let i = 0; i < this.labAccount.services.length; i++) {
-<<<<<<< HEAD
-            try {
-              const detailService = await queryServicesById(
-                this.api,
-                this.labAccount.services[i]
-              );
-
-              if (detailService) {
-                const serviceName = detailService.info.name;
-                let icon = "mdi-needle";
-                if (detailService.info.image) {
-                  icon = detailService.info.image;
-=======
-            const detailService = await queryServicesById(
-              this.api,
-              this.labAccount.services[i]
-            );
-            if (detailService) {
-              const serviceName = detailService.info.name;
-              let icon = "mdi-needle";
-              if (detailService.info.image) {
-                icon = detailService.info.image;
-              }
-              const accountId = this.labAccount.services[i];
-              const serviceData = detailService;
-              let currency = this.coinName;
-              let price = 0;
-              let additionalPrices = 0;
-              if (detailService.info.prices_by_currency != null) {
-                currency = detailService.info.prices_by_currency[0].currency;
-                if (
-                  detailService.info.prices_by_currency[0].price_components.length > 0
-                ) {
-                  price =
-                    detailService.info.prices_by_currency[0].price_components[0].value;
->>>>>>> feat: create request test by category page (dbio-308)
-                }
-                const accountId = this.labAccount.services[i];
-                const serviceData = detailService;
-                let currency = this.coinName;
-                let price = 0;
-                let additionalPrices = 0;
-                if (detailService.info.prices_by_currency != null) {
-                  currency = detailService.info.prices_by_currency[0].currency;
-                  if (
-                    detailService.info.prices_by_currency[0].price_components.length > 0
-                  ) {
-                    price =
-                      detailService.info.prices_by_currency[0].price_components[0].value;
-                  }
-                  if (
-                    detailService.info.prices_by_currency[0].additional_prices
-                      .length > 0
-                  ) {
-                    additionalPrices =
-                      detailService.info.prices_by_currency[0]
-                        .additional_prices[0].value;
-                  }
-                }
-
-                const product = {
-                  accountId,
-                  serviceName,
-                  icon,
-                  serviceData,
-                  price,
-                  currency,
-                  additionalPrices,
-                  indexPrice: 0,
-                };
-
-                this.products.push(product);
-              }
-            } catch (err) {
-              console.log('views/Dashboard/Custumer/RequestTest/FindLab error: ', err)
-              continue
-            }
-          }
-        }
-      } catch (err) {
-        this.products = [];
-      }
-      this.isLoadingProducts = false;
-    },
-    isProductSelected(product) {
+    isLabSelected(lab) {
       return (
-        this.selectedProducts.filter(
-          (p) => p.serviceData.id == product.serviceData.id
+        this.selectedLab.filter(
+          (l) => l.accountId == lab.accountId
         ).length > 0
       );
     },
-    isProductDisabled(product) {
-      if (this.selectedProducts.length == 0) {
+    isLabDisabled(lab) {
+      if (this.selectedLab.length == 0) {
         return false;
       }
-      return this.selectedProducts[0].serviceData.id != product.serviceData.id;
+      return this.selectedLab[0].accountId != lab.accountId;
     },
-    selectProduct(product) {
+    selectProduct(lab) {
       // deselect
-      if (_.includes(this.selectedProducts, product)) {
-        this.selectedProducts = this.selectedProducts.filter(
-          (p) => p.serviceData.id != product.serviceData.id
+      if (_.includes(this.selectedLab, lab)) {
+        this.selectedLab = this.selectedLab.filter(
+          (l) => l.accountId != lab.accountId
         );
       }
       // select
-      this.selectedProducts = [...this.selectedProducts, product];
+      this.selectedLab = [...this.selectedLab, lab];
     },
-    selectOneProduct(product) {
-      if (this.selectedProducts.length == 0) {
-        this.selectedProducts = [product];
+    selectOneLab(lab) {
+      if (this.selectedLab.length == 0) {
+        this.selectedLab = [lab];
         return;
       }
       if (
-        this.selectedProducts.length > 0 &&
-        this.selectedProducts[0].serviceData.id == product.serviceData.id
+        this.selectedLab.length > 0 &&
+        this.selectedLab[0].accountId == lab.accountId
       ) {
-        this.selectedProducts = [];
+        this.selectedLab = [];
       }
     },
     onContinue() {
       this.setLabToRequest(this.labAccount);
-      this.setProductsToRequest(this.selectedProducts);
+      this.setProductsToRequest(this.dummyProduct);
       this.$router.push({ name: "request-test-checkout" });
     },
     sendRequestNoLab() {
-      this.isLoadingRequestNoLab = true;
+      this.isLoadingRequestNoService = true;
 
       this.alertTextBtn = "Continue";
       this.alertImgPath = "success.png";
@@ -672,13 +594,13 @@ export default {
         role: "customer",
       });
 
-      this.isLoadingRequestNoLab = false;
+      this.isLoadingRequestNoService = false;
     },
     actionAlert() {
       if (this.statusSendReqNoLab) {
-        this.showNoLab = false;
-        this.showRequestNoLab = false;
-        this.isLoadingRequestNoLab = false;
+        this.showNoCategory = false;
+        this.showRequestNoCategory = false;
+        this.isLoadingRequestNoService = false;
         this.requestNoLabItem = [];
         this.statusSendReqNoLab = false;
         this.regions = [];

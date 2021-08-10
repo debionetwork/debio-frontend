@@ -120,7 +120,7 @@ const customerRoutes = [{
       meta: {
         pageHeader: 'Find a Lab',
         breadcrumbs: [
-          { text: 'Request a Test', href: '/customer/request-test' },
+          { text: 'Request Test', href: '/customer/request-test' },
         ],
         drawerButtons: [
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
@@ -131,6 +131,24 @@ const customerRoutes = [{
         ]
       },
       component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/RequestTest/FindLab')
+    },
+    {
+      path: '/customer/request-test/find-test',
+      name: 'find-test',
+      meta: {
+        pageHeader: 'Find a Test',
+        breadcrumbs: [
+          { text: 'Request Test', href: '/customer/request-test' },
+        ],
+        drawerButtons: [
+          { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
+          { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
+          { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
+          { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Documents", disabled: false, route: { name: "documents" } },
+        ]
+      },
+      component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/RequestTest/FindTest')
     },
     {
       path: '/customer/request-test/checkout',

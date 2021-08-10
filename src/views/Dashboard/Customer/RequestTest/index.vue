@@ -22,7 +22,7 @@
               icon="mdi-test-tube"
               title="Find a Test"
               sub-title="Get your DNA sample tested"
-              @click="$router.push({ name: 'request-test' })"
+              @click="$router.push({ name: 'find-test' })"
             ></MenuCard>
           </div>
         </v-col>
@@ -53,6 +53,7 @@
 </template>
 
 <script>
+
 import MenuCard from "@/components/MenuCard";
 
 export default {
