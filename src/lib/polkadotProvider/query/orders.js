@@ -10,6 +10,7 @@ export async function getOrdersDetail(api, orderId){
   orderDetail['created_at'] = parseInt(orderDetail.created_at.replace(/,/g, ""))
 
   const dna = await queryDnaSamples(api, orderDetail.dna_sample_tracking_id)
+  console.log(dna, 'DNA BARU DI REQUEST')//deleted soon
   if(dna){
     if (dna.status == "Failed") {
       let message = {
