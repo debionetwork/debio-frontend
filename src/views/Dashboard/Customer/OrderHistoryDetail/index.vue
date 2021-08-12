@@ -387,7 +387,6 @@ export default {
       this.isLoading = true;
       this.orderId = this.$route.params.number;
       this.order = await getOrdersData(this.api, this.orderId);
-      // console.log("order >>> ", this.order)
       this.coinName = this.order.currency;
       this.priceOrder = parseFloat(
         this.order.prices[0].value.replaceAll(",", ".")
