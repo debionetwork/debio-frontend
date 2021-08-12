@@ -94,7 +94,7 @@
     "_enum": [
       "Unpaid",
       "Paid",
-      "FulFilled",
+      "Success",
       "Refunded",
       "Cancelled",
       "Failed"
@@ -120,15 +120,13 @@
   "DnaSampleStatus": {
     "_enum": [
       "Registered",
-      "Arrived",
-      "Rejected",
       "Success",
       "Failed",
-      "QualityControlled",
-      "GenotypedSequenced",
+      "Prepared",
+      "Extracted",
+      "Genotyped",
       "Reviewed",
-      "Computed",
-      "ResultReady"
+      "Computed"
     ]
   },
   "DnaSampleTrackingId": "Text",
