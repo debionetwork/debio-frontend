@@ -25,30 +25,18 @@
                 </v-col>
             </template>
         </Dialog>
-
-        <!-- <DialogAlert
-            :show="computeAlertDialog"
-            btnText="Continue"
-            textAlert="Computation Complete"
-            imgPath="success.png"
-            imgWidth="50"
-            @toggle="computeAlertDialog = $event"
-            @close="closeComputeAlertDialog"
-        ></DialogAlert> -->
     </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex"
 import Dialog from "@/components/Dialog"
-// import DialogAlert from "@/components/Dialog/DialogAlert"
 import { processDnaSample } from "@/lib/polkadotProvider/command/geneticTesting"
 
 export default {
   name: "ComputeSpecimen",
   components: {
     Dialog,
-    // DialogAlert,
   },
   props: {
     specimenNumber: String,
