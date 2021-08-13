@@ -464,15 +464,15 @@ export default {
       }
 
       try {
+        this.isLoading = true;
         await addToken(this.coinName);
         const price = await getPrice(this.totalPay);
-        let txreceipts = await transfer({
+
+        await transfer({
           seller: this.configApp.escrowETHAddress,
           amount: String(price),
           from: this.metamaskWalletAddress,
         });
-        this.isLoading = true;
-        console.log(txreceipts);
       } catch (err) {
         console.log(err);
         this.alertTextBtn = "Close";
@@ -480,6 +480,7 @@ export default {
         this.alertTextAlert = "Payment via Metamask is canceled or rejected.";
         this.dialogAlert = true;
         this.alertType = "cancel_metamask_payment";
+      } finally {
         this.isLoading = false;
       }
     },
