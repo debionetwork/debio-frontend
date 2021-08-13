@@ -12,21 +12,17 @@
 
 ##### 1. Import ke file .vue kalian
 ```js
-
 import serviceHandler from "@/mixins/serviceHandler"
-
 ```
 
 ##### 2. Tambahkan `mixins` ke script kalian
 ```js
-
 export default {
-	name: "xxx",
-    components: { xxx, yyy },
+  name: "xxx",
+  components: { xxx, yyy },
  
-	mixins: [serviceHandler]
+  mixins: [serviceHandler]
 }
-
 ```
 
 ##### 3. Selanjutnya kalian udah bisa akses fitur fitur service handler, contohnya:
@@ -37,16 +33,16 @@ import serviceHandler from "@/mixins/serviceHandler"
 import { getOrdersData } from "@/lib/polkadotProvider/query/orders"
 
 export default {
-	name: "xxx",
-    components: { xxx, yyy },
+  name: "xxx",
+  components: { xxx, yyy },
  
-	mixins: [serviceHandler],
+  mixins: [serviceHandler],
 
-	methods: {
-		async fetchData() {
-			await this.dispatch(getOrdersData, this.api, this.orderId)
-		},
-	}
+  methods: {
+    async fetchData() {
+      await this.dispatch(getOrdersData, this.api, this.orderId)
+    },
+  }
 }
 
 ```
