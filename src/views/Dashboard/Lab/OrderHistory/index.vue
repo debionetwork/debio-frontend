@@ -27,6 +27,7 @@
                   <template v-slot:[`item.actions`]="{ item }">
                      <v-container>
                         <v-btn
+                          v-if="item.status != 'Cancelled'"
                           :class="buttonClass(item)"
                           dark
                           small

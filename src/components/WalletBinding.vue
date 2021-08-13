@@ -280,10 +280,10 @@ export default {
         this.isLoading = false;
         this.closeDialog();
       } catch (err) {
-        console.log(err);
+        console.log(err.message);
         this.isLoading = false;
         this.password = "";
-        this.error = "The password you entered is wrong";
+        this.error = err.message;
       }
     },
     closeDialog() {
