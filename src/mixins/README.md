@@ -1,7 +1,5 @@
 # Service Handler
 
-### Cara penggunaan
-
 ## Feature
 
 - `isLoading`: Indikator loading, jadi kalian gaperlu tambahin lagi `isLoading` di data kalian secara manual lagi
@@ -9,6 +7,7 @@
 - `this.dispatch`: Ini bisa di pake buat async request method (Psst.. ini udah handle loading kalian jadi lebih praktis dan presisi)
 - `loadingPlaceholder`: Kalo ini kalian bisa gunain buat indikator di placeholder input field
 
+## Cara penggunaan
 
 ##### 1. Import ke file .vue kalian
 ```js
