@@ -518,52 +518,57 @@ export default {
       try {
         if (this.labAccount) {
           for (let i = 0; i < this.labAccount.services.length; i++) {
-            const detailService = await queryServicesById(
-              this.api,
-              this.labAccount.services[i]
-            );
+            try {
+              const detailService = await queryServicesById(
+                this.api,
+                this.labAccount.services[i]
+              );
 
-            if (detailService) {
-              const serviceName = detailService.info.name;
-              let icon = "mdi-needle";
-              if (detailService.info.image) {
-                icon = detailService.info.image;
-              }
-              const accountId = this.labAccount.services[i];
-              const serviceData = detailService;
-              let currency = this.coinName;
-              let price = 0;
-              let additionalPrices = 0;
-              if (detailService.info.prices_by_currency != null) {
-                currency = detailService.info.prices_by_currency[0].currency;
-                if (
-                  detailService.info.prices_by_currency[0].price_components.length > 0
-                ) {
-                  price =
-                    detailService.info.prices_by_currency[0].price_components[0].value;
+              if (detailService) {
+                const serviceName = detailService.info.name;
+                let icon = "mdi-needle";
+                if (detailService.info.image) {
+                  icon = detailService.info.image;
                 }
-                if (
-                  detailService.info.prices_by_currency[0].additional_prices
-                    .length > 0
-                ) {
-                  additionalPrices =
-                    detailService.info.prices_by_currency[0]
-                      .additional_prices[0].value;
+                const accountId = this.labAccount.services[i];
+                const serviceData = detailService;
+                let currency = this.coinName;
+                let price = 0;
+                let additionalPrices = 0;
+                if (detailService.info.prices_by_currency != null) {
+                  currency = detailService.info.prices_by_currency[0].currency;
+                  if (
+                    detailService.info.prices_by_currency[0].price_components.length > 0
+                  ) {
+                    price =
+                      detailService.info.prices_by_currency[0].price_components[0].value;
+                  }
+                  if (
+                    detailService.info.prices_by_currency[0].additional_prices
+                      .length > 0
+                  ) {
+                    additionalPrices =
+                      detailService.info.prices_by_currency[0]
+                        .additional_prices[0].value;
+                  }
                 }
+
+                const product = {
+                  accountId,
+                  serviceName,
+                  icon,
+                  serviceData,
+                  price,
+                  currency,
+                  additionalPrices,
+                  indexPrice: 0,
+                };
+
+                this.products.push(product);
               }
-
-              const product = {
-                accountId,
-                serviceName,
-                icon,
-                serviceData,
-                price,
-                currency,
-                additionalPrices,
-                indexPrice: 0,
-              };
-
-              this.products.push(product);
+            } catch (err) {
+              console.log('views/Dashboard/Custumer/RequestTest/FindLab error: ', err)
+              continue
             }
           }
         }
