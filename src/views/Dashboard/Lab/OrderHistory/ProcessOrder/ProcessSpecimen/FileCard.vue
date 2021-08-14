@@ -9,7 +9,10 @@
             <v-icon>mdi-eye</v-icon>
           </v-btn>
         </a>
-        <v-btn v-if="!hideDelete" @click="onDeleteClick" icon text>
+        <v-btn @click="onEditClick" icon text>
+          <v-icon>mdi-pencil</v-icon>
+        </v-btn>
+        <v-btn @click="onDeleteClick" icon text>
           <v-icon>mdi-delete</v-icon>
         </v-btn>
       </div>
@@ -27,6 +30,10 @@ export default {
   methods: {
     onDeleteClick() {
       this.$emit('delete', this.file)
+    },
+    onEditClick() {
+      console.log("masuk edit")
+      this.$emit("onEditClick")
     },
   }
 }

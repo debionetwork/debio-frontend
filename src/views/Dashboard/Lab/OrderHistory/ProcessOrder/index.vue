@@ -20,23 +20,28 @@
                         disabled
                     ></v-checkbox>
                     <v-checkbox
-                        v-model="wetworkCheckbox"
-                        label="Wetwork"
+                        v-model="qualityControl"
+                        label="QC (DNA prep and extraction)"
                         disabled
                     ></v-checkbox>
                     <v-checkbox
-                        v-model="uploadedGenomeCheckbox"
-                        label="Raw Data"
+                        v-model="genotypeCheckbox"
+                        label="Genotyping/Sequencing"
                         disabled
                     ></v-checkbox>
                     <v-checkbox
-                        v-model="uploadedReportCheckbox"
-                        label="Report"
+                        v-model="reviewCheckbox"
+                        label="Review"
+                        disabled
+                    ></v-checkbox>
+                    <v-checkbox
+                        v-model="computeCheckbox"
+                        label="Compute"
                         disabled
                     ></v-checkbox>
                     <v-checkbox
                         v-model="sentCheckbox"
-                        label="Sent"
+                        label="Results Ready"
                         disabled
                     ></v-checkbox>
                     </v-card-text>
@@ -87,7 +92,7 @@
                                     <b>Specimen Number</b>
                                 </div>
                                 <div class="text-caption grey--text text--darken-1">
-                                    {{ this.specimenNumber }}
+                                    {{ this.specimenNumber | specimenNumber }}
                                 </div>
                             </div>
                             <div class="mt-2 ml-5" style="max-width: 50%;">
@@ -101,6 +106,22 @@
                         </div>
                     </v-card-text>
                 </v-card>
+
+                <div
+                    v-if="showResultDialog">
+                    <v-alert 
+                        class = "mt-5"
+                        type="success"
+                    >
+                        This order has been completed </v-alert>
+                </div>
+                <div v-if="showRejectDialog">
+                    <v-alert 
+                        class = "mt-5"
+                        type="danger"
+                    >
+                        This specimen has been rejected </v-alert>
+                </div>
                 <ReceiveSpecimen 
                     v-if="showReceiveDialog" 
                     :specimen-number="specimenNumber"
@@ -108,22 +129,32 @@
                 <QualityControlSpecimen
                     v-if="showQualityControlDialog"
                     :specimen-number="specimenNumber"
+                    :specimen-status="specimenStatus"
                     @qualityControlPassed="qualityControl = true" />
-                <WetworkSpecimen
-                    v-if="showWetworkDialog"
+                <GenotypeSpecimen
+                    v-if="showGenotypeDialog"
                     :specimen-number="specimenNumber"
-                    @wetworkFinished="wetworkCheckbox = true" />
+                    :specimen-status="specimenStatus"
+                    @genotypeFinished="genotypeCheckbox = true" />
+                <ReviewSpecimen 
+                    v-if="showReviewDialog"
+                    :specimen-number="specimenNumber"
+                    @reviewedSpecimen="reviewCheckbox = true"/>
+                <ComputeSpecimen
+                    v-if="showComputeDialog"
+                    :specimen-number="specimenNumber"
+                    @computedSpecimen="computeCheckbox = true" />
                 <ProcessSpecimen 
-                    v-if="showGenomeReportDialog"
+                    v-if="showGenomeReportDialog || showResultDialog"
                     :order-id="orderId"
                     :specimen-number="specimenNumber"
+                    :specimen-status="specimenStatus"
                     :public-key="publicKey"
                     :is-processed="isOrderProcessed"
-                    :wetwork-checkbox="wetworkCheckbox"
-                    @processWetwork="wetworkCheckbox = true"
-                    @uploadGenome="uploadedGenomeCheckbox = true"
-                    @uploadReport="uploadedReportCheckbox = true"
+                    :genotype-checkbox="genotypeCheckbox"
+                    @processGenotype="genotypeCheckbox = true"
                     @submitTestResult="submitTestResult" />
+
                 <DialogAlert
                     :show="cancelledOrderDialog"
                     btnText="Back"
@@ -133,17 +164,19 @@
                     @toggle="cancelledOrderDialog = $event"
                     @close="$router.push('/lab/orders')"
                 ></DialogAlert>
-            </v-col>
-        </v-row>
+                </v-col>
+            </v-row>
       </v-container>
    </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import ReceiveSpecimen from './ReceiveSpecimen'
 import QualityControlSpecimen from './QualityControlSpecimen'
-import WetworkSpecimen from './WetworkSpecimen'
+import GenotypeSpecimen from './GenotypeSpecimen'
+import ReviewSpecimen from './ReviewSpecimen'
+import ComputeSpecimen from './ComputeSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
 import DialogAlert from '@/components/Dialog/DialogAlert'
@@ -153,16 +186,18 @@ export default {
   components: {
     ReceiveSpecimen,
     QualityControlSpecimen,
-    WetworkSpecimen,
+    GenotypeSpecimen,
+    ReviewSpecimen,
+    ComputeSpecimen,
     ProcessSpecimen,
     DialogAlert,
   },
   data: () => ({
     receivedCheckbox: false,
     qualityControl: false,
-    wetworkCheckbox: false,
-    uploadedGenomeCheckbox: false,
-    uploadedReportCheckbox: false,
+    genotypeCheckbox: false,
+    reviewCheckbox: false,
+    computeCheckbox: false,
     sentCheckbox: false,
     publicKey: "",
     createdAt: "",
@@ -175,6 +210,11 @@ export default {
     serviceDescription: "",
     serviceImage: "",
     cancelledOrderDialog: false,
+    showRejectDialog: false,
+    showResultDialog: false,
+    genomeFile: "",
+    reportFile: ""
+
   }),
   async mounted(){
     try {
@@ -203,50 +243,57 @@ export default {
   methods: {
     async setCheckboxByDnaStatus(){
         if(this.specimenStatus == "Rejected") {
-            return
+            this.showRejectDialog = true
+            this.receivedCheckbox = true
         }
 
         if(this.specimenStatus == "Arrived") {
             this.receivedCheckbox = true
         }
 
-        if(this.specimenStatus == "Extracted") {
+        if(this.specimenStatus == "QualityControlled") {
             this.receivedCheckbox = true
             this.qualityControl = true
         }
 
-        if(this.specimenStatus == "Computed") {
+        if(this.specimenStatus == "GenotypedSequenced") {
             this.receivedCheckbox = true
             this.qualityControl = true
-            this.wetworkCheckbox = true
-        }
-
-        if(this.specimenStatus == "Genotyped") {
-            this.receivedCheckbox = true
-            this.qualityControl = true
-            this.wetworkCheckbox = true
-            this.uploadedGenomeCheckbox = true
+            this.genotypeCheckbox = true
         }
 
         if(this.specimenStatus == "Reviewed") {
             this.receivedCheckbox = true
             this.qualityControl = true
-            this.wetworkCheckbox = true
-            this.uploadedReportCheckbox = true
+            this.genotypeCheckbox = true
+            this.reviewCheckbox = true
         }
 
-        if(this.specimenStatus == "Success") {
+        if(this.specimenStatus == "Computed") {
             this.receivedCheckbox = true
-            this.wetworkCheckbox = true
-            this.uploadedGenomeCheckbox = true
-            this.uploadedReportCheckbox = true
+            this.qualityControl = true
+            this.genotypeCheckbox = true
+            this.reviewCheckbox = true
+            this.computeCheckbox = true
+        }
+
+
+        if(this.specimenStatus == "ResultReady") {
+            this.receivedCheckbox = true
+            this.qualityControl = true
+            this.genotypeCheckbox = true
+            this.reviewCheckbox = true
+            this.computeCheckbox = true
             this.sentCheckbox = true
-            this.isOrderProcessed = true
+            this.showResultDialog = true
         }
     },
-    async submitTestResult(){
+    async submitTestResult(files){
       try {
         console.log('Submitting test result!')
+        console.log(files)
+        this.genomeFile = files.genome.value[0].fileName
+        
         this.sentCheckbox = true
       } catch (err) {
         console.log(err)
@@ -260,6 +307,10 @@ export default {
     },
   },
   computed: {
+    ...mapState ({
+        genome: (state) => state.testResult.genome,
+        report: (state) => state.testResult.report
+    }),
     ...mapGetters({
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
@@ -273,11 +324,17 @@ export default {
     showQualityControlDialog(){
         return this.receivedCheckbox && !this.qualityControl
     },
-    showWetworkDialog(){
-        return this.qualityControl && !this.wetworkCheckbox
+    showGenotypeDialog(){
+        return this.qualityControl && !this.genotypeCheckbox
     },
-    showGenomeReportDialog(){
-        return this.wetworkCheckbox
+    showReviewDialog(){
+        return this.genotypeCheckbox && !this.reviewCheckbox
+    },
+    showComputeDialog() {
+        return this.reviewCheckbox && !this.computeCheckbox 
+    },
+    showGenomeReportDialog() {
+        return this.computeCheckbox && !this.sentCheckbox
     },
     _icon() {
       return this.serviceImage && (this.serviceImage.startsWith('mdi') || this.serviceImage.startsWith('$'))
