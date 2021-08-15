@@ -110,7 +110,7 @@
                     :specimen-number="specimenNumber"
                     @specimenReceived="receivedCheckbox = true" />
                 <QualityControlSpecimen
-                    v-if="showQualityControlDialog"
+                    v-if="showQualityControlDialog && !isStatusRejected"
                     :specimen-number="specimenNumber"
                     @qualityControlPassed="qualityControl = true" 
                     @specimentRejected="isStatusRejected = true"/>
@@ -196,17 +196,14 @@ export default {
       this.rejectMessage = order.dna_sample_message
       this.setCheckboxByDnaStatus()
       this.checkStatus(this.specimenStatus)
-      console.log(order.status, '<= order status')//deleted soon
-      console.log(this.specimenStatus, '<= specimen status')//deleted soon
-      console.log(order, '<= order')//deleted soon
     } catch (err) {
       console.log(err)
     }
   },
   methods: {
     async setCheckboxByDnaStatus(){
-        console.log(this.specimenStatus, '<= specimen status / dna status')
-        console.log(this.isStatusRejected, '<= IS FAILED')
+        // console.log(this.specimenStatus, '<= specimen status / dna status')
+        // console.log(this.isStatusRejected, '<= IS FAILED')
         if(this.specimenStatus == "Rejected") {
             return
         }
@@ -264,23 +261,15 @@ export default {
         return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
     },
     checkStatus(status) {
-        console.log('masuk check status')
-        console.log(status)
+        // console.log('masuk check status')
+        // console.log(status)
         console.log(this.isStatusRejected, 'sebelum kondisi')
         if (status == "Failed") {
             this.isStatusRejected = true
         } else {
             this.isStatusRejected = false
         }
-        console.log(this.isStatusRejected, 'setelah kondisi')
     },
-    // rejectSpecimenMessage(data) {
-    //     console.log(data, '<= data')
-    //     console.log(data.title, '<= title')
-    //     console.log(data.description, '<= description') gimana caranya kalo udah keupdate messagenya langsung keupdate juga page nya
-    //     // this.rejectMessage.title = data.title
-    //     // this.rejectMessage.description = data.description
-    // },
   },
   computed: {
     ...mapGetters({

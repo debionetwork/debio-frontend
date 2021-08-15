@@ -38,30 +38,22 @@ export default {
     rejectMessage: Object,
   },
   data: () => ({
-    // messageTitle: "",
-    // messageDescription: "",
+    messageTitle: "",
+    messageDescription: "",
   }),
   mounted(){
-    // this.getMessageDetail()
+    this.getMessageDetail()
   },
   methods: {
-    // getMessageDetail() {
-    //   console.log('masuk ke mounted')
-    //   console.log(this.rejectMessage)
-    //   this.messageTitle = this.rejectMessage.title
-    //   this.messageDescription = this.rejectMessage.description
-    //   console.log(this.messageTitle, 'titile msg')
-    //   console.log(this.messageDescription, 'description msg')
-    // },
-  },
-  computed: {
-    messageTitle() {
-      return this.rejectMessage.title 
+    getMessageDetail() {
+      console.log('masuk ke mounted')
+      console.log(this.rejectMessage)
+      this.messageTitle = this.rejectMessage.title
+      this.messageDescription = this.rejectMessage.description
+      console.log(this.messageTitle, 'titile msg')
+      console.log(this.messageDescription, 'description msg')
     },
-    messageDescription() {
-      return this.rejectMessage.messageDescription
-    }
-  }
+  },
 }
 </script>
 
