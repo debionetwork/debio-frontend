@@ -18,10 +18,10 @@
             </template>
             <template v-slot:actions>
                 <v-col col="12" md="6">
-                    <v-btn large width="100%" :loading="isProcessing" @click="processDnaSample" color="primary">Yes</v-btn>
+                  <Button @click="processDnaSample" :loading="isProcessing" elevation="2" dark>Yes</Button>
                 </v-col>
                 <v-col col="12" md="6">
-                    <v-btn large width="100%" :disabled="isProcessing" @click="genotypeDialog = false" color="purple" dark>No</v-btn>
+                  <Button @click="genotypeDialog = false" :disabled="isProcessing" elevation="2" color="purple" dark>No</Button>
                 </v-col>
             </template>
         </Dialog>
@@ -43,6 +43,7 @@
 import { mapGetters } from "vuex"
 import Dialog from "@/components/Dialog"
 import DialogAlert from "@/components/Dialog/DialogAlert"
+import Button from '@/components/Button'
 import { processDnaSample } from "@/lib/polkadotProvider/command/geneticTesting"
 
 export default {
@@ -50,6 +51,7 @@ export default {
   components: {
     Dialog,
     DialogAlert,
+    Button,
   },
   props: {
     specimenNumber: String,

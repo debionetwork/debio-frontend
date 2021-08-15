@@ -164,6 +164,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { rejectDnaSample, processDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
+import { queryDnaSamples } from '@/lib/polkadotProvider/query/geneticTesting'
 import Dialog from '@/components/Dialog'
 import DialogAlert from '@/components/Dialog/DialogAlert'
 import Button from '@/components/Button'
@@ -195,6 +196,18 @@ export default {
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
     }),
+  },
+  async mounted() {
+    try {
+      const dnaSample = await queryDnaSamples(this.api, this.specimenNumber)
+      if (dnaSample) {
+        console.log('dnaSample', dnaSample)
+        this.rejectionTitle = dnaSample.rejected_title
+        this.rejectionDescription = dnaSample.rejected_description
+      }
+    } catch (err) {
+      console.log(err)
+    }
   },
   methods:{
     closeQcDialog(){
