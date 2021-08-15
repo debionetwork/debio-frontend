@@ -1,28 +1,40 @@
+<style lang="scss" scoped>
+.on-hover {
+  cursor: pointer;
+}
+.image-placeholder{
+  cursor: pointer;
+  border: 1px solid lightgrey;
+}
+</style>
+
 <template>
   <div>
     <v-container>
       <v-row>
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
-            <v-container
-                class="d-flex flex-row-reverse"
-            >
-                <v-btn
-                  color="light-blue"
-                  class="mb-5 white--text"
-                  @click="deleteService"
-                  :disabled="isLoading"
-                  :loading="isDeleteLoading"
-                >
-                    <v-icon 
-                      inline
-                      color="white"
-                      :size="20"
-                    >mdi-delete</v-icon>
-                    Delete
-                </v-btn>
-            </v-container>
             <v-card class="dg-card" elevation="0" outlined>
+              <v-form ref="addServiceForm">
                 <v-card-text class="px-8 pb-8 pt-10">              
+                  <div class="mt-5 mb-12 justify-space-evenly" align="center">
+                      <v-avatar
+                        size="125"
+                        @click="selectPicture"
+                        rounded
+                        class="image-placeholder"
+                      >
+                        <v-img v-if="!imageUrl" src="@/assets/add-image-placeholder.png" alt="image"></v-img>
+                        <v-img v-else :src="imageUrl" alt="image"></v-img>
+                        <v-file-input 
+                          style="display: none"
+                          hide-input
+                          prepend-icon="mdi-camera"
+                          accept="image/*" 
+                          ref="fileInput"
+                          @change="imageUploadEventListener" />
+                      </v-avatar>
+
+                  </div>
                     <v-text-field
                       dense
                       label="Service Name"
@@ -31,39 +43,100 @@
                       v-model="name"
                       :rules="[val => !!val || 'Name is Required']"
                     ></v-text-field>
-                    
-                    <v-text-field
-                      dense
-                      label="Price"
-                      placeholder="Price"
-                      outlined
-                      v-model="price"
-                      :rules="[val => !!val || 'Price is Required']"
-                    ></v-text-field>
+
+                    <div class="d-flex">
+                      <v-row>
+                        <v-col>
+                          <v-select
+                          label="Currency"
+                          outlined
+                          dense
+                          max="30"
+                          v-model="currencyType"
+                          :items="currencyList"
+                          :rules="[val => !!val || 'Currency Type is Required']"
+                          ></v-select>
+                        </v-col>
+                        <v-col>
+                          <v-text-field
+                            dense
+                            label="Price"
+                            placeholder="Price"
+                            outlined
+                            v-model="price"
+                            :rules="[val => !!val || 'Price is Required']"
+                          ></v-text-field>
+                        </v-col>
+                        <v-col>
+                          <v-select
+                          label="QC Currency"
+                          outlined
+                          dense
+                          v-model="currencyType"
+                          :items="currencyList"
+                          :rules="[val => !!val || 'QC Currency Type is Required']"
+                          ></v-select>
+                        </v-col>
+                        <v-col>
+                          <v-text-field
+                            dense
+                            label="QC Price"
+                            placeholder="QC Price"
+                            outlined
+                            v-model="qcPrice"
+                            :rules="[val => !!val || 'QC Price is Required']"
+                          ></v-text-field>
+                        </v-col>
+                      </v-row>
+                    </div>
 
                     <v-text-field
                       dense
-                      label="Description"
-                      placeholder="Description"
+                      label="Short Description"
+                      placeholder="Short Description"
                       outlined
                       v-model="description"
                       :rules="[val => !!val || 'Description is Required']"
                     ></v-text-field>
                     
+                    <v-row >
+                      <v-col cols="8">
+                        <v-text-field
+                          dense
+                          label="Expected Duration"
+                          placeholder="Expected Duration"
+                          max="30"
+                          outlined
+                          v-model="expectedDuration"
+                          :rules="[val => !!val || 'Expected duration is Required']"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="4">
+                        <v-select
+                          outlined
+                          dense
+                          v-model="selectExpectedDuration"
+                          :items="listExpectedDuration"
+                          :rules="[val => !!val || 'Expected duration is Required']"
+                        ></v-select>
+                      </v-col>
+                    </v-row>
+
+
                     <v-textarea
                       label="Long Description"
                       placeholder="Long Description"
                       outlined
                       v-model="longDescription"
                     ></v-textarea>
-                        
+
                     <v-file-input
                       dense
-                      label="Image"
-                      placeholder="Image"
-                      prepend-icon="mdi-image"
+                      label="Test Result Sample"
+                      placeholder="Test Result Sample"
+                      prepend-icon="mdi-file-document"
                       outlined
-                      v-model="files"
+                      v-model="testResultSampleFile"
                       @change="fileUploadEventListener"
                     ></v-file-input>
 
@@ -71,11 +144,12 @@
                       color="primary"
                       block
                       large
-                      :disabled="isDeleteLoading || isUploading"
+                      :disabled="isUploading"
                       :loading="isLoading"
                       @click="updateService"
                     >Submit</v-btn>
                 </v-card-text>
+              </v-form>
             </v-card>
         </v-col>
       </v-row>
@@ -84,48 +158,58 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex"
+import { mapGetters } from 'vuex'
 import { upload } from "@/lib/ipfs"
-import { updateService, deleteService } from "@/lib/polkadotProvider/command/services"
+import { updateService } from '@/lib/polkadotProvider/command/services'
 
 export default {
-  name: 'LabAddServices',
+  name: 'EditLabServices',
   data: () => ({
-    id: "",
     name: "",
     price: "",
-    qcPrice: '',
+    qcPrice: "",
     description: "",
     longDescription: "",
     imageUrl: "",
+    testResultSampleUrl: "",
     files: [],
-    testResultSampleFile: [],
+    testResultSampleFile:[],
+    sampleFiles:[],
     isLoading: false,
     isUploading: false,
-    isDeleteLoading: false,
-    listPrice: ['DAI', 'Ethereum'],
-    selecPrice: '',
-    selecQCprice: '',
+    currencyList: ['DAI', 'Ethereum'],
+    currencyType: "",
     listExpectedDuration: ['WorkingDays', 'Hours', 'Days'],
-    selecExpectedDuration: '',
-    expectedDuration: ''
+    selectExpectedDuration: "",
+    expectedDuration: "",
   }),
   mounted(){
     const item = this.$route.params.item
     this.id = item.id
     this.name = item.info.name
-    this.price = item.info.price
-    this.qcPrice = item.info.qc_price
+    this.price = item.info.prices_by_currency[0].price_components[0].value
+    this.qcPrice = item.info.prices_by_currency[0].additional_prices[0].value
+    this.currencyType = item.info.prices_by_currency[0].currency.toUpperCase()
     this.description = item.info.description
     this.longDescription = item.info.long_description
     this.imageUrl = item.info.image
-    this.expectedDuration = item.info.expected_duration
+    this.testResultSampleUrl = item.info.test_result_sample
+    this.expectedDuration = item.info.expected_duration.duration
+    this.selectExpectedDuration = item.info.expected_duration.duration_type
     
     if(this.imageUrl){
       fetch(this.imageUrl)
         .then(res => res.blob()) // Gets the response and returns it as a blob
         .then(blob => {
           this.files.push(new File([blob], this.imageUrl.substring(21)))
+      });
+    }
+    
+    if(this.testResultSampleUrl){
+      fetch(this.testResultSampleUrl)
+        .then(res => res.blob()) // Gets the response and returns it as a blob
+        .then(blob => {
+          this.testResultSampleFile = new File([blob], this.testResultSampleUrl.substring(21))
       });
     }
   },
@@ -138,6 +222,9 @@ export default {
   methods: {
     async updateService() {
       if(this.isLoading) return // If function already running return.
+      if (!this.$refs.addServiceForm.validate()) {
+        return
+      }
       this.isLoading = true
       await updateService(
         this.api,
@@ -145,11 +232,32 @@ export default {
         this.id,
         {
           name: this.name,
-          price: this.price,
-          image: this.imageUrl,
-          category: 'genetics',
+          prices_by_currency: [
+            {
+              currency: this.currencyType,
+              price_components: [
+                {
+                  component: "component_1",
+                  value: this.price
+                }
+              ],
+              additional_prices: [
+                {
+                  component: "qc_component",
+                  value: this.qcPrice
+                }
+              ],
+            },
+          ],
+          expected_duration: { 
+            duration: this.expectedDuration, 
+            duration_type: this.selectExpectedDuration
+          },
+          category: "Genetic", // TODO: Change later, field doesn't exist on UI design
           description: this.description,
-          long_description: this.longDescription //make data entry base on service function on add service.js
+          test_result_sample: this.testResultSampleUrl,
+          long_description: this.longDescription,
+          image: this.imageUrl,
         },
         () => {
           this.$router.push('/lab/services')
@@ -157,23 +265,11 @@ export default {
         }
       )
     },
-    async deleteService() {
-      if(this.isDeleteLoading) return // If function already running return.
-      this.isDeleteLoading = true
-      await deleteService(
-        this.api,
-        this.pair,
-        this.id,
-        () => {
-          this.$router.push('/lab/services')
-          this.isDeleteLoading = false
-        }
-      )
-    },
-    fileUploadEventListener(file) {
+    imageUploadEventListener(file) {
+      this.isUploading = true
+      this.isLoading = true
+      this.imageUrl = ""
       if (file) {
-        this.isUploading = true
-        this.isLoading = true
         if (file.name.lastIndexOf('.') <= 0) {
           return
         }
@@ -188,22 +284,40 @@ export default {
             fileType: file.type,
             fileName: file.name,
           })
-          context.imageUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server...
-          this.isUploading = false
-          this.isLoading = false
+          context.imageUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server... (convert img to file path)
+          context.isUploading = false
+          context.isLoading = false
         })
       }
-      else {
-        this.files = []
-        this.imageUrl = ''
+    },
+    fileUploadEventListener(file) {
+      this.isUploading = true
+      this.isLoading = true
+      this.testResultSampleUrl = ""
+      if (file) {
+        if (file.name.lastIndexOf('.') <= 0) {
+          return
+        }
+        const fr = new FileReader()
+        fr.readAsArrayBuffer(file)
+
+        const context = this
+        fr.addEventListener('load', async () => {
+          // Upload
+          const uploaded = await upload({
+            fileChunk: fr.result,
+            fileType: file.type,
+            fileName: file.name,
+          })
+          context.testResultSampleUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server... (convert img to file path)
+          context.isUploading = false
+          context.isLoading = false
+        })
       }
+    },
+    selectPicture() {
+      this.$refs.fileInput.$refs.input.click()
     },
   },
 }
 </script>
-
-<style lang="scss" scoped>
-.on-hover {
-  cursor: pointer;
-}
-</style>

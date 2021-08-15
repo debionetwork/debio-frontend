@@ -1,3 +1,13 @@
+<style lang="scss" scoped>
+.on-hover {
+  cursor: pointer;
+}
+.image-placeholder{
+  cursor: pointer;
+  border: 1px solid lightgrey;
+}
+</style>
+
 <template>
   <div>
     <v-container>
@@ -7,43 +17,22 @@
               <v-form ref="addServiceForm">
                 <v-card-text class="px-8 pb-8 pt-10">              
                   <div class="mt-5 mb-12 justify-space-evenly" align="center">
-                    <!-- <v-btn
-                      rounded
-                      depresed
-                      icon
-                      @click="selectPincture"
-                      
-                    > -->
                       <v-avatar
-                        color="grey"
                         size="125"
-                        @click="selectPincture"
+                        @click="selectPicture"
                         rounded
-
+                        class="image-placeholder"
                       >
-                      <!-- <v-btn></v-btn> -->
-                      <v-img :src="getImgLink()" alt="image"></v-img>
-                        <input 
-                          type="file" 
-                          style="display: none" 
+                        <v-img v-if="!imageUrl" src="@/assets/add-image-placeholder.png" alt="image"></v-img>
+                        <v-img v-else :src="imageUrl" alt="image"></v-img>
+                        <v-file-input 
+                          style="display: none"
+                          hide-input
+                          prepend-icon="mdi-camera"
                           accept="image/*" 
                           ref="fileInput"
-                          
-                          @change="fileUploadEventListener">
-                        <!-- <v-file-input
-                          style="display: none"
-                          dense
-                          label="Image"
-                          placeholder="Image"
-                          prepend-inner-icon="mdi-image"
-                          outlined
-                          hide-input
-                          v-model="files"
-                          @change="fileUploadEventListener"
-                          ref="fileInput"
-                        ></v-file-input> -->
+                          @change="imageUploadEventListener" />
                       </v-avatar>
-                    <!-- </v-btn> -->
 
                   </div>
                     <v-text-field
@@ -55,55 +44,49 @@
                       :rules="[val => !!val || 'Name is Required']"
                     ></v-text-field>
 
-                    <div class="d-flex justify-space-evenly align-center">
-                      <v-row align="center">
-                        <div class="d-flex justify-space-evenly align-center mr-3">
-                          <v-col cols="12" sm="5">
-                            <v-select
+                    <div class="d-flex">
+                      <v-row>
+                        <v-col>
+                          <v-select
+                          label="Currency"
+                          outlined
+                          dense
+                          max="30"
+                          v-model="currencyType"
+                          :items="currencyList"
+                          :rules="[val => !!val || 'Currency Type is Required']"
+                          ></v-select>
+                        </v-col>
+                        <v-col>
+                          <v-text-field
+                            dense
                             label="Price"
+                            placeholder="Price"
                             outlined
-                            dense
-                            max="30"
-                            v-model="selecPrice"
-                            :items="listPrice"
+                            v-model="price"
                             :rules="[val => !!val || 'Price is Required']"
-                            ></v-select>
-                          </v-col>
-                          <v-col cols="12" sm="7">
-                            <v-text-field
-                              dense
-                              placeholder="Price"
-                              max="30"
-                              outlined
-                              v-model="price"
-                              :rules="[val => !!val || 'Price is Required']"
-                            ></v-text-field>
-                          </v-col>
-                        </div>
-                      </v-row>
-                      <v-row align="center">
-                        <div class="d-flex justify-space-evenly align-center ml-3">
-                          <v-col cols="12" sm="5">
-                            <v-select
-                            label="QC Price"
-                            outlined
+                          ></v-text-field>
+                        </v-col>
+                        <v-col>
+                          <v-select
+                          label="QC Currency"
+                          outlined
+                          dense
+                          v-model="currencyType"
+                          :items="currencyList"
+                          :rules="[val => !!val || 'QC Currency Type is Required']"
+                          ></v-select>
+                        </v-col>
+                        <v-col>
+                          <v-text-field
                             dense
-                            v-model="selecQCprice"
-                            :items="listPrice"
+                            label="QC Price"
+                            placeholder="QC Price"
+                            outlined
+                            v-model="qcPrice"
                             :rules="[val => !!val || 'QC Price is Required']"
-                            ></v-select>
-                          </v-col>
-                          <v-col cols="12" sm="7">
-                            <v-text-field
-                              dense
-                              placeholder="QC Price"
-                              max="30"
-                              outlined
-                              v-model="qcPrice"
-                              :rules="[val => !!val || 'QC Price is Required']"
-                            ></v-text-field>
-                          </v-col>
-                        </div>
+                          ></v-text-field>
+                        </v-col>
                       </v-row>
                     </div>
 
@@ -116,30 +99,28 @@
                       :rules="[val => !!val || 'Description is Required']"
                     ></v-text-field>
                     
-                    <div class="d-flex justify-space-evenly align-center">
-                      <v-row align="center">
-                        <v-col cols='12' sm="8">
-                          <v-text-field
-                              dense
-                              label="Expected Duration"
-                              placeholder="Expected Duration"
-                              max="30"
-                              outlined
-                              v-model="expectedDuration"
-                              :rules="[val => !!val || 'Expected duration is Required']"
-                            ></v-text-field>
-                        </v-col>
-                        <v-col cosl="12" sm="4">
-                          <v-select
-                            outlined
-                            dense
-                            v-model="selecExpectedDuration"
-                            :items="listExpectedDuration"
-                            :rules="[val => !!val || 'Expected duration is Required']"
-                          ></v-select>
-                        </v-col>
-                      </v-row>
-                    </div>
+                    <v-row >
+                      <v-col cols="8">
+                        <v-text-field
+                          dense
+                          label="Expected Duration"
+                          placeholder="Expected Duration"
+                          max="30"
+                          outlined
+                          v-model="expectedDuration"
+                          :rules="[val => !!val || 'Expected duration is Required']"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="4">
+                        <v-select
+                          outlined
+                          dense
+                          v-model="selectExpectedDuration"
+                          :items="listExpectedDuration"
+                          :rules="[val => !!val || 'Expected duration is Required']"
+                        ></v-select>
+                      </v-col>
+                    </v-row>
 
 
                     <v-textarea
@@ -148,38 +129,14 @@
                       outlined
                       v-model="longDescription"
                     ></v-textarea>
-                    
-                    <div class="d-flex justify-space-evenly align-center">
-                      <v-row align="center">
-                        <v-col cols='12' sm="8">
-                          <v-text-field
-                              dense
-                              label="Test Result Sample"
-                              placeholder="Test Result Sample"
-                              outlined
-                              v-model="testResultSampleFile"
-                            ></v-text-field>
-                        </v-col>
-                        <v-col cosl="12" sm="4">
-                          <v-btn 
-                            top
-                            block
-                            depressed
-                            small
-                            >
-                            Choose File
-                          </v-btn>
-                        </v-col>
-                      </v-row>
-                    </div>
 
                     <v-file-input
                       dense
-                      label="Image"
-                      placeholder="Image"
-                      prepend-icon="mdi-image"
+                      label="Test Result Sample"
+                      placeholder="Test Result Sample"
+                      prepend-icon="mdi-file-document"
                       outlined
-                      v-model="files"
+                      v-model="testResultSampleFile"
                       @change="fileUploadEventListener"
                     ></v-file-input>
 
@@ -214,18 +171,16 @@ export default {
     description: '',
     longDescription: '',
     imageUrl: "",
-    // imageUrl: "https://cdn.vuetifyjs.com/images/profiles/marcus.jpg",
-    // imageStatus: false, //
+    testResultSampleUrl: "",
     files: [],
-    testResultSampleFile:[],//test result sample file
-    sampleFiles:[],// test result sample file (maybe)
+    testResultSampleFile:[],
+    sampleFiles:[],
     isLoading: false,
     isUploading: false,
-    listPrice: ['DAI', 'Ethereum'],
-    selecPrice: '',
-    selecQCprice: '',
+    currencyList: ['DAI', 'Ethereum'],
+    currencyType: 'DAI',
     listExpectedDuration: ['WorkingDays', 'Hours', 'Days'],
-    selecExpectedDuration:'',
+    selectExpectedDuration: 'WorkingDays',
     expectedDuration: '',
   }),
   computed: {
@@ -233,9 +188,6 @@ export default {
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
     }),
-    loadAvatar() {
-      return this.getImgLink()
-    }
   },
   methods: {
     async createService() {
@@ -249,13 +201,32 @@ export default {
         this.pair,
         {
           name: this.name,
-          // price: this.price,
-          price: { currency: this.selecPrice, total_price: this.price},
-          qc_price: { currency: this.selecQCprice, total_price: this.qcPrice},
-          image: this.imageUrl,
+          prices_by_currency: [
+            {
+              currency: this.currencyType,
+              price_components: [
+                {
+                  component: "component_1",
+                  value: this.price
+                }
+              ],
+              additional_prices: [
+                {
+                  component: "qc_component",
+                  value: this.qcPrice
+                }
+              ],
+            },
+          ],
+          expected_duration: { 
+            duration: this.expectedDuration, 
+            duration_type: this.selectExpectedDuration
+          },
+          category: "Genetic", // TODO: Change later, field doesn't exist on UI design
           description: this.description,
+          test_result_sample: this.testResultSampleUrl,
           long_description: this.longDescription,
-          expected_duration: { expected_duration: this.expectedDuration, type: this.selecExpectedDuration}
+          image: this.imageUrl,
         },
         () => {
           this.$router.push('/lab/services')
@@ -263,13 +234,10 @@ export default {
         }
       )
     },
-    fileUploadEventListener(file) {
-      let input  = file.target.files
-      file = input[0]
-      console.log(this.imageUrl, '<======= imageUrl sebelum')
-      console.log(file, ' <===== file')
+    imageUploadEventListener(file) {
       this.isUploading = true
       this.isLoading = true
+      this.imageUrl = ""
       if (file) {
         if (file.name.lastIndexOf('.') <= 0) {
           return
@@ -286,53 +254,39 @@ export default {
             fileName: file.name,
           })
           context.imageUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server... (convert img to file path)
-          this.imageUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server... (convert img to file path)
           context.isUploading = false
           context.isLoading = false
         })
       }
-      else {
-        this.files = []
-        this.imageUrl = ''
-      }
-      console.log(this.imageUrl, '<===== imageUrl sesudah')
     },
-    selectPincture() {
-      console.log('pencet')
-      console.log(this.imageUrl)
-      this.$refs.fileInput.click()
-    },
-    getImgLink() {
-      console.log('masuk ke getImgLink');
-      console.log(this.imageUrl)
-      let img = this.imageUrl
-      return img
-    },
-    testingInput() {
-      const input = {}
-      const price = {
-        currency: this.selecPrice,
-        total_price: this.price
-      }
-      const qcPrice = {
-        currency: this.selecQCprice,
-        total_price: this.qcPrice
-      }
-      input.name = this.name
-      input.price = price
-      input.qc_price = qcPrice
-      input.description = this.description
-      input.long_description = this.longDescription
-      input.expected_duration = this.expectedDuration + this.selecExpectedDuration
+    fileUploadEventListener(file) {
+      this.isUploading = true
+      this.isLoading = true
+      this.testResultSampleUrl = ""
+      if (file) {
+        if (file.name.lastIndexOf('.') <= 0) {
+          return
+        }
+        const fr = new FileReader()
+        fr.readAsArrayBuffer(file)
 
-      console.log(input, 'input')
-    }
+        const context = this
+        fr.addEventListener('load', async () => {
+          // Upload
+          const uploaded = await upload({
+            fileChunk: fr.result,
+            fileType: file.type,
+            fileName: file.name,
+          })
+          context.testResultSampleUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server... (convert img to file path)
+          context.isUploading = false
+          context.isLoading = false
+        })
+      }
+    },
+    selectPicture() {
+      this.$refs.fileInput.$refs.input.click()
+    },
   },
 }
 </script>
-
-<style lang="scss" scoped>
-.on-hover {
-  cursor: pointer;
-}
-</style>
