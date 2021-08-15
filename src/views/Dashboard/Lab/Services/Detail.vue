@@ -184,6 +184,9 @@ export default {
     listExpectedDuration: ['WorkingDays', 'Hours', 'Days'],
     selectExpectedDuration: "",
     expectedDuration: "",
+    rules: [
+      value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
+    ],
   }),
   mounted(){
     const item = this.$route.params.item
@@ -293,6 +296,9 @@ export default {
       }
     },
     fileUploadEventListener(file) {
+      if (!file || file.size >= 2000000) {
+        return
+      }
       this.isUploading = true
       this.isLoading = true
       this.testResultSampleUrl = ""
