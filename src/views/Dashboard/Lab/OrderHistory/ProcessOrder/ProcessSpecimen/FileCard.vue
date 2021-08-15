@@ -9,10 +9,10 @@
             <v-icon>mdi-eye</v-icon>
           </v-btn>
         </a>
-        <v-btn @click="onEditClick" icon text>
+        <v-btn v-if="!viewOnly" @click="onEditClick" icon text>
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
-        <v-btn @click="onDeleteClick" icon text>
+        <v-btn v-if="!viewOnly" @click="onDeleteClick" icon text>
           <v-icon>mdi-delete</v-icon>
         </v-btn>
       </div>
@@ -25,15 +25,15 @@ export default {
   props: {
     filename: String,
     ipfsUrl: String,
-    hideDelete: Boolean
+    hideDelete: Boolean,
+    viewOnly: Boolean,
   },
   methods: {
     onDeleteClick() {
       this.$emit('delete', this.file)
     },
     onEditClick() {
-      console.log("masuk edit")
-      this.$emit("onEditClick")
+      this.$emit("edit")
     },
   }
 }

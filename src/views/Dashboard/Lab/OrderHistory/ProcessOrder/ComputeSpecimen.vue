@@ -11,18 +11,18 @@
                 <div></div>
             </template>
             <template v-slot:body>
-                <div class="d-flex justify-center pb-5 pt-5">
-                    <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
-                </div>
-                <div align="center" class="pb-5">Are you sure you want to complete computation process?</div>
+              <div class="d-flex justify-center pb-5 pt-5">
+                <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
+              </div>
+              <div align="center" class="pb-5">Are you sure you want to complete computation process?</div>
             </template>
             <template v-slot:actions>
-                <v-col col="12" md="6">
-                    <v-btn large width="100%" :loading="isProcessing" @click="processDnaSample" color="primary">Yes</v-btn>
-                </v-col>
-                <v-col col="12" md="6">
-                    <v-btn large width="100%" :disabled="isProcessing" @click="computeDialog = false" color="purple" dark>No</v-btn>
-                </v-col>
+              <v-col col="12" md="6">
+                <Button @click="processDnaSample" :loading="isProcessing" elevation="2" dark>Yes</Button>
+              </v-col>
+              <v-col col="12" md="6">
+                <Button @click="computeDialog = false" :disabled="isProcessing" elevation="2" color="purple" dark>No</Button>
+              </v-col>
             </template>
         </Dialog>
     </div>
@@ -32,11 +32,13 @@
 import { mapGetters } from "vuex"
 import Dialog from "@/components/Dialog"
 import { processDnaSample } from "@/lib/polkadotProvider/command/geneticTesting"
+import Button from '@/components/Button'
 
 export default {
   name: "ComputeSpecimen",
   components: {
     Dialog,
+    Button,
   },
   props: {
     specimenNumber: String,
@@ -63,13 +65,11 @@ export default {
         () => {
           this.isProcessing = false
           this.computeDialog = false
+          this.$emit("computedSpecimen")
           this.computeAlertDialog = true
         }
       )
     },
-    closeComputeAlertDialog () {
-      this.$emit("computedSpecimen")
-    }
   },
 }
 </script>
