@@ -31,7 +31,7 @@
               <v-container v-if="image" class="mb-10 mt-5">
                   <img :src="image" class="rounded-xl" min-width="150" height="150" />
               </v-container>
-              <v-form>
+              <v-form ref="form">
                 <v-file-input
                   dense
                   label="Profile Image"
@@ -40,7 +40,8 @@
                   outlined
                   v-model="files"
                   @change="fileUploadEventListener"
-                  :rules="[val => !!val || 'Image is Required']"
+                  :rules="rules"
+                  show-size
                 ></v-file-input>
 
                 <v-text-field
@@ -156,7 +157,8 @@ export default {
     if(this.image){
       const res = await fetch(this.image)
       const blob = await res.blob() // Gets the response and returns it as a blob
-      this.files.push(new File([blob], this.image.substring(21)))
+      const file = new File([blob], this.image.substring(21), {type: "image/jpg"})
+      this.files = file
     }
   },
   data: () => ({
@@ -173,6 +175,11 @@ export default {
     files: [],
     isLoading: false,
     isUploading: false,
+    rules: [
+      file => !!file || 'Image is Required',
+      file => !file || file.type == 'image/jpg' || file.type == 'image/jpeg' || 'Document type should be image/jpg',
+      file => !file || file.size <= 3_097_152 || 'Document size should be less than 3 MB!',
+    ],
   }),
   computed: {
     ...mapGetters({
@@ -197,6 +204,9 @@ export default {
       this.city = selectedCity;
     },
     async updateHospital(){
+      if (!this.$refs.form.validate()) {
+        return
+      }
       try{
         this.isLoading = true
         await updateHospital(
@@ -220,12 +230,16 @@ export default {
       }
     },
     fileUploadEventListener(file) {
-      this.isUploading = true
-      this.isLoading = true
+      if (!this.$refs.form.validate()) {
+        return
+      }
       if (file) {
         if (file.name.lastIndexOf('.') <= 0) {
           return
         }
+        this.isUploading = true
+        this.isLoading = true
+
         const fr = new FileReader()
         fr.readAsArrayBuffer(file)
 

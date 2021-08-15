@@ -106,8 +106,9 @@
                     placeholder="Supporting Document"
                     prepend-icon="mdi-file-document"
                     outlined
-                    v-model="supportingDocuments"
                     @change="fileUploadEventListener"
+                    :rules="supportingDocumentsRules"
+                    show-size
                 ></v-file-input>
                 </v-form>
             </template>
@@ -141,12 +142,15 @@ export default {
     certYear: "",
     certDescription: "",
     certSupportingDocumentsUrl: "",
-    supportingDocuments: [],
     selectMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     certificationDialog: false,
     isLoading: false,
     isUploading: false,
     isEditCertificationDialog: false,
+    supportingDocumentsRules: [
+      file => !file || file.type == 'application/pdf' || 'Document type should be application/pdf',
+      file => !file || file.size <= 10_097_152 || 'Document size should be less than 10 MB!',
+    ],
   }),
   computed: {
     ...mapGetters({
@@ -212,14 +216,6 @@ export default {
       this.certYear = cert.info.year
       this.certDescription = cert.info.description
       this.certSupportingDocumentsUrl = cert.info.supporting_document
-    
-      if(this.certSupportingDocumentsUrl){
-        fetch(this.certSupportingDocumentsUrl)
-          .then(res => res.blob()) // Gets the response and returns it as a blob
-          .then(blob => {
-            this.supportingDocuments.push(new File([blob], this.certSupportingDocumentsUrl.substring(21)))
-        });
-      }
 
       this.certificationDialog = true
       this.isEditCertificationDialog = true
@@ -262,6 +258,10 @@ export default {
       return
     },
     fileUploadEventListener(file) {
+      this.certSupportingDocumentsUrl = ""
+      if (!this.$refs.certificationForm.validate()) {
+        return
+      }
       if (file && file.name) {
         if (file.name.lastIndexOf(".") <= 0) {
           return
@@ -284,10 +284,6 @@ export default {
           context.isUploading = false
           context.isLoading = false
         })
-      }
-      else {
-        this.supportingDocuments = []
-        this.certSupportingDocumentsUrl = ""
       }
     },
   }
