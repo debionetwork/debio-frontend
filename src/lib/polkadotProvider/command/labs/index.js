@@ -1,11 +1,12 @@
 import { queryEntireLabDataById } from '@/lib/polkadotProvider/query/labs'
 import store from '@/store/index'
 
-export async function registerLab(api, pair, data){
-    const result = await api.tx.labs
+export async function registerLab(api, pair, data, callback = () => {}){
+    const unsub = await api.tx.labs
         .registerLab(data)
-        .signAndSend(pair, { nonce: -1 })
-    return result.toHuman()
+        .signAndSend(pair, { nonce: -1 }, async ({ events = [], status }) => {
+            await labCommandCallback(api, pair, { events, status, callback, unsub })
+        })
 }
 
 export async function updateLab(api, pair, data, callback = () => {}){

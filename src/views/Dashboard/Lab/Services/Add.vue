@@ -131,6 +131,8 @@
                     ></v-textarea>
 
                     <v-file-input
+                      :rules="rules"
+                      accept="image/png, image/jpeg, image/bmp"
                       dense
                       label="Test Result Sample"
                       placeholder="Test Result Sample"

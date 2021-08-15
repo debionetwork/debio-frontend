@@ -15,8 +15,13 @@ export async function queryEntireLabDataById(api, labId){
     // If not null continue
     const servicesDetailedList = []
     for(let i = 0; i < res.services.length; i++){
-        let serviceDetail = await queryServicesById(api, res.services[i])
-        servicesDetailedList.push(serviceDetail)
+        try {
+            let serviceDetail = await queryServicesById(api, res.services[i])
+            servicesDetailedList.push(serviceDetail)
+        } catch (err) {
+            console.log('lib/polkadotProvider/query/labs error: ', err)
+            continue
+        }
     }
     res.services = servicesDetailedList
 

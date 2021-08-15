@@ -19,11 +19,11 @@
       </v-app-bar>
       <v-card-text class="pb-0 text-subtitle-1">
         <p>
-        We will give you 12 words that allows you to recover an account
+        We will give you 12 words that allow you to recover your account.
         </p>
 
         <p>
-          <b>You need to carefully save that words. Copy-paste it, screenshot it, write it down, and keep it safe -if you lose it, we won't be able to help you recover it.</b>
+          <b>You need to carefully save those words. Copy-paste it, screenshot it, write it down, and keep it safe -if you lose it, we won't be able to help you recover it.</b>
         </p>
 
         <v-checkbox

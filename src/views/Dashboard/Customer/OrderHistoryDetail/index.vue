@@ -9,214 +9,242 @@
           color="primary"
         ></v-progress-linear>
       </v-row>
-      <v-row v-if="!isLoading && dataLoaded">
-        <v-col cols="12" lg="6" md="6" xl="5">
-          <v-card class="dg-card" elevation="0" outlined>
-            <v-card-text class="px-8">
-              <div class="d-flex justify-space-between">
-                <div class="text-h5">Lab Details</div>
-                <StatusChip :status="order.status" />
-              </div>
-              <div v-if="lab">
-                <div class="text-subtitle-1">
-                  <b>{{ lab.info.name }}</b>
+      <Failed
+        v-if="showFailedComponent"
+        :lab-details="lab"
+        :order-details="order"
+        :service-details="service"
+      />
+      <template v-else>
+        <v-row v-if="!isLoading && dataLoaded">
+          <v-col cols="12" lg="6" md="6" xl="5">
+            <v-card class="dg-card" elevation="0" outlined>
+              <v-card-text class="px-8">
+                <div class="d-flex justify-space-between">
+                  <div class="text-h5">Lab Details</div>
+                  <StatusChip :status="order.status" />
                 </div>
-                <div class="text-body-2">
-                  {{ lab.info.address }}
-                </div>
-                <div class="text-body-2">
-                  {{ lab.info.city }}, {{ lab.info.country }}
-                </div>
-                <div v-if="lab.info.email" class="text-body-2">
-                  Email: {{ lab.info.email }}
-                </div>
-              </div>
-              <div class="my-8"></div>
-              <div class="text-h5">Product Details</div>
-
-              <template>
-                <div class="d-flex align-center fill-height mb-2">
-                  <v-row>
-                    <v-col cols="12" lg="1" md="1" xl="1">
-                      <div class="my-3 ml-0">
-                        <v-icon
-                          v-if="isValidIcon(service.info.image)"
-                          color="#BA8DBB"
-                          :size="48"
-                        >
-                          {{ service.info.image }}
-                        </v-icon>
-                        <v-avatar v-else>
-                          <img :src="getImageLink(service.info.image)" />
-                        </v-avatar>
-                      </div>
-                    </v-col>
-                    <v-col cols="12" lg="9" md="9" xl="9">
-                      <div class="ml-5">
-                        <div class="text-h6">
-                          <b>{{ service.info.name }}</b>
-                        </div>
-                        <div class="text-caption grey--text text--darken-1">
-                          {{ service.info.description }}
-                        </div>
-                      </div>
-                    </v-col>
-                    <v-col cols="12" lg="2" md="2" xl="2">
-                      <div class="align-self-end pb-2">
-                        <span class="text-h7">
-                          {{ priceOrder }}
-                        </span>
-                        <span class="primary--text text-caption">
-                          {{ coinName }}
-                        </span>
-                      </div>
-                    </v-col>
-                  </v-row>
-                </div>
-                <div>
-                  <div><b>Specimen Number:</b></div>
-                  <div class="grey--text text--darken-1">
-                    {{ order.dna_sample_tracking_id | specimenNumber }}
+                <div v-if="lab">
+                  <div class="text-subtitle-1">
+                    <b>{{ lab.info.name }}</b>
+                  </div>
+                  <div class="text-body-2">
+                    {{ lab.info.address }}
+                  </div>
+                  <div class="text-body-2">
+                    {{ lab.info.city }}, {{ lab.info.country }}
+                  </div>
+                  <div v-if="lab.info.email" class="text-body-2">
+                    Email: {{ lab.info.email }}
                   </div>
                 </div>
-              </template>
-            </v-card-text>
-          </v-card>
-          <!-- If order Success -->
-          <div v-if="order.status == ORDER_FULFILLED" class="mt-2">
-            <Button color="green" @click="goToResult" dark>
-              View Result
-            </Button>
-          </div>
-        </v-col>
+                <div class="my-8"></div>
+                <div class="text-h5">Product Details</div>
 
-        <!-- If Order Unpaid -->
-        <v-col
-          cols="12"
-          lg="6"
-          md="6"
-          xl="5"
-          v-if="order.status == ORDER_UNPAID"
-        >
-          <v-card class="dg-card pb-3" elevation="0" outlined>
-            <v-card-title class="px-8">
-              <div class="text-h6">Order</div>
-            </v-card-title>
-            <v-card-text class="px-8">
-              <div class="d-flex justify-space-between">
-                <div class="text-h7">Price</div>
-                <div>
-                  <span class="text-h7">
-                    {{ priceOrder }}
-                  </span>
-                  <span class="primary--text text-caption">
-                    {{ coinName }}
-                  </span>
-                </div>
-              </div>
-              <div class="d-flex justify-space-between">
-                <div class="text-h7">QC Price</div>
-                <div>
-                  <span class="text-h7">
-                    {{ totalQcPrice }}
-                  </span>
-                  <span class="primary--text text-caption">
-                    {{ coinName }}
-                  </span>
-                </div>
-              </div>
-              <div class="d-flex justify-space-between">
-                <div class="text-h6">Total Price</div>
-                <div>
-                  <span class="text-h6">
-                    {{ totalPay }}
-                  </span>
-                  <span class="primary--text text-caption">
-                    {{ coinName }}
-                  </span>
-                </div>
-              </div>
-            </v-card-text>
-            <v-card-actions class="px-8">
-              <v-btn
-                depressed
-                color="primary"
-                large
-                width="100%"
-                @click="openMetamask"
-              >
-                PAY
-              </v-btn>
-            </v-card-actions>
-            <v-card-actions class="px-8">
-              <v-btn
-                depressed
-                color="orange"
-                large
-                width="100%"
-                @click="showDialogCancelOrder"
-              >
-                CANCEL
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-          <DialogConfirmWithPassword
-            :show="confirmDeleteOrder"
-            :title="'Cancel Order Request'"
-            :contentText="'Are you sure you want to cancel this order request?'"
-            :buttonTitle="'Cancel Order'"
-            @toggle="confirmDeleteOrder = $event"
-            @status-confirm="({ status }) => cancelOrderRequest(status)"
-          ></DialogConfirmWithPassword>
-        </v-col>
-        <DialogAlert
-          :show="dialogAlert"
-          :btnText="alertTextBtn"
-          :textAlert="alertTextAlert"
-          :imgPath="alertImgPath"
-          :imgWidth="imgWidth"
-          @toggle="dialogAlert = $event"
-          @close="actionAlert()"
-        ></DialogAlert>
-
-        <DialogReward
-          :show="dialogReward"
-          @toggle="dialogReward = $event"
-          @close="dialogReward = false"
-        ></DialogReward>
-
-        <!-- If order is sending -->
-        <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == ORDER_PAID">
-          <DNASampleSendingInstructions
-            :specimenNumber="order.dna_sample_tracking_id"
-            :lab="lab"
-            :orderId="orderId"
-            :sourcePage="'order-history-detail'"
+                <template>
+                  <div class="d-flex align-center fill-height mb-2">
+                    <v-row>
+                      <v-col cols="12" lg="1" md="1" xl="1">
+                        <div class="my-3 ml-0">
+                          <v-icon
+                            v-if="isValidIcon(service.info.image)"
+                            color="#BA8DBB"
+                            :size="48"
+                          >
+                            {{ service.info.image }}
+                          </v-icon>
+                          <v-avatar v-else>
+                            <img :src="getImageLink(service.info.image)" />
+                          </v-avatar>
+                        </div>
+                      </v-col>
+                      <v-col cols="12" lg="9" md="9" xl="9">
+                        <div class="ml-5">
+                          <div class="text-h6">
+                            <b>{{ service.info.name }}</b>
+                          </div>
+                          <div class="text-caption grey--text text--darken-1">
+                            {{ service.info.description }}
+                          </div>
+                        </div>
+                      </v-col>
+                      <v-col cols="12" lg="2" md="2" xl="2">
+                        <div class="align-self-end pb-2">
+                          <span class="text-h7">
+                            {{ priceOrder }}
+                          </span>
+                          <span class="primary--text text-caption">
+                            {{ coinName }}
+                          </span>
+                        </div>
+                      </v-col>
+                    </v-row>
+                  </div>
+                  <div>
+                    <div><b>Specimen Number:</b></div>
+                    <div class="grey--text text--darken-1">
+                      {{ order.dna_sample_tracking_id | specimenNumber }}
+                    </div>
+                  </div>
+                </template>
+              </v-card-text>
+            </v-card>
+          </v-col>
+            <!-- If order Success -->
+            <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == ORDER_FULFILLED" class="mt-2">
+              <v-card class="dg-card mb-10" elevation="0" outlined>
+                <v-card-title class="px-8 p4">
+                  <div class="text-h6" align="center">Success!</div>
+                </v-card-title>
+                <v-card-text>
+                  <v-row>
+                    <v-col class="px-8">
+                    <h3> Your order has been fulfilled</h3>
+                    </v-col>
+                  </v-row>
+                  <v-row class="justify-center mt-10 align-center">
+                    <v-col cols="12" lg="5" md="5" sm="8" align="center">
+                      <Button color="green" @click="goToResult" dark>
+                        View Result
+                      </Button>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+                <v-card-actions class="px-8 pb-5">
+                  <slot name="button"> </slot>
+                </v-card-actions>
+              </v-card>
+              <RatingBox>
+              </RatingBox>
+          </v-col>
+          <!-- If Order Unpaid -->
+          <v-col
+            cols="12"
+            lg="6"
+            md="6"
+            xl="5"
+            v-if="order.status == ORDER_UNPAID"
           >
-          </DNASampleSendingInstructions>
-        </v-col>
+            <v-card class="dg-card pb-3" elevation="0" outlined>
+              <v-card-title class="px-8">
+                <div class="text-h6">Order</div>
+              </v-card-title>
+              <v-card-text class="px-8">
+                <div class="d-flex justify-space-between">
+                  <div class="text-h7">Price</div>
+                  <div>
+                    <span class="text-h7">
+                      {{ priceOrder }}
+                    </span>
+                    <span class="primary--text text-caption">
+                      {{ coinName }}
+                    </span>
+                  </div>
+                </div>
+                <div class="d-flex justify-space-between">
+                  <div class="text-h7">QC Price</div>
+                  <div>
+                    <span class="text-h7">
+                      {{ totalQcPrice }}
+                    </span>
+                    <span class="primary--text text-caption">
+                      {{ coinName }}
+                    </span>
+                  </div>
+                </div>
+                <div class="d-flex justify-space-between">
+                  <div class="text-h6">Total Price</div>
+                  <div>
+                    <span class="text-h6">
+                      {{ totalPay }}
+                    </span>
+                    <span class="primary--text text-caption">
+                      {{ coinName }}
+                    </span>
+                  </div>
+                </div>
+              </v-card-text>
+              <v-card-actions class="px-8">
+                <v-btn
+                  depressed
+                  color="primary"
+                  large
+                  width="100%"
+                  @click="openMetamask"
+                >
+                  PAY
+                </v-btn>
+              </v-card-actions>
+              <v-card-actions class="px-8">
+                <v-btn
+                  depressed
+                  color="orange"
+                  large
+                  width="100%"
+                  @click="showDialogCancelOrder"
+                >
+                  CANCEL
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+            <DialogConfirmWithPassword
+              :show="confirmDeleteOrder"
+              :title="'Cancel Order Request'"
+              :contentText="'Are you sure you want to cancel this order request?'"
+              :buttonTitle="'Cancel Order'"
+              @toggle="confirmDeleteOrder = $event"
+              @status-confirm="({ status }) => cancelOrderRequest(status)"
+            ></DialogConfirmWithPassword>
+          </v-col>
+          <DialogAlert
+            :show="dialogAlert"
+            :btnText="alertTextBtn"
+            :textAlert="alertTextAlert"
+            :imgPath="alertImgPath"
+            :imgWidth="imgWidth"
+            @toggle="dialogAlert = $event"
+            @close="actionAlert()"
+          ></DialogAlert>
 
-        <!-- If order is received -->
-        <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == RECEIVED">
-          <Refund
-            :order="order"
-            :receivedLog="receivedLog"
-            @refunded="onRefunded"
-          />
-        </v-col>
+          <DialogReward
+            :show="dialogReward"
+            @toggle="dialogReward = $event"
+            @close="dialogReward = false"
+          ></DialogReward>
 
-        <!-- If order is rejected -->
-        <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == REJECTED">
-          <v-card class="dg-card">
-            <v-card-title class="px-8">
-              <div class="text-h6">Rejection Reason</div>
-            </v-card-title>
-            <v-card-text class="px-8">
-              {{ rejectionReason }}
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
+          <!-- If order is sending -->
+          <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == ORDER_PAID">
+            <DNASampleSendingInstructions
+              :specimenNumber="order.dna_sample_tracking_id"
+              :lab="lab"
+              :orderId="orderId"
+              :sourcePage="'order-history-detail'"
+            >
+            </DNASampleSendingInstructions>
+          </v-col>
+
+          <!-- If order is received -->
+          <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == RECEIVED">
+            <Refund
+              :order="order"
+              :receivedLog="receivedLog"
+              @refunded="onRefunded"
+            />
+          </v-col>
+
+          <!-- If order is rejected -->
+          <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == REJECTED">
+            <v-card class="dg-card">
+              <v-card-title class="px-8">
+                <div class="text-h6">Rejection Reason</div>
+              </v-card-title>
+              <v-card-text class="px-8">
+                {{ rejectionReason }}
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </template>
     </v-container>
   </div>
 </template>
@@ -229,7 +257,9 @@ import DialogAlert from "@/components/Dialog/DialogAlert";
 import StatusChip from "@/components/StatusChip";
 import Button from "@/components/Button";
 import Refund from "./Refund";
+import Failed from "./Failed";
 import DialogReward from "@/components/Dialog/DialogReward";
+import RatingBox from "@/components/RatingBox"
 import {
   ORDER_UNPAID,
   ORDER_PAID,
@@ -240,6 +270,7 @@ import {
   REJECTED,
   ORDER_REFUNDED,
   ORDER_FULFILLED,
+  ORDER_FAILED
 } from "@/constants/specimen-status";
 import { getOrdersData } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
@@ -259,7 +290,9 @@ export default {
     StatusChip,
     Button,
     Refund,
+    Failed,
     DialogReward,
+    RatingBox
   },
   data: () => ({
     ORDER_UNPAID,
@@ -271,6 +304,7 @@ export default {
     REJECTED,
     ORDER_REFUNDED,
     ORDER_FULFILLED,
+    ORDER_FAILED,
     isLoading: false,
     lab: null,
     service: null,
@@ -304,6 +338,10 @@ export default {
     dataLoaded() {
       return this.lab && this.service && this.order;
     },
+
+    showFailedComponent() {
+      return !this.isLoading && this.dataLoaded && this.order.status == ORDER_FAILED
+    }
   },
   mounted() {
     this.fetchOrderDetails();
@@ -416,7 +454,7 @@ export default {
         return;
       }
       const balance = await getBalanceETH(this.metamaskWalletAddress);
-      if (balance < 1) {
+      if (balance == 0) {
         this.alertTextBtn = "Close";
         this.alertImgPath = "warning.png";
         this.alertTextAlert = "Your ETH balance is 0.";
@@ -426,15 +464,15 @@ export default {
       }
 
       try {
+        this.isLoading = true;
         await addToken(this.coinName);
         const price = await getPrice(this.totalPay);
-        let txreceipts = await transfer({
+
+        await transfer({
           seller: this.configApp.escrowETHAddress,
           amount: String(price),
           from: this.metamaskWalletAddress,
         });
-        this.isLoading = true;
-        console.log(txreceipts);
       } catch (err) {
         console.log(err);
         this.alertTextBtn = "Close";
@@ -442,6 +480,7 @@ export default {
         this.alertTextAlert = "Payment via Metamask is canceled or rejected.";
         this.dialogAlert = true;
         this.alertType = "cancel_metamask_payment";
+      } finally {
         this.isLoading = false;
       }
     },

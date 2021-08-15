@@ -111,7 +111,7 @@
       :show="sendPaymentDialog"
       :lab="lab"
       :products="products"
-      :totalPrice="totalPrice"
+      :totalPrice="price"
       :qcPrice="qcPrice"
       @toggle="sendPaymentDialog = $event"
       @payment-sent="onPaymentSent"
@@ -119,12 +119,19 @@
     <DialogAlert
       :show="dialogAlert"
       :btnText="alertTextBtn"
+      :titleAlert="alertTitleAlert"
       :textAlert="alertTextAlert"
       :imgPath="alertImgPath"
       :imgWidth="imgWidth"
       @toggle="dialogAlert = $event"
       @close="actionAlert()"
     ></DialogAlert>
+    <WalletBinding
+      :show="showWalletBinding"
+      @toggle="showWalletBinding = $event"
+      @status-wallet="({ status, img }) => connectWalletResult(status, img)"
+    >
+    </WalletBinding>
   </div>
 </template>
 
@@ -134,22 +141,28 @@ import SendPaymentDialog from "./SendPaymentDialog";
 import cityData from "@/assets/json/city.json";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
 import DialogAlert from "@/components/Dialog/DialogAlert";
+import { getBalanceETH } from "@/lib/metamask/wallet.js";
+import WalletBinding from "@/components/WalletBinding";
 
 export default {
   components: {
     SendPaymentDialog,
     DialogAlert,
+    WalletBinding
   },
   data: () => ({
     sendPaymentDialog: false,
     country: "",
     city: "",
     dialogAlert: false,
-    alertTextBtn: "Close",
+    alertTextBtn: "",
     alertImgPath: "warning.png",
+    alertTitleAlert: "",
     alertTextAlert: "",
     imgWidth: "50",
     currency: "",
+    totalPrice: "",
+    showWalletBinding: false
   }),
   computed: {
     ...mapState({
@@ -158,8 +171,9 @@ export default {
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
       configApp: (state) => state.auth.configApp,
+      metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
     }),
-    totalPrice() {
+    price() {
       return this.products
         .reduce(
           (sum, { price }) => (sum += parseInt(price.replaceAll(",", "."))),
@@ -190,9 +204,20 @@ export default {
         this.wallet.address
       );
       if (ethAddress != null && ethAddress != "") {
-        this.sendPaymentDialog = true;
+        const balance = await getBalanceETH(this.metamaskWalletAddress);
+        if (balance > 0) {
+          console.log("balance >>", balance);
+          this.sendPaymentDialog = true;
+        } else {
+          this.alertTitleAlert = "Payment Failed!"
+          this.alertTextAlert = "Your payment failed due to insufficient fund. Please check your wallet balance before making a transaction."
+          this.alertTextBtn= "Continue"
+          this.dialogAlert = true;
+        }
       } else {
-        this.alertTextAlert = "Please do Wallet Binding first.";
+        this.alertTitleAlert = "Payment Failed!"
+        this.alertTextAlert = "You have not connected to any wallet. Please do a wallet binding to continue your transaction."
+        this.alertTextBtn= "Connect to wallet"
         this.dialogAlert = true;
       }
     },
@@ -216,6 +241,7 @@ export default {
           this.currency = this.products[0].currency;
         }
       }
+      this.totalProductPrice()
     },
     getImageLink(val) {
       if (val && val != "") {
@@ -224,8 +250,28 @@ export default {
       return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr";
     },
     actionAlert() {
-      this.dialogAlert = false;
+      if (this.alertTextBtn == "Continue") {
+        this.dialogAlert = false;
+      } else { 
+        this.showWalletBinding = true
+      }
     },
+    connectWalletResult(status, img) {
+      if (status) {
+        this.alertImgPath = img;
+        this.dialogAlert = true;
+      }
+    },
+    totalProductPrice() {
+      let products = this.products[0]
+      let productPrice = 0
+      productPrice = parseFloat(products.price.toString().replaceAll(",", ".")).toFixed(2);
+
+      let productQcPrice = 0
+      productQcPrice = parseFloat(products.additionalPrices.toString().replaceAll(",", ".")).toFixed(2);
+
+      this.totalPrice = (parseFloat(productPrice) + parseFloat(productQcPrice)).toFixed(2)
+    }
   },
 };
 </script>
