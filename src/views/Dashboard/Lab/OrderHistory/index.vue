@@ -24,6 +24,9 @@
                         @input="search = $event"
                      ></SearchBar>
                   </template>
+                  <template v-slot:[`item.dna_sample_tracking_id`]="{ item }">
+                    {{ item.dna_sample_tracking_id | specimenNumber }}
+                  </template>
                   <template v-slot:[`item.actions`]="{ item }">
                      <v-container>
                         <v-btn
