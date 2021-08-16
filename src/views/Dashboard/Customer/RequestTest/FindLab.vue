@@ -152,6 +152,20 @@
               </div>
             </v-card-text>
           </v-card>
+
+          <v-card class="dg-card mt-3" elevation="0">
+            <v-card-text>
+              <div>
+                For demo purposes, available labs are located in
+              </div>
+              <div>
+                <ul>
+                  <li>Indonesia -> Jakarta Raya -> Jakarta Raya</li>
+                  <li>Malaysia -> Johor -> Johor</li>
+                </ul>
+              </div>
+            </v-card-text>
+          </v-card>
         </v-col>
       </v-row>
 

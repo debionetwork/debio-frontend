@@ -6,6 +6,7 @@ import metamask from './metamask'
 import testRequest from './testRequest'
 import substrate from './substrate'
 
+
 Vue.use(Vuex)
 Vue.config.devtools = true
 
@@ -15,7 +16,7 @@ export default new Vuex.Store({
     ethereum,
     metamask,
     testRequest,
-    substrate
+    substrate,
   },
   state: {
   },

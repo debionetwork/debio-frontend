@@ -1,6 +1,6 @@
 <template>
     <div class="mt-5">
-        <v-btn
+        <v-btn v-if="specimenStatus != 'Rejected'"
             color="primary"
             block
             @click="qcDialog = true"
@@ -34,11 +34,11 @@
                 <div class="d-flex justify-center pb-5 pt-5">
                     <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
                 </div>
-                <div align="center" class="pb-5">QC process has been completed. Do you want to proceed to wetwork?</div>
+                <div align="center" class="pb-5">QC process has been completed. Do you want to proceed to Genotyping/Sequencing Process?</div>
             </template>
             <template v-slot:actions>
                 <div>
-                    <Button :loading="isLoading" @click="closeQcCompletionDialogProceed" class="mb-4" elevation="2" dark>Yes, Proceed to wetwork</Button>
+                    <Button :loading="isLoading" @click="closeQcCompletionDialogProceed" class="mb-4" elevation="2" dark>Yes, Proceed to Genotyping/Sequencing Process</Button>
                     <Button :disabled="isLoading" @click="closeQcCompletionDialogReject" elevation="2" color="purple" dark>No, Reject Specimen</Button>
                 </div>
             </template>
@@ -132,12 +132,39 @@
             @toggle="rejectionAlertDialog = $event"
             @close="$router.push('/lab/orders')"
         ></DialogAlert>
+
+        <div v-if="specimenStatus == 'Rejected'">
+          <v-card class="dg-card" elevation="0" outlined>
+            <v-card-text class="px-8 mt-5">
+              <div class="d-flex mb-8 justify-space-between">
+                <b class="secondary--text card-header">Message Details</b>
+              </div>
+              <div class="mt-5 ml-5 mb-5">
+                <div class="h6 mb-2">
+                  Title
+                </div>
+                <div class="h4">
+                  <b>{{rejectionTitle}}</b>
+                </div>
+              </div>
+              <div class="mt-5 ml-5 mb-5">
+                <div class="h6 mb-2">
+                  Description
+                </div>
+                <div class="h4">
+                  <b>{{rejectionDescription}}</b>
+                </div>
+              </div>
+            </v-card-text>
+          </v-card>
+        </div>
     </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import { rejectDnaSample, processDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
+import { queryDnaSamples } from '@/lib/polkadotProvider/query/geneticTesting'
 import Dialog from '@/components/Dialog'
 import DialogAlert from '@/components/Dialog/DialogAlert'
 import Button from '@/components/Button'
@@ -151,6 +178,7 @@ export default {
   },
   props: {
     specimenNumber: String,
+    specimenStatus: String
   },
   data: () => ({
     isLoading: false,
@@ -169,6 +197,18 @@ export default {
       pair: 'substrate/wallet',
     }),
   },
+  async mounted() {
+    try {
+      const dnaSample = await queryDnaSamples(this.api, this.specimenNumber)
+      if (dnaSample) {
+        console.log('dnaSample', dnaSample)
+        this.rejectionTitle = dnaSample.rejected_title
+        this.rejectionDescription = dnaSample.rejected_description
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  },
   methods:{
     closeQcDialog(){
       this.qcDialog = false
@@ -180,7 +220,7 @@ export default {
         this.api,
         this.pair,
         this.specimenNumber,
-        "Extracted",
+        "QualityControlled",
         () => {
             this.isLoading = false
             this.qcCompletionDialog = false
@@ -225,6 +265,19 @@ export default {
           this.rejectionConfirmationDialog = false
           this.rejectionAlertDialog = true
           this.$emit('rejectSpecimen')
+        }
+      )
+      this.processDnaSample()
+    },
+    async processDnaSample() {
+      this.isProcessing = true
+      await processDnaSample(
+        this.api,
+        this.pair,
+        this.specimenNumber,
+        "Rejected",
+        () => {
+          this.isProcessing = false
         }
       )
     },

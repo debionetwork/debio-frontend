@@ -124,9 +124,14 @@
       :imgPath="alertImgPath"
       :imgWidth="imgWidth"
       @toggle="dialogAlert = $event"
-      @click="bindingWallet()"
       @close="actionAlert()"
     ></DialogAlert>
+    <WalletBinding
+      :show="showWalletBinding"
+      @toggle="showWalletBinding = $event"
+      @status-wallet="({ status, img }) => connectWalletResult(status, img)"
+    >
+    </WalletBinding>
   </div>
 </template>
 
@@ -137,24 +142,27 @@ import cityData from "@/assets/json/city.json";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
 import DialogAlert from "@/components/Dialog/DialogAlert";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
+import WalletBinding from "@/components/WalletBinding";
 
 export default {
   components: {
     SendPaymentDialog,
     DialogAlert,
+    WalletBinding
   },
   data: () => ({
     sendPaymentDialog: false,
     country: "",
     city: "",
     dialogAlert: false,
-    alertTextBtn: "Continue",
+    alertTextBtn: "",
     alertImgPath: "warning.png",
     alertTitleAlert: "",
     alertTextAlert: "",
     imgWidth: "50",
     currency: "",
     totalPrice: "",
+    showWalletBinding: false
   }),
   computed: {
     ...mapState({
@@ -203,11 +211,13 @@ export default {
         } else {
           this.alertTitleAlert = "Payment Failed!"
           this.alertTextAlert = "Your payment failed due to insufficient fund. Please check your wallet balance before making a transaction."
+          this.alertTextBtn= "Continue"
           this.dialogAlert = true;
         }
       } else {
         this.alertTitleAlert = "Payment Failed!"
         this.alertTextAlert = "You have not connected to any wallet. Please do a wallet binding to continue your transaction."
+        this.alertTextBtn= "Connect to wallet"
         this.dialogAlert = true;
       }
     },
@@ -240,7 +250,17 @@ export default {
       return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr";
     },
     actionAlert() {
-      this.dialogAlert = false;
+      if (this.alertTextBtn == "Continue") {
+        this.dialogAlert = false;
+      } else { 
+        this.showWalletBinding = true
+      }
+    },
+    connectWalletResult(status, img) {
+      if (status) {
+        this.alertImgPath = img;
+        this.dialogAlert = true;
+      }
     },
     totalProductPrice() {
       let products = this.products[0]
