@@ -50,16 +50,14 @@
                 outlined
               ></v-autocomplete>
 
-              <v-select
+              <v-select  v-if="!showRequestNoLab"
                 dense
                 :items="labs"
                 item-value="labData"
                 item-text="labName"
                 @change="onLabChange"
                 menu-props="auto"
-                :label="
-                  showNoLab ? 'There are no available labs' : 'Select Lab'
-                "
+                :label="noLab"
                 :disabled="city == 'city' || showRequestNoLab"
                 autocomplete="disabled"
                 outlined
@@ -78,59 +76,40 @@
                   </v-list-tile-content>
                 </template>
               </v-select>
+              <v-select v-if="showRequestNoLab"
+                dense
+                :items="listCategories"
+                label="Select Test / Category"
+                @change="onCategoryChange"
+                menu-props="auto"
+                autocomplete="disabled"
+                outlined
+              >
+              </v-select>
+              <v-text-field v-if="showSpecify"
+                @input="category"
+                label="Please Specify..."
+                outlined
+              >
+              </v-text-field>
             </v-card-text>
             <div
               class="ml-8 mr-8 mb-8 grey--text text--darken-1"
               v-if="showNoLab"
             >
-              <div v-if="showRequestNoLab">
-                <v-row>
-                  <v-col
-                    cols="12"
-                    lg="12"
-                    md="12"
-                    sm="12"
-                    class="font-weight-bold"
-                  >
-                    Select Product
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col
-                    v-for="item in listProducsNoLab"
-                    :key="item.alias"
-                    cols="12"
-                    lg="4"
-                    md="4"
-                    sm="4"
-                  >
-                    <input
-                      type="checkbox"
-                      :id="item.alias"
-                      :value="item.value"
-                      v-model="requestNoLabItem"
-                      :disabled="isLoadingRequestNoLab"
-                    />
-                    <label class="ml-2" :for="item.alias">{{
-                      item.text
-                    }}</label>
-                  </v-col>
-                </v-row>
+              <div>
+                <b :style="{'color': 'red' }">There are no lab available in your city.</b> <br><br>
+
+                1. You can request a lab to register to DeBio by clicking the "Request a lab" button. <br><br>
+                2. Additionally, you can stake an amount of tokens or regular cirrency(USD), which will be given as an incentive to labs registering in your location. <br><br>
+                3. Labs will use the result of this form, filled-in by you and other DeBio users, to evaluate the demand in the area you designated.
+
               </div>
-              <div v-else>
-                If there are no labs in your area, you can express your interest
-                for lab services by making a request using this form. Labs can
-                use the requests to gauge the demand for services in the area.
-              </div>
-              <DialogAlert
-                :show="dialogAlert"
-                :btnText="alertTextBtn"
-                :textAlert="alertTextAlert"
-                :imgPath="alertImgPath"
-                :imgWidth="imgWidth"
-                @toggle="dialogAlert = $event"
-                @close="actionAlert()"
-              ></DialogAlert>
+              <StakingDialog 
+              :show="showStakingDialog"
+              @toggle="showStakingDialog = $event"
+              @close="actionAlert()"           
+              />
             </div>
           </v-card>
         </v-col>
@@ -185,9 +164,9 @@
               depressed
               color="primary"
               large
-              :disabled="isLoadingRequestNoLab || requestNoLabItem.length == 0"
+              :disabled="isLoadingRequestNoLab || category.length == 0"
               width="100%"
-              @click="sendRequestNoLab"
+              @click="showingStakingDialog"
             >
               Submit
             </v-btn>
@@ -217,6 +196,7 @@
           </v-col>
         </v-row>
       </div>
+      
 
       <div v-if="isLoadingProducts" class="d-flex justify-center mt-10">
         <v-progress-circular
@@ -307,7 +287,7 @@
               @click="onContinue"
               height="64"
             >
-              Continue
+            Checkout Order
             </v-btn>
           </v-col>
         </v-row>
@@ -328,14 +308,15 @@ import {
   queryLabsById,
 } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
-import DialogAlert from "@/components/Dialog/DialogAlert";
+import StakingDialog from "./StakingDialog.vue"
 
 export default {
-  name: "RequestTest",
+  name: "FindLab",
   components: {
     SelectableMenuCard,
     DnaCollectionRequirements,
-    DialogAlert,
+    // DialogAlert,
+    StakingDialog
   },
   data: () => ({
     country: "country",
@@ -345,73 +326,35 @@ export default {
     selectedProducts: [],
     isLoadingProducts: false,
     countries: [],
+    category: "",
     cities: [],
     regions: [],
     labs: [],
     products: [],
     coinName: "",
-    listProducsNoLab: [],
+    listCategories: [],
     showRequestNoLab: false,
     showNoLab: false,
+    showSpecify: false,
     requestNoLabItem: [],
     isLoadingRequestNoLab: false,
     dialogAlert: false,
-    alertTextBtn: "",
-    alertImgPath: "warning.png",
-    alertTextAlert: "",
-    imgWidth: "50",
     statusSendReqNoLab: false,
+    showStakingDialog: false
   }),
   async mounted() {
     this.coinName = this.configApp.tokenName;
-    this.listProducsNoLab = [
-      {
-        text: "Genetic Traits",
-        value: "Genetic Traits",
-        alias: "gts",
-      },
-      {
-        text: "Skincare",
-        value: "Skincare",
-        alias: "skin",
-      },
-      {
-        text: "Cancer Diagnosis",
-        value: "Cancer Diagnosis",
-        alias: "cds",
-      },
-      {
-        text: "Suplement",
-        value: "Suplement",
-        alias: "spt",
-      },
-      {
-        text: "Thalasemia Test",
-        value: "Thalasemia Test",
-        alias: "ttt",
-      },
-      {
-        text: "Klinefelter syndrome",
-        value: "Klinefelter syndrome",
-        alias: "ksd",
-      },
-      {
-        text: "Ancestry",
-        value: "Ancestry",
-        alias: "anc",
-      },
-      {
-        text: "Crohn's disease",
-        value: "Crohn's disease",
-        alias: "cde",
-      },
-      {
-        text: "Anemia",
-        value: "Anemia",
-        alias: "ane",
-      },
-    ];
     await this.getCountries();
+    this.listCategories = [
+      "Bionfarmatics Data Analyst Support", 
+      "Genetic Counseling", 
+      "Single Nucleotida Polymorphism (SNP) Microarray", 
+      "Targeted Gene Panel Sequencing", 
+      "Whole-Enome Sequencing", 
+      "Whole-Genome Sequencing", 
+      "Whole-Transcription Sequencing",
+      "Other"
+    ];
   },
   computed: {
     ...mapState({
@@ -445,6 +388,13 @@ export default {
       }
       return this.labs.filter((l) => l.labAccount == this.labAccount)[0];
     },
+    noLab() {
+      if (this.showNoLab) {
+        return 'There are no available lab'
+      } else {
+        return 'Select Test Lab'
+      }
+    }
   },
   methods: {
     ...mapMutations({
@@ -481,10 +431,6 @@ export default {
       if (!this.cities) {
         return;
       }
-
-      // this.country = "WL";
-      // this.city = "WL";
-      // this.region = "WL";
       this.labAccount = "";
       this.labs = [];
       this.products = [];
@@ -496,7 +442,6 @@ export default {
       if (listLabID) {
         for (let i = 0; i < listLabID.length; i++) {
           const detaillab = await queryLabsById(this.api, listLabID[i]);
-
           if (detaillab) {
             const labName = detaillab.info.name;
             const accountId = detaillab.account_id;
@@ -615,7 +560,6 @@ export default {
         this.selectedProducts = this.selectedProducts.filter(
           (p) => p.serviceData.id != product.serviceData.id
         );
-        return;
       }
       // select
       this.selectedProducts = [...this.selectedProducts, product];
@@ -637,28 +581,11 @@ export default {
       this.setProductsToRequest(this.selectedProducts);
       this.$router.push({ name: "request-test-checkout" });
     },
+    showingStakingDialog() {
+      this.showStakingDialog = true
+    },
     sendRequestNoLab() {
-      this.isLoadingRequestNoLab = true;
-
-      this.alertTextBtn = "Continue";
-      this.alertImgPath = "success.png";
-      this.statusSendReqNoLab = true;
-      this.alertTextAlert =
-        "Your request has been submitted! We have sent details about your request.";
-      this.dialogAlert = true;
-
-      this.$store.dispatch("substrate/addAnyNotification", {
-        address: this.wallet.address,
-        dataAdd: {
-          message: "Your request has been submitted!",
-          data: null,
-          route: "",
-          params: "",
-        },
-        role: "customer",
-      });
-
-      this.isLoadingRequestNoLab = false;
+      this.showStakingDialog = false
     },
     actionAlert() {
       if (this.statusSendReqNoLab) {
@@ -674,6 +601,12 @@ export default {
         this.cities = [];
       }
       this.dialogAlert = false;
+    },
+    async onCategoryChange(category) {
+      this.category = category
+      if (category == "Other") {
+        this.showSpecify = true
+      }
     },
   },
 };
