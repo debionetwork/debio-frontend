@@ -464,7 +464,6 @@ export default {
       }
 
       try {
-        this.isLoading = true;
         await addToken(this.coinName);
         const price = await getPrice(this.totalPay);
 
@@ -480,8 +479,6 @@ export default {
         this.alertTextAlert = "Payment via Metamask is canceled or rejected.";
         this.dialogAlert = true;
         this.alertType = "cancel_metamask_payment";
-      } finally {
-        this.isLoading = false;
       }
     },
     showDialogCancelOrder() {
