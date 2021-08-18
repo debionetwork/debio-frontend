@@ -91,7 +91,7 @@
             </v-card>
           </v-col>
             <!-- If order Success -->
-          <v-col cols="12" lg="6" md="6" xl="5" >
+          <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == ORDER_FULFILLED || order.status == ORDER_PAID">
             <v-row>
               <v-col>
                 <ProgressOrderStatus
@@ -99,7 +99,7 @@
                 </ProgressOrderStatus>
               </v-col>
             </v-row>
-            <v-row>
+            <v-row v-if="dnaSampleStatus == 'ResultReady'">
               <v-col>
                 <RatingBox>
                 </RatingBox>
@@ -252,7 +252,7 @@ import {
   ORDER_FULFILLED,
   ORDER_FAILED
 } from "@/constants/specimen-status";
-import { getOrdersData } from "@/lib/polkadotProvider/query/orders";
+import { getOrdersData, getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { transfer, getPrice, addToken } from "@/lib/metamask/wallet.js";
@@ -303,6 +303,7 @@ export default {
     totalQcPrice: 0,
     totalPay: 0,
     statusReward: false,
+    dnaSampleStatus: "",
   }),
   computed: {
     ...mapState({
@@ -372,6 +373,8 @@ export default {
       this.isLoading = true;
       this.orderId = this.$route.params.number;
       this.order = await getOrdersData(this.api, this.orderId);
+      this.orderDetail = await getOrdersDetail(this.api, this.orderId);
+      this.dnaSampleStatus = this.orderDetail.dna_sample_status
       this.coinName = this.order.currency;
       this.priceOrder = parseFloat(
         this.order.prices[0].value.replaceAll(",", ".")
