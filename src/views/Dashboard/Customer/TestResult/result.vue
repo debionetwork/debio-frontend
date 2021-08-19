@@ -30,10 +30,11 @@
           </div>
           <div class="mb-2">
             <v-card
+              v-if="!dataStaked" 
               class="dg-card dg-menu-card"
               :class="{ 'card-hover': true }"
               :elevation="0"
-              @click="true"
+              @click="showDialogStake"
               outlined
               :style="'border-radius: 10px;'"
               :ripple="false"
@@ -74,6 +75,39 @@
                 </div>
               </div>
             </v-card>
+
+            <v-card
+              v-else
+              class="dg-card dg-menu-card grey lighten-1"
+              :elevation="0"
+              outlined
+              :style="'border-radius: 10px;'"
+            >
+              <div
+                class="
+                  d-flex
+                  flex-column
+                  justify-space-around
+                  fill-height
+                  pr-4
+                  py-2
+                "
+              >
+                <div class="d-flex align-center">
+                  <div class="my-3 ml-5">
+                    <v-avatar>
+                      <img src="@/assets/reward.png" />
+                    </v-avatar>
+                  </div>
+                  <div class="ml-5" style="width: 100%">
+                    <div class="text">
+                      Your data has been staked in the Market Place
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </v-card>
+
           </div>
         </v-col>
       </v-row>
@@ -123,6 +157,11 @@
           </v-card>
         </template>
       </v-dialog>
+      <DialogStakingDataConfirmation 
+        :show="stakeDialog" 
+        @toggle="stakeDialog = $event"
+        @close="closeDialog()"
+      />
     </v-container>
   </div>
 </template>
@@ -136,11 +175,13 @@ import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { getOrdersData } from "@/lib/polkadotProvider/query/orders";
 import { hexToU8a } from "@polkadot/util";
+import DialogStakingDataConfirmation from "@/components/Dialog/DialogStakingDataConfirmation"
 
 export default {
   name: "test-result",
   components: {
     MenuCard,
+    DialogStakingDataConfirmation
   },
   data: () => ({
     privateKey: "",
@@ -162,6 +203,8 @@ export default {
     filesLoading: [],
     resultLoading: false,
     baseUrl: "https://ipfs.io/ipfs/",
+    stakeDialog: false,
+    dataStaked: false
   }),
   async mounted() {
     this.resultLoading = true;
@@ -311,7 +354,6 @@ export default {
         console.log(e);
       }
     },
-
     download(data, fileName) {
       const blob = new Blob([data], { type: "text/plain" });
       const e = document.createEvent("MouseEvents");
@@ -338,13 +380,19 @@ export default {
       );
       a.dispatchEvent(e);
     },
-
     showDialog(actionType, index) {
       // this.dialog = true;
       this.actionType = actionType;
       this.fileDownloadIndex = index;
       this.decryptWallet();
     },
+    showDialogStake(){
+      this.stakeDialog = true
+    },
+    closeDialog(){
+      this.dataStaked = true
+      this.stakeDialog = false
+    }
   },
 
   computed: {
