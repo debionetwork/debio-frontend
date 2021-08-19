@@ -17,7 +17,7 @@
           <b>{{ title }}</b>
         </div>
         <div class="text-body-2 grey--text text--darken-1">
-          {{ specimenNumber | specimenNumber }}
+          {{ specimenNumber }}
         </div>
         <div class="text-body-1 grey--text text--darken-1 mt-2">
           <b>{{ labName }}</b>

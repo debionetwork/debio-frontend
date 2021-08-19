@@ -83,7 +83,7 @@
                   <div>
                     <div><b>Specimen Number:</b></div>
                     <div class="grey--text text--darken-1">
-                      {{ order.dna_sample_tracking_id | specimenNumber }}
+                      {{ order.dna_sample_tracking_id }}
                     </div>
                   </div>
                 </template>

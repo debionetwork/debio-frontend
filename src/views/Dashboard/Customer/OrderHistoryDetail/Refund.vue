@@ -35,7 +35,7 @@
       </template>
       <template v-slot:body>
         <div style="word-wrap: break-word;">
-          Are you sure you wanto to refund order number <b>{{ specimen.number | specimenNumber }}</b>?
+          Are you sure you wanto to refund order number <b>{{ specimen.number }}</b>?
         </div>
         <div v-if="errorMessage" style="color: red;">
           {{ errorMessage }}
