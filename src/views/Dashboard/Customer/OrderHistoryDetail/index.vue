@@ -91,32 +91,22 @@
             </v-card>
           </v-col>
             <!-- If order Success -->
-            <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == ORDER_FULFILLED" class="mt-2">
-              <v-card class="dg-card mb-10" elevation="0" outlined>
-                <v-card-title class="px-8 p4">
-                  <div class="text-h6" align="center">Success!</div>
-                </v-card-title>
-                <v-card-text>
-                  <v-row>
-                    <v-col class="px-8">
-                    <h3> Your order has been fulfilled</h3>
-                    </v-col>
-                  </v-row>
-                  <v-row class="justify-center mt-10 align-center">
-                    <v-col cols="12" lg="5" md="5" sm="8" align="center">
-                      <Button color="green" @click="goToResult" dark>
-                        View Result
-                      </Button>
-                    </v-col>
-                  </v-row>
-                </v-card-text>
-                <v-card-actions class="px-8 pb-5">
-                  <slot name="button"> </slot>
-                </v-card-actions>
-              </v-card>
-              <RatingBox>
-              </RatingBox>
+          <v-col cols="12" lg="6" md="6" xl="5" v-if="orderFulfilledOrPaid">
+            <v-row>
+              <v-col>
+                <ProgressOrderStatus
+                  :orderId="orderId">
+                </ProgressOrderStatus>
+              </v-col>
+            </v-row>
+            <v-row v-if="dnaSampleStatus == 'ResultReady'">
+              <v-col>
+                <RatingBox>
+                </RatingBox>
+              </v-col>
+            </v-row>
           </v-col>
+
           <!-- If Order Unpaid -->
           <v-col
             cols="12"
@@ -208,20 +198,10 @@
 
           <DialogReward
             :show="dialogReward"
+            :orderId="orderId"
             @toggle="dialogReward = $event"
             @close="dialogReward = false"
           ></DialogReward>
-
-          <!-- If order is sending -->
-          <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == ORDER_PAID">
-            <DNASampleSendingInstructions
-              :specimenNumber="order.dna_sample_tracking_id"
-              :lab="lab"
-              :orderId="orderId"
-              :sourcePage="'order-history-detail'"
-            >
-            </DNASampleSendingInstructions>
-          </v-col>
 
           <!-- If order is received -->
           <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == RECEIVED">
@@ -251,15 +231,15 @@
 
 <script>
 import { mapState, mapMutations } from "vuex";
-import DNASampleSendingInstructions from "@/components/DNASampleSendingInstructions";
+import ProgressOrderStatus from "@/components/ProgressOrderStatus";
 import DialogConfirmWithPassword from "@/components/Dialog/DialogConfirmWithPassword";
 import DialogAlert from "@/components/Dialog/DialogAlert";
 import StatusChip from "@/components/StatusChip";
-import Button from "@/components/Button";
 import Refund from "./Refund";
 import Failed from "./Failed";
 import DialogReward from "@/components/Dialog/DialogReward";
 import RatingBox from "@/components/RatingBox"
+import localStorage from "@/lib/local-storage"
 import {
   ORDER_UNPAID,
   ORDER_PAID,
@@ -272,7 +252,7 @@ import {
   ORDER_FULFILLED,
   ORDER_FAILED
 } from "@/constants/specimen-status";
-import { getOrdersData } from "@/lib/polkadotProvider/query/orders";
+import { getOrdersData, getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { transfer, getPrice, addToken } from "@/lib/metamask/wallet.js";
@@ -284,11 +264,10 @@ import { getBalanceETH } from "@/lib/metamask/wallet.js";
 export default {
   name: "RequestTestSuccess",
   components: {
-    DNASampleSendingInstructions,
+    ProgressOrderStatus,
     DialogConfirmWithPassword,
     DialogAlert,
     StatusChip,
-    Button,
     Refund,
     Failed,
     DialogReward,
@@ -323,6 +302,8 @@ export default {
     orderId: "",
     totalQcPrice: 0,
     totalPay: 0,
+    statusReward: false,
+    dnaSampleStatus: "",
   }),
   computed: {
     ...mapState({
@@ -341,10 +322,14 @@ export default {
 
     showFailedComponent() {
       return !this.isLoading && this.dataLoaded && this.order.status == ORDER_FAILED
+    },
+    orderFulfilledOrPaid() {
+      return this.order.status == ORDER_FULFILLED || this.order.status == ORDER_PAID
     }
   },
   mounted() {
     this.fetchOrderDetails();
+    this.checkStatusReward()
   },
   watch: {
     $route() {
@@ -369,7 +354,11 @@ export default {
               this.alertType = "paid";
             }
             if (this.lastEventData.method == "OrderSuccess") {
-              this.dialogReward = true;
+              if (this.statusReward) {
+                this.dialogReward = false
+              } else {
+                this.dialogReward = true
+              }
             }
             if (this.lastEventData.method == "OrderRefunded") {
               this.fetchOrderDetails();
@@ -387,6 +376,8 @@ export default {
       this.isLoading = true;
       this.orderId = this.$route.params.number;
       this.order = await getOrdersData(this.api, this.orderId);
+      this.orderDetail = await getOrdersDetail(this.api, this.orderId);
+      this.dnaSampleStatus = this.orderDetail.dna_sample_status
       this.coinName = this.order.currency;
       this.priceOrder = parseFloat(
         this.order.prices[0].value.replaceAll(",", ".")
@@ -412,7 +403,11 @@ export default {
       this.isLoading = false;
 
       if (this.order.status == ORDER_FULFILLED) {
-        this.dialogReward = true;
+        if (this.statusReward) {
+          this.dialogReward = false
+        } else {
+          this.dialogReward = true
+        }
       }
     },
     actionAlert() {
@@ -508,6 +503,25 @@ export default {
         name: "result-test",
         params: { number: this.order.dna_sample_tracking_id },
       });
+    },
+    async checkStatusReward() {
+      try {
+        let data = await JSON.parse(localStorage.getLocalStorageByName('STATUS_REWARD'))
+        let resData = []
+        if (!data) {
+          let result = {
+            orderId: this.orderId,
+            status: false
+          }
+          resData.push(result)
+          this.statusReward = result.status
+          localStorage.setLocalStorageByName('STATUS_REWARD', JSON.stringify(result))
+        } else {
+          this.statusReward = data.status
+        }
+      } catch (error) {
+        console.log(error)
+      }
     },
   },
 };

@@ -10,7 +10,7 @@
         You may stake your personal data to earn more DBIO.
       </div>
       <div class="pt-5 pl-5 pr-5 pb-5">
-        <Button class="mb-3" @click="closeDialog" elevation="2" dark>
+        <Button class="mb-3" @click="closeDialogWithStakeData" elevation="2" dark>
           {{ btnText }}
         </Button>
         <Button @click="closeDialog" elevation="2" color="#BA8DBB">
@@ -23,6 +23,7 @@
 
 <script>
 import Button from "@/components/Button";
+import localStorage from "@/lib/local-storage"
 
 export default {
   name: "DialogReward",
@@ -31,6 +32,7 @@ export default {
   },
   props: {
     show: Boolean,
+    orderId: String,
   },
   data: () => ({
     textAlert: "",
@@ -52,6 +54,16 @@ export default {
       this._show = false;
       this.$emit("close");
     },
+    closeDialogWithStakeData() {
+      this._show = false
+      let resData = []
+      let result = {
+        orderId: this.orderId,
+        status: true
+      }
+      resData.push(result)
+      localStorage.setLocalStorageByName('STATUS_REWARD', JSON.stringify(result))
+    }
   },
 };
 </script>

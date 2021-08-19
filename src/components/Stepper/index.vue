@@ -73,7 +73,7 @@ export default {
         &::after {
           right: 45%;
           top: calc(100% - 9px);
-          width: calc((100% + 35px) - 10%);
+          width: calc((100% + 35px) + 8%);
         }
       }
     }
