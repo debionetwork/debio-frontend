@@ -8,7 +8,6 @@ import store from '@/store/index'
 export async function getEthFromFaucet(walletAddress) {
   console.log('getting eth from faucet')
   const faucetEndpoint = store.getters['auth/getConfig'].urlFaucet;
-  //const faucetEndpoint = 'https://testnet.degenics.com'
   const request = `${faucetEndpoint}?address=${walletAddress}`
   try {
     const resp = await axios.get(request)
@@ -22,7 +21,6 @@ export async function getEthFromFaucet(walletAddress) {
 export async function getDaicFromFaucet(walletAddress) {
   console.log('getting daic from faucet')
   const faucetEndpoint = store.getters['auth/getConfig'].urlFaucet;
-  //const faucetEndpoint = 'https://testnet.degenics.com'
   const request = `${faucetEndpoint}?address=${walletAddress}&daic=true`
   try {
     const resp = await axios.get(request)
