@@ -67,7 +67,7 @@
                                     <b>Specimen Number</b>
                                 </div>
                                 <div class="text-caption grey--text text--darken-1">
-                                    {{ this.specimenNumber | specimenNumber }}
+                                    {{ this.specimenNumber }}
                                 </div>
                             </div>
                             <div class="mt-2 ml-5" style="max-width: 50%;">

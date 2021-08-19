@@ -56,7 +56,7 @@
               ></SearchBar>
             </template>
             <template v-slot:[`item.dna_sample_tracking_id`]="{ item }">
-              {{ item.dna_sample_tracking_id | specimenNumber }}
+              {{ item.dna_sample_tracking_id}}
             </template>
             <template v-slot:[`item.timestamp`]="{ item }">
               {{ item.orderDate }}

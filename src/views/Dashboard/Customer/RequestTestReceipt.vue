@@ -71,7 +71,7 @@
                   </div>
                   <div><b>Specimen Number:</b></div>
                   <div class="grey--text text--darken-1">
-                    {{ receipt.specimenNumber | specimenNumber }}
+                    {{ receipt.specimenNumber }}
                   </div>
                 </div>
               </div>
