@@ -76,7 +76,7 @@
                     {{ dataAccount.meta.name }}
                   </div>
                   <div class="ml-5 primary--text" style="font-size: 14px">
-                    {{ balance }} DOT
+                    {{ balance }}
                   </div>
                   <div class="ml-5 grey--text" style="font-size: 12px">
                     {{ dataAccount.address }}
