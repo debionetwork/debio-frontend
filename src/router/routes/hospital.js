@@ -19,12 +19,14 @@ const hospitalRoutes = [
                   to.meta.drawerButtons = [
                     { text: "Dashboard", active: true, disabled: false, route: { name: "hospital-dashboard" } },
                     { text: "Account" },
+                    { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
                   ]
                 }
                 else{
                   to.meta.drawerButtons = [
                     { text: "Dashboard", active: true, disabled: false, route: { name: "hospital-dashboard" } },
                     { text: "Account", disabled: false, route: { name: "hospital-dashboard-account" } },
+                    { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
                   ]
                 }
                 next()
@@ -42,6 +44,7 @@ const hospitalRoutes = [
                 drawerButtons: [
                   { text: "Dashboard", disabled: false, route: { name: "hospital-dashboard" } },
                   { text: "Account", active: true, disabled: false, route: { name: "hospital-dashboard-account" } },
+                  { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
                 ]
               },
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Hospital/Account'),
@@ -77,6 +80,7 @@ const hospitalRoutes = [
                     drawerButtons: [
                       { text: "Dashboard", active: true, disabled: false, route: { name: "hospital-dashboard" } },
                       { text: "Account" },
+                      { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
                     ]
                 },
                 component: () => import(/* webpackChunkName */ '../../views/Dashboard/Hospital/Registration'),

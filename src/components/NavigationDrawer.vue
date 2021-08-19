@@ -25,6 +25,13 @@
             v-for="(item, key) in drawerButtons" :key="key"
           >
             <v-btn 
+              v-if="item.href"
+              :class="item.active ? 'font-weight-bold sidebar-text primary--text':'font-weight-bold sidebar-text'"
+              text
+              @click="openHref(item.href)"
+            >{{ item.text }}</v-btn>
+            <v-btn 
+              v-else
               :class="item.active ? 'font-weight-bold sidebar-text primary--text':'font-weight-bold sidebar-text'"
               text
               @click="goLink(item.route)"
@@ -47,6 +54,9 @@ export default {
       if(route != undefined && route.name != this.$route.name){
         this.$router.push(route)
       }
+    },
+    openHref(href){
+      window.open(href, '_blank').focus();
     }
   },
   computed: {
