@@ -91,7 +91,7 @@
             </v-card>
           </v-col>
             <!-- If order Success -->
-          <v-col cols="12" lg="6" md="6" xl="5" v-if="order.status == ORDER_FULFILLED || order.status == ORDER_PAID">
+          <v-col cols="12" lg="6" md="6" xl="5" v-if="orderFulfilledOrPaid">
             <v-row>
               <v-col>
                 <ProgressOrderStatus
@@ -323,6 +323,9 @@ export default {
     showFailedComponent() {
       return !this.isLoading && this.dataLoaded && this.order.status == ORDER_FAILED
     },
+    orderFulfilledOrPaid() {
+      return this.order.status == ORDER_FULFILLED || this.order.status == ORDER_PAID
+    }
   },
   mounted() {
     this.fetchOrderDetails();
