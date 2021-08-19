@@ -35,7 +35,7 @@ export default {
         const escrowETHAddress = process.env.VUE_APP_DEV_DEGENICS_ESCROW_ETH_ADDRESS;
         const substrateWs = process.env.VUE_APP_DEV_DEGENICS_SUBSTRATE_WS;
         const urlFaucet = process.env.VUE_APP_DEV_URL_FAUCET;
-        const web3Rpc = process.env.VUE_APP_WEB3_RPC;
+        const web3Rpc = process.env.VUE_APP_DEV_WEB3_RPC;
         configApp = {
           tokenName,
           escrowETHAddress,
@@ -48,7 +48,7 @@ export default {
         const escrowETHAddress = process.env.VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS;
         const substrateWs = process.env.VUE_APP_DEGENICS_SUBSTRATE_WS;
         const urlFaucet = process.env.VUE_APP_URL_FAUCET;
-        const web3Rpc = process.env.VUE_APP_DEV_WEB3_RPC;
+        const web3Rpc = process.env.VUE_APP_WEB3_RPC;
         configApp = {
           tokenName,
           escrowETHAddress,
