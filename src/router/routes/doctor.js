@@ -20,12 +20,14 @@ const doctorRoutes = [
                   to.meta.drawerButtons = [
                     { text: "Dashboard", active: true, disabled: false, route: { name: "doctor-dashboard" } },
                     { text: "Account" },
+                    { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
                   ]
                 }
                 else{
                   to.meta.drawerButtons = [
                     { text: "Dashboard", active: true, disabled: false, route: { name: "doctor-dashboard" } },
                     { text: "Account", disabled: false, route: { name: "doctor-dashboard-account" } },
+                    { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
                   ]
                 }
                 next()
@@ -43,6 +45,7 @@ const doctorRoutes = [
                 drawerButtons: [
                   { text: "Dashboard", disabled: false, route: { name: "doctor-dashboard" } },
                   { text: "Account", active: true, disabled: false, route: { name: "doctor-dashboard-account" } },
+                  { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
                 ]
               },
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Doctor/Account'),
@@ -78,6 +81,7 @@ const doctorRoutes = [
                     drawerButtons: [
                       { text: "Dashboard", active: true, disabled: false, route: { name: "doctor-dashboard" } },
                       { text: "Account" },
+                      { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
                     ]
                 },
                 component: () => import(/* webpackChunkName */ '../../views/Dashboard/Doctor/Registration'),

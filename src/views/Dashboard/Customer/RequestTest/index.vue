@@ -23,7 +23,11 @@
               title="Find a Test"
               sub-title="Get your DNA sample tested"
               @click="$router.push({ name: 'request-test' })"
-            ></MenuCard>
+            >
+              <template v-slot:footer>
+                <div class="text-body-1 primary--text">Coming Soon</div>
+              </template>
+            </MenuCard>
           </div>
         </v-col>
 
