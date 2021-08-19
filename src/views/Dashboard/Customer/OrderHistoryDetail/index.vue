@@ -408,9 +408,8 @@ export default {
         console.log(this.lab);
         console.log(this.service);
         this.openMetamask();
-      } else {
-        this.isLoading = false;
       }
+      this.isLoading = false;
 
       if (this.order.status == ORDER_FULFILLED) {
         this.dialogReward = true;
