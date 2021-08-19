@@ -3,7 +3,7 @@ node_modules
 /dist
 
 #src/store/ethereum/contracts/contract.json
-src/views/Login/DemoLabAccounts/labs.json
+src/views/Login/DemoLabAccounts/labs.js
 
 # local env files
 .env.local
