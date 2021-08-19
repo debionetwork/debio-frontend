@@ -1,22 +1,21 @@
 <template>
-  <v-menu offset-y rounded="lg">
+  <v-menu rounded="lg">
     <template v-slot:activator="{ on, attrs }">
       <v-card
-        class="dg-card px-4"
-        style="max-width: 400px; margin: 0 auto; border-radius: 30px;"
+        style="max-width: 570px; margin: 0 auto; border-radius: 4px;"
         v-bind="attrs"
         v-on="on"
       >
-        <v-card-title class="grey--text text--darken-2">
+        <v-card-title class="grey--text text--darken-2 py-2">
           <v-progress-linear v-if="isLoading" color="primary" indeterminate></v-progress-linear>
           <div class="d-flex justify-space-between" style="width: 100%;">
-            <div>Demo Lab Accounts</div>
+            <div class="text-body-1 ml-3">DEMO LAB ACCOUNTS</div>
             <v-icon>mdi-chevron-down</v-icon>
           </div>
         </v-card-title>
       </v-card>
     </template>
-    <v-list style="max-width: 400px;">
+    <v-list>
       <v-list-item
         two-line
         v-for="(item, index) in items"
@@ -24,8 +23,8 @@
         @click="loginAsLab(item)"
       >
         <v-list-item-content>
-          <v-list-item-title>{{ item.lab }}</v-list-item-title>
-          <v-list-item-subtitle>{{ item.address }}</v-list-item-subtitle>
+          <v-list-item-title>{{ item.name }}</v-list-item-title>
+          <v-list-item-subtitle>{{ item.country }} - {{ item.address }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
     </v-list>
@@ -34,7 +33,7 @@
 
 <script>
 import { mapActions } from 'vuex'
-import labs from './labs.json'
+import labs from './labs.js'
 
 export default {
   name: 'DemoLabAccounts',
@@ -52,17 +51,7 @@ export default {
       generateWalletFromPrivateKey: 'ethereum/generateWalletFromPrivateKey',
     }),
     async loginAsLab(item) {
-      try {
-        this.isLoading = true
-        await this.generateWalletFromPrivateKey({
-          privateKey: item.privateKey,
-          password: this.password
-        })
-        this.isLoading = false
-        this.$router.push('/')
-      } catch (err) {
-        console.log(err)
-      }
+      this.$emit('lab-selected', item);
     }
   }
 }
