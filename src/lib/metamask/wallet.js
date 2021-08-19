@@ -1,5 +1,5 @@
 import store from '../../store'
-import appConfig from '@/lib/app-config'
+// import appConfig from '@/lib/app-config'
 import BigNumber from 'bignumber.js'
 
 export async function getWalletAddress() {
@@ -159,12 +159,13 @@ export async function getPrice(priceOrder) {
  *                          Example: myContract.methods.myMethod(123).encodeABI();
  * */
 export async function sendTransaction(to, data, from) {
-  const web3 = store.getters['metamask/getWeb3']
-
+  // const web3 = store.getters['metamask/getWeb3']
   const transactionParameters = {
     to: to, // Required except during contract publications.
-    gasPrice: web3.utils.toHex(appConfig.getGasPrice()), // customizable by user during MetaMask confirmation.
-    gas: web3.utils.toHex(appConfig.getGasLimit()),
+    // gasPrice: web3.utils.toHex(appConfig.getGasPrice()), // customizable by user during MetaMask confirmation.
+    // gas: web3.utils.toHex(appConfig.getGasLimit()),
+    maxFeePerGas: '2000000000',
+    maxPriorityFeePerGas: '1000000000',
     from: from, // must match user's active address.
     data: data, // Optional, but used for defining smart contract creation and interaction.
     chainId: '0x4', // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
