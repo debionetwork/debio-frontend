@@ -129,7 +129,7 @@
                           {{ formatedPrice }} <span class="payment-failed__currency">{{ orderDetails.currency || "DAI" }}</span>
                         </div>
                       </div>
-                      <v-btn depressed class="mt-6 yellow darken-2" color="primary">Create a new order</v-btn>
+                      <v-btn :to="{ name: 'request-test' }" depressed class="mt-6 yellow darken-2" color="primary">Create a new order</v-btn>
                     </div>
                   </div>
                 </div>
@@ -186,7 +186,9 @@ export default {
     },
 
     formatedDate() {
-      return new Date(this.orderDetails?.created_at)
+      const dateRaw = parseInt(this.orderDetails?.created_at.replaceAll(",", ""))
+
+      return new Date(dateRaw).toLocaleDateString()
     },
 
     formatedPrice() {
