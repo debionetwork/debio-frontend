@@ -17,16 +17,21 @@
         <v-col cols="12" md="4">
           <!-- <div style="height: 31.3px;"></div> -->
           <div class="mb-2">
-            <MenuCard
+            <!-- <MenuCard
               :height="120"
               icon="mdi-test-tube"
               title="Find a Test"
               sub-title="Get your DNA sample tested"
               @click="$router.push({ name: 'request-test' })"
             >
-              <template v-slot:footer>
-                <div class="text-body-1 primary--text">Coming Soon</div>
-              </template>
+            </MenuCard> -->
+            <MenuCard
+              :height="120"
+              icon="mdi-test-tube"
+              title="Find a Test"
+              sub-title="Under Development"
+              @click="$router.push({ name: 'request-test' })"
+            >
             </MenuCard>
           </div>
         </v-col>
