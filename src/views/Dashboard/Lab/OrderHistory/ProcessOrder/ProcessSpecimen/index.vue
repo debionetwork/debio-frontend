@@ -111,7 +111,7 @@
     <DialogAlert
       :show="genomeUploadSucceedDialog"
       btnText="Continue"
-      textAlert="Genome has been uploaded."
+      textAlert="VCF data has been uploaded"
       imgPath="success.png"
       imgWidth="50"
       @close="genomeUploadSucceedDialog = false"

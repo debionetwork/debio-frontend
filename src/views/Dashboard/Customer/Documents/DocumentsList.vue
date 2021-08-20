@@ -106,7 +106,7 @@
 
         <v-col lg="12" md="12" sm="12">
           <Button @click="useTypeUpload" elevation="2" dark>
-            Upload an EMR document
+            Upload EMR Documents
           </Button>
         </v-col>
       </v-row>
