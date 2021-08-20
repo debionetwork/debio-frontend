@@ -35,6 +35,16 @@
                       </v-avatar>
 
                   </div>
+                    <v-select
+                    dense
+                    label="Service Category"
+                    placeholder="Service Category"
+                    v-model="category"
+                    outlined
+                    :items="listCategories"
+                    :rules="[val => !!val || 'Category is Required']"
+                    ></v-select>
+                    
                     <v-text-field
                       dense
                       label="Service Name"
@@ -167,6 +177,7 @@ import { createService } from '@/lib/polkadotProvider/command/services'
 export default {
   name: 'AddLabServices',
   data: () => ({
+    category: '',
     name: '',
     price: '',
     qcPrice: '',
@@ -176,6 +187,7 @@ export default {
     testResultSampleUrl: "",
     files: [],
     testResultSampleFile:[],
+    listCategories:[],
     sampleFiles:[],
     isLoading: false,
     isUploading: false,
@@ -188,6 +200,18 @@ export default {
       value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
     ],
   }),
+  async mounted() {
+    this.listCategories = [
+      "Bioinformatics Data Analysis Support & Genetic Counseling", 
+      "Covid-19 Testing", 
+      "Single Nucleotide Polymorphism (SNP) Microarray", 
+      "Targeted Gene Panel Sequencing",
+      "Whole-Exome Sequencing",
+      "Whole-Genome Sequencing",
+      "whole-Transcriptome Sequencing",
+      "Others"
+    ];
+  },
   computed: {
     ...mapGetters({
       api: 'substrate/getAPI',
@@ -227,7 +251,7 @@ export default {
             duration: this.expectedDuration, 
             duration_type: this.selectExpectedDuration
           },
-          category: "Genetic", // TODO: Change later, field doesn't exist on UI design
+          category: this.category,
           description: this.description,
           test_result_sample: this.testResultSampleUrl,
           long_description: this.longDescription,
