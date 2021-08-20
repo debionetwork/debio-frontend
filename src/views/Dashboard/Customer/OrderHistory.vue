@@ -56,7 +56,7 @@
               ></SearchBar>
             </template>
             <template v-slot:[`item.dna_sample_tracking_id`]="{ item }">
-              {{ item.dna_sample_tracking_id}}
+              {{ item.dna_sample_tracking_id }}
             </template>
             <template v-slot:[`item.timestamp`]="{ item }">
               {{ item.orderDate }}
@@ -116,6 +116,38 @@
                   >View Reason</v-btn
                 >
               </v-container>
+
+              <v-container v-if="item.status == ORDER_FAILED">
+                <v-btn
+                  class="success"
+                  dark
+                  small
+                  width="200"
+                  @click="goToOrderDetail(item)"
+                  >View Order</v-btn
+                >
+              </v-container>
+
+              <v-container v-if="item.status == ORDER_CANCEL">
+                <v-btn
+                  class="success"
+                  dark
+                  small
+                  width="200"
+                  @click="goToOrderDetail(item)"
+                  >View Order</v-btn
+                >
+              </v-container>
+              <v-container v-if="item.status == ORDER_REFUNDED">
+                <v-btn
+                  class="Reject"
+                  dark
+                  small
+                  width="200"
+                  @click="goToOrderDetail(item)"
+                  >View Order</v-btn
+                >
+              </v-container>
             </template>
 
             <!-- Rows -->
@@ -141,6 +173,8 @@ import {
   ORDER_PAID,
   ORDER_FULFILLED,
   ORDER_REFUNDED,
+  ORDER_FAILED,
+  ORDER_CANCEL
 } from "@/constants/specimen-status";
 import {
   ordersByCustomer,
@@ -166,6 +200,8 @@ export default {
     ORDER_PAID,
     ORDER_FULFILLED,
     ORDER_REFUNDED,
+    ORDER_FAILED,
+    ORDER_CANCEL,
     headers: [
       { text: "Lab Name", value: "labName" },
       { text: "Product Name", value: "title" },

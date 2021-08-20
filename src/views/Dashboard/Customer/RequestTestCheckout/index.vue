@@ -62,7 +62,7 @@
                   <v-col cols="12" lg="2" md="2" xl="2">
                     <div class="align-self-end pb-2">
                       <span class="text-h6">
-                        {{ product.price }}
+                        {{ product.totalPrice }}
                       </span>
                       <span class="primary--text text-caption">
                         {{ product.currency }}
@@ -79,6 +79,32 @@
             <v-card-title class="px-8">
               <div class="text-h6">Order Summary</div>
             </v-card-title>
+
+              <div class="d-flex justify-space-between px-8">
+                <div class="text-h7">Price</div>
+                <div>
+                  <span class="text-h6">
+                    {{ price }}
+                  </span>
+                  <span class="primary--text text-caption">
+                    {{ currency }}
+                  </span>
+                </div>
+              </div>
+
+
+              <div class="d-flex justify-space-between px-8">
+                <div class="text-h7">QC Price</div>
+                <div>
+                  <span class="text-h6">
+                    {{ qcPrice }}
+                  </span>
+                  <span class="primary--text text-caption">
+                    {{ currency }}
+                  </span>
+                </div>
+              </div>
+
             <v-card-text class="px-8">
               <div class="d-flex justify-space-between">
                 <div class="text-h6">Total Price</div>
@@ -264,6 +290,7 @@ export default {
     },
     totalProductPrice() {
       let products = this.products[0]
+      console.log(products, 'prod di checkout')
       let productPrice = 0
       productPrice = parseFloat(products.price.toString().replaceAll(",", ".")).toFixed(2);
 
