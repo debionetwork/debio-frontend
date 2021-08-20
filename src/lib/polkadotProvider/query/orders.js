@@ -19,6 +19,7 @@ export async function getOrdersDetail(api, orderId){
     orderDetail['service_name'] = service.info.name
     orderDetail['service_description'] = service.info.description
     orderDetail['service_image'] = service.info.image
+    orderDetail['expected_duration'] = service.info.expected_duration
   }
 
   return orderDetail

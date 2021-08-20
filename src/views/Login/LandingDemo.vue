@@ -5,7 +5,7 @@
         <v-img src="@/assets/icon-demo.png" max-width="30%" />
       </div>
       <div align="center" class="pb-5 pr-8 pl-8 font-weight-bold">
-        This is a demo version for testing purposes. <br />We're still working
+        This is a demo version for testing purposes and is not audited. <br />We're still working
         on this site and will have more information available to you soon.
       </div>
       <div class="d-flex justify-center pb-5">
