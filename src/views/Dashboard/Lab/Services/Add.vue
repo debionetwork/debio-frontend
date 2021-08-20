@@ -208,7 +208,7 @@ export default {
       "Targeted Gene Panel Sequencing",
       "Whole-Exome Sequencing",
       "Whole-Genome Sequencing",
-      "whole-Transcriptome Sequencing",
+      "Whole-Transcriptome Sequencing",
       "Others"
     ];
   },
