@@ -37,12 +37,12 @@
             {{ loadingStatus.genome }}
           </template>
         </v-btn>
-        <v-progress-linear
-          v-if="loading.genome"
-          class="mt-2"
-          indeterminate color="primary"
-        />
       </div>
+      <v-progress-linear
+        v-if="loading.genome"
+        class="mt-2"
+        indeterminate color="primary"
+      />
     </template>
 
     <template>
@@ -82,12 +82,12 @@
             {{ loadingStatus.report }}
           </template>
         </v-btn>
-        <v-progress-linear
-          v-if="loading.report"
-          class="mt-2"
-          indeterminate color="primary"
-        />
       </div>
+      <v-progress-linear
+        v-if="loading.report"
+        class="mt-2"
+        indeterminate color="primary"
+      />
     </template>
 
     <div v-if="genomeSucceed && reportSucceed && !submitted" class="mb-3">
@@ -95,6 +95,7 @@
         color="primary"
         large
         block
+        class="mt-6"
         :disabled="isLoading"
         @click="confirmationDialog = true"
       >
@@ -334,7 +335,10 @@ export default {
 
     addFileUploadEventListener(fileInputRef, fileType) {
       const context = this
-      fileInputRef.addEventListener('change', function() {
+      fileInputRef.addEventListener('change', function(e) {
+        const target = e.target || e.srcElement
+        if (!target.value.length) return
+
         context.loading[fileType] = true
         const file = this.files[0]
         file.fileType = fileType // attach fileType to file, because fileType is not accessible in fr.onload scope
@@ -381,6 +385,7 @@ export default {
             }
           } catch (err) {
             console.error(err)
+          } finally {
             context.loading[file.fileType] = false
           }
         }
