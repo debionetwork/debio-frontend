@@ -33,6 +33,7 @@ import Button from '@/components/Button'
 import Stepper from '@/components/Stepper'
 import { mapGetters } from 'vuex'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
+import { format, addDays, addHours, addBusinessDays } from 'date-fns'
 
 export default {
   name: "ProgressOrderStatus",
@@ -66,6 +67,9 @@ export default {
       this.order = await getOrdersDetail(this.api, this.orderId)
       this.specimenStatus = this.order.dna_sample_status
       this.setCheckBoxByDnaStatus()
+
+      const { created_at, expected_duration: { duration, duration_type } } = this.order
+      this.setExpectedDuration(created_at, duration, duration_type)
     } catch (error) {
       console.log(error)
     }
@@ -76,6 +80,45 @@ export default {
         name: "result-test",
         params: { number: this.order.dna_sample_tracking_id },
       });
+    },
+    setExpectedDuration(orderCreatedAt, duration, durationType) {
+      console.log('test')
+      if (durationType == 'WorkingDays') {
+        const expectedDate = addBusinessDays(new Date(orderCreatedAt), parseInt(duration))
+        const expectedDateStr = format(expectedDate, 'MMMM dd, yyyy')
+        this.expectedDate = expectedDateStr
+
+        // FIXME: as of Aug 20, 2021
+        // Product requirements / UI design has not yet defined how late expected date is calculated 
+        // Currently add more 7 business days to late expected date
+        let lateExpectedDate = addBusinessDays(expectedDate, 7)
+        const lateExpectedDateStr = format(lateExpectedDate, 'MMMM dd, yyyy')
+        this.lateExpectedDate = lateExpectedDateStr
+      }
+      if (durationType == 'Days') {
+        const expectedDate = addDays(new Date(orderCreatedAt), parseInt(duration))
+        const expectedDateStr = format(expectedDate, 'MMMM dd, yyyy')
+        this.expectedDate = expectedDateStr
+
+        // FIXME: as of Aug 20, 2021
+        // Product requirements / UI design has not yet defined how late expected date is calculated 
+        // Currently add more 7 business days to late expected date
+        let lateExpectedDate = addBusinessDays(expectedDate, 7)
+        const lateExpectedDateStr = format(lateExpectedDate, 'MMMM dd, yyyy')
+        this.lateExpectedDate = lateExpectedDateStr
+      }
+      if (durationType == 'Hours') {
+        const expectedDate = addHours(new Date(orderCreatedAt), parseInt(duration))
+        const expectedDateStr = format(expectedDate, 'MMMM dd, yyyy')
+        this.expectedDate = expectedDateStr
+
+        // FIXME: as of Aug 20, 2021
+        // Product requirements / UI design has not yet defined how late expected date is calculated 
+        // Currently add more 7 business days to late expected date
+        let lateExpectedDate = addBusinessDays(expectedDate, 7)
+        const lateExpectedDateStr = format(lateExpectedDate, 'MMMM dd, yyyy')
+        this.lateExpectedDate = lateExpectedDateStr
+      }
     },
     async setCheckBoxByDnaStatus() {
       if (this.specimenStatus == 'Registered') {

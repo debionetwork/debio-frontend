@@ -37,6 +37,11 @@
                   </template>
                   <template v-slot:[`item.info.image`]="{ item }">
                      <v-container rounded>
+                        <div v-if="isIcon(item.info.image)" class="d-flex justify-center">
+                           <v-icon color="#BA8DBB" :size="48">
+                              {{ item.info.image }}
+                           </v-icon>
+                        </div>
                         <v-img 
                            v-if="item.info.image"
                            :src="item.info.image" 
@@ -117,6 +122,7 @@ export default {
   methods:{
    onSearchInput(val) {
       this.search = val
+      console.log(this.labAccount.services)
    },
    gotoDetails(item){
       
@@ -127,6 +133,9 @@ export default {
          return val
       }
       return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
+   },
+   isIcon(imageName) {
+      return imageName && (imageName.startsWith('mdi') || imageName.startsWith('$dgi'))
    },
    async deleteService(item) {
       const isConfirmed = confirm("Are you sure you want to delete this service?")
