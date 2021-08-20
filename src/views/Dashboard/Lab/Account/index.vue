@@ -185,11 +185,7 @@ export default {
     cities: [],
     isLoading: false,
     isEditable: false,
-    isUploading: false,
-    rules: [
-      file => !file || file.size <= 3_097_152 || 'Document size should be less than 3 MB!',
-      file => !file || file.type == 'image/jpg' || file.type == 'image/jpeg' || 'Document type should be image/jpg',
-    ],
+    isUploading: false
   }),
   computed: {
     ...mapGetters({
@@ -197,34 +193,48 @@ export default {
       pair: 'substrate/wallet',
       labAccount: 'substrate/labAccount',
     }),
+
     ...mapState({
       mnemonic: state => state.substrate.mnemonicData.mnemonic,
     }),
+
     citiesSelection() {
       return this.cities
         .filter((c) => c.country == this.country)
         .map((c) => ({ value: c.city, text: c.city, country: c.country }));
     },
+    
+    rules(){
+      return [
+        file => !file || file.size <= 3_097_152 || 'Document size should be less than 3 MB!',
+        file => !file || file.type == 'image/jpg' || file.type == 'image/jpeg' || 'Document type should be image/jpg',
+      ]
+    }
   },
   methods: {
     async getCountries() {
       this.countries = countryData;
     },
+
     onCountryChange(selectedCountry) {
       this.country = selectedCountry;
       this.regions = Object.entries(cityData[this.country].divisions);
     },
+
     onRegionChange(selectedRegion) {
       this.region = selectedRegion;
       this.cities = Object.entries(cityData[this.country].divisions);
     },
+
     onCityChange(selectedCity) {
       this.city = selectedCity;
     },
+
     getKiltBoxPublicKey() {
       const cred = Kilt.Identity.buildFromMnemonic(this.mnemonic)
       return u8aToHex(cred.boxKeyPair.publicKey)
     },
+
     async updateLab(){
       if (!this.$refs.form.validate()) {
         return
@@ -255,6 +265,7 @@ export default {
         console.error(err)
       }
     },
+    
     fileUploadEventListener(file) {
       this.imageUrl = ""
       if (!this.$refs.form.validate()) {

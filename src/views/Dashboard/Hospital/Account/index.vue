@@ -175,11 +175,6 @@ export default {
     files: [],
     isLoading: false,
     isUploading: false,
-    rules: [
-      file => !!file || 'Image is Required',
-      file => !file || file.type == 'image/jpg' || file.type == 'image/jpeg' || 'Document type should be image/jpg',
-      file => !file || file.size <= 3_097_152 || 'Document size should be less than 3 MB!',
-    ],
   }),
   computed: {
     ...mapGetters({
@@ -187,22 +182,34 @@ export default {
       pair: 'substrate/wallet',
       hospitalAccount: 'substrate/hospitalAccount',
     }),
+
+    rules(){
+      return [
+        file => !!file || 'Image is Required',
+        file => !file || file.type == 'image/jpg' || file.type == 'image/jpeg' || 'Document type should be image/jpg',
+        file => !file || file.size <= 3_097_152 || 'Document size should be less than 3 MB!',
+      ]
+    },
   },
   methods: {
     async getCountries() {
       this.countries = countryData;
     },
+
     onCountryChange(selectedCountry) {
       this.country = selectedCountry;
       this.regions = Object.entries(cityData[this.country].divisions);
     },
+
     onRegionChange(selectedRegion) {
       this.region = selectedRegion;
       this.cities = Object.entries(cityData[this.country].divisions);
     },
+
     onCityChange(selectedCity) {
       this.city = selectedCity;
     },
+
     async updateHospital(){
       if (!this.$refs.form.validate()) {
         return
@@ -229,6 +236,7 @@ export default {
         console.error(err)
       }
     },
+    
     fileUploadEventListener(file) {
       if (!this.$refs.form.validate()) {
         return
