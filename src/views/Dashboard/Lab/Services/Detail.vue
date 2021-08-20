@@ -35,6 +35,16 @@
                       </v-avatar>
 
                   </div>
+                    <v-select
+                    dense
+                    label="Service Category"
+                    placeholder="Service Category"
+                    v-model="category"
+                    outlined
+                    :items="listCategories"
+                    :rules="[val => !!val || 'Category is Required']"
+                    ></v-select>
+
                     <v-text-field
                       dense
                       label="Service Name"
@@ -168,6 +178,7 @@ export default {
   name: 'EditLabServices',
   data: () => ({
     name: "",
+    category: "",
     price: "",
     qcPrice: "",
     description: "",
@@ -189,6 +200,16 @@ export default {
     ],
   }),
   mounted(){
+    this.listCategories = [
+      "Bioinformatics Data Analysis Support & Genetic Counseling", 
+      "Covid-19 Testing", 
+      "Single Nucleotide Polymorphism (SNP) Microarray", 
+      "Targeted Gene Panel Sequencing",
+      "Whole-Exome Sequencing",
+      "Whole-Genome Sequencing",
+      "whole-Transcriptome Sequencing",
+      "Others"
+    ]
     const item = this.$route.params.item
     this.id = item.id
     this.name = item.info.name
@@ -201,6 +222,7 @@ export default {
     this.testResultSampleUrl = item.info.test_result_sample
     this.expectedDuration = item.info.expected_duration.duration
     this.selectExpectedDuration = item.info.expected_duration.duration_type
+    this.category = item.info.category
     
     if(this.imageUrl){
       fetch(this.imageUrl)
@@ -258,7 +280,7 @@ export default {
             duration: this.expectedDuration, 
             duration_type: this.selectExpectedDuration
           },
-          category: "Genetic", // TODO: Change later, field doesn't exist on UI design
+          category: this.category,
           description: this.description,
           test_result_sample: this.testResultSampleUrl,
           long_description: this.longDescription,
