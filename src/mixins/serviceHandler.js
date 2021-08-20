@@ -7,7 +7,7 @@ export default {
 
   computed: {
     loadingPlaceholder() {
-      return this.isLoading ? "Loading Data..." : ""
+      return this.isLoading
     }
   },
 

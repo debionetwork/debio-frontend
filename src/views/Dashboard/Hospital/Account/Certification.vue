@@ -113,7 +113,7 @@
                 </v-form>
             </template>
             <template v-slot:actions>
-                <Button @click="submitCertification" :loading="isLoading" :disabled="isUploading" color="primary" dark>
+                <Button @click="submitCertification" :loading="isLoading || loadingPlaceholder" :disabled="isUploading" color="primary" dark>
                 Save
                 </Button>
             </template>
@@ -124,6 +124,7 @@
 <script>
 import { mapGetters } from "vuex"
 import { createCertification, updateCertification, deleteCertification } from "@/lib/polkadotProvider/command/hospitals/certifications"
+import serviceHandler from "@/mixins/serviceHandler"
 import Dialog from '@/components/Dialog'
 import Button from '@/components/Button'
 import { upload } from "@/lib/ipfs"
@@ -134,6 +135,9 @@ export default {
     Dialog,
     Button,
   },
+  mixins: [
+    serviceHandler
+  ],
   data: () => ({
     certId: "", // for update certification
     certTitle: "",
@@ -147,10 +151,6 @@ export default {
     isLoading: false,
     isUploading: false,
     isEditCertificationDialog: false,
-    supportingDocumentsRules: [
-      file => !file || file.type == 'application/pdf' || 'Document type should be application/pdf',
-      file => !file || file.size <= 10_097_152 || 'Document size should be less than 10 MB!',
-    ],
   }),
   computed: {
     ...mapGetters({
@@ -158,6 +158,7 @@ export default {
       pair: 'substrate/wallet',
       hospitalAccount: 'substrate/hospitalAccount',
     }),
+
     selectYears() {
       const years = []
       const thisYear = new Date().getFullYear()
@@ -165,18 +166,25 @@ export default {
         years.push(String(i))
       }
       return years
-    }
+    },
+
+    supportingDocumentsRules: [
+      file => !file || file.type == 'application/pdf' || 'Document type should be application/pdf',
+      file => !file || file.size <= 10_097_152 || 'Document size should be less than 10 MB!',
+    ],
   },
   methods: {
     openCertificationDialog() {
       this.certificationDialog = true
     },
+
     closeCertificationDialog() {
       this.certId = ""
       this.certificationDialog = false
       this.isEditCertificationDialog = false
       this.$refs.certificationForm.reset()
     },
+
     async submitCertification() {
       if (!this.certId) {
         await this.addCertification()
@@ -184,30 +192,24 @@ export default {
       }
       await this.updateCertification()
     },
+
     async addCertification() {
       if (!this.$refs.certificationForm.validate()) {
         return
       }
-      try {
-        this.isLoading = true
-        const certificationInfo = {
-          title: this.certTitle,
-          issuer: this.certIssuer,
-          month: this.certMonth,
-          year: this.certYear,
-          description: this.certDescription,
-          supporting_document: this.certSupportingDocumentsUrl
-        }
-
-        await createCertification(this.api, this.pair, certificationInfo, () => {
-          this.closeCertificationDialog()
-          this.isLoading = false
-        })
-      } catch (err) {
-        console.log(err)
-        this.isLoading = false
+      const certificationInfo = {
+        title: this.certTitle,
+        issuer: this.certIssuer,
+        month: this.certMonth,
+        year: this.certYear,
+        description: this.certDescription,
+        supporting_document: this.certSupportingDocumentsUrl
       }
+      await this.dispatch(createCertification, this.api, this.pair, certificationInfo, () => {
+        this.closeCertificationDialog()
+      })
     },
+    
     editCertification(cert) {
       this.certId = cert.id
       this.certTitle = cert.info.title
@@ -220,43 +222,31 @@ export default {
       this.certificationDialog = true
       this.isEditCertificationDialog = true
     },
+
     async updateCertification() {
       if (!this.$refs.certificationForm.validate()) {
         return
       }
-
-      try {
-        this.isLoading = true
-
-        const certificationInfo = {
-          title: this.certTitle,
-          issuer: this.certIssuer,
-          month: this.certMonth,
-          year: this.certYear,
-          description: this.certDescription,
-          supporting_document: this.certSupportingDocumentsUrl
-        }
-
-        await updateCertification(this.api, this.pair, this.certId, certificationInfo, () => {
-          this.closeCertificationDialog()
-          this.isLoading = false
-        })
-      } catch (err) {
-        console.log(err)
-        this.isLoading = false
+      const certificationInfo = {
+        title: this.certTitle,
+        issuer: this.certIssuer,
+        month: this.certMonth,
+        year: this.certYear,
+        description: this.certDescription,
+        supporting_document: this.certSupportingDocumentsUrl
       }
+      await this.dispatch(updateCertification, this.api, this.pair, this.certId, certificationInfo, () => {
+        this.closeCertificationDialog()
+      })
     },
+
     async deleteCertification(cert) {
       const isConfirmed = confirm("Are you sure you want to delete this certification?")
       if (isConfirmed) {
-        this.isLoading = true
-
-        await deleteCertification(this.api, this.pair, cert.id, () => {
-          this.isLoading = false
-        })
+        await this.dispatch(deleteCertification, this.api, this.pair, cert.id)
       }
-      return
     },
+
     fileUploadEventListener(file) {
       this.certSupportingDocumentsUrl = ""
       if (!this.$refs.certificationForm.validate()) {
