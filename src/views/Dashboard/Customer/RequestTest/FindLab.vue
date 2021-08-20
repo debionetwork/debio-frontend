@@ -286,7 +286,7 @@
             >
               <template v-slot:footer>
                 <span class="text-h6">
-                  {{ product.price }}
+                  {{ product.totalPrice }}
                 </span>
                 <span class="primary--text text-caption">
                   {{ product.currency }}
@@ -549,6 +549,7 @@ export default {
                 let currency = this.coinName;
                 let price = 0;
                 let additionalPrices = 0;
+                let totalPrice = 0
                 if (detailService.info.prices_by_currency != null) {
                   currency = detailService.info.prices_by_currency[0].currency;
                   if (
@@ -565,6 +566,8 @@ export default {
                       detailService.info.prices_by_currency[0]
                         .additional_prices[0].value;
                   }
+                  totalPrice = Number(price) + Number(additionalPrices)
+                  totalPrice = totalPrice.toString()
                 }
 
                 const product = {
@@ -576,6 +579,7 @@ export default {
                   currency,
                   additionalPrices,
                   indexPrice: 0,
+                  totalPrice,
                 };
 
                 this.products.push(product);
@@ -590,6 +594,7 @@ export default {
         this.products = [];
       }
       this.isLoadingProducts = false;
+      console.log(this.products, '<====== productsss')
     },
     isProductSelected(product) {
       return (
