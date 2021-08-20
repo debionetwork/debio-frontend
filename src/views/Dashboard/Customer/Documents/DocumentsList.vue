@@ -79,27 +79,34 @@
                   </v-row>
                 </div>
               </v-card>
-              <v-card
-                class="dg-card pb-2 pt-2"
-                style="background: #eeeeee"
-                elevation="0"
-                outlined
-                @click="openUpload('other')"
-              >
-                <div class="ml-5 mr-5">
-                  <v-row class="align-center">
-                    <v-col cols="12" lg="2" md="2" xl="2">
-                      <v-icon color="#BA8DBB" :size="48">
-                        mdi-file-document
-                      </v-icon>
-                    </v-col>
-                    <v-col cols="12" lg="10" md="10" xl="10">
-                      <div class="ml-3 text-left font-weight-bold">Others</div>
-                      <div class="ml-3 text-left"></div>
-                    </v-col>
-                  </v-row>
-                </div>
-              </v-card>
+              <v-tooltip top max-width="350">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-card
+                    v-on="on"
+                    v-bind="attrs" 
+                    class="dg-card pb-2 pt-2"
+                    style="background: #eeeeee"
+                    elevation="0"
+                    outlined
+                    @click="openUpload('other')"
+                  >
+                    <div class="ml-5 mr-5">
+                      <v-row class="align-center">
+                        <v-col cols="12" lg="2" md="2" xl="2">
+                          <v-icon color="#BA8DBB" :size="48">
+                            mdi-file-document
+                          </v-icon>
+                        </v-col>
+                        <v-col cols="12" lg="10" md="10" xl="10">
+                          <div class="ml-3 text-left font-weight-bold">Others</div>
+                          <div class="ml-3 text-left"></div>
+                        </v-col>
+                      </v-row>
+                    </div>
+                  </v-card>
+                </template>
+                Under Development
+              </v-tooltip>
             </div>
           </v-card>
         </v-dialog>
@@ -335,6 +342,10 @@ export default {
       this.showDialogUseTypeFile = true;
     },
     openUpload(typeFile) {
+      // FIXME: Lines 346 - 348 Only for Demo
+      if (typeFile == 'other') {
+        return
+      }
       this.showDialogUseTypeFile = false;
       if (typeFile == "emr") {
         this.uploadEMR = true;
