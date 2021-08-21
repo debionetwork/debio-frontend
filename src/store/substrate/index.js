@@ -34,6 +34,7 @@ const defaultState = {
   hospitalAccount: null,
   isHospitalAccountExist: false,
   lastEventData: null,
+  lastOrderCustomer: null,
   localListNotification: [],
   configEvent: null,
   mnemonicData: null,
@@ -100,9 +101,12 @@ export default {
     SET_MNEMONIC_DATA(state, event) {
       state.mnemonicData = event
     },
+    SET_LAST_ORDER_CUSTOMER(state, data) {
+      state.lastOrderCustomer = data
+    },
   },
   actions: {
-    async connect({ commit }) {
+    async connect({ commit }, userSubstrateAddress) {
       try {
         commit('SET_LOADING_API', true)
         const PROVIDER_SOCKET = store.getters['auth/getConfig'].substrateWs;
@@ -110,6 +114,10 @@ export default {
         const api = await ApiPromise.create({
           provider: wsProvider,
           types: types
+        })
+
+        api.query.orders.lastOrderByCustomer(userSubstrateAddress, (data) => {
+          commit("SET_LAST_ORDER_CUSTOMER", data)
         })
 
         // Example of how to subscribe to events via storage
@@ -466,6 +474,9 @@ export default {
     },
     getListNotification(state) {
       state.localListNotification
+    },
+    getLastOrderCustomer(state) {
+      return state.lastOrderCustomer
     },
     getMnemonicData(state) {
       state.mnemonicData

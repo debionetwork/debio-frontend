@@ -74,7 +74,7 @@
             </v-card-text>
           </v-card>
         </v-col>
-        <v-col cols="12" xl="3" lg="4" md="4" v-if="isProcessed">
+        <v-col cols="12" xl="3" lg="4" md="4" v-if="!isProcessed">
           <v-card class="dg-card pb-3" elevation="0" outlined>
             <v-card-text class="px-8">
               <div class="d-flex justify-space-between align-center">
@@ -165,11 +165,11 @@ import DialogAlert from "@/components/Dialog/DialogAlert";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
 import { ORDER_PROCESSED } from "@/constants/specimen-status"
 import WalletBinding from "@/components/WalletBinding";
-// import { startApp } from "@/lib/metamask";
 import {
   ordersByCustomer,
   getOrdersData,
 } from "@/lib/polkadotProvider/query/orders";
+import store from '@/store';
 
 export default {
   components: {
@@ -219,6 +219,9 @@ export default {
         )
         .toFixed(2);
     },
+    lastOrderCustomer() {
+      return store.getters['substrate/getLastOrderCustomer']
+    }
   },
   mounted() {
     this.checkingData();
@@ -226,12 +229,9 @@ export default {
   methods: {
     ...mapMutations({
       clearTestRequest: "testRequest/CLEAR_TEST_REQUEST",
-      // setOpenMetaMask: "metamask/SET_OPEN_PAY_METAMASK",
     }),
     async handleViewTransaction() {
-      // await startApp()
-      // this.setOpenMetaMask(false)
-      console.log("handleViewTransaction");
+      window.open(`https://rinkeby.etherscan.io/address/${this.metamaskWalletAddress}`, "_blank")
     },
     async onSubmitOrder() {
       const ethAddress = await ethAddressByAccountId(
