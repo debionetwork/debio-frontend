@@ -146,7 +146,13 @@ export default {
       setIsLoading: "substrate/SET_LOADING_WALLET",
     }),
     async onVerifyRecaptcha(response) {
-      const recaptchaBackendUrl = `${process.env.VUE_APP_DEGENICS_BACKEND_URL}/recaptcha`;
+      console.log(response)
+      let recaptchaBackendUrl = ''
+      if (process.env.NODE_ENV == 'demo') {
+        recaptchaBackendUrl = `${process.env.VUE_APP_DEGENICS_BACKEND_URL}/recaptcha`;
+      } else {
+        recaptchaBackendUrl = `${process.env.VUE_APP_DEV_DEGENICS_BACKEND_URL}/recaptcha`;
+      }
       const result = await axios.post(recaptchaBackendUrl, { response });
 
       if (result.data.success) {
