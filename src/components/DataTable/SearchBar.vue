@@ -19,17 +19,30 @@
       <slot name="filter-menu"></slot>
     </v-menu>
 
-    <v-text-field
-      hide-details="auto"
-      class="bri-search-field"
-      :class="{ 'has-filter': showFilter }"
-      :label="label"
-      outlined
-      dense
-      append-icon="mdi-magnify"
-      color="primary"
-      @input="onSearchInput"
-    ></v-text-field>
+    <div class="search-bar">
+      <v-text-field
+        hide-details="auto"
+        class="bri-search-field"
+        :class="{ 'has-filter': showFilter }"
+        :label="label"
+        outlined
+        dense
+        append-icon="mdi-magnify"
+        color="primary"
+        @input="onSearchInput"
+        @click="active = true"
+      ></v-text-field>
+      <div
+        v-if="withDropdown && filteredItems.length && active"
+        class="search-bar__results elevation-1 mt-3 position-absolute rounded"
+        v-click-outside="onClickOutside"
+      >
+        <div class="search-bar__item" v-for="(item, idx) in filteredItems" :key="idx" @click="onItemSelected(item)">
+          <slot name="item" v-if="$slots.item || $scopedSlots.item" :item="item" :index="idx"></slot>
+          <div v-else class="py-2 px-4"> {{ item[itemText] }} </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -37,19 +50,44 @@
 export default {
   name: 'SearchBar',
   props: {
+    filteredItems: { type: Array, default: () => [] },
+    itemValue: { type: String, default: "" },
+    itemText: { type: String, default: "" },
     label: String,
+    withDropdown: Boolean,
+    returnObject: Boolean,
   },
   computed: {
     showFilter() { // Show filter if filter-menu slot has content
       return !!this.$slots['filter-menu']
     },
   },
+
   data: () => ({
+    active: true
   }),
+
   methods: {
+    onClickOutside() {
+      this.active = false
+    },
+
     onSearchInput(val) {
       this.$emit('input', val)
     },
+
+    onItemSelected(item) {
+      const selection = this.returnObject
+        ? item
+        : item[this.itemValue]
+
+      if (!this.itemValue && !this.returnObject) {
+        console.error("If you do not set return-object props, please at least set item-value props to return a value")
+        return
+      }
+
+      this.$emit("itemSelected", selection)
+    }
   }
 }
 </script>
@@ -139,6 +177,29 @@ export default {
     .v-input__slot {
       border-bottom-left-radius: 0 !important;
       border-top-left-radius: 0 !important;
+    }
+  }
+}
+
+.search-bar {
+  position: relative;
+  z-index: 9;
+
+  &__results {
+    width: 100%;
+    position: absolute;
+    z-index: 99;
+  }
+
+  &__item {
+    cursor: pointer;
+
+    &:not(:last-child) {
+      margin-bottom: 10px;
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, .1);
     }
   }
 }

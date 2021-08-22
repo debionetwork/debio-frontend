@@ -272,6 +272,10 @@ export default {
       }
     },
     successLoginAction() {
+      const { redirect, ...payload } = this.$route.query
+
+      if (redirect) this.$router.push({ name: redirect, query: { ...payload } })
+
       this.successLogin = true;
       this.alertTextBtn = "Continue";
       this.alertImgPath = "success.png";

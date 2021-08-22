@@ -6,6 +6,7 @@ import labRoutes from './routes/lab'
 import doctorRoutes from './routes/doctor'
 import hospitalRoutes from './routes/hospital'
 import customerRoutes from './routes/customer'
+import requestServiceRoute from './routes/requestService'
 
 Vue.use(VueRouter)
 
@@ -16,6 +17,7 @@ const routes = [
   ...hospitalRoutes,
   ...authRoutes,
   ...customerRoutes,
+  ...requestServiceRoute,
 ]
 
 const router = new VueRouter({
