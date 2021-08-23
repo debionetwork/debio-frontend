@@ -21,7 +21,7 @@
 				<template v-slot:search-bar>
 					<SearchBar
 						label="Search"
-						@input="searchQuery = $event"
+						@input="handleOnSearch"
 						class="justify-end"
             :filteredItems="filteredRegions"
             item-text="location"
@@ -103,8 +103,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-// import { getOrdersDetailByAddressPagination } from '@/lib/polkadotProvider/query/orders'
 import ServerSideDataTable from '@/components/DataTable/ServerSideDataTable'
 import SearchBar from '@/components/DataTable/SearchBar'
 import Regions from "@/views/Dashboard/Lab/RequestLab/mock/regions.json"
@@ -117,6 +115,7 @@ export default {
     ServerSideDataTable,
     SearchBar,
   },
+
   data: () => ({
     headers: [
       {
@@ -166,6 +165,7 @@ export default {
     pageSize: 10,
     totalOrders: 0,
     address: '',
+    onSelectedItem: false,
     password: '',
     searchQuery: '',
 		isLoading: false
@@ -176,23 +176,21 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
-    }),
-
     filteredRegions() {
-      if (!this.searchQuery) return []
-
       const filtered = this.regions.filter(region =>
         this.searchQuery.toLowerCase().split(' ').every(v => region.location.toLowerCase().includes(v))
       )
 
-      return filtered
+      return !this.onSelectedItem && !this.searchQuery ? this.fetchRegions() : filtered
     }
   },
 
   methods: {
+    handleOnSearch(val) {
+      this.onSelectedItem = false
+      this.searchQuery = val
+    },
+
 		handleExpanded(expanded, id) {
 			this.chevronIconChange = expanded
 			this.regions.forEach(region => {
@@ -219,12 +217,12 @@ export default {
 		},
 
     provideService(item){
-      function camelize(str) {
-        console.log("camelize ==> ", str);
-        return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
-          return index === 0 ? word.toLowerCase() : word.toUpperCase();
-        }).replace(/\s+/g, '');
+      const camelize = (str) => {
+        return str.replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
+          return index === 0 ? word.toLowerCase() : word.toUpperCase()
+        }).replace(/\s+/g, '')
       }
+
       const keystore = localStorage.getAddress()
       const isLoggedIn = !!keystore
       const payload = {
@@ -259,8 +257,6 @@ export default {
         return filtered
       }, {})
 
-      console.log("parameterQueries ==> ", parameterQueries);
-
       if (!isLoggedIn) {
         this.$router.push({ name: "login", query: { redirect: "lab-dashboard-add-services", ...parameterQueries } })
         return
@@ -273,6 +269,7 @@ export default {
     },
 
     handleSelectedItem(item) {
+      this.onSelectedItem = true
       this.regions = this.regions.filter(region => region.id === item.id)
     },
 
@@ -320,7 +317,7 @@ tr {
 	padding: 0;
 
 	.v-data-table__wrapper {
-		margin-top: -58px;
+		margin-top: 30px;
 	}
 
 	tr {
@@ -330,6 +327,10 @@ tr {
 	td:first-child {
 		padding-left: 50px !important;
 	}
+
+  .degenics-data-table {
+    margin-top: -83px;
+  }
 
 	&-wrapper {
 		padding: 0 !important;

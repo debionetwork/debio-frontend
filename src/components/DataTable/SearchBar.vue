@@ -26,6 +26,7 @@
         :class="{ 'has-filter': showFilter }"
         :label="label"
         outlined
+        autocomplete="off"
         dense
         append-icon="mdi-magnify"
         color="primary"
@@ -33,11 +34,16 @@
         @click="active = true"
       ></v-text-field>
       <div
-        v-if="withDropdown && filteredItems.length && active"
+        v-if="showResults"
         class="search-bar__results elevation-5 mt-3 position-absolute rounded"
         v-click-outside="onClickOutside"
       >
-        <div class="search-bar__item" v-for="(item, idx) in filteredItems" :key="idx" @click="onItemSelected(item)">
+        <div
+          class="search-bar__item"
+          v-for="(item, idx) in filteredItems"
+          :key="idx"
+          @click="onItemSelected(item)"
+        >
           <slot name="item" v-if="$slots.item || $scopedSlots.item" :item="item" :index="idx"></slot>
           <div v-else class="py-2 px-4" v-html="boldString(item[itemText], searchQuery)"></div>
         </div>
@@ -61,11 +67,15 @@ export default {
     showFilter() { // Show filter if filter-menu slot has content
       return !!this.$slots['filter-menu']
     },
+
+    showResults() {
+      return this.withDropdown && this.filteredItems?.length && this.active
+    }
   },
 
   data: () => ({
     active: true,
-    searchQuery: ""
+    searchQuery: "",
   }),
 
   methods: {
@@ -74,6 +84,7 @@ export default {
     },
 
     onSearchInput(val) {
+      this.active = true
       this.searchQuery = val
       this.$emit('input', val)
     },
