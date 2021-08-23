@@ -52,6 +52,14 @@ export default {
   methods: {
     closeDialog() {
       this._show = false;
+      let resData = []
+      let result = {
+        orderId: this.orderId,
+        isStake: false,
+        isReject: true,
+      }
+      resData.push(result)
+      localStorage.setLocalStorageByName('STATUS_REWARD', JSON.stringify(result))
       this.$emit("close");
     },
     closeDialogWithStakeData() {
@@ -59,7 +67,8 @@ export default {
       let resData = []
       let result = {
         orderId: this.orderId,
-        status: true
+        isStake: true,
+        isReject: false,
       }
       resData.push(result)
       localStorage.setLocalStorageByName('STATUS_REWARD', JSON.stringify(result))
