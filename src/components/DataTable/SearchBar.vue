@@ -34,12 +34,12 @@
       ></v-text-field>
       <div
         v-if="withDropdown && filteredItems.length && active"
-        class="search-bar__results elevation-1 mt-3 position-absolute rounded"
+        class="search-bar__results elevation-5 mt-3 position-absolute rounded"
         v-click-outside="onClickOutside"
       >
         <div class="search-bar__item" v-for="(item, idx) in filteredItems" :key="idx" @click="onItemSelected(item)">
           <slot name="item" v-if="$slots.item || $scopedSlots.item" :item="item" :index="idx"></slot>
-          <div v-else class="py-2 px-4"> {{ item[itemText] }} </div>
+          <div v-else class="py-2 px-4" v-html="boldString(item[itemText], searchQuery)"></div>
         </div>
       </div>
     </div>
@@ -64,7 +64,8 @@ export default {
   },
 
   data: () => ({
-    active: true
+    active: true,
+    searchQuery: ""
   }),
 
   methods: {
@@ -73,7 +74,15 @@ export default {
     },
 
     onSearchInput(val) {
+      this.searchQuery = val
       this.$emit('input', val)
+    },
+
+    boldString(str, substr) {
+      substr = substr.charAt(0).toUpperCase() + substr.slice(1)
+
+      const strRegExp = new RegExp(substr, 'g');
+      return str.replace(strRegExp, '<b>'+substr+'</b>');
     },
 
     onItemSelected(item) {
@@ -131,7 +140,7 @@ export default {
 }
 
 .bri-search-field {
-  max-width: 455px;
+  width: 100%;
   /** Border color */
   fieldset {
     border: 2px solid $color-border;
@@ -182,13 +191,14 @@ export default {
 }
 
 .search-bar {
+  width: 455px;
   position: relative;
-  z-index: 9;
 
   &__results {
     width: 100%;
     position: absolute;
     z-index: 99;
+    background: #fff;
   }
 
   &__item {
