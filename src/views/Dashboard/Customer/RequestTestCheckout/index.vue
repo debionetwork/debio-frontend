@@ -74,7 +74,7 @@
             </v-card-text>
           </v-card>
         </v-col>
-        <v-col cols="12" xl="3" lg="4" md="4" v-if="!isProcessed">
+        <v-col cols="12" xl="3" lg="4" md="4" v-if="isProcessed">
           <v-card class="dg-card pb-3" elevation="0" outlined>
             <v-card-text class="px-8">
               <div class="d-flex justify-space-between align-center">
@@ -165,11 +165,7 @@ import DialogAlert from "@/components/Dialog/DialogAlert";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
 import { ORDER_PROCESSED } from "@/constants/specimen-status"
 import WalletBinding from "@/components/WalletBinding";
-import {
-  ordersByCustomer,
-  getOrdersData,
-} from "@/lib/polkadotProvider/query/orders";
-import store from '@/store';
+import localStorage from '@/lib/local-storage'
 
 export default {
   components: {
@@ -199,6 +195,7 @@ export default {
       products: (state) => state.testRequest.products,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      lastEventData: (state) => state.substrate.lastEventData,
       configApp: (state) => state.auth.configApp,
       metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
     }),
@@ -219,17 +216,32 @@ export default {
         )
         .toFixed(2);
     },
-    lastOrderCustomer() {
-      return store.getters['substrate/getLastOrderCustomer']
+    onProcessed: {
+      get() {
+        return this.isProcessed
+      },
+
+      set(val) {
+        this.isProcessed = val
+      }
+    },
+  },
+
+  watch: {
+    lastEventData() {
+      this.checkLastOrder()
     }
   },
+
   mounted() {
-    this.checkingData();
+    this.checkingData()
+    this.checkLastOrder()
   },
   methods: {
     ...mapMutations({
       clearTestRequest: "testRequest/CLEAR_TEST_REQUEST",
     }),
+
     async handleViewTransaction() {
       window.open(`https://rinkeby.etherscan.io/address/${this.metamaskWalletAddress}`, "_blank")
     },
@@ -242,6 +254,8 @@ export default {
         const balance = await getBalanceETH(this.metamaskWalletAddress);
         if (balance > 0) {
           this.sendPaymentDialog = true;
+          localStorage.removeLocalStorageByName("lastOrderStatus")
+          this.checkLastOrder()
         } else {
           this.alertTitleAlert = "Payment Failed!"
           this.alertTextAlert = "Your payment failed due to insufficient fund. Please check your wallet balance before making a transaction."
@@ -260,22 +274,12 @@ export default {
       this.clearTestRequest();
 
       this.$router.push({ name: "request-test-receipt", params: { receipts } });
-
-      console.log("Receipt in RequestTestCheckout", receipts);
+    },
+    checkLastOrder() {
+      const status = localStorage.getLocalStorageByName("lastOrderStatus")
+      this.onProcessed = status && status === ORDER_PROCESSED ? true : false
     },
     async checkingData() {
-      const listOrderId = await ordersByCustomer(this.api, this.wallet.address);
-      let orders = []
-      // NOTE: Actually, the best way is to do it (reverse) on the backend itself
-      listOrderId.reverse()
-
-      for (let i = 0; i < listOrderId?.length; i++) {
-        const order = await getOrdersData(this.api, listOrderId[i])
-        orders.push(order)
-      }
-
-      if (orders?.some(order => order.status === ORDER_PROCESSED)) this.isProcessed = true
-
       if (this.lab == null) {
         this.$router.push({ name: "request-test" });
       } else {

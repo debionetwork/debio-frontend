@@ -22,7 +22,7 @@
               <v-card-text class="px-8">
                 <div class="d-flex justify-space-between">
                   <div class="text-h5">Lab Details</div>
-                  <StatusChip :status="order.status" />
+                  <StatusChip :status="computeStatus" />
                 </div>
                 <div v-if="lab">
                   <div class="text-subtitle-1">
@@ -250,6 +250,7 @@ import {
   REJECTED,
   ORDER_REFUNDED,
   ORDER_FULFILLED,
+  ORDER_PROCESSED,
   ORDER_FAILED
 } from "@/constants/specimen-status";
 import { getOrdersData, getOrdersDetail } from "@/lib/polkadotProvider/query/orders";
@@ -284,6 +285,7 @@ export default {
     ORDER_REFUNDED,
     ORDER_FULFILLED,
     ORDER_FAILED,
+    ORDER_PROCESSED,
     isLoading: false,
     lab: null,
     service: null,
@@ -301,6 +303,7 @@ export default {
     dialogReward: false,
     orderId: "",
     totalQcPrice: 0,
+    isProcessed: null,
     totalPay: 0,
     statusReward: false,
     dnaSampleStatus: "",
@@ -320,6 +323,10 @@ export default {
       return this.lab && this.service && this.order;
     },
 
+    computeStatus() {
+      return !this.isProcessed ? this.order.status : ORDER_PROCESSED
+    },
+
     showFailedComponent() {
       return !this.isLoading && this.dataLoaded && this.order.status == ORDER_FAILED
     },
@@ -328,8 +335,9 @@ export default {
     }
   },
   mounted() {
-    this.fetchOrderDetails();
+    this.fetchOrderDetails()
     this.checkStatusReward()
+    this.checkLastOrder()
   },
   watch: {
     $route() {
@@ -352,6 +360,8 @@ export default {
               this.alertTextAlert = "Order Paid";
               this.dialogAlert = true;
               this.alertType = "paid";
+              localStorage.removeLocalStorageByName("lastOrderStatus")
+              this.checkLastOrder()
             }
             if (this.lastEventData.method == "OrderSuccess") {
               if (this.statusReward) {
@@ -366,7 +376,7 @@ export default {
           }
         }
       }
-    },
+    }
   },
   methods: {
     ...mapMutations({
@@ -395,9 +405,6 @@ export default {
       this.service = await queryServicesById(this.api, this.order.service_id);
 
       if (this.openPayMetamask) {
-        console.log(this.order);
-        console.log(this.lab);
-        console.log(this.service);
         this.openMetamask();
       }
       this.isLoading = false;
@@ -424,6 +431,10 @@ export default {
       }
       this.dialogAlert = false;
     },
+    checkLastOrder() {
+      const status = localStorage.getLocalStorageByName("lastOrderStatus")
+      this.isProcessed = status ? status : null
+    },
     async openMetamask() {
       await startApp();
       this.setOpenMetaMask(false);
@@ -433,6 +444,8 @@ export default {
         this.alertTextAlert = "You haven't integrated in Wallet Binding.";
         this.dialogAlert = true;
         this.alertType = "no_acc_eth";
+        localStorage.removeLocalStorageByName("lastOrderStatus")
+        this.checkLastOrder()
         return;
       }
       const ethSellerAddress = await ethAddressByAccountId(
@@ -445,6 +458,8 @@ export default {
         this.alertTextAlert = "Saller haven't integrated in Wallet Binding.";
         this.dialogAlert = true;
         this.alertType = "no_acc_eth";
+        localStorage.removeLocalStorageByName("lastOrderStatus")
+        this.checkLastOrder()
         return;
       }
       const balance = await getBalanceETH(this.metamaskWalletAddress);
@@ -454,6 +469,8 @@ export default {
         this.alertTextAlert = "Your ETH balance is 0.";
         this.dialogAlert = true;
         this.alertType = "no_acc_eth";
+        localStorage.removeLocalStorageByName("lastOrderStatus")
+        this.checkLastOrder()
         return;
       }
 
@@ -466,6 +483,9 @@ export default {
           amount: String(price),
           from: this.metamaskWalletAddress,
         });
+
+        localStorage.setLocalStorageByName("lastOrderStatus", "Processed")
+        this.checkLastOrder()
       } catch (err) {
         console.log(err);
         this.alertTextBtn = "Close";
@@ -473,6 +493,8 @@ export default {
         this.alertTextAlert = "Payment via Metamask is canceled or rejected.";
         this.dialogAlert = true;
         this.alertType = "cancel_metamask_payment";
+        localStorage.removeLocalStorageByName("lastOrderStatus")
+        this.checkLastOrder()
       }
     },
     showDialogCancelOrder() {

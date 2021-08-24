@@ -34,7 +34,6 @@ const defaultState = {
   hospitalAccount: null,
   isHospitalAccountExist: false,
   lastEventData: null,
-  lastOrderCustomer: null,
   localListNotification: [],
   configEvent: null,
   mnemonicData: null,
@@ -101,12 +100,9 @@ export default {
     SET_MNEMONIC_DATA(state, event) {
       state.mnemonicData = event
     },
-    SET_LAST_ORDER_CUSTOMER(state, data) {
-      state.lastOrderCustomer = data
-    },
   },
   actions: {
-    async connect({ commit }, userSubstrateAddress) {
+    async connect({ commit }) {
       try {
         commit('SET_LOADING_API', true)
         const PROVIDER_SOCKET = store.getters['auth/getConfig'].substrateWs;
@@ -116,10 +112,6 @@ export default {
           types: types
         })
 
-        api.query.orders.lastOrderByCustomer(userSubstrateAddress, (data) => {
-          commit("SET_LAST_ORDER_CUSTOMER", data)
-        })
-
         // Example of how to subscribe to events via storage
         api.query.system.events((events) => {
           console.log(`\nReceived ${events.length} events:`);
@@ -127,6 +119,7 @@ export default {
             const { event, phase } = record;
             if (event.section == "orders" || event.section == "geneticTesting" || event.section == "balances" || event.section == "electronicMedicalRecord") {
               console.log("Method :" + event.method);
+              if (event.method === "OrderPaid") localStorage.removeLocalStorageByName("lastOrderStatus")
               console.log(`Phase: ${phase.toString()}`)
               commit('SET_LAST_EVENT', event);
             }
@@ -474,9 +467,6 @@ export default {
     },
     getListNotification(state) {
       state.localListNotification
-    },
-    getLastOrderCustomer(state) {
-      return state.lastOrderCustomer
     },
     getMnemonicData(state) {
       state.mnemonicData
