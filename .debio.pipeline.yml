@@ -1,7 +1,7 @@
 ---
 kind: pipeline
 type: docker
-name: frontend_dev_deploy
+name: debio_frontend_deploy
 trigger:
   branch:
     - development
@@ -24,18 +24,6 @@ volumes:
       path: /data/drone_data
 
 steps:
-  - name: verify pull request
-    pull: if-not-exists
-    image: alpine/git
-    volumes:
-      - name: toolkit
-        path: /data/drone_data
-    commands:
-      - /data/drone_data/debio_toolkit -approval -repo=debionetwork/debio-frontend -id=${DRONE_PULL_REQUEST}
-    when:
-      branch:
-        - development
-
   - name: build - devel
     pull: if-not-exists
     image: plugins/ansible:1
@@ -53,26 +41,7 @@ steps:
       syntax_check: true
     when:
       branch:
-        - feat/rosat_setup_frontend_cicd
-
-  - name: deploy
-    pull: if-not-exists
-    image: docker
-    volumes:
-      - name: whitelist
-        path: /etc/docker/daemon.json
-      - name: dockersock
-        path: /var/run/docker.sock
-    commands:
-      - echo "build debio_frontend_service image ...."
-      - docker build -t debio_frontend_service .
-      - docker tag debio_frontend_service hub.theapps.dev/debio_frontend_service:latest
-      - docker push hub.theapps.dev/debio_frontend_service:latest
-    when:
-      event:
-        - push
-      branch:
-        - staging
+        - development
 
 ---
 kind: secret
