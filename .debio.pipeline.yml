@@ -4,7 +4,7 @@ type: docker
 name: frontend_dev_deploy
 trigger:
   branch:
-    - development
+    - feat/rosat_setup_frontend_cicd
   event:
     - pull_request
 
@@ -38,21 +38,22 @@ steps:
 
   - name: build - devel
     pull: if-not-exists
-    image: docker
+    image: plugins/ansible:1
     volumes:
-        - name: toolkit
-          path: /data/drone_data
-        - name: whitelist
-          path: /etc/docker/daemon.json
-        - name: dockersock
-          path: /var/run/docker.sock
-    commands:
-        - /data/drone_data/debio_toolkit -vault -env -secret=debio_development/data/frontend_dashboard
-        - docker build -t hub.debio.network/debio_frontend_dev:latest .
-        - docker push hub.debio.network/debio_frontend_dev:latest
+      - name: toolkit
+        path: /data/drone_data
+      - name: whitelist
+        path: /etc/docker/daemon.json
+      - name: dockersock
+        path: /var/run/docker.sock
+    settings:
+      playbook: ansible/playbook.yml
+      galaxy: ansible/requirements.yml
+      inventory: ansible/inventory
+      syntax_check: true
     when:
       branch:
-        - development
+        - feat/rosat_setup_frontend_cicd
 
   - name: deploy
     pull: if-not-exists
