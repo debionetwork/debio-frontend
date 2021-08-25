@@ -4,7 +4,7 @@ type: docker
 name: frontend_dev_deploy
 trigger:
   branch:
-    - feat/rosat_setup_frontend_cicd
+    - development
   event:
     - pull_request
 
