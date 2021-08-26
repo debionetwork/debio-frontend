@@ -76,7 +76,7 @@
                   >View Instructions</v-btn
                 >
               </v-container>
-              <v-container v-if="item.status == ORDER_PAID">
+              <v-container v-if="item.status == ORDER_PAID || !!isProcessed">
                 <v-btn
                   class="Received"
                   dark
@@ -86,7 +86,7 @@
                   >View Order</v-btn
                 >
               </v-container>
-              <v-container v-if="item.status == ORDER_UNPAID">
+              <v-container v-if="item.status == ORDER_UNPAID && !isProcessed">
                 <v-btn
                   class="btn-sending"
                   dark
@@ -182,6 +182,7 @@ import {
 } from "@/lib/polkadotProvider/query/orders";
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
+import localStorage from "@/lib/local-storage"
 
 export default {
   name: "history-test",
@@ -191,6 +192,7 @@ export default {
     SearchBar,
     RejectedReasonDialog,
   },
+
   data: () => ({
     SENDING,
     RECEIVED,
@@ -225,7 +227,9 @@ export default {
     dialogInstruction: false,
     dialogRejected: false,
     orderHistory: [],
+    isProcessed: null
   }),
+
   computed: {
     ...mapState({
       walletBalance: (state) => state.substrate.walletBalance,
@@ -234,6 +238,7 @@ export default {
       lastEventData: (state) => state.substrate.lastEventData,
     }),
   },
+
   watch: {
     lastEventData() {
       if (this.lastEventData != null) {
@@ -245,15 +250,25 @@ export default {
         }
       }
     },
+
     async address() {
       await this.getOrderHistory();
-    },
+    }
   },
+
   async mounted() {
     this.address = this.wallet.address;
   },
+
   methods: {
+    checkLastOrder() {
+      const status = localStorage.getLocalStorageByName("lastOrderStatus")
+
+      this.isProcessed = status ? status : null
+    },
+
     async getOrderHistory() {
+      this.checkLastOrder()
       this.isLoading = true;
       try {
         this.orderHistory = [];
@@ -296,6 +311,7 @@ export default {
         this.isLoading = false;
       }
     },
+
     prepareOrderData(detailOrder, detaillab, detailService) {
       const title = detailService.info.name;
       const labName = detaillab.info.name;
@@ -333,30 +349,36 @@ export default {
       };
 
       this.orderHistory.push(order);
+      if (this.isProcessed) this.orderHistory[0].status = this.isProcessed
     },
+
     goToOrderDetail(item) {
       this.$router.push({
         name: "order-history-detail",
         params: { number: item.number },
       });
     },
+
     gotoResult(item) {
       this.$router.push({
         name: "result-test",
         params: { number: item.dna_sample_tracking_id },
       });
     },
+
     showDialogInstruction(item) {
       this.selectedSpeciment = item;
       this.dialogInstruction = true;
     },
+
     showDialogRejected(item) {
       this.dialogRejected = true;
       this.selectedSpeciment = item;
     },
+
     onSearchInput(val) {
       this.search = val;
-    },
+    }
   },
 };
 </script>

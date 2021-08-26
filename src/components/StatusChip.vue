@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { SENDING, SUCCESS, RECEIVED, REJECTED, ORDER_REFUNDED, ORDER_FAILED } from '@/constants/specimen-status'
+import { SENDING, SUCCESS, RECEIVED, REJECTED, ORDER_REFUNDED, ORDER_FAILED, ORDER_PROCESSED } from '@/constants/specimen-status'
 
 export default {
   name: 'StatusChip',
@@ -39,6 +39,8 @@ export default {
           return green
         case ORDER_FAILED:
           return red
+        case ORDER_PROCESSED:
+          return green
         default:
           return grey
       }
