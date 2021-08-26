@@ -7,7 +7,7 @@ export default {
 
   computed: {
     loadingPlaceholder() {
-      return this.isLoading
+      return this.isLoading ? "Loading Data..." : ""
     }
   },
 
@@ -31,8 +31,6 @@ export default {
         console.error(`[${error?.response?.status}] Something went wrong, Please try again later!`)
 
         return Promise.reject(error)
-      } finally {
-        this.isLoading = false
       }
     }
   }

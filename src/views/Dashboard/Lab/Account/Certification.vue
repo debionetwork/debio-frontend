@@ -113,7 +113,7 @@
                 </v-form>
             </template>
             <template v-slot:actions>
-                <Button @click="submitCertification" :loading="isLoading || loadingPlaceholder" :disabled="isUploading" color="primary" dark>
+                <Button @click="submitCertification" :loading="isLoading" :disabled="isUploading" color="primary" dark>
                 Save
                 </Button>
             </template>
@@ -135,9 +135,7 @@ export default {
     Dialog,
     Button,
   },
-  mixins: [
-    serviceHandler
-  ],
+  mixins: [serviceHandler],
   data: () => ({
     certId: "", // for update certification
     certTitle: "",
@@ -148,7 +146,6 @@ export default {
     certSupportingDocumentsUrl: "",
     selectMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     certificationDialog: false,
-    isLoading: false,
     isUploading: false,
     isEditCertificationDialog: false,
   }),
@@ -206,6 +203,7 @@ export default {
       }
       await this.dispatch(createCertification, this.api, this.pair, certificationInfo, () => {
         this.closeCertificationDialog()
+        this.isLoading = false
       })
     },
     editCertification(cert) {
@@ -233,12 +231,15 @@ export default {
       }
       await this.dispatch(updateCertification, this.api, this.pair, this.certId, certificationInfo, () => {
         this.closeCertificationDialog()
+        this.isLoading = false
       })
     },
     async deleteCertification(cert) {
       const isConfirmed = confirm("Are you sure you want to delete this certification?")
       if (isConfirmed) {
-        await this.dispatch(deleteCertification, this.api, this.pair, cert.id)
+        await this.dispatch(deleteCertification, this.api, this.pair, cert.id, () => {
+          this.isLoading = false
+        })
       }
     },
     fileUploadEventListener(file) {

@@ -113,7 +113,7 @@
                 </v-form>
             </template>
             <template v-slot:actions>
-                <Button @click="submitCertification" :loading="isLoading || loadingPlaceholder" :disabled="isUploading" color="primary" dark>
+                <Button @click="submitCertification" :loading="isLoading" :disabled="isUploading" color="primary" dark>
                 Save
                 </Button>
             </template>
@@ -135,9 +135,7 @@ export default {
     Dialog,
     Button,
   },
-  mixins: [
-    serviceHandler
-  ],
+  mixins: [serviceHandler],
   data: () => ({
     certId: "", // for update certification
     certTitle: "",
@@ -148,7 +146,6 @@ export default {
     certSupportingDocumentsUrl: "",
     selectMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     certificationDialog: false,
-    isLoading: false,
     isUploading: false,
     isEditCertificationDialog: false,
   }),
