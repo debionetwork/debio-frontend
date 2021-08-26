@@ -458,7 +458,8 @@ export default {
       if (listLabID) {
         for (let i = 0; i < listLabID.length; i++) {
           const detaillab = await queryLabsById(this.api, listLabID[i]);
-          if (detaillab) {
+          let labId = listLabID[i-1]
+          if (detaillab && detaillab.account_id != labId ) {
             const labName = detaillab.info.name;
             const accountId = detaillab.account_id;
             const address = detaillab.info.address;
