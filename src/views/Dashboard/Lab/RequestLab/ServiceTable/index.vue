@@ -1,4 +1,3 @@
-
 <template>
 	<v-row>
 		<v-col>
@@ -105,7 +104,7 @@
 <script>
 import ServerSideDataTable from '@/components/DataTable/ServerSideDataTable'
 import SearchBar from '@/components/DataTable/SearchBar'
-import Regions from "@/views/Dashboard/Lab/RequestLab/mock/regions.json"
+import Regions from "./regions.json"
 import localStorage from '@/lib/local-storage'
 
 export default {

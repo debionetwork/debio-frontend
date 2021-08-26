@@ -9,22 +9,14 @@
 </template>
 
 <script>
-import ServiceTable from "./PartialView/ServiceTable.vue"
+import ServiceTable from "./ServiceTable"
 import serviceHandler from "@/mixins/serviceHandler"
 
 export default {
   name: "RequestLab",
-  components: { ServiceTable },
-
   mixins: [serviceHandler],
 
-  created() {
-
-  },
-
-  methods: {
-    
-  }
+  components: { ServiceTable }
 }
 </script>
 
