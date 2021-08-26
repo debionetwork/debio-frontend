@@ -203,7 +203,6 @@ export default {
       }
       await this.dispatch(createCertification, this.api, this.pair, certificationInfo, () => {
         this.closeCertificationDialog()
-        this.isLoading = false
       })
     },
     editCertification(cert) {
@@ -231,15 +230,12 @@ export default {
       }
       await this.dispatch(updateCertification, this.api, this.pair, this.certId, certificationInfo, () => {
         this.closeCertificationDialog()
-        this.isLoading = false
       })
     },
     async deleteCertification(cert) {
       const isConfirmed = confirm("Are you sure you want to delete this certification?")
       if (isConfirmed) {
-        await this.dispatch(deleteCertification, this.api, this.pair, cert.id, () => {
-          this.isLoading = false
-        })
+        await this.dispatch(deleteCertification, this.api, this.pair, cert.id)
       }
     },
     fileUploadEventListener(file) {
