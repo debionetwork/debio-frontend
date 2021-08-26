@@ -511,13 +511,18 @@ export default {
         if (!data) {
           let result = {
             orderId: this.orderId,
-            status: false
+            isStake: false,
+            isReject: false,
           }
           resData.push(result)
-          this.statusReward = result.status
+          // this.statusReward = result.status
+          this.statusReward = false
           localStorage.setLocalStorageByName('STATUS_REWARD', JSON.stringify(result))
         } else {
-          this.statusReward = data.status
+          // this.statusReward = data.status
+          if (data.isStake == true || data.isReject == true) {
+            this.statusReward = true
+          }
         }
       } catch (error) {
         console.log(error)
