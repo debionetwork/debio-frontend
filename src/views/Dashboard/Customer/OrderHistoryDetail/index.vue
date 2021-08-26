@@ -332,7 +332,7 @@ export default {
     },
 
     disabledPayButton() {
-      return this.isProcessed || this.order.status == ORDER_PAID
+      return !!this.isProcessed || this.order.status == ORDER_PAID
     },
 
     computeStatus() {
