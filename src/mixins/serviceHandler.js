@@ -31,8 +31,6 @@ export default {
         console.error(`[${error?.response?.status}] Something went wrong, Please try again later!`)
 
         return Promise.reject(error)
-      } finally {
-        this.isLoading = false
       }
     }
   }
