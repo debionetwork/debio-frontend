@@ -16,6 +16,7 @@
                 :ipfsUrl="getFileIpfsUrl(file)"
                 :view-only="submitted"
                 @edit="onEditClick('genome')"
+                @delete="onFileDelete('genome')"
               />
             </div>
           </v-col>
@@ -61,6 +62,7 @@
                 :ipfsUrl="getFileIpfsUrl(file)"
                 :view-only="submitted"
                 @edit="onEditClick('report')"
+                @delete="onFileDelete('report')"
               />
             </div>
           </v-col>
@@ -166,18 +168,21 @@ import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting
 
 export default {
   name: 'ProcessSpecimen',
+
   components: {
     FileCard,
     DialogAlert,
     Dialog,
     Button
   },
+
   props: {
     orderId: String,
     specimenNumber: String,
     specimenStatus: String,
     publicKey: [Uint8Array, String],
   },
+
   data: () => ({
     identity: null,
     genomeSucceed: false,
@@ -212,6 +217,7 @@ export default {
       report: 0,
     },
   }),
+
   async mounted(){    
     // Add file input event listener
     this.addFileUploadEventListener(this.$refs.encryptUploadGenome, 'genome')
@@ -222,27 +228,34 @@ export default {
     const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
     if(testResult) this.setUploadFields(testResult)
   },
+
   computed: {
     ...mapGetters({
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
     }),
+
     ...mapState({
       mnemonic: state => state.substrate.mnemonicData.mnemonic
     }),
+
     disableRejectButton(){
       return this.genomeSucceed && this.reportSucceed
     },
+
     disableSendButton(){
       return !this.disableRejectButton
     },
+    
     hasGenomeFile() {
       return this.files.genome.length > 0
     },
+
     hasReportFile() {
       return this.files.report.length > 0
     }
   },
+
   methods:{
     setUploadFields(testResult){
       const { result_link, report_link } = testResult
@@ -267,22 +280,27 @@ export default {
         this.submitted = true
       }
     },
+
     uploadGenome() {
       this.$refs.encryptUploadGenome.click()
     },
+
     uploadReport() {
       this.$refs.encryptUploadReport.click()
     },
+
     /**
      * @returns {String} The first ipfs path (a file has multiple ipfs path, because a file may be chunked)
      */
     getFileIpfsPath(file) {
       return file.ipfsPath[0].data.path
     },
+
     getFileIpfsUrl(file) {
       const path = this.getFileIpfsPath(file)
       return `https://ipfs.io/ipfs/${path}`
     },
+
     async submitTestResult(callback = ()=>{}) {
       let genomeLink = ""
       if(this.files.genome.length){
@@ -306,6 +324,7 @@ export default {
         callback
       )
     },
+
     sendTestResult() {
       this.isLoading = true
       this.submitTestResult(async () => {
@@ -314,10 +333,11 @@ export default {
           this.pair,
           this.orderId,
         )
-        this.processDnaSample()
+        this.resultReady()
       })
     },
-    async processDnaSample() {
+    
+    async resultReady() {
       this.isProcessing = true
       await processDnaSample(
         this.api,
@@ -393,6 +413,7 @@ export default {
         fr.readAsText(file)
       })
     },
+
     encrypt({ text, fileType, fileName }) {
       const context = this
       this.loadingStatus[fileType] = 'Encrypting'
@@ -433,6 +454,7 @@ export default {
         }
       })
     },
+
     upload({ encryptedFileChunks, fileName, fileType }) {
       this.loadingStatus[fileType] = 'Uploading'
       const chunkSize = 10 * 1024 * 1024 // 10 MB
@@ -476,24 +498,21 @@ export default {
         }
       })
     },
+
     onEditClick(fileType) {
-      if (fileType == 'genome') { this.uploadGenome() }
-      if (fileType == 'report') { this.uploadReport() }
+      if (fileType == 'genome') this.uploadGenome()
+      if (fileType == 'report') this.uploadReport()
     },
-    onFileDelete(file) {
-      const fileType = file.fileType
-      const ipfsPath = file.ipfsPath[0].data.path
 
-      const tempFiles = this.files[fileType].filter(file => {
-        return file.ipfsPath[0].data.path != ipfsPath
-      })
-
-      this.files = {...this.files, [fileType]: tempFiles }
-
-      specimenFilesTempStore.set(this.specimen.number, this.files)
-
-      if (this.files.genome.length == 0 && this.files.report.length == 0) {
-        specimenFilesTempStore.remove(this.specimen.number)
+    onFileDelete(fileType) {
+      this.files[fileType] = []
+      if (fileType == 'genome') {
+        this.genomeSucceed = false
+        this.$refs.encryptUploadGenome.value = null
+      }
+      if (fileType == 'report') {
+        this.reportSucceed = false
+        this.$refs.encryptUploadReport.value = null
       }
     },
   },
