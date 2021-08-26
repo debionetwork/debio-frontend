@@ -154,6 +154,7 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
+import serviceHandler from "@/mixins/serviceHandler"
 import FileCard from './FileCard'
 import ipfsWorker from '@/web-workers/ipfs-worker'
 import cryptWorker from '@/web-workers/crypt-worker'
@@ -168,21 +169,19 @@ import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting
 
 export default {
   name: 'ProcessSpecimen',
-
   components: {
     FileCard,
     DialogAlert,
     Dialog,
     Button
   },
-
+  mixins: [serviceHandler],
   props: {
     orderId: String,
     specimenNumber: String,
     specimenStatus: String,
     publicKey: [Uint8Array, String],
   },
-
   data: () => ({
     identity: null,
     genomeSucceed: false,
@@ -194,7 +193,6 @@ export default {
     reportLink: "",
     resultLink: "",
     submitted: false,
-    isLoading: false,
     isProcessed: false,
     files: {
       genome: [],
@@ -217,7 +215,6 @@ export default {
       report: 0,
     },
   }),
-
   async mounted(){    
     // Add file input event listener
     this.addFileUploadEventListener(this.$refs.encryptUploadGenome, 'genome')
@@ -228,7 +225,6 @@ export default {
     const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
     if(testResult) this.setUploadFields(testResult)
   },
-
   computed: {
     ...mapGetters({
       api: 'substrate/getAPI',
@@ -255,7 +251,6 @@ export default {
       return this.files.report.length > 0
     }
   },
-
   methods:{
     setUploadFields(testResult){
       const { result_link, report_link } = testResult
@@ -312,7 +307,8 @@ export default {
         reportLink = this.getFileIpfsUrl(this.files.report[0])      
       }
 
-      await submitTestResult(
+      await this.dispatch(
+        submitTestResult,
         this.api,
         this.pair,
         this.specimenNumber,
@@ -326,9 +322,9 @@ export default {
     },
 
     sendTestResult() {
-      this.isLoading = true
       this.submitTestResult(async () => {
-        await fulfillOrder(
+        await this.dispatch(
+          fulfillOrder,
           this.api,
           this.pair,
           this.orderId,
@@ -339,7 +335,8 @@ export default {
     
     async resultReady() {
       this.isProcessing = true
-      await processDnaSample(
+      await this.dispatch(
+        processDnaSample,
         this.api,
         this.pair,
         this.specimenNumber,
