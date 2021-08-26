@@ -165,10 +165,12 @@ export default {
       return years
     },
 
-    supportingDocumentsRules: [
-      file => !file || file.type == 'application/pdf' || 'Document type should be application/pdf',
-      file => !file || file.size <= 10_097_152 || 'Document size should be less than 10 MB!',
-    ],
+    supportingDocumentsRules(){
+      return [
+        file => !file || file.type == 'application/pdf' || 'Document type should be application/pdf',
+        file => !file || file.size <= 10_097_152 || 'Document size should be less than 10 MB!',
+      ]
+    }
   },
   methods: {
     openCertificationDialog() {
