@@ -343,6 +343,7 @@ export default {
         const file = this.files[0]
         file.fileType = fileType // attach fileType to file, because fileType is not accessible in fr.onload scope
         const fr = new FileReader()
+        if (file.type === "application/pdf") fr.readAsDataURL(file)
         fr.onload = async function() {
           try {
             // Encrypt
