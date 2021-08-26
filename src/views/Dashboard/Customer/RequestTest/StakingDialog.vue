@@ -86,8 +86,6 @@
       ></DialogAlert>
     </v-card>
   </v-dialog>
-
-
 </template>
 
 
@@ -117,6 +115,9 @@ export default {
         this.$emit("toggle", val);
       },
     },
+    disableButton() {
+      return !this.agree || this.isLoading || !this.amount
+    }
   },
   methods: {
     closeDialog() {
@@ -127,6 +128,9 @@ export default {
     },
     actionAlert() {
       this.dialogAlert = false
+        this.$router.push({
+        name: "customer-home",
+      });
     } 
   }
 }
