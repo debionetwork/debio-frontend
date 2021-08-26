@@ -140,10 +140,14 @@ export default {
         });
       }
       if (notif.route != "") {
-        this.$router.push({
+        if (this.$route.params.number != notif.params.number) {
+          this.$router.push({
           name: notif.route,
           params: notif.params,
         });
+        } else {
+          return
+        }
       }
     },
   },
