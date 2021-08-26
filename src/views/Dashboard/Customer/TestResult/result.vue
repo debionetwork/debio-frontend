@@ -326,8 +326,10 @@ export default {
           channel.port2,
         ]);
         ipfsWorker.workerDownload.onmessage = (event) => {
-          const isDataPdf = /^(data:application\/\pdf)/g.test(event.data)
+          const regexMatchPdf = /^(data:application\/\pdf)/g
+          const isDataPdf = regexMatchPdf.test(event.data)
           this.isDataPdf = isDataPdf
+
           this.result = event.data;
           this.resultLoading = false;
         };
