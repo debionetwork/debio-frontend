@@ -139,12 +139,13 @@ export default {
           data: this.listNotif,
         });
       }
-      if (notif.route != "") {
-        this.$router.push({
-          name: notif.route,
-          params: notif.params,
-        });
-      }
+
+      if (this.$route.params.number === notif.params.number) return
+      
+      this.$router.push({
+      name: notif.route,
+      params: notif.params,
+    });
     },
   },
   watch: {

@@ -211,7 +211,7 @@ const customerRoutes = [{
           { text: 'Genome Files', disabled: true },
         ],
         drawerButtons: [
-          { text: "Dashboard", disabled: false },
+          { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: true },
           { text: "Test Results", disabled: true },
           { text: "Order History", disabled: true },
