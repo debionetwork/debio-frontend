@@ -28,13 +28,13 @@
               @click="showDialog('download', index)"
             />
           </div>
+          
           <div class="mb-2">
             <v-card
               v-if="!dataStaked" 
-              class="dg-card dg-menu-card"
+              class="dg-card dg-menu-card grey lighten-1"
               :class="{ 'card-hover': true }"
               :elevation="0"
-              @click="showDialogStake"
               outlined
               :style="'border-radius: 10px;'"
               :ripple="false"
@@ -69,7 +69,8 @@
                         -webkit-box-orient: vertical;
                       "
                     >
-                      Stake my data anonymously
+                      <!-- Stake my data anonymously  -->
+                      Upcoming Feature
                     </div>
                   </div>
                 </div>
