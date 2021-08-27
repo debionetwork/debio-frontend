@@ -32,7 +32,7 @@ export default {
       commit('SET_CITY', data.city)
     },
     async getLabByCategory({ commit, state }, category) {
-      const baseUrl = process.env.VUE_APP_BACKEND_URL
+      const baseUrl = process.env.VUE_APP_DEV_DEGENICS_BACKEND_URL
       const labs = await axios.get(`${baseUrl}/labs/${state.country}/${state.city}/${category}`);
       commit('SET_LABS', labs.data.body.hits.hits)
       commit('SET_CATEGORY', category)

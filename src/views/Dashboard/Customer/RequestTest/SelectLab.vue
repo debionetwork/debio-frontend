@@ -4,7 +4,7 @@
       <v-col v-if="showNoLab" cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
         <v-card class="dg-card" elevation="0" outlined>
           <v-card-title class="px-8" color="white">
-            <div class="text-h6">Opps! this service is not available </div>
+            <div class="text-h6">Oops! this service is not available </div>
           </v-card-title>
           <div class="ml-8 mr-8 mb-8 grey--text text--darken-1">
             <div>

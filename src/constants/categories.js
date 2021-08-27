@@ -3,7 +3,7 @@ export default [
   "Genetic Counseling", 
   "Single Nucleotida Polymorphism (SNP) Microarray", 
   "Targeted Gene Panel Sequencing", 
-  "Whole-Enome Sequencing", 
+  "Whole-Exome Sequencing", 
   "Whole-Genome Sequencing", 
   "Other"
 ]
