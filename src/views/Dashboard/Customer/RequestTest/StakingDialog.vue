@@ -68,8 +68,9 @@
           color="primary"
           large
           width="100%"
-          @click="closeDialog"
+          @click="submitServiceRequestStaking"
           :disabled="!agree || isLoading || !amount"
+          :loading="isLoading"
         >
           Continue
         </v-btn>
@@ -80,7 +81,7 @@
         btnText="Continue"
         textAlert="Your request has been submitted! We have sent details about your request."
         imgPath="success.png"
-        :imgWidth="50"
+        imgWidth="50"
         @toggle="dialogAlert = $event"
         @close="actionAlert()"
       ></DialogAlert>
@@ -91,6 +92,10 @@
 
 <script>
 import DialogAlert from "@/components/Dialog/DialogAlert";
+import { approveDaiStakingAmount, checkAllowance, sendServiceRequestStaking } from '@/lib/metamask/serviceRequest'
+import { startApp, getTransactionReceiptMined } from "@/lib/metamask";
+import { mapState } from 'vuex'
+
 export default {
   name: "StakingDialog",
   components: {
@@ -100,11 +105,13 @@ export default {
   show: Boolean,
   },
   data: () => ({
-    currencyList: ['DAI', 'Ethereum'],
+    currencyList: ['DAI'], // Currently only staking in DAI is supported
     currencyType: 'DAI',
     agree: false,
     amount: "",
-    dialogAlert: false
+    dialogAlert: false,
+    isLoading: false,
+    transactionStep: ''
   }),
   computed: {
     _show: {
@@ -117,13 +124,16 @@ export default {
     },
     disableButton() {
       return !this.agree || this.isLoading || !this.amount
-    }
+    },
+    ...mapState({
+      country: state => state.lab.country,
+      city: state => state.lab.city,
+      category: state => state.lab.category,
+    })
   },
   methods: {
     closeDialog() {
       this._show = false;
-      this.password = "";
-      this.error = "";
       this.dialogAlert = true
     },
     actionAlert() {
@@ -131,7 +141,47 @@ export default {
         this.$router.push({
         name: "customer-home",
       });
-    } 
+    },
+    async submitServiceRequestStaking() {
+      this.ethAccount = await startApp();
+      if (this.ethAccount.currentAccount == "no_install") {
+        this.isLoading = false;
+        this.password = "";
+        this.error = "Please install MetaMask!";
+        return
+      }
+
+      try {
+        this.isLoading = true
+
+        const stakingAmount = this.amount
+        const stakingAmountAllowance = await checkAllowance(this.ethAccount.currentAccount)
+
+        if (stakingAmountAllowance < stakingAmount) {
+          const txHash = await await approveDaiStakingAmount(
+            this.ethAccount.currentAccount,
+            stakingAmount, // Approve only as much as needed to stake
+          )
+          await getTransactionReceiptMined(txHash)
+        }
+
+        const serviceCategory = this.category[0]
+        const txHash = await sendServiceRequestStaking(
+          this.ethAccount.currentAccount,
+          this.country,
+          this.city,
+          serviceCategory,
+          stakingAmount
+        )
+        await getTransactionReceiptMined(txHash)
+
+        this.isLoading = false
+        this.dialogAlert = true
+      } catch (err) {
+        console.log(err)
+        this.isLoading = false
+      }
+    },
   }
 }
 </script>

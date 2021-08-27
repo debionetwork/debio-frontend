@@ -52,5 +52,9 @@
     "address": "0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea",
     "updated": true,
     "lastUpdate": "2021-06-28T23:25:08.487Z"
+  },
+  "ServiceRequest": {
+    "name": "ServiceRequest",
+    "address": "0x27Daea298D744d6d0c91f44fD77624f60e80a9b3"
   }
 }
