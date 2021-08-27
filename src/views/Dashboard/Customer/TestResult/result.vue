@@ -12,7 +12,17 @@
             ></v-progress-linear>
             <!-- <v-card-title>{{ serviceName }} Report</v-card-title> -->
             <v-card-text>
-              {{ reportResult }}
+              <embed
+                :src="reportResult"
+                type="application/pdf"
+                v-if="isDataPdf"
+                scrolling="auto"
+                height="1000px"
+                width="100%"
+              />
+              <span v-else>
+                {{ reportResult }}
+              </span>
             </v-card-text>
           </v-card>
         </v-col>
@@ -195,6 +205,7 @@ export default {
     services: [],
     lab: null,
     order: null,
+    isDataPdf: false,
     serviceName: "",
     result: "",
     isLoading: false,
@@ -315,6 +326,10 @@ export default {
           channel.port2,
         ]);
         ipfsWorker.workerDownload.onmessage = (event) => {
+          const regexMatchPdf = /^(data:application\/\pdf)/g
+          const isDataPdf = regexMatchPdf.test(event.data)
+          this.isDataPdf = isDataPdf
+
           this.result = event.data;
           this.resultLoading = false;
         };
@@ -359,7 +374,9 @@ export default {
       const e = document.createEvent("MouseEvents");
       const a = document.createElement("a");
       a.download = fileName;
-      a.href = window.URL.createObjectURL(blob);
+      a.href = this.isDataPdf
+        ? data
+        : window.URL.createObjectURL(blob);
       a.dataset.downloadurl = ["text/json", a.download, a.href].join(":");
       e.initEvent(
         "click",
