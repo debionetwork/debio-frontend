@@ -325,6 +325,7 @@ import {
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import StakingDialog from "./StakingDialog.vue"
 import ServiceDialog from '@/components/Dialog/ServiceDialog'
+import categories from './categories'
 
 export default {
   name: "FindLab",
@@ -332,7 +333,7 @@ export default {
     SelectableMenuCard,
     DnaCollectionRequirements,
     StakingDialog,
-    ServiceDialog,
+    ServiceDialog
   },
   data: () => ({
     country: "country",
@@ -365,16 +366,7 @@ export default {
   async mounted() {
     this.coinName = this.configApp.tokenName;
     await this.getCountries();
-    this.listCategories = [
-      "Bionfarmatics Data Analyst Support", 
-      "Genetic Counseling", 
-      "Single Nucleotida Polymorphism (SNP) Microarray", 
-      "Targeted Gene Panel Sequencing", 
-      "Whole-Enome Sequencing", 
-      "Whole-Genome Sequencing", 
-      "Whole-Transcription Sequencing",
-      "Other"
-    ];
+    this.listCategories = categories
   },
   computed: {
     ...mapState({
@@ -457,13 +449,13 @@ export default {
       );
       if (listLabID) {
         for (let i = 0; i < listLabID.length; i++) {
-          const detaillab = await queryLabsById(this.api, listLabID[i]);
+          const detailLab = await queryLabsById(this.api, listLabID[i]);
           let labId = listLabID[i-1]
-          if (detaillab && detaillab.account_id != labId ) {
-            const labName = detaillab.info.name;
-            const accountId = detaillab.account_id;
-            const address = detaillab.info.address;
-            const labData = detaillab;
+          if (detailLab && detailLab.account_id != labId ) {
+            const labName = detailLab.info.name;
+            const accountId = detailLab.account_id;
+            const address = detailLab.info.address;
+            const labData = detailLab;
 
             const lab = {
               accountId,
@@ -604,8 +596,6 @@ export default {
       this.downloadPath = this.selectedProducts[0].serviceData.info.test_result_sample
       this.serviceId = this.selectedProducts[0].serviceData.id
       
-      console.log('lab account ', this.labAccount)
-      console.log('selected product ', this.selectedProducts)
       this.dialogAlert = true
 
       this.setLabToRequest(this.labAccount);

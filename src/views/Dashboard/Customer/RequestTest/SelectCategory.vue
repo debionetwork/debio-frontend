@@ -34,6 +34,8 @@
 
 <script>
 import SelectableMenuCard from "@/components/SelectableMenuCard";
+import categories from './categories'
+
 
 export default {
   name: 'SelectCategory',
@@ -45,15 +47,7 @@ export default {
     SelectableMenuCard
   },
   async mounted() {
-    this.categories = [
-      "Bionfarmatics Data Analyst Support", 
-      "Genetic Counseling", 
-      "Single Nucleotida Polymorphism (SNP) Microarray", 
-      "Targeted Gene Panel Sequencing", 
-      "Whole-Enome Sequencing", 
-      "Whole-Genome Sequencing", 
-      "Whole-Transcription Sequencing",
-    ]
+    this.categories = categories
   },
   methods: {
     isCategorySelected(category) {
