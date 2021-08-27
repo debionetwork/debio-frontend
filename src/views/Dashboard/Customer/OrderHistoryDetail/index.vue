@@ -534,15 +534,7 @@ export default {
     },
 
     async cancelOrderRequest(status) {
-      if (status) {
-        try {
-          this.isLoading = true;
-          await cancelOrder(this.api, this.wallet, this.$route.params.number);
-        } catch (err) {
-          console.log(err);
-          this.isLoading = false;
-        }
-      }
+      if (status) this.dispatch(cancelOrder, this.api, this.wallet, this.$route.params.number)
     },
 
     isValidIcon(icon) {
