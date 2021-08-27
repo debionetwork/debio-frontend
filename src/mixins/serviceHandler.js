@@ -20,9 +20,10 @@ export default {
     addCallback(args){
       // Add callback if doesn't exist
       if(!(args[args.length - 1] instanceof Function)){
-        args.push(()=>{
+        args.push(() => {
           this.isLoading = false
         })
+
         return args
       }
       
@@ -32,6 +33,7 @@ export default {
         f()
         this.isLoading = false
       }
+
       return args
     },
 
@@ -43,7 +45,7 @@ export default {
      */
     async dispatch(action, ...args) {
       this.isLoading = true
-      args = this.addCallback(args)      
+      args = this.addCallback(args)
 
       try {
         const response = await action.apply(this, args)
@@ -55,6 +57,8 @@ export default {
         console.error(`[${error?.response?.status}] Something went wrong, Please try again later!`)
 
         return Promise.reject(error)
+      } finally {
+        this.isLoading = false
       }
     }
   }
