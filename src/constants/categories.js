@@ -5,6 +5,5 @@ export default [
   "Targeted Gene Panel Sequencing", 
   "Whole-Enome Sequencing", 
   "Whole-Genome Sequencing", 
-  "Whole-Transcription Sequencing",
   "Other"
 ]

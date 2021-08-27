@@ -325,7 +325,7 @@ import {
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import StakingDialog from "./StakingDialog.vue"
 import ServiceDialog from '@/components/Dialog/ServiceDialog'
-import categories from './categories'
+import categories from '@/constants/categories'
 
 export default {
   name: "FindLab",
