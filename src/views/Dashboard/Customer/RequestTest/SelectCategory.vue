@@ -34,7 +34,7 @@
 
 <script>
 import SelectableMenuCard from "@/components/SelectableMenuCard";
-import categories from './categories'
+import categories from '@/constants/categories'
 
 
 export default {
