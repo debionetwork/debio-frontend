@@ -201,6 +201,7 @@ export default {
     ],
   }),
   async mounted() {
+    this.prefillValues()
     this.listCategories = [
       "Bioinformatics Data Analysis Support & Genetic Counseling", 
       "Covid-19 Testing", 
@@ -219,6 +220,31 @@ export default {
     }),
   },
   methods: {
+    prefillValues() {
+      if (!this.$route.params) return
+
+      const {
+        name,
+        category,
+        qcValue,
+        currencyValue,
+        currencyType,
+        descriptionShort,
+        descriptionLong,
+        durationType,
+        durationValue
+      } = this.$route.query
+
+      this.name = name
+      this.category = category
+      this.price = currencyValue
+      this.qcPrice = qcValue
+      this.description = descriptionShort
+      this.longDescription = descriptionLong
+      this.currencyType = currencyType
+      this.selectExpectedDuration = durationType
+      this.expectedDuration = durationValue
+    },
     async createService() {
       if(this.isLoading) return // If function already running return.
       if (!this.$refs.addServiceForm.validate()) {
