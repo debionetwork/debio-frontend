@@ -15,7 +15,7 @@ const customerRoutes = [{
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
-          { text: "EMR", disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
@@ -31,7 +31,7 @@ const customerRoutes = [{
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
-          { text: "EMR", disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
@@ -51,7 +51,7 @@ const customerRoutes = [{
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
-          { text: "EMR", disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
@@ -73,7 +73,7 @@ const customerRoutes = [{
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
-          { text: "EMR", disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
@@ -94,7 +94,7 @@ const customerRoutes = [{
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", active: true, disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
-          { text: "EMR", disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
@@ -114,7 +114,7 @@ const customerRoutes = [{
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
-          { text: "EMR", disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
@@ -134,7 +134,7 @@ const customerRoutes = [{
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
-          { text: "EMR", disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
@@ -154,7 +154,7 @@ const customerRoutes = [{
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
-          { text: "EMR", disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
@@ -175,7 +175,7 @@ const customerRoutes = [{
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
-          { text: "EMR", disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
@@ -197,7 +197,7 @@ const customerRoutes = [{
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
-          { text: "EMR", disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
@@ -218,7 +218,7 @@ const customerRoutes = [{
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
-          { text: "EMR", disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
@@ -240,7 +240,7 @@ const customerRoutes = [{
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
-          { text: "EMR", disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
@@ -260,7 +260,7 @@ const customerRoutes = [{
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", active: true, disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
-          { text: "EMR", disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
@@ -280,7 +280,7 @@ const customerRoutes = [{
           { text: "Request Test", disabled: true },
           { text: "Test Results", disabled: true },
           { text: "Order History", disabled: true },
-          { text: "EMR", disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
@@ -296,7 +296,7 @@ const customerRoutes = [{
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
-          { text: "EMR", active: true, disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", active: true, disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
@@ -316,7 +316,7 @@ const customerRoutes = [{
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
           { text: "Order History", disabled: false, route: { name: "order-history" } },
-          { text: "EMR", active: true, disabled: false, route: { name: "documents" } },
+          { text: "EMR", subText: "(Electronic Medical Record)", active: true, disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
       },
