@@ -31,7 +31,7 @@ steps:
       - name: toolkit
         path: /data/drone_data
     commands:
-      - gcloud config list
+      - gcloud compute instances list
     when:
       branch:
         - development
