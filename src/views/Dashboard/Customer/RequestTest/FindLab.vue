@@ -10,11 +10,11 @@
             <v-card-text class="px-8">
               <v-autocomplete
                 dense
+                key="country"
                 v-model="country"
-                :key="country"
                 :items="countries"
                 item-text="name"
-                item-value="alpha-2"
+                item-value="iso2"
                 @change="onCountryChange"
                 label="Select Country"
                 autocomplete="disabled"
@@ -24,14 +24,28 @@
 
               <v-autocomplete
                 dense
+                key="state"
+                v-model="state"
+                :items="states"
+                item-text="name"
+                item-value="state_code"
+                @change="onStateChange"
+                label="Select State"
+                :disabled="!country || showRequestNoLab"
+                autocomplete="disabled"
+                outlined
+              ></v-autocomplete>
+
+              <v-autocomplete
+                dense
+                key="city"
                 v-model="city"
-                :key="city"
                 :items="cities"
-                item-text="1"
-                item-value="0"
+                item-text="name"
+                return-object
                 @change="onCityChange"
                 label="Select City"
-                :disabled="country == 'country' || showRequestNoLab"
+                :disabled="!state || showRequestNoLab"
                 autocomplete="disabled"
                 outlined
               ></v-autocomplete>
@@ -44,22 +58,22 @@
                 @change="onLabChange"
                 menu-props="auto"
                 :label="noLab"
-                :disabled="city == 'city' || showRequestNoLab"
+                :disabled="!city || showRequestNoLab"
                 autocomplete="disabled"
                 outlined
               >
                 <template slot='item' slot-scope='{ item }'>
-                  <v-list-tile-content>
-                    <v-list-tile-title>
+                  <v-list-item-content>
+                    <v-list-item-title>
                       {{item.labName}}
-                    </v-list-tile-title>
-                    <v-list-tile-sub-title 
+                    </v-list-item-title>
+                    <v-list-item-subtitle
                       class="d-flex justify-start ms-8 grey--text"
                       flat
                     >
                     {{item.address}}
-                    </v-list-tile-sub-title>
-                  </v-list-tile-content>
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
                 </template>
               </v-select>
               <v-select v-if="showRequestNoLab"
@@ -174,10 +188,10 @@
 
             <DialogAlert
               :show="dialogAlert"
-              btnText="Continue"
-              textAlert="Your request has been submitted! We have sent details about your request."
-              imgPath="success.png"
-              :imgWidth="50"
+              btn-text="Continue"
+              text-alert="Your request has been submitted! We have sent details about your request."
+              img-path="success.png"
+              img-width="50"
               @toggle="dialogAlert = $event"
               @close="actionAlert()"
             ></DialogAlert>
@@ -316,8 +330,8 @@ import _ from "lodash";
 import { mapState, mapMutations } from "vuex";
 import SelectableMenuCard from "@/components/SelectableMenuCard";
 import DnaCollectionRequirements from "./DnaCollectionRequirements";
-import countryData from "@/assets/json/country.json";
-import cityData from "@/assets/json/city.json";
+import { getLocations, getStates, getCities } from "@/lib/location"
+import DialogAlert from '@/components/Dialog/DialogAlert'
 import {
   queryLabsByCountryRegionCity,
   queryLabsById,
@@ -326,23 +340,30 @@ import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import StakingDialog from "./StakingDialog.vue"
 import ServiceDialog from '@/components/Dialog/ServiceDialog'
 import categories from '@/constants/categories'
+import serviceHandler from "@/mixins/serviceHandler"
 
 export default {
   name: "FindLab",
+  mixins: [serviceHandler],
+
   components: {
     SelectableMenuCard,
     DnaCollectionRequirements,
+    DialogAlert,
     StakingDialog,
     ServiceDialog
   },
+
   data: () => ({
-    country: "country",
-    city: "city",
+    country: "",
+    state: "",
+    city: "",
     labAccount: "",
     selectedProducts: [],
     isLoadingProducts: false,
     countries: [],
     category: "",
+    states: [],
     cities: [],
     labs: [],
     products: [],
@@ -363,76 +384,67 @@ export default {
     downloadPath: "",
     serviceId: ""
   }),
-  async mounted() {
-    this.coinName = this.configApp.tokenName;
-    await this.getCountries();
-    this.listCategories = categories
-  },
+
   computed: {
     ...mapState({
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
       configApp: (state) => state.auth.configApp,
     }),
-    citiesSelection() {
-      return this.cities
-        .filter((c) => c.country == this.country)
-        .map((c) => ({ value: c.city, text: c.city, country: c.country }));
-    },
-    labsSelection() {
-      return this.labs
-        .filter((lab) => lab.country == this.country && lab.city == this.city)
-        .map((lab) => ({ value: lab.labAccount, text: lab.name }));
-    },
-    productsSelection() {
-      return this.products.map((prod) => {
-        try {
-          const additionalData = JSON.parse(prod.additionalData);
-          return { ...prod, ...additionalData };
-        } catch (err) {
-          return prod;
-        }
-      });
-    },
-    selectedLab() {
-      if (!this.labAccount) {
-        return;
-      }
-      return this.labs.filter((l) => l.labAccount == this.labAccount)[0];
-    },
+
     noLab() {
       if (this.showNoLab) return 'There are no available lab'
 
       return 'Select Test Lab'
     },
+
     disableSubmitButton() {
       return this.isLoadingRequestNoLab || this.category.length == 0
     }
-
-    
   },
+
+  async mounted() {
+    this.coinName = this.configApp.tokenName;
+    await this.getCountries();
+    this.listCategories = categories
+  },
+
   methods: {
     ...mapMutations({
       setLabToRequest: "testRequest/SET_LAB",
       setProductsToRequest: "testRequest/SET_PRODUCTS",
     }),
-    async getCountries() {
-      this.showNoLab = false;
-      this.countries = countryData;
-    },
-    onCountryChange(selectedCountry) {
-      this.showNoLab = false;
-      this.cities = [];
-      this.city = "city";
-      this.country = selectedCountry;
 
-      this.cities = Object.entries(cityData[this.country].divisions);
-    },
-    onCityChange(selectedCity) {
-      console.log(selectedCity)
+    async getCountries() {
+      const { data:
+        { data }
+      } = await this.dispatch(getLocations)
       this.showNoLab = false;
-      this.city = selectedCity;
-      this.getLabs();
+      this.countries = data;
+    },
+
+    async onCountryChange(selectedCountry) {
+      const { data:
+        { data }
+      } = await this.dispatch(getStates, selectedCountry)
+      this.showNoLab = false;
+      this.states = data;
+      this.country = selectedCountry;
+    },
+
+    async onStateChange(selectedState) {
+      const { data:
+        { data }
+      } = await this.dispatch(getCities, this.country, selectedState)
+      this.cities = data;
+      this.state = selectedState;
+      this.showNoLab = false;
+    },
+
+    async onCityChange({ name }) {
+      this.showNoLab = false;
+      this.city = name;
+      await this.getLabs();
     },
     
     async getLabs() {
@@ -444,9 +456,10 @@ export default {
       this.products = [];
       const listLabID = await queryLabsByCountryRegionCity(
         this.api,
-        this.country + "-" + this.city,
-        this.city
+        this.country + "-" + this.country + "-" + this.state,
+        this.country + "-" + this.state,
       );
+
       if (listLabID) {
         for (let i = 0; i < listLabID.length; i++) {
           const detailLab = await queryLabsById(this.api, listLabID[i]);
@@ -474,10 +487,12 @@ export default {
         this.isLoadingRequestNoLab = false;
       }
     },
+
     async onLabChange(labAccount) {
       this.labAccount = labAccount;
       await this.getLabProducts();
     },
+
     async getLabProducts() {
       this.isLoadingProducts = true;
       this.products = [];
@@ -548,6 +563,7 @@ export default {
       }
       this.isLoadingProducts = false;
     },
+
     isProductSelected(product) {
       return (
         this.selectedProducts.filter(
@@ -555,12 +571,14 @@ export default {
         ).length > 0
       );
     },
+
     isProductDisabled(product) {
       if (this.selectedProducts.length == 0) {
         return false;
       }
       return this.selectedProducts[0].serviceData.id != product.serviceData.id;
     },
+
     selectProduct(product) {
       // deselect
       if (_.includes(this.selectedProducts, product)) {
@@ -571,6 +589,7 @@ export default {
       // select
       this.selectedProducts = [...this.selectedProducts, product];
     },
+
     selectOneProduct(product) {
       if (this.selectedProducts.length == 0) {
         this.selectedProducts = [product];
@@ -583,6 +602,7 @@ export default {
         this.selectedProducts = [];
       }
     },
+
     onContinue() {
       if (this.selectedProducts[0].serviceData.info.expected_duration.duration_type == "WorkingDays") {
         this.durationType = "working days"
@@ -601,12 +621,15 @@ export default {
       this.setLabToRequest(this.labAccount);
       this.setProductsToRequest(this.selectedProducts);
     },
+
     showingStakingDialog() {
       this.showStakingDialog = true
     },
+
     sendRequestNoLab() {
       this.showStakingDialog = false
     },
+
     actionAlert() {
       if (this.statusSendReqNoLab) {
         this.showNoLab = false;
@@ -619,14 +642,15 @@ export default {
       }
       this.dialogAlert = false;
     },
+
     async onCategoryChange(category) {
       this.category = category
       if (category == "Other") {
         this.showSpecify = true
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style lang="scss">
