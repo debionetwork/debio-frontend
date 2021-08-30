@@ -19,17 +19,36 @@
       <slot name="filter-menu"></slot>
     </v-menu>
 
-    <v-text-field
-      hide-details="auto"
-      class="bri-search-field"
-      :class="{ 'has-filter': showFilter }"
-      :label="label"
-      outlined
-      dense
-      append-icon="mdi-magnify"
-      color="primary"
-      @input="onSearchInput"
-    ></v-text-field>
+    <div class="search-bar">
+      <v-text-field
+        hide-details="auto"
+        class="bri-search-field"
+        :class="{ 'has-filter': showFilter }"
+        :label="label"
+        outlined
+        autocomplete="off"
+        dense
+        append-icon="mdi-magnify"
+        color="primary"
+        @input="onSearchInput"
+        @click="active = true"
+      ></v-text-field>
+      <div
+        v-if="showResults"
+        class="search-bar__results elevation-5 mt-3 position-absolute rounded"
+        v-click-outside="onClickOutside"
+      >
+        <div
+          class="search-bar__item"
+          v-for="(item, idx) in filteredItems"
+          :key="idx"
+          @click="onItemSelected(item)"
+        >
+          <slot name="item" v-if="$slots.item || $scopedSlots.item" :item="item" :index="idx"></slot>
+          <div v-else class="py-2 px-4" v-html="boldString(item[itemText], searchQuery)"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -37,19 +56,58 @@
 export default {
   name: 'SearchBar',
   props: {
+    filteredItems: { type: Array, default: () => [] },
+    itemValue: { type: String, default: "" },
+    itemText: { type: String, default: "" },
     label: String,
+    withDropdown: Boolean,
+    returnObject: Boolean,
   },
   computed: {
     showFilter() { // Show filter if filter-menu slot has content
       return !!this.$slots['filter-menu']
     },
+
+    showResults() {
+      return this.withDropdown && this.filteredItems?.length && this.active
+    }
   },
+
   data: () => ({
+    active: true,
+    searchQuery: "",
   }),
+
   methods: {
+    onClickOutside() {
+      this.active = false
+    },
+
     onSearchInput(val) {
+      this.active = true
+      this.searchQuery = val
       this.$emit('input', val)
     },
+
+    boldString(str, substr) {
+      substr = substr.charAt(0).toUpperCase() + substr.slice(1)
+
+      const strRegExp = new RegExp(substr, 'g');
+      return str.replace(strRegExp, '<b>'+substr+'</b>');
+    },
+
+    onItemSelected(item) {
+      const selection = this.returnObject
+        ? item
+        : item[this.itemValue]
+
+      if (!this.itemValue && !this.returnObject) {
+        console.error("If you do not set return-object props, please at least set item-value props to return a value")
+        return
+      }
+
+      this.$emit("itemSelected", selection)
+    }
   }
 }
 </script>
@@ -93,7 +151,7 @@ export default {
 }
 
 .bri-search-field {
-  max-width: 455px;
+  width: 100%;
   /** Border color */
   fieldset {
     border: 2px solid $color-border;
@@ -139,6 +197,30 @@ export default {
     .v-input__slot {
       border-bottom-left-radius: 0 !important;
       border-top-left-radius: 0 !important;
+    }
+  }
+}
+
+.search-bar {
+  width: 455px;
+  position: relative;
+
+  &__results {
+    width: 100%;
+    position: absolute;
+    z-index: 99;
+    background: #fff;
+  }
+
+  &__item {
+    cursor: pointer;
+
+    &:not(:last-child) {
+      margin-bottom: 10px;
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, .1);
     }
   }
 }

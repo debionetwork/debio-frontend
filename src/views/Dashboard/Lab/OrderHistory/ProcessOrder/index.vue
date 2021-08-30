@@ -11,34 +11,14 @@
             <v-col cols="10" md="3">
                 <v-card class="dg-card" elevation="0" outlined>
                     <v-card-text class="px-8 mt-5">
-                    <div class="secondary--text mb-8 card-header">
-                        <b>Checklist</b>
-                    </div>
-                    <v-checkbox
-                        v-model="receivedCheckbox"
-                        label="Received"
-                        disabled
-                    ></v-checkbox>
-                    <v-checkbox
-                        v-model="wetworkCheckbox"
-                        label="Wetwork"
-                        disabled
-                    ></v-checkbox>
-                    <v-checkbox
-                        v-model="uploadedGenomeCheckbox"
-                        label="Genome"
-                        disabled
-                    ></v-checkbox>
-                    <v-checkbox
-                        v-model="uploadedReportCheckbox"
-                        label="Report"
-                        disabled
-                    ></v-checkbox>
-                    <v-checkbox
-                        v-model="sentCheckbox"
-                        label="Sent"
-                        disabled
-                    ></v-checkbox>
+                        <div class="secondary--text mb-8 card-header">
+                            <b>Checklist</b>
+                        </div>
+                        <Stepper
+                            direction="vertical"
+                            :stepper-items="stepperItems"
+                            size="medium"
+                        />
                     </v-card-text>
                 </v-card>
             </v-col>
@@ -101,58 +81,93 @@
                         </div>
                     </v-card-text>
                 </v-card>
+
+                <div
+                    v-if="showResultDialog">
+                    <v-alert 
+                        class = "mt-5"
+                        type="success"
+                    >
+                        This order has been completed </v-alert>
+                </div>
+                <div v-if="showRejectDialog">
+                    <v-alert 
+                        class = "mt-5"
+                        type="danger"
+                    >
+                        This specimen has been rejected </v-alert>
+                </div>
                 <ReceiveSpecimen 
                     v-if="showReceiveDialog" 
                     :specimen-number="specimenNumber"
-                    @specimenReceived="receivedCheckbox = true" />
+                    @specimenReceived="onSpecimenReceived" />
                 <QualityControlSpecimen
                     v-if="showQualityControlDialog"
                     :specimen-number="specimenNumber"
-                    @qualityControlPassed="qualityControl = true" />
-                <WetworkSpecimen
-                    v-if="showWetworkDialog"
+                    :specimen-status="specimenStatus"
+                    @qualityControlPassed="onQcCompleted" />
+                <GenotypeSpecimen
+                    v-if="showGenotypeDialog"
                     :specimen-number="specimenNumber"
-                    @wetworkFinished="wetworkCheckbox = true" />
+                    :specimen-status="specimenStatus"
+                    @genotypeFinished="onGenotypeFinished" />
+                <ReviewSpecimen 
+                    v-if="showReviewDialog"
+                    :specimen-number="specimenNumber"
+                    @reviewedSpecimen="onSpecimenReviewed"/>
+                <ComputeSpecimen
+                    v-if="showComputeDialog"
+                    :specimen-number="specimenNumber"
+                    @computedSpecimen="onSpecimenComputed" />
                 <ProcessSpecimen 
-                    v-if="showGenomeReportDialog"
+                    v-if="showGenomeReportDialog || showResultDialog"
                     :order-id="orderId"
                     :specimen-number="specimenNumber"
+                    :specimen-status="specimenStatus"
                     :public-key="publicKey"
                     :is-processed="isOrderProcessed"
-                    :wetwork-checkbox="wetworkCheckbox"
-                    @processWetwork="wetworkCheckbox = true"
-                    @uploadGenome="uploadedGenomeCheckbox = true"
-                    @uploadReport="uploadedReportCheckbox = true"
-                    @submitTestResult="submitTestResult" />
-            </v-col>
-        </v-row>
+                    @resultReady="onResultReady" />
+
+                <DialogAlert
+                    :show="cancelledOrderDialog"
+                    btnText="Back"
+                    textAlert="Order has been cancelled"
+                    imgPath="warning.png"
+                    imgWidth="50"
+                    @toggle="cancelledOrderDialog = $event"
+                    @close="$router.push('/lab/orders')"
+                ></DialogAlert>
+                </v-col>
+            </v-row>
       </v-container>
    </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import ReceiveSpecimen from './ReceiveSpecimen'
 import QualityControlSpecimen from './QualityControlSpecimen'
-import WetworkSpecimen from './WetworkSpecimen'
+import GenotypeSpecimen from './GenotypeSpecimen'
+import ReviewSpecimen from './ReviewSpecimen'
+import ComputeSpecimen from './ComputeSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
+import DialogAlert from '@/components/Dialog/DialogAlert'
+import Stepper from '@/components/Stepper'
 
 export default {
   name: 'ProcessOrderHistory',
   components: {
     ReceiveSpecimen,
     QualityControlSpecimen,
-    WetworkSpecimen,
+    GenotypeSpecimen,
+    ReviewSpecimen,
+    ComputeSpecimen,
     ProcessSpecimen,
+    DialogAlert,
+    Stepper,
   },
   data: () => ({
-    receivedCheckbox: false,
-    qualityControl: false,
-    wetworkCheckbox: false,
-    uploadedGenomeCheckbox: false,
-    uploadedReportCheckbox: false,
-    sentCheckbox: false,
     publicKey: "",
     createdAt: "",
     customerEthAddress: "",
@@ -163,6 +178,19 @@ export default {
     serviceName: "",
     serviceDescription: "",
     serviceImage: "",
+    cancelledOrderDialog: false,
+    showRejectDialog: false,
+    showResultDialog: false,
+    genomeFile: "",
+    reportFile: "",
+    stepperItems: [
+        { name: 'Received', selected: false },
+        { name: 'QC (DNA prep and extraction)', selected: false },
+        { name: 'Genotyping/Sequencing', selected: false },
+        { name: 'Review', selected: false },
+        { name: 'Compute', selected: false },
+        { name: 'Results Ready', selected: false },
+    ]
   }),
   async mounted(){
     try {
@@ -171,6 +199,9 @@ export default {
         this.$router.push({ name: 'lab-dashboard-order-history' })
       }
       const order = await getOrdersDetail(this.api, this.orderId)
+      if(order.status == "Cancelled"){
+          this.cancelledOrderDialog = true
+      }
       this.serviceName = order.service_name
       this.serviceDescription = order.service_description
       this.serviceImage = order.service_image
@@ -188,35 +219,87 @@ export default {
   methods: {
     async setCheckboxByDnaStatus(){
         if(this.specimenStatus == "Rejected") {
-            return
+            this.showRejectDialog = true
+            this.onQcCompleted()
         }
 
         if(this.specimenStatus == "Arrived") {
-            this.receivedCheckbox = true
+            this.setStepperSelected(["Received"], false)
+        }
+        
+        if(this.specimenStatus == "QualityControlled") {
+            this.onQcCompleted()
+        }
+
+        if(this.specimenStatus == "GenotypedSequenced") {
+            this.onGenotypeFinished()
+        }
+
+        if(this.specimenStatus == "Reviewed") {
+            this.onSpecimenReviewed()
         }
 
         if(this.specimenStatus == "Computed") {
-            this.receivedCheckbox = true
-            this.qualityControl = true
-            this.wetworkCheckbox = true
+            this.onSpecimenComputed()
         }
 
-        if(this.specimenStatus == "Success") {
-            this.receivedCheckbox = true
-            this.wetworkCheckbox = true
-            this.uploadedGenomeCheckbox = true
-            this.uploadedReportCheckbox = true
-            this.sentCheckbox = true
-            this.isOrderProcessed = true
+        if(this.specimenStatus == "ResultReady") {
+            this.onResultReady()
         }
     },
-    async submitTestResult(){
-      try {
-        console.log('Submitting test result!')
-        this.sentCheckbox = true
-      } catch (err) {
-        console.log(err)
-      }
+    onSpecimenReceived() {
+        this.setStepperSelected(["Received"], true)
+    },
+    onQcCompleted() {
+        this.setStepperSelected([
+                "Received",
+                "QC (DNA prep and extraction)",
+            ],
+            true
+        )
+    },
+    onGenotypeFinished() {
+        this.setStepperSelected([
+                "Received",
+                "QC (DNA prep and extraction)",
+                "Genotyping/Sequencing",
+            ],
+            true
+        )
+    },
+    onSpecimenReviewed() {
+        this.setStepperSelected([
+                "Received",
+                "QC (DNA prep and extraction)",
+                "Genotyping/Sequencing",
+                "Review",
+            ],
+            true
+        )
+    },
+    onSpecimenComputed() {
+        this.setStepperSelected([
+                "Received",
+                "QC (DNA prep and extraction)",
+                "Genotyping/Sequencing",
+                "Review",
+                "Compute",
+            ],
+            true
+        )
+    },
+    onResultReady() {
+        this.showResultDialog = true
+        this.setStepperSelected([
+                "Received",
+                "QC (DNA prep and extraction)",
+                "Genotyping/Sequencing",
+                "Review",
+                "Compute",
+                "Results Ready",
+            ],
+            true
+        )
     },
     getImageLink(val){
         if(val && val != ""){
@@ -224,8 +307,21 @@ export default {
         }
         return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
     },
+    setStepperSelected(names, selected) {
+        this.stepperItems = this.stepperItems.map(item => {
+            if (names.includes(item.name)) {
+                return { ...item, selected }
+            }
+            return { ...item }
+        })
+        console.log(this.stepperItems)
+    }
   },
   computed: {
+    ...mapState ({
+        genome: (state) => state.testResult.genome,
+        report: (state) => state.testResult.report
+    }),
     ...mapGetters({
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
@@ -234,16 +330,29 @@ export default {
       return this.$route.params.order_id ? this.$route.params.order_id : ''
     },
     showReceiveDialog(){
-        return !this.receivedCheckbox
+        return this.stepperItems.some(item => item.name == "Received" && item.selected == false)
     },
     showQualityControlDialog(){
-        return this.receivedCheckbox && !this.qualityControl
+        return this.stepperItems.some(item => item.name == "Received" && item.selected == true)
+            && this.stepperItems.some(item => item.name == "QC (DNA prep and extraction)" && item.selected == false)
+            || this.specimenStatus == "Rejected"
     },
-    showWetworkDialog(){
-        return this.qualityControl && !this.wetworkCheckbox
+    showGenotypeDialog(){
+        return this.stepperItems.some(item => item.name == "QC (DNA prep and extraction)" && item.selected == true)
+            && this.stepperItems.some(item => item.name == "Genotyping/Sequencing" && item.selected == false)
+            && this.specimenStatus != "Rejected"
     },
-    showGenomeReportDialog(){
-        return this.wetworkCheckbox
+    showReviewDialog(){
+        return this.stepperItems.some(item => item.name == "Genotyping/Sequencing" && item.selected == true)
+            && this.stepperItems.some(item => item.name == "Review" && item.selected == false)
+    },
+    showComputeDialog() {
+        return this.stepperItems.some(item => item.name == "Review" && item.selected == true)
+            && this.stepperItems.some(item => item.name == "Compute" && item.selected == false)
+    },
+    showGenomeReportDialog() {
+        return this.stepperItems.some(item => item.name == "Compute" && item.selected == true)
+            && this.stepperItems.some(item => item.name == "Results Ready" && item.selected == false)
     },
     _icon() {
       return this.serviceImage && (this.serviceImage.startsWith('mdi') || this.serviceImage.startsWith('$'))

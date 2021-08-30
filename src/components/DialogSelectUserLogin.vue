@@ -25,14 +25,6 @@
                 :disabled="isLoading"
                 @keyup.enter="onPasswordInput"
               ></v-text-field>
-
-              <div
-                style="font-size: 12px"
-                class="d-flex justify-end primary--text"
-                @click="forgotPassword"
-              >
-                Forgot your password?
-              </div>
             </v-form>
             <v-progress-linear
               v-if="isLoading"
@@ -84,7 +76,7 @@
                     {{ dataAccount.meta.name }}
                   </div>
                   <div class="ml-5 primary--text" style="font-size: 14px">
-                    {{ balance }} DOT
+                    {{ balance }}
                   </div>
                   <div class="ml-5 grey--text" style="font-size: 12px">
                     {{ dataAccount.address }}
@@ -227,15 +219,6 @@ export default {
     },
     saveKeystoreToLocalStorage(keystore) {
       localStorage.setKeystore(keystore);
-    },
-    forgotPassword() {
-      const dataPair = JSON.parse(this.keystore);
-      this._show = false;
-      this.$emit("forgot-password", {
-        status: true,
-        address: dataPair[0].address,
-      });
-      this.clearInput();
     },
     closeDialog() {
       this._show = false;

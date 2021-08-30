@@ -1,6 +1,6 @@
 <template>
     <div class="mt-5">
-        <v-btn
+        <v-btn v-if="specimenStatus != 'Rejected'"
             color="primary"
             block
             @click="qcDialog = true"
@@ -34,12 +34,12 @@
                 <div class="d-flex justify-center pb-5 pt-5">
                     <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
                 </div>
-                <div align="center" class="pb-5">QC process has been completed. Do you want to proceed to wetwork?</div>
+                <div align="center" class="pb-5">QC process has been completed. Do you want to proceed to Genotyping/Sequencing Process?</div>
             </template>
             <template v-slot:actions>
                 <div>
-                    <Button @click="closeQcCompletionDialogProceed" class="mb-4" elevation="2" dark>Yes, Proceed to wetwork</Button>
-                    <Button @click="closeQcCompletionDialogReject" elevation="2" color="purple" dark>No, Reject Specimen</Button>
+                    <Button :loading="isLoading" @click="closeQcCompletionDialogProceed" class="mb-4" elevation="2" dark>Yes, Proceed to Genotyping/Sequencing Process</Button>
+                    <Button :disabled="isLoading" @click="closeQcCompletionDialogReject" elevation="2" color="purple" dark>No, Reject Specimen</Button>
                 </div>
             </template>
         </Dialog>
@@ -113,10 +113,10 @@
             </template>
             <template v-slot:actions>
                 <div>
-                    <Button class="mb-4"  @click="submitRejectionStatementDialog" :loading="isRejectLoading" color="primary" dark>
+                    <Button class="mb-4"  @click="submitRejectionStatementDialog" :loading="isLoading" color="primary" dark>
                         Yes, send message to customer
                     </Button>
-                    <Button :disabled="isRejectLoading" @click="backToRejectionStatementDialog" color="purple" dark>
+                    <Button :disabled="isLoading" @click="backToRejectionStatementDialog" color="purple" dark>
                         No, back to message editor
                     </Button>
                 </div>
@@ -132,12 +132,39 @@
             @toggle="rejectionAlertDialog = $event"
             @close="$router.push('/lab/orders')"
         ></DialogAlert>
+
+        <div v-if="specimenStatus == 'Rejected'">
+          <v-card class="dg-card" elevation="0" outlined>
+            <v-card-text class="px-8 mt-5">
+              <div class="d-flex mb-8 justify-space-between">
+                <b class="secondary--text card-header">Message Details</b>
+              </div>
+              <div class="mt-5 ml-5 mb-5">
+                <div class="h6 mb-2">
+                  Title
+                </div>
+                <div class="h4">
+                  <b>{{rejectionTitle}}</b>
+                </div>
+              </div>
+              <div class="mt-5 ml-5 mb-5">
+                <div class="h6 mb-2">
+                  Description
+                </div>
+                <div class="h4">
+                  <b>{{rejectionDescription}}</b>
+                </div>
+              </div>
+            </v-card-text>
+          </v-card>
+        </div>
     </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import { rejectDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
+import { rejectDnaSample, processDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
+import { queryDnaSamples } from '@/lib/polkadotProvider/query/geneticTesting'
 import Dialog from '@/components/Dialog'
 import DialogAlert from '@/components/Dialog/DialogAlert'
 import Button from '@/components/Button'
@@ -151,9 +178,10 @@ export default {
   },
   props: {
     specimenNumber: String,
+    specimenStatus: String
   },
   data: () => ({
-    isRejectLoading: false,
+    isLoading: false,
     qcDialog: false,
     qcCompletionDialog: false,
     rejectionDialog: false,
@@ -169,14 +197,36 @@ export default {
       pair: 'substrate/wallet',
     }),
   },
+  async mounted() {
+    try {
+      const dnaSample = await queryDnaSamples(this.api, this.specimenNumber)
+      if (dnaSample) {
+        console.log('dnaSample', dnaSample)
+        this.rejectionTitle = dnaSample.rejected_title
+        this.rejectionDescription = dnaSample.rejected_description
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  },
   methods:{
     closeQcDialog(){
       this.qcDialog = false
       this.qcCompletionDialog = true
     },
-    closeQcCompletionDialogProceed(){
-      this.qcCompletionDialog = false
-      this.$emit('qualityControlPassed')
+    async closeQcCompletionDialogProceed(){
+      this.isLoading = true
+      await processDnaSample(
+        this.api,
+        this.pair,
+        this.specimenNumber,
+        "QualityControlled",
+        () => {
+            this.isLoading = false
+            this.qcCompletionDialog = false
+            this.$emit('qualityControlPassed')
+        }
+      )
     },
     closeQcCompletionDialogReject(){
       this.qcCompletionDialog = false
@@ -201,7 +251,7 @@ export default {
       if (!this.$refs.rejectForm.validate()) {
         return
       }
-      this.isRejectLoading = true
+      this.isLoading = true
       await rejectDnaSample(
         this.api,
         this.pair,
@@ -211,10 +261,23 @@ export default {
           rejected_description: this.rejectionDescription,
         },
         () => {
-          this.isRejectLoading = false
+          this.isLoading = false
           this.rejectionConfirmationDialog = false
           this.rejectionAlertDialog = true
           this.$emit('rejectSpecimen')
+        }
+      )
+      this.processDnaSample()
+    },
+    async processDnaSample() {
+      this.isProcessing = true
+      await processDnaSample(
+        this.api,
+        this.pair,
+        this.specimenNumber,
+        "Rejected",
+        () => {
+          this.isProcessing = false
         }
       )
     },

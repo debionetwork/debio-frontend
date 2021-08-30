@@ -24,9 +24,13 @@
                         @input="search = $event"
                      ></SearchBar>
                   </template>
+                  <template v-slot:[`item.dna_sample_tracking_id`]="{ item }">
+                    {{ item.dna_sample_tracking_id }}
+                  </template>
                   <template v-slot:[`item.actions`]="{ item }">
                      <v-container>
                         <v-btn
+                          v-if="item.status != 'Cancelled'"
                           :class="buttonClass(item)"
                           dark
                           small

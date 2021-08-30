@@ -1,10 +1,15 @@
 <template>
   <div>
     <v-container>
+      <h3
+        v-if="!documentsHistory.length"
+        class="font-weight-regular">You don’t have any EMR document yet.
+      </h3>
       <v-row>
         <v-col>
           <!-- :sort-by="['timestamp']" -->
           <DataTable
+            :class="{ 'hidetable': !documentsHistory.length }"
             :headers="headers"
             :items="documentsHistory"
             :search="search"
@@ -14,7 +19,7 @@
           >
             <template v-slot:search-bar>
               <SearchBar
-                label="Title, Description"
+                label="Search"
                 @input="onSearchInput"
               ></SearchBar>
             </template>
@@ -79,34 +84,41 @@
                   </v-row>
                 </div>
               </v-card>
-              <v-card
-                class="dg-card pb-2 pt-2"
-                style="background: #eeeeee"
-                elevation="0"
-                outlined
-                @click="openUpload('other')"
-              >
-                <div class="ml-5 mr-5">
-                  <v-row class="align-center">
-                    <v-col cols="12" lg="2" md="2" xl="2">
-                      <v-icon color="#BA8DBB" :size="48">
-                        mdi-file-document
-                      </v-icon>
-                    </v-col>
-                    <v-col cols="12" lg="10" md="10" xl="10">
-                      <div class="ml-3 text-left font-weight-bold">Others</div>
-                      <div class="ml-3 text-left"></div>
-                    </v-col>
-                  </v-row>
-                </div>
-              </v-card>
+              <v-tooltip top max-width="350">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-card
+                    v-on="on"
+                    v-bind="attrs" 
+                    class="dg-card pb-2 pt-2"
+                    style="background: #eeeeee"
+                    elevation="0"
+                    outlined
+                    @click="openUpload('other')"
+                  >
+                    <div class="ml-5 mr-5">
+                      <v-row class="align-center">
+                        <v-col cols="12" lg="2" md="2" xl="2">
+                          <v-icon color="#BA8DBB" :size="48">
+                            mdi-file-document
+                          </v-icon>
+                        </v-col>
+                        <v-col cols="12" lg="10" md="10" xl="10">
+                          <div class="ml-3 text-left font-weight-bold">Others</div>
+                          <div class="ml-3 text-left"></div>
+                        </v-col>
+                      </v-row>
+                    </div>
+                  </v-card>
+                </template>
+                Under Development
+              </v-tooltip>
             </div>
           </v-card>
         </v-dialog>
 
         <v-col lg="12" md="12" sm="12">
           <Button @click="useTypeUpload" elevation="2" dark>
-            Upload a document
+            {{ computeUploadText }}
           </Button>
         </v-col>
       </v-row>
@@ -133,23 +145,26 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import DataTable from "@/components/DataTable";
-import SearchBar from "@/components/DataTable/SearchBar";
-import DialogConfirmWithPassword from "@/components/Dialog/DialogConfirmWithPassword";
-import DialogLoading from "@/components/Dialog/DialogLoading";
-import Button from "@/components/Button";
-import UploadEMR from "@/views/Dashboard/Customer/EMR/UploadEMR";
+import { mapState } from "vuex"
+import DataTable from "@/components/DataTable"
+import SearchBar from "@/components/DataTable/SearchBar"
+import DialogConfirmWithPassword from "@/components/Dialog/DialogConfirmWithPassword"
+import DialogLoading from "@/components/Dialog/DialogLoading"
+import Button from "@/components/Button"
+import UploadEMR from "@/views/Dashboard/Customer/EMR/UploadEMR"
 import {
   queryGetEMRList,
   queryElectronicMedicalRecordInfoById,
-} from "@/lib/polkadotProvider/query/electronicMedicalRecord";
-import { removeElectronicMedicalRecordInfo } from "@/lib/polkadotProvider/command/electronicMedicalRecord";
-import { downloadDecryptedFromIPFS } from "@/lib/ipfs";
-import { hexToU8a } from "@polkadot/util";
+} from "@/lib/polkadotProvider/query/electronicMedicalRecord"
+import { removeElectronicMedicalRecordInfo } from "@/lib/polkadotProvider/command/electronicMedicalRecord"
+import { downloadDecryptedFromIPFS } from "@/lib/ipfs"
+import { hexToU8a } from "@polkadot/util"
+import serviceHandler from "@/mixins/serviceHandler"
 
 export default {
-  name: "documents",
+  name: "emr",
+  mixins: [serviceHandler],
+
   components: {
     DataTable,
     SearchBar,
@@ -158,6 +173,7 @@ export default {
     Button,
     UploadEMR,
   },
+
   data: () => ({
     headers: [
       { text: "Date", value: "date" },
@@ -173,7 +189,6 @@ export default {
     ],
     password: "",
     search: "",
-    isLoading: false,
     documentsHistory: [],
     confirmDeleteEMR: false,
     selectEMRRemoveId: "",
@@ -182,6 +197,7 @@ export default {
     showDialogUseTypeFile: false,
     uploadEMR: false,
   }),
+
   computed: {
     ...mapState({
       api: (state) => state.substrate.api,
@@ -190,83 +206,93 @@ export default {
       lastEventData: (state) => state.substrate.lastEventData,
       loadingData: (state) => state.auth.loadingData,
     }),
+
+    computeUploadText() {
+      return !this.documentsHistory?.length
+        ? "Upload an EMR document"
+        : "Upload a document"
+    }
   },
+
   watch: {
     lastEventData() {
       if (this.lastEventData != null) {
-        const dataEvent = JSON.parse(this.lastEventData.data.toString());
+        const dataEvent = JSON.parse(this.lastEventData.data.toString())
         if (this.lastEventData.method == "ElectronicMedicalRecordInfoRemoved") {
           if (dataEvent[0].owner_id == this.wallet.address) {
-            this.getDocumentsHistory();
+            this.getDocumentsHistory()
           }
         }
       }
     },
+
     loadingData() {
       if (this.loadingData != null) {
         if (this.action == "download") {
           if (this.loadingData.loading) {
-            this.showDialogLoading = true;
-            this.isLoading = true;
+            this.showDialogLoading = true
+            this.isLoading = true
           } else {
-            this.isLoading = false;
+            this.isLoading = false
           }
         }
       }
-    },
+    }
   },
+
   mounted() {
-    this.getDocumentsHistory();
+    this.getDocumentsHistory()
   },
+
   methods: {
     async getDocumentsHistory() {
-      this.isLoading = true;
-      try {
-        this.documentsHistory = [];
-        await this.getEMRHistory();
-        this.isLoading = false;
-      } catch (err) {
-        this.isLoading = false;
-      }
+      this.documentsHistory = []
+      this.dispatch(this.getEMRHistory)
     },
-    async getEMRHistory() {
-      try {
-        const dataEMR = await queryGetEMRList(this.api, this.wallet.address);
 
-        if (dataEMR != null) {
-          const listEMR = dataEMR.info;
-          if (listEMR.length > 0) {
-            listEMR.reverse();
-            for (let i = 0; i < listEMR.length; i++) {
-              const emrDetail = await queryElectronicMedicalRecordInfoById(
-                this.api,
-                listEMR[i]
-              );
-              if (emrDetail != null) {
-                this.prepareEMRData(emrDetail);
-              }
+    async getEMRHistory() {
+      const dataEMR = await this.dispatch(queryGetEMRList, this.api, this.wallet.address)
+
+      if (dataEMR != null) {
+        const listEMR = dataEMR.info.reduce((filtered, current) => {
+          if (filtered.every(v => v !== current)) filtered.push(current)
+
+          return filtered
+        }, [])
+
+        if (listEMR.length > 0) {
+          listEMR.reverse()
+          for (let i = 0; i < listEMR.length; i++) {
+            const emrDetail = await this.dispatch(queryElectronicMedicalRecordInfoById,
+              this.api,
+              listEMR[i]
+            )
+
+            if (emrDetail != null) {
+              this.prepareEMRData(emrDetail)
             }
-            this.documentsHistory.sort(
-              (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
-            );
           }
+
+          this.documentsHistory.sort(
+            (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
+          )
         }
-      } catch (err) {
-        console.log(err);
       }
     },
+
     prepareEMRData(dataEMR) {
-      const title = dataEMR.title;
-      const description = dataEMR.description;
-      var d = new Date(parseInt(dataEMR.uploaded_at.replace(/,/g, "")));
-      const timestamp = d.getTime().toString();
-      const data = dataEMR;
+      const title = dataEMR.title
+      const description = dataEMR.description
+      var d = new Date(parseInt(dataEMR.uploaded_at.replace(/,/g, "")))
+      const timestamp = d.getTime().toString()
+      const data = dataEMR
       const date = d.toLocaleString("en-US", {
         weekday: "short", // long, short, narrow
         day: "numeric", // numeric, 2-digit
         year: "numeric", // numeric, 2-digit
         month: "long", // numeric, 2-digit, long, short, narrow
-      });
+      })
+
       const order = {
         title,
         description,
@@ -274,79 +300,86 @@ export default {
         date,
         timestamp,
         type: "emr",
-      };
+      }
 
-      this.documentsHistory.push(order);
+      this.documentsHistory.push(order)
     },
+
     goToDetail(item) {
       if (item.type == "emr") {
         this.$router.push({
           name: "document-detail",
           params: { number: item.data.id, type: item.type },
-        });
+        })
       } else {
         this.$router.push({
           name: "result-test",
           params: { number: item.dna_sample_tracking_id },
-        });
+        })
       }
     },
+
     async downloadFile(item) {
-      this.action = "download";
+      this.action = "download"
       if (item.type == "emr") {
-        const publicKey = hexToU8a(this.mnemonicData.publicKey);
-        const privateKey = hexToU8a(this.mnemonicData.privateKey);
-        const baseUrl = "https://ipfs.io/ipfs/";
-        const path = item.data.record_link.replace(baseUrl, "");
-        await downloadDecryptedFromIPFS(
+        const publicKey = hexToU8a(this.mnemonicData.publicKey)
+        const privateKey = hexToU8a(this.mnemonicData.privateKey)
+        const baseUrl = "https://ipfs.io/ipfs/"
+        const path = item.data.record_link.replace(baseUrl, "")
+        await this.dispatch(downloadDecryptedFromIPFS,
           path,
           privateKey,
           publicKey,
           item.data.id + ".pdf",
           "application/pdf"
-        );
+        )
       }
     },
+
     confirmRemoveEMR(item) {
-      this.confirmDeleteEMR = true;
-      this.selectEMRRemoveId = item.data.id;
+      this.confirmDeleteEMR = true
+      this.selectEMRRemoveId = item.data.id
     },
+
     async removeEMRData(status) {
       if (status) {
-        try {
-          this.isLoading = true;
-          await removeElectronicMedicalRecordInfo(
-            this.api,
-            this.wallet,
-            this.selectEMRRemoveId
-          );
-          this.confirmDeleteEMR = false;
-          this.selectEMRRemoveId = "";
-        } catch (err) {
-          console.log(err);
-          this.isLoading = false;
-        }
+        await this.dispatch(removeElectronicMedicalRecordInfo,
+          this.api,
+          this.wallet,
+          this.selectEMRRemoveId
+        )
+
+        this.confirmDeleteEMR = false
+        this.selectEMRRemoveId = ""
       }
     },
+
     onSearchInput(val) {
-      this.search = val;
+      this.search = val
     },
+
     useTypeUpload() {
-      this.showDialogUseTypeFile = true;
+      this.showDialogUseTypeFile = true
     },
+
     openUpload(typeFile) {
-      this.showDialogUseTypeFile = false;
+      // FIXME: Lines 346 - 348 Only for Demo
+      if (typeFile == 'other') {
+        return
+      }
+      this.showDialogUseTypeFile = false
       if (typeFile == "emr") {
-        this.uploadEMR = true;
+        this.uploadEMR = true
       }
     },
+
     uploadSuccess(status) {
       if (status) {
-        this.getDocumentsHistory();
+        this.getDocumentsHistory()
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style lang="scss">
@@ -370,5 +403,10 @@ export default {
 
 .Reject {
   background-color: $color-status-reject !important;
+}
+
+.hidetable {
+  visibility: hidden;
+  margin-bottom: 5rem;
 }
 </style>

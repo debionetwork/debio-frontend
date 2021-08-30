@@ -37,8 +37,21 @@
                   </template>
                   <template v-slot:[`item.info.image`]="{ item }">
                      <v-container rounded>
+                        <div v-if="isIcon(item.info.image)" class="d-flex justify-center">
+                           <v-icon color="#BA8DBB" :size="48">
+                              {{ item.info.image }}
+                           </v-icon>
+                        </div>
                         <v-img 
-                           :src="getImageLink(item.info.image)" 
+                           v-if="item.info.image"
+                           :src="item.info.image" 
+                           :alt="item.name" 
+                           max-height="70px"
+                           max-width="70px"
+                        ></v-img>
+                        <v-img 
+                           v-else
+                           src="@/assets/debio-logo.png" 
                            :alt="item.name" 
                            max-height="70px"
                            max-width="70px"
@@ -53,16 +66,16 @@
                            @click="gotoDetails(item)"
                         >
                            <v-icon dark>
-                              mdi-eye
+                              mdi-pencil
                            </v-icon>
                         </v-btn>
                         <v-btn
                            elevation="0"
                            color="transparent"
-                           @click="gotoDetails(item)"
+                           @click="deleteService(item)"
                         >
                            <v-icon dark>
-                              mdi-pencil
+                              mdi-delete
                            </v-icon>
                         </v-btn>
                      </v-container>
@@ -79,6 +92,7 @@
 <script>
 import DataTable from '@/components/DataTable'
 import SearchBar from '@/components/DataTable/SearchBar'
+import { deleteService } from '@/lib/polkadotProvider/command/services'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -100,14 +114,18 @@ export default {
   }),
   computed:{
    ...mapGetters({
+      api: 'substrate/getAPI',
+      pair: 'substrate/wallet',
       labAccount: 'substrate/labAccount',
    }),
   },
   methods:{
    onSearchInput(val) {
       this.search = val
+      console.log(this.labAccount.services)
    },
    gotoDetails(item){
+      
       this.$router.push({ name: 'lab-dashboard-services-detail', params: { item: item }})
    },
    getImageLink(val){
@@ -116,7 +134,25 @@ export default {
       }
       return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
    },
-  },
+   isIcon(imageName) {
+      return imageName && (imageName.startsWith('mdi') || imageName.startsWith('$dgi'))
+   },
+   async deleteService(item) {
+      const isConfirmed = confirm("Are you sure you want to delete this service?")
+      if(isConfirmed)  {
+         this.isLoading = true
+         await deleteService(
+            this.api,
+            this.pair,
+            item.id,
+            () => {
+            this.$router.push('/lab/services')
+            this.isLoading = false
+            })
+         }
+         return
+      },
+  }
 }
 
 

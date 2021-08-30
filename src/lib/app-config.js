@@ -7,13 +7,10 @@ const defaultConfig = {
 
 class AppConfig {
   constructor() {
-    let config = localStorage.getAppConfig()
-    if (!config) {
-      localStorage.setAppConfig(JSON.stringify({
-        gasPrice: defaultConfig.gasPrice,
-        gasLimit: defaultConfig.gasLimit
-      }))
-    }
+    localStorage.setAppConfig(JSON.stringify({
+      gasPrice: defaultConfig.gasPrice,
+      gasLimit: defaultConfig.gasLimit
+    }))
   }
 
   getCurrentAppConfig() {

@@ -7,15 +7,15 @@ const globalFunctions = {
     return !!keystore
   },
   async checkIsLoggedIn(to, from, next) {
+    const address = localStorage.getAddress();
     let api = store.getters['substrate/getAPI'];
     if (api == null) {
-      await store.dispatch('substrate/connect');
+      await store.dispatch('substrate/connect', address);
     }
 
     let wallet = store.getters['substrate/wallet'];
     const keystore = localStorage.getAddress()
     const isLoggedIn = !!keystore;
-    const address = localStorage.getAddress();
     if (to.path == '/login') {
       if (isLoggedIn) {
         if (wallet == null) {

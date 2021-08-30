@@ -106,8 +106,9 @@
                     placeholder="Supporting Document"
                     prepend-icon="mdi-file-document"
                     outlined
-                    v-model="supportingDocuments"
                     @change="fileUploadEventListener"
+                    :rules="supportingDocumentsRules"
+                    show-size
                 ></v-file-input>
                 </v-form>
             </template>
@@ -123,6 +124,7 @@
 <script>
 import { mapGetters } from "vuex"
 import { createCertification, updateCertification, deleteCertification } from "@/lib/polkadotProvider/command/labs/certifications"
+import serviceHandler from "@/mixins/serviceHandler"
 import Dialog from '@/components/Dialog'
 import Button from '@/components/Button'
 import { upload } from "@/lib/ipfs"
@@ -133,6 +135,7 @@ export default {
     Dialog,
     Button,
   },
+  mixins: [serviceHandler],
   data: () => ({
     certId: "", // for update certification
     certTitle: "",
@@ -141,10 +144,8 @@ export default {
     certYear: "",
     certDescription: "",
     certSupportingDocumentsUrl: "",
-    supportingDocuments: [],
     selectMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     certificationDialog: false,
-    isLoading: false,
     isUploading: false,
     isEditCertificationDialog: false,
   }),
@@ -154,6 +155,7 @@ export default {
       pair: 'substrate/wallet',
       labAccount: 'substrate/labAccount',
     }),
+
     selectYears() {
       const years = []
       const thisYear = new Date().getFullYear()
@@ -161,6 +163,13 @@ export default {
         years.push(String(i))
       }
       return years
+    },
+
+    supportingDocumentsRules(){
+      return [
+        file => !file || file.type == 'application/pdf' || 'Document type should be application/pdf',
+        file => !file || file.size <= 10_097_152 || 'Document size should be less than 10 MB!',
+      ]
     }
   },
   methods: {
@@ -184,25 +193,17 @@ export default {
       if (!this.$refs.certificationForm.validate()) {
         return
       }
-      try {
-        this.isLoading = true
-        const certificationInfo = {
-          title: this.certTitle,
-          issuer: this.certIssuer,
-          month: this.certMonth,
-          year: this.certYear,
-          description: this.certDescription,
-          supporting_document: this.certSupportingDocumentsUrl
-        }
-
-        await createCertification(this.api, this.pair, certificationInfo, () => {
-          this.closeCertificationDialog()
-          this.isLoading = false
-        })
-      } catch (err) {
-        console.log(err)
-        this.isLoading = false
+      const certificationInfo = {
+        title: this.certTitle,
+        issuer: this.certIssuer,
+        month: this.certMonth,
+        year: this.certYear,
+        description: this.certDescription,
+        supporting_document: this.certSupportingDocumentsUrl
       }
+      await this.dispatch(createCertification, this.api, this.pair, certificationInfo, () => {
+        this.closeCertificationDialog()
+      })
     },
     editCertification(cert) {
       this.certId = cert.id
@@ -212,15 +213,6 @@ export default {
       this.certYear = cert.info.year
       this.certDescription = cert.info.description
       this.certSupportingDocumentsUrl = cert.info.supporting_document
-    
-      if(this.certSupportingDocumentsUrl){
-        fetch(this.certSupportingDocumentsUrl)
-          .then(res => res.blob()) // Gets the response and returns it as a blob
-          .then(blob => {
-            this.supportingDocuments.push(new File([blob], this.certSupportingDocumentsUrl.substring(21)))
-        });
-      }
-
       this.certificationDialog = true
       this.isEditCertificationDialog = true
     },
@@ -228,40 +220,29 @@ export default {
       if (!this.$refs.certificationForm.validate()) {
         return
       }
-
-      try {
-        this.isLoading = true
-
-        const certificationInfo = {
-          title: this.certTitle,
-          issuer: this.certIssuer,
-          month: this.certMonth,
-          year: this.certYear,
-          description: this.certDescription,
-          supporting_document: this.certSupportingDocumentsUrl
-        }
-
-        await updateCertification(this.api, this.pair, this.certId, certificationInfo, () => {
-          this.closeCertificationDialog()
-          this.isLoading = false
-        })
-      } catch (err) {
-        console.log(err)
-        this.isLoading = false
+      const certificationInfo = {
+        title: this.certTitle,
+        issuer: this.certIssuer,
+        month: this.certMonth,
+        year: this.certYear,
+        description: this.certDescription,
+        supporting_document: this.certSupportingDocumentsUrl
       }
+      await this.dispatch(updateCertification, this.api, this.pair, this.certId, certificationInfo, () => {
+        this.closeCertificationDialog()
+      })
     },
     async deleteCertification(cert) {
       const isConfirmed = confirm("Are you sure you want to delete this certification?")
       if (isConfirmed) {
-        this.isLoading = true
-
-        await deleteCertification(this.api, this.pair, cert.id, () => {
-          this.isLoading = false
-        })
+        await this.dispatch(deleteCertification, this.api, this.pair, cert.id)
       }
-      return
     },
     fileUploadEventListener(file) {
+      this.certSupportingDocumentsUrl = ""
+      if (!this.$refs.certificationForm.validate()) {
+        return
+      }
       if (file && file.name) {
         if (file.name.lastIndexOf(".") <= 0) {
           return
@@ -284,10 +265,6 @@ export default {
           context.isUploading = false
           context.isLoading = false
         })
-      }
-      else {
-        this.supportingDocuments = []
-        this.certSupportingDocumentsUrl = ""
       }
     },
   }

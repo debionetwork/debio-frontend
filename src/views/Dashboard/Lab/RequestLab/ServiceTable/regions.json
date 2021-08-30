@@ -1,0 +1,95 @@
+[
+    {
+        "id": 1,
+        "location": "Indonesia",
+        "service": "-",
+        "sub_locations": [
+            {
+                "id": 1,
+                "location": "Jakarta",
+                "service": "Whole Genome Sequencing",
+                "number_request": 37,
+                "total_amount_dai": 8000,
+                "total_amount_usd": 8000
+            },
+            {
+                "id": 2,
+                "location": "Bandung",
+                "service": "Whole Exome Sequencing",
+                "number_request": 18,
+                "total_amount_dai": 9000,
+                "total_amount_usd": 8329
+            },
+            {
+                "id": 3,
+                "location": "Surabaya",
+                "service": "Genotyping",
+                "number_request": 3,
+                "total_amount_dai": 201,
+                "total_amount_usd": 719
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "location": "Rusia",
+        "service": "-",
+        "sub_locations": [
+            {
+                "id": 1,
+                "location": "Moskow",
+                "service": "Genotyping",
+                "number_request": 8,
+                "total_amount_dai": 3673,
+                "total_amount_usd": 6844
+            },
+            {
+                "id": 2,
+                "location": "Saint Petersburg",
+                "service": "Whole Exome Sequencing",
+                "number_request": 43,
+                "total_amount_dai": 4625,
+                "total_amount_usd": 6796
+            },
+            {
+                "id": 3,
+                "location": "Novosibirsk",
+                "service": "Whole Genome Sequencing",
+                "number_request": 792,
+                "total_amount_dai": 201,
+                "total_amount_usd": 719
+            }
+        ]
+    },
+    {
+        "id": 3,
+        "location": "Japan",
+        "service": "-",
+        "sub_locations": [
+            {
+                "id": 1,
+                "location": "Kyoto",
+                "service": "Whole Exome Sequencing",
+                "number_request": 199,
+                "total_amount_dai": 2123,
+                "total_amount_usd": 1000
+            },
+            {
+                "id": 2,
+                "location": "Tokyo",
+                "service": "Genotyping",
+                "number_request": 413,
+                "total_amount_dai": 2192,
+                "total_amount_usd": 1276
+            },
+            {
+                "id": 3,
+                "location": "Osaka",
+                "service": "Whole Genome Sequencing",
+                "number_request": 123,
+                "total_amount_dai": 2189,
+                "total_amount_usd": 7912
+            }
+        ]
+    }
+]

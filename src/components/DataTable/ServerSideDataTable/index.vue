@@ -3,12 +3,12 @@
     <slot name="prepend"></slot>
     <v-row>
       <!-- Search Bar -->
-      <v-col cols="12" sm="8" md="9" class="pt-0">
+      <v-col cols="12" :sm="hideEntries ? '' : '8'" :md="hideEntries ? '' : '9'" class="pt-0">
         <slot name="search-bar"></slot>
       </v-col>
 
       <!-- Number of Entries Select -->
-      <v-col cols="12" sm="4" md="3" class="pt-0">
+      <v-col cols="12" sm="4" md="3" class="pt-0" v-if="!hideEntries">
         <NumOfEntriesSelect
           :value="entriesPerPage"
           :change="handlePageSizeChange"
@@ -32,6 +32,11 @@
       :sort-by="sortBy"
       :sort-desc="sortDesc"
       :loading="loading"
+      :show-expand="expand"
+      :expanded.sync="expanded"
+      item-key="id"
+      @click:row="clickedRow"
+      :single-expand="singleExpand"
       :loading-text="computedLoadingText"
     >
       <!-- Slots for row formatting -->
@@ -40,7 +45,7 @@
       </template>
 
       <!-- Custom Footer -->
-      <template v-slot:footer>
+      <template v-slot:footer v-if="!hideFooter">
         <div class="footer d-flex justify-space-between align-center flex-wrap">
           <div class="pagination-info">
             Showing {{ from() }} to {{ to() }} of {{ total() }} entries
@@ -84,6 +89,10 @@ export default {
     loadingText: String,
     pageSize: Number,
     currentPage: Number,
+    hideEntries: Boolean,
+    hideFooter: Boolean,
+    singleExpand: { type: Boolean, default: true },
+    expand: Boolean
   },
   watch: {
     currentPage: function(newVal, oldVal) { // watch it
@@ -93,6 +102,7 @@ export default {
   },
   data: () => ({
     page: 1,
+    expanded: [],
     entriesPerPage: 10
   }),
   mounted(){
@@ -117,6 +127,12 @@ export default {
     }
   },
   methods: {
+    clickedRow(_item, slot) {
+      if (!this.expand) return
+
+      slot.expand(!slot.isExpanded)
+      this.$emit("onExpanded", !slot.isExpanded, _item.id)
+    },
     setEntriesPerPage(val) {
       this.entriesPerPage = val
     },

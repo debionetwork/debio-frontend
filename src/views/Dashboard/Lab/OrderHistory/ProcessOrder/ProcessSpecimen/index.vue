@@ -1,151 +1,199 @@
 <template>
   <div>
-    <div v-if="submitted">
-      <div class="d-flex mt-5 mb-5 justify-space-between">
-        <v-row>
+    <template>
+      <input
+        type="file"
+        style="display: none"
+        ref="encryptUploadGenome"
+      />
+      <div v-if="genomeSucceed || hasGenomeFile" class="d-flex mt-5 mb-5">
+        <v-row >
           <v-col>
-            <b class="secondary--text card-header mb-2" style="display: block">Genome Files</b>
+            <b class="secondary--text card-header mb-2" style="display: block">VCF Data</b>
             <div v-for="(file, idx) in files.genome" :key="idx + '-' + file.fileName + '-' + file.fileType">
-              <FileCard :filename="file.fileName" :ipfsUrl="getFileIpfsUrl(file)" :hideDelete="true"/>
-            </div>
-          </v-col>
-        </v-row>
-        <v-row class="ml-5">
-          <v-col>
-            <b class="secondary--text card-header mb-2" style="display: block">Report Files</b>
-            <div v-for="(file, idx) in files.report" :key="idx + '-' + file.fileName + '-' + file.fileType">
-              <FileCard :filename="file.fileName" :ipfsUrl="getFileIpfsUrl(file)" :hideDelete="true"/>
+              <FileCard
+                :filename="file.fileName"
+                :ipfsUrl="getFileIpfsUrl(file)"
+                :view-only="submitted"
+                @edit="onEditClick('genome')"
+                @delete="onFileDelete('genome')"
+              />
             </div>
           </v-col>
         </v-row>
       </div>
-      <v-alert
-          type="success"
-          >Specimen Processed</v-alert>
-    </div>
-    <div v-else>
-      <div class="d-flex justify-space-evenly mt-5">
-        <div class="mb-3 mr-3" style="width: 50%">
-          <v-btn
-            color="primary"
-            large
-            block
-            :disabled="loading.genome || loading.report || genomeSucceed"
-            @click="uploadGenome"
-          >
-            <v-icon left dark class="pr-4">
-              mdi-dna
-            </v-icon>
-            <v-spacer v-if="genomeSucceed" />
-            Upload Genome
-            <v-spacer v-if="genomeSucceed" />
-            <v-icon v-if="genomeSucceed" right dark color="teal accent-2" class="pr-4">
-              mdi-check-circle
-            </v-icon>
-            <template v-slot:loader>
-              {{ loadingStatus.genome }}
-            </template>
-            <input
-              type="file"
-              style="display: none"
-              ref="encryptUploadGenome"
-            />
-          </v-btn>
-          <v-progress-linear
-            v-if="loading.genome"
-            class="mt-2"
-            indeterminate color="primary"
-          />
-        </div>
-        <div class="mb-3" style="width: 50%">
-          <v-btn
-            color="primary"
-            large
-            block
-            :disabled="loading.genome || loading.report || reportSucceed"
-            @click="uploadReport"
-          >
-            <v-icon left dark class="pr-4">
-              mdi-file-document-multiple
-            </v-icon>
-            <v-spacer v-if="reportSucceed" />
-            Upload Report
-            <v-spacer v-if="reportSucceed" />
-            <v-icon v-if="reportSucceed" right dark color="teal accent-2" class="pr-4">
-              mdi-check-circle
-            </v-icon>
-            <template v-slot:loader>
-              {{ loadingStatus.report }}
-            </template>
-            <input
-              type="file"
-              style="display: none"
-              ref="encryptUploadReport"
-            />
-          </v-btn>
+      <div v-else class="mb-3 mt-3">
+        <v-btn
+          color="primary"
+          large
+          block
+          :disabled="loading.genome || loading.report || genomeSucceed"
+          @click="uploadGenome"
+        >
+          <v-icon left dark class="pr-4">
+            mdi-dna
+          </v-icon>
+          Upload VCF Data
+          <template v-slot:loader>
+            {{ loadingStatus.genome }}
+          </template>
+        </v-btn>
+      </div>
+      <v-progress-linear
+        v-if="loading.genome"
+        class="mt-2"
+        indeterminate color="primary"
+      />
+    </template>
+
+    <template>
+      <input
+        type="file"
+        style="display: none"
+        ref="encryptUploadReport"
+      />
+      <div v-if="reportSucceed || hasReportFile" class="d-flex mt-5 mb-5">
+        <v-row >
+          <v-col>
+            <b class="secondary--text card-header mb-2" style="display: block">Report Files</b>
+            <div v-for="(file, idx) in files.report" :key="idx + '-' + file.fileName + '-' + file.fileType">
+              <FileCard
+                :filename="file.fileName"
+                :ipfsUrl="getFileIpfsUrl(file)"
+                :view-only="submitted"
+                @edit="onEditClick('report')"
+                @delete="onFileDelete('report')"
+              />
+            </div>
+          </v-col>
+        </v-row>
+      </div>
+      <div v-else class="mb-3">
+        <v-btn
+          color="primary"
+          large
+          block
+          :disabled="loading.genome || loading.report || reportSucceed"
+          @click="uploadReport"
+        >
+          <v-icon left dark class="pr-4">
+            mdi-file-document-multiple
+          </v-icon>
+          Upload Report
+          <template v-slot:loader>
+            {{ loadingStatus.report }}
+          </template>
+        </v-btn>
+      </div>
+      <v-progress-linear
+        v-if="loading.report"
+        class="mt-2"
+        indeterminate color="primary"
+      />
+    </template>
+
+    <div v-if="genomeSucceed && reportSucceed && !submitted" class="mb-3">
+      <v-btn
+        color="primary"
+        large
+        block
+        class="mt-6"
+        :disabled="isLoading"
+        @click="confirmationDialog = true"
+      >
+        Send Report to Customer
+        <template v-slot:loader>
           <v-progress-linear
             v-if="loading.report"
             class="mt-2"
             indeterminate color="primary"
           />
-        </div>
-      </div>
-      <div class="d-flex justify-space-evenly">
-        <div class="mb-3 mr-3" style="width: 50%">
-          <v-btn
-            color="primary"
-            large
-            block
-            :disabled="disableSendButton"
-            @click="sendTestResult"
-            :loading="isLoading"
-            >SEND</v-btn>
-        </div>
-        <div class="mb-3" style="width: 50%">
-          <v-btn
-            style="color: white"
-            color="yellow"
-            large
-            block
-            :disabled="disableRejectButton"
-            >REJECT</v-btn>
-        </div>
-      </div>
+        </template>
+      </v-btn>
     </div>
+    <DialogAlert
+      :show="genomeUploadSucceedDialog"
+      btnText="Continue"
+      textAlert="VCF data has been uploaded"
+      imgPath="success.png"
+      imgWidth="50"
+      @close="genomeUploadSucceedDialog = false"
+      />
+
+    <DialogAlert
+      :show="reportUploadSucceedDialog"
+      btnText="Continue"
+      textAlert="Report has been uploaded."
+      imgPath="success.png"
+      imgWidth="50"
+      @close="reportUploadSucceedDialog = false"
+      />
+
+    <Dialog :show="confirmationDialog" @close="!confirmationDialog">
+      <template v-slot:title>
+          <div></div>
+      </template>
+      <template v-slot:body>
+          <div class="d-flex justify-center pb-5 pt-5">
+              <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
+          </div>
+          <div align="center" class="pb-5">Are you sure you want to send the report to customer?</div>
+      </template>
+      <template v-slot:actions>
+          <v-col col="12" md="6">
+            <Button @click="sendTestResult" :loading="isLoading" elevation="2" dark>Yes</Button>
+          </v-col>
+          <v-col col="12" md="6">
+            <Button @click="confirmationDialog = false" elevation="2" color="purple" dark>No</Button>
+          </v-col>
+      </template>
+    </Dialog>
   </div>
 </template>
 
 
 <script>
 import { mapGetters, mapState } from 'vuex'
+import serviceHandler from "@/mixins/serviceHandler"
 import FileCard from './FileCard'
 import ipfsWorker from '@/web-workers/ipfs-worker'
 import cryptWorker from '@/web-workers/crypt-worker'
 import specimenFilesTempStore from '@/lib/specimen-files-temp-store'
 import Kilt from '@kiltprotocol/sdk-js'
 import { fulfillOrder } from '@/lib/polkadotProvider/command/orders'
-import { submitTestResult } from '@/lib/polkadotProvider/command/geneticTesting'
-import { queryDnaTestResults } from '@/lib/polkadotProvider/query/geneticTesting'
+import DialogAlert from '@/components/Dialog/DialogAlert'
+import Dialog from '@/components/Dialog'
+import Button from '@/components/Button'
+import { submitTestResult, processDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
+import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting"
 
 export default {
   name: 'ProcessSpecimen',
   components: {
     FileCard,
+    DialogAlert,
+    Dialog,
+    Button
   },
+  mixins: [serviceHandler],
   props: {
     orderId: String,
     specimenNumber: String,
+    specimenStatus: String,
     publicKey: [Uint8Array, String],
   },
   data: () => ({
     identity: null,
     genomeSucceed: false,
     reportSucceed: false,
+    genomeUploadSucceedDialog: false,
+    reportUploadSucceedDialog: false,
+    confirmationDialog: false,
     comment: "",
     reportLink: "",
     resultLink: "",
     submitted: false,
-    isLoading: false,
+    isProcessed: false,
     files: {
       genome: [],
       report: [],
@@ -182,15 +230,26 @@ export default {
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
     }),
+
     ...mapState({
       mnemonic: state => state.substrate.mnemonicData.mnemonic
     }),
+
     disableRejectButton(){
       return this.genomeSucceed && this.reportSucceed
     },
+
     disableSendButton(){
       return !this.disableRejectButton
     },
+    
+    hasGenomeFile() {
+      return this.files.genome.length > 0
+    },
+
+    hasReportFile() {
+      return this.files.report.length > 0
+    }
   },
   methods:{
     setUploadFields(testResult){
@@ -201,6 +260,7 @@ export default {
           ipfsPath: [{ data: { path: result_link.split('/')[result_link.split('/').length-1] } }]
         }
         this.files.genome.push(genomeFile)
+        this.isProcessed = true
       }
       if(report_link){
         const reportFile = {
@@ -208,27 +268,34 @@ export default {
           ipfsPath: [{ data: { path: report_link.split('/')[report_link.split('/').length-1] } }]
         }
         this.files.report.push(reportFile)
+        this.isProcessed = true
       }
+
       if (this.isProcessed) {
         this.submitted = true
       }
     },
+
     uploadGenome() {
       this.$refs.encryptUploadGenome.click()
     },
+
     uploadReport() {
       this.$refs.encryptUploadReport.click()
     },
+
     /**
      * @returns {String} The first ipfs path (a file has multiple ipfs path, because a file may be chunked)
      */
     getFileIpfsPath(file) {
       return file.ipfsPath[0].data.path
     },
+
     getFileIpfsUrl(file) {
       const path = this.getFileIpfsPath(file)
       return `https://ipfs.io/ipfs/${path}`
     },
+
     async submitTestResult(callback = ()=>{}) {
       let genomeLink = ""
       if(this.files.genome.length){
@@ -240,11 +307,11 @@ export default {
         reportLink = this.getFileIpfsUrl(this.files.report[0])      
       }
 
-      await submitTestResult(
+      await this.dispatch(
+        submitTestResult,
         this.api,
         this.pair,
         this.specimenNumber,
-        true,
         {
           comment: this.comment,
           report_link: reportLink,
@@ -253,27 +320,47 @@ export default {
         callback
       )
     },
+
     sendTestResult() {
-      this.isLoading = true
       this.submitTestResult(async () => {
-        await fulfillOrder(
+        await this.dispatch(
+          fulfillOrder,
           this.api,
           this.pair,
           this.orderId,
         )
-
-        this.$emit('submitTestResult')
-        this.submitted = true
-        this.isLoading = false
+        this.resultReady()
       })
     },
+    
+    async resultReady() {
+      this.isProcessing = true
+      await this.dispatch(
+        processDnaSample,
+        this.api,
+        this.pair,
+        this.specimenNumber,
+        "ResultReady",
+        () => {
+          this.$emit('resultReady')
+          this.isLoading = false
+          this.confirmationDialog = false
+          this.submitted = true
+        }
+      )
+    },
+
     addFileUploadEventListener(fileInputRef, fileType) {
       const context = this
-      fileInputRef.addEventListener('change', function() {
+      fileInputRef.addEventListener('change', function(e) {
+        const target = e.target || e.srcElement
+        if (!target.value.length) return
+
         context.loading[fileType] = true
         const file = this.files[0]
         file.fileType = fileType // attach fileType to file, because fileType is not accessible in fr.onload scope
         const fr = new FileReader()
+        if (file.type === "application/pdf") fr.readAsDataURL(file)
         fr.onload = async function() {
           try {
             // Encrypt
@@ -290,8 +377,14 @@ export default {
               fileName: encFileName,
               fileType: encFileType
             })
+            
+            // files is array, but currently only support storing 1 file for each type
             const { fileName, fileType, ipfsPath } = uploaded
-            context.files[fileType].push({ fileName, fileType, ipfsPath })
+            if (context.files[fileType].length > 0) {
+              context.files[fileType][0] = { fileName, fileType, ipfsPath }
+            } else {
+              context.files[fileType].push({ fileName, fileType, ipfsPath })
+            }
 
             // Save files to localStorage
             specimenFilesTempStore.set(context.specimenNumber, context.files)
@@ -300,20 +393,24 @@ export default {
             // Emit finish
             if(file.fileType == 'genome') {
               context.genomeSucceed = true
+              context.genomeUploadSucceedDialog = true
               context.$emit('uploadGenome')
             }
             if(file.fileType == 'report') {
               context.reportSucceed = true
+              context.reportUploadSucceedDialog = true
               context.$emit('uploadReport')
             }
           } catch (err) {
             console.error(err)
+          } finally {
             context.loading[file.fileType] = false
           }
         }
         fr.readAsText(file)
       })
     },
+
     encrypt({ text, fileType, fileName }) {
       const context = this
       this.loadingStatus[fileType] = 'Encrypting'
@@ -354,6 +451,7 @@ export default {
         }
       })
     },
+
     upload({ encryptedFileChunks, fileName, fileType }) {
       this.loadingStatus[fileType] = 'Uploading'
       const chunkSize = 10 * 1024 * 1024 // 10 MB
@@ -397,22 +495,29 @@ export default {
         }
       })
     },
-    onFileDelete(file) {
-      const fileType = file.fileType
-      const ipfsPath = file.ipfsPath[0].data.path
 
-      const tempFiles = this.files[fileType].filter(file => {
-        return file.ipfsPath[0].data.path != ipfsPath
-      })
+    onEditClick(fileType) {
+      if (fileType == 'genome') this.uploadGenome()
+      if (fileType == 'report') this.uploadReport()
+    },
 
-      this.files = {...this.files, [fileType]: tempFiles }
-
-      specimenFilesTempStore.set(this.specimen.number, this.files)
-
-      if (this.files.genome.length == 0 && this.files.report.length == 0) {
-        specimenFilesTempStore.remove(this.specimen.number)
+    onFileDelete(fileType) {
+      this.files[fileType] = []
+      if (fileType == 'genome') {
+        this.genomeSucceed = false
+        this.$refs.encryptUploadGenome.value = null
+      }
+      if (fileType == 'report') {
+        this.reportSucceed = false
+        this.$refs.encryptUploadReport.value = null
       }
     },
   },
 }
 </script>
+
+<style scoped>
+.confirmation-background{
+    background: #E6E6E6;
+}
+</style>

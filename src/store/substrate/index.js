@@ -119,6 +119,7 @@ export default {
             const { event, phase } = record;
             if (event.section == "orders" || event.section == "geneticTesting" || event.section == "balances" || event.section == "electronicMedicalRecord") {
               console.log("Method :" + event.method);
+              if (event.method === "OrderPaid") localStorage.removeLocalStorageByName("lastOrderStatus")
               console.log(`Phase: ${phase.toString()}`)
               commit('SET_LAST_EVENT', event);
             }

@@ -19,6 +19,12 @@ export default {
     },
   },
   actions: {
+    async getLab({ commit }, lab) {
+      commit('SET_LAB', lab)
+    },
+    async getProduct({ commit }, product) {
+      commit('SET_PRODUCTS', product)
+    },
   },
   getters: {
   }

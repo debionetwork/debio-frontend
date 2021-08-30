@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { SENDING, SUCCESS, RECEIVED, REJECTED, ORDER_REFUNDED } from '@/constants/specimen-status'
+import { SENDING, SUCCESS, RECEIVED, REJECTED, ORDER_REFUNDED, ORDER_FAILED, ORDER_PROCESSED } from '@/constants/specimen-status'
 
 export default {
   name: 'StatusChip',
@@ -24,6 +24,7 @@ export default {
       const green = '#6edaa8'
       const yellow = '#EFC457'
       const black = '#272727'
+      const red = '#FF2525'
 
       switch(this.status) {
         case SENDING:
@@ -35,6 +36,10 @@ export default {
         case ORDER_REFUNDED:
           return black
         case SUCCESS:
+          return green
+        case ORDER_FAILED:
+          return red
+        case ORDER_PROCESSED:
           return green
         default:
           return grey

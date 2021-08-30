@@ -34,7 +34,7 @@
                 </v-btn>
               </div>
 
-              <v-form class="mt-5">
+              <v-form class="mt-5" ref="form">
                 <v-container :class="imageUrl ? 'mb-2 d-flex align-center' : ''">
                   <v-avatar
                     class="mr-2"
@@ -46,12 +46,12 @@
                   <v-file-input
                     dense
                     label="Logo Image"
-                    placeholder="Logo Image"
                     prepend-icon="mdi-image"
                     outlined
                     :disabled="!isEditable"
-                    v-model="files"
                     @change="fileUploadEventListener"
+                    :rules="rules"
+                    show-size
                   ></v-file-input>
                 </v-container>
 
@@ -165,14 +165,6 @@ export default {
     this.address = labInfo.address
     this.imageUrl = labInfo.profile_image
     
-    if(this.imageUrl){
-      fetch(this.imageUrl)
-        .then(res => res.blob()) // Gets the response and returns it as a blob
-        .then(blob => {
-          this.files.push(new File([blob], this.imageUrl.substring(21)))
-      });
-    }
-    
     await this.getCountries()
     this.country = labInfo.country
     this.regions = Object.entries(cityData[labInfo.country].divisions)
@@ -191,10 +183,9 @@ export default {
     countries: [],
     regions: [],
     cities: [],
-    files: [],
     isLoading: false,
     isEditable: false,
-    isUploading: false,
+    isUploading: false
   }),
   computed: {
     ...mapGetters({
@@ -202,37 +193,54 @@ export default {
       pair: 'substrate/wallet',
       labAccount: 'substrate/labAccount',
     }),
+
     ...mapState({
       mnemonic: state => state.substrate.mnemonicData.mnemonic,
     }),
+
     citiesSelection() {
       return this.cities
         .filter((c) => c.country == this.country)
         .map((c) => ({ value: c.city, text: c.city, country: c.country }));
     },
+    
+    rules(){
+      return [
+        file => !file || file.size <= 3_097_152 || 'Document size should be less than 3 MB!',
+        file => !file || file.type == 'image/jpg' || file.type == 'image/jpeg' || 'Document type should be image/jpg',
+      ]
+    }
   },
   methods: {
     async getCountries() {
       this.countries = countryData;
     },
+
     onCountryChange(selectedCountry) {
       this.country = selectedCountry;
       this.regions = Object.entries(cityData[this.country].divisions);
     },
+
     onRegionChange(selectedRegion) {
       this.region = selectedRegion;
       this.cities = Object.entries(cityData[this.country].divisions);
     },
+
     onCityChange(selectedCity) {
       this.city = selectedCity;
     },
+
     getKiltBoxPublicKey() {
       const cred = Kilt.Identity.buildFromMnemonic(this.mnemonic)
       return u8aToHex(cred.boxKeyPair.publicKey)
     },
+
     async updateLab(){
-      this.isLoading = true
+      if (!this.$refs.form.validate()) {
+        return
+      }
       try{
+        this.isLoading = true
         const box_public_key = this.getKiltBoxPublicKey()
         await updateLab(
           this.api,
@@ -257,7 +265,12 @@ export default {
         console.error(err)
       }
     },
+    
     fileUploadEventListener(file) {
+      this.imageUrl = ""
+      if (!this.$refs.form.validate()) {
+        return
+      }
       if (file && file.name) {
         if (file.name.lastIndexOf(".") <= 0) {
           return

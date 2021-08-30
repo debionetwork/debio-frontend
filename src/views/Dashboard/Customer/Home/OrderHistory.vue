@@ -131,6 +131,8 @@ export default {
           this.orderHistory.sort(
             (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
           );
+          const status = localStorage.getLocalStorageByName("lastOrderStatus")
+          if (status) this.orderHistory[0].status = status
         }
 
         this.isLoadingOrderHistory = false;

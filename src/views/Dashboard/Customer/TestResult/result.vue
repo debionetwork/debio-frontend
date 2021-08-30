@@ -3,16 +3,26 @@
     <v-container>
       <v-row>
         <v-col cols="12" md="8">
-          <div class="secondary--text mb-2"><b>Test Result Report</b></div>
+          <div class="secondary--text mb-2"><b>DNA Test Report</b></div>
           <v-card class="dg-card" width="100%">
             <v-progress-linear
               v-if="resultLoading"
               indeterminate
               color="primary"
             ></v-progress-linear>
-            <v-card-title>{{ serviceName }} Report</v-card-title>
+            <!-- <v-card-title>{{ serviceName }} Report</v-card-title> -->
             <v-card-text>
-              {{ reportResult }}
+              <embed
+                :src="reportResult"
+                type="application/pdf"
+                v-if="isDataPdf"
+                scrolling="auto"
+                height="1000px"
+                width="100%"
+              />
+              <span v-else>
+                {{ reportResult }}
+              </span>
             </v-card-text>
           </v-card>
         </v-col>
@@ -21,19 +31,20 @@
           <div v-for="(file, index) in files" :key="file.name" class="mb-2">
             <MenuCard
               icon="mdi-file-document-multiple-outline"
-              :title="file.fileType"
-              :sub-title="file.fileName"
+              :title="file.fileTitle"
+              :sub-title="file.fileSubTitle"
               :loading="filesLoading[index]"
               :disabled="filesLoading[index]"
               @click="showDialog('download', index)"
             />
           </div>
+          
           <div class="mb-2">
             <v-card
-              class="dg-card dg-menu-card"
+              v-if="!dataStaked" 
+              class="dg-card dg-menu-card grey lighten-1"
               :class="{ 'card-hover': true }"
               :elevation="0"
-              @click="true"
               outlined
               :style="'border-radius: 10px;'"
               :ripple="false"
@@ -68,12 +79,46 @@
                         -webkit-box-orient: vertical;
                       "
                     >
-                      Stake my data anonymously
+                      <!-- Stake my data anonymously  -->
+                      Upcoming Feature
                     </div>
                   </div>
                 </div>
               </div>
             </v-card>
+
+            <v-card
+              v-else
+              class="dg-card dg-menu-card grey lighten-1"
+              :elevation="0"
+              outlined
+              :style="'border-radius: 10px;'"
+            >
+              <div
+                class="
+                  d-flex
+                  flex-column
+                  justify-space-around
+                  fill-height
+                  pr-4
+                  py-2
+                "
+              >
+                <div class="d-flex align-center">
+                  <div class="my-3 ml-5">
+                    <v-avatar>
+                      <img src="@/assets/reward.png" />
+                    </v-avatar>
+                  </div>
+                  <div class="ml-5" style="width: 100%">
+                    <div class="text">
+                      Your data has been staked in the Market Place
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </v-card>
+
           </div>
         </v-col>
       </v-row>
@@ -123,6 +168,11 @@
           </v-card>
         </template>
       </v-dialog>
+      <DialogStakingDataConfirmation 
+        :show="stakeDialog" 
+        @toggle="stakeDialog = $event"
+        @close="closeDialog()"
+      />
     </v-container>
   </div>
 </template>
@@ -136,11 +186,13 @@ import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { getOrdersData } from "@/lib/polkadotProvider/query/orders";
 import { hexToU8a } from "@polkadot/util";
+import DialogStakingDataConfirmation from "@/components/Dialog/DialogStakingDataConfirmation"
 
 export default {
   name: "test-result",
   components: {
     MenuCard,
+    DialogStakingDataConfirmation
   },
   data: () => ({
     privateKey: "",
@@ -154,6 +206,7 @@ export default {
     services: [],
     lab: null,
     order: null,
+    isDataPdf: false,
     serviceName: "",
     result: "",
     isLoading: false,
@@ -162,6 +215,8 @@ export default {
     filesLoading: [],
     resultLoading: false,
     baseUrl: "https://ipfs.io/ipfs/",
+    stakeDialog: false,
+    dataStaked: false
   }),
   async mounted() {
     this.resultLoading = true;
@@ -209,6 +264,8 @@ export default {
             fileType: "report",
             fileName: this.serviceName + " Report",
             fileLink: this.speciment.report_link,
+            fileTitle: "Download Report",
+            fileSubTitle: "Download Your Test Report"
           });
         }
 
@@ -217,6 +274,8 @@ export default {
             fileType: "result",
             fileName: this.serviceName + " Result",
             fileLink: this.speciment.result_link,
+            fileTitle: "Download Raw Data",
+            fileSubTitle: "Download Your Genomic Data"
           });
         }
         this.filesLoading = new Array(this.files.length).fill(false);
@@ -268,6 +327,10 @@ export default {
           channel.port2,
         ]);
         ipfsWorker.workerDownload.onmessage = (event) => {
+          const regexMatchPdf = /^(data:application\/\pdf)/g
+          const isDataPdf = regexMatchPdf.test(event.data)
+          this.isDataPdf = isDataPdf
+
           this.result = event.data;
           this.resultLoading = false;
         };
@@ -307,13 +370,14 @@ export default {
         console.log(e);
       }
     },
-
     download(data, fileName) {
       const blob = new Blob([data], { type: "text/plain" });
       const e = document.createEvent("MouseEvents");
       const a = document.createElement("a");
       a.download = fileName;
-      a.href = window.URL.createObjectURL(blob);
+      a.href = this.isDataPdf
+        ? data
+        : window.URL.createObjectURL(blob);
       a.dataset.downloadurl = ["text/json", a.download, a.href].join(":");
       e.initEvent(
         "click",
@@ -334,13 +398,19 @@ export default {
       );
       a.dispatchEvent(e);
     },
-
     showDialog(actionType, index) {
       // this.dialog = true;
       this.actionType = actionType;
       this.fileDownloadIndex = index;
       this.decryptWallet();
     },
+    showDialogStake(){
+      this.stakeDialog = true
+    },
+    closeDialog(){
+      this.dataStaked = true
+      this.stakeDialog = false
+    }
   },
 
   computed: {
