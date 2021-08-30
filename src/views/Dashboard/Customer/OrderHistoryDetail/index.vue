@@ -101,7 +101,9 @@
             </v-row>
             <v-row v-if="dnaSampleStatus == 'ResultReady'">
               <v-col>
-                <RatingBox>
+                <RatingBox
+                  :orderId="orderId"
+                  :order="order">
                 </RatingBox>
               </v-col>
             </v-row>
@@ -409,6 +411,8 @@ export default {
       this.orderId = this.$route.params.number;
       this.order = await getOrdersData(this.api, this.orderId);
       this.orderDetail = await getOrdersDetail(this.api, this.orderId);
+      console.log(this.order, 'this.order')
+      console.log(this.orderDetail, 'this.orderdetail')
       this.dnaSampleStatus = this.orderDetail.dna_sample_status
       this.coinName = this.order.currency;
       this.priceOrder = parseFloat(

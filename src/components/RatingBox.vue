@@ -64,10 +64,18 @@ import Button from "@/components/Button";
 import DialogAlert from '@/components/Dialog/DialogAlert'
 export default {
   name: "RatingBox",
+  props: {
+    orderId: String,
+    order: Object,
+  },
   data: () => ({
     rate: 0,
     comment: "",
     dialogAlert: false,
+    lab_id: "",
+    service_id: "",
+    customer_id: "",
+    date: "",
   }),
   computed: {
     ...mapState({
@@ -81,17 +89,41 @@ export default {
   },
   methods: {
     async sendFeedback () {
-      const { rate, comment } = this
-      console.log('sent')
-      this.$store.dispatch('feedback/sendFeedback', { rate, comment })
+      await this.getDate()
+      const { rate, comment, lab_id, service_id, customer_id, createdAt, orderId } = this
+      this.$store.dispatch('feedback/sendFeedback', {
+        rate, 
+        comment,
+        lab_id,
+        service_id,
+        customer_id,
+        createdAt,
+        orderId
+        })
       this.dialogAlert = true
     },
     async actionAlert() {
       this.$router.push({
         name: "order-history"
       });
+    },
+
+    async getDate() {
+      const dateNow = new Date()
+      let day = dateNow.getDate()
+      let month = dateNow.getMonth()
+      let year = dateNow.getFullYear()
+      let hour = dateNow.getHours()
+      let minute = dateNow.getMinutes()
+      let second = dateNow. getSeconds()
+      this.createdAt = (year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second)
     }
-  }
+  },
+  mounted() {
+    this.lab_id = this.order.seller_id
+    this.service_id = this.order.service_id
+    this.customer_id = this.order.customer_id
+  },
 }
 </script>
 
