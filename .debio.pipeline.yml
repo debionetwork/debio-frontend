@@ -31,6 +31,8 @@ steps:
       - name: toolkit
         path: /data/drone_data
     commands:
+      - pwd
+      - ls -lia
       - gcloud compute instances start debio-pipeline-builder-image --zone=us-central1-a
     when:
       branch:
