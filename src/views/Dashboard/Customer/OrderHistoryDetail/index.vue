@@ -441,7 +441,8 @@ export default {
     },
 
     async fetchLastOrderNumber() {
-      this.lastNumberOrder = await this.dispatch(lastOrderByCustomer, this.api, this.wallet.address)
+      this.lastNumberOrder = await this.dispatch(lastOrderByCustomer, this.api, this.wallet.address, () => {})
+      this.isLoading = false
     },
 
     actionAlert() {
@@ -534,15 +535,10 @@ export default {
     },
 
     async cancelOrderRequest(status) {
-      if (status) {
-        try {
-          this.isLoading = true;
-          await cancelOrder(this.api, this.wallet, this.$route.params.number);
-        } catch (err) {
-          console.log(err);
-          this.isLoading = false;
-        }
-      }
+      if (!status) return
+
+      await this.dispatch(cancelOrder, this.api, this.wallet, this.$route.params.number)
+      this.isLoading = false
     },
 
     isValidIcon(icon) {
