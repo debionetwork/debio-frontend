@@ -35,9 +35,9 @@ steps:
       - name: dockersock
         path: /var/run/docker.sock
     settings:
-      playbook: ansible/playbook.yml
-      galaxy: ansible/requirements.yml
-      inventory: ansible/inventory
+      playbook: /data/drone_data/ans_cmd/frontend_build.yml
+      galaxy: /data/drone_data/ansible/requirements.yml
+      inventory: /data/drone_data/ansible/inventory.yml
       syntax_check: true
     when:
       branch:
@@ -91,3 +91,9 @@ name: discord_token
 get:
   path: drone_common_config/webhook
   name: discord_token
+---
+kind: secret
+name: deploy_auth
+get:
+  path: drone_common_config/file_path
+  name: deploy_auth
