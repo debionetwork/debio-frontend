@@ -26,19 +26,12 @@ volumes:
 steps:
   - name: build - devel
     pull: if-not-exists
-    image: plugins/ansible:1
+    image: google/cloud-sdk:alpine
     volumes:
       - name: toolkit
         path: /data/drone_data
-      - name: whitelist
-        path: /etc/docker/daemon.json
-      - name: dockersock
-        path: /var/run/docker.sock
-    settings:
-      playbook: /data/drone_data/ans_cmd/frontend_build.yml
-      galaxy: /data/drone_data/ansible/requirements.yml
-      inventory: /data/drone_data/ansible/inventory.yml
-      syntax_check: true
+    commands:
+      - gcloud config list
     when:
       branch:
         - development
