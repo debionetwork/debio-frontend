@@ -29,13 +29,10 @@ export default {
         "rating": feedback.rate,
         "created": feedback.createdAt
     }
-      axios.post(`${baseUrl}/rating`, data)
-      .then((res) => {
-        console.log(res)
-      })
-      .catch((err) => {
-        console.log(err)
-      })
+      const result = await axios.post(`${baseUrl}/rating`, data)
+      if (result) {
+        console.log(result)
+      }
     }
   },
   getters: {

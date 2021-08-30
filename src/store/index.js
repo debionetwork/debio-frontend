@@ -21,7 +21,7 @@ export default new Vuex.Store({
     testRequest,
     substrate,
     lab,
-    feedback
+    feedback,
   },
   state: {
   },
