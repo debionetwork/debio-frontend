@@ -34,7 +34,7 @@
       </div>
     </v-app-bar>
 
-    <NavigationDrawer width="200" />
+    <NavigationDrawer />
 
     <v-main class="dg-dashboard-main">
       <!-- Breadcrumbs and Header -->
