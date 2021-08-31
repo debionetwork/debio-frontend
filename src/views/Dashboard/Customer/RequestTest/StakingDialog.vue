@@ -94,7 +94,8 @@
 import DialogAlert from "@/components/Dialog/DialogAlert";
 import { approveDaiStakingAmount, checkAllowance, sendServiceRequestStaking } from '@/lib/metamask/serviceRequest'
 import { startApp, getTransactionReceiptMined } from "@/lib/metamask";
-import { mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
+import localStorage from "@/lib/local-storage"
 
 export default {
   name: "StakingDialog",
@@ -129,17 +130,19 @@ export default {
       country: state => state.lab.country,
       city: state => state.lab.city,
       category: state => state.lab.category,
-    })
+    }),
+    ...mapMutations({
+      stakingAmount: "lab/SET_STAKING_AMOUNT"
+    }),
   },
   methods: {
     closeDialog() {
       this._show = false;
-      this.dialogAlert = true
     },
     actionAlert() {
       this.dialogAlert = false
-        this.$router.push({
-        name: "customer-home",
+      this.$router.push({
+        name: "service-request",
       });
     },
     async submitServiceRequestStaking() {
@@ -162,6 +165,7 @@ export default {
             this.ethAccount.currentAccount,
             stakingAmount, // Approve only as much as needed to stake
           )
+          this.stakingAmount(stakingAmount)
           await getTransactionReceiptMined(txHash)
         }
 
@@ -174,6 +178,41 @@ export default {
           stakingAmount
         )
         await getTransactionReceiptMined(txHash)
+
+
+        const address = localStorage.getAddress();
+        const storageName = "LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + "customer";
+        const listNotificationJson = localStorage.getLocalStorageByName(storageName);
+
+        let listNotification = [];
+        if (listNotificationJson != null && listNotificationJson != "") {
+          listNotification = JSON.parse(listNotificationJson);
+        }
+
+        const dateSet = new Date();
+        const timestamp = dateSet.getTime().toString();
+        const notifDate = dateSet.toLocaleString("en-US", {
+          weekday: "short",
+          day: "numeric", 
+          year: "numeric",
+          month: "long", 
+          hour: "numeric",
+          minute: "numeric",
+        });
+
+        const notification = {
+          message: "Your request has been submitted",
+          timestamp: timestamp,
+          data: "",
+          route: "service-request",
+          params: "",
+          read: false,
+          notifDate: notifDate,
+        }
+          
+        listNotification.push(notification)
+        localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotification));
+        listNotification.reverse();
 
         this.isLoading = false
         this.dialogAlert = true
