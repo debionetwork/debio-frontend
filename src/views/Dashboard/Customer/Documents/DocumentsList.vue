@@ -247,7 +247,7 @@ export default {
   methods: {
     async getDocumentsHistory() {
       this.documentsHistory = []
-      this.dispatch(this.getEMRHistory)
+      await this.dispatch(this.getEMRHistory)
     },
 
     async getEMRHistory() {

@@ -40,16 +40,11 @@
                           <v-progress-linear v-if="isLoading" indeterminate color="primary"></v-progress-linear>
                           <span class="grey--text font-italic">
                             <span>Successfully uploaded</span>
-
-                            <!-- <span class="primary--text">Failed to upload</span> -->
                           </span>
                         </v-col>
                         <v-col cols="12" lg="1" md="1" xl="1" class="align-center">
                           <v-icon @click="removePending(dataEMR)" :size="20">mdi-delete</v-icon>
                         </v-col>
-                        <!-- <v-col cols="12" lg="1" md="1" xl="1" class="align-center">
-                          <v-icon @click="reUploadFile(dataEMR)" color="primary" :size="20">mdi-rotate-left</v-icon>
-                        </v-col> -->
                       </v-row>
                     </div>
                   </v-col>
@@ -273,11 +268,9 @@ import {
   registerElectronicMedicalRecord,
 } from "@/lib/polkadotProvider/command/electronicMedicalRecord"
 import { queryGetEMRList } from "@/lib/polkadotProvider/query/electronicMedicalRecord"
-import serviceHandler from "@/mixins/serviceHandler"
 
 export default {
   name: "UploadEMR",
-  mixins: [serviceHandler],
 
   props: {
     show: Boolean,
