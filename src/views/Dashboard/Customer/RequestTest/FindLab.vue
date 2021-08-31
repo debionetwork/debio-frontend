@@ -413,6 +413,7 @@ export default {
     ...mapMutations({
       setLabToRequest: "testRequest/SET_LAB",
       setProductsToRequest: "testRequest/SET_PRODUCTS",
+      setCategory: "lab/SET_CATEGORY"
     }),
 
     async getCountries() {
@@ -642,15 +643,15 @@ export default {
       }
       this.dialogAlert = false;
     },
-
-    async onCategoryChange(category) {
+    onCategoryChange(category) {
       this.category = category
       if (category == "Other") {
         this.showSpecify = true
       }
-    }
-  }
-}
+      this.setCategory(category)
+    },
+  },
+};
 </script>
 
 <style lang="scss">

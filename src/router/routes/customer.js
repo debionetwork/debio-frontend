@@ -22,6 +22,22 @@ const customerRoutes = [{
       component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/Home')
     },
     {
+      path: '/customer/service-request',
+      name: 'service-request',
+      meta: {
+        pageHeader: 'Service Request',
+        drawerButtons: [
+          { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
+          { text: "Request Test", disabled: false, route: { name: "request-test" } },
+          { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
+          { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
+          { text: "EMR", disabled: false, route: { name: "documents" } },
+          { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
+        ]
+      },
+      component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/RequestTest/ServiceRequest.vue')
+    },
+    {
       path: '/customer/order-history',
       name: 'order-history',
       meta: {
