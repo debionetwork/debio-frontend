@@ -24,6 +24,19 @@ volumes:
       path: /data/drone_data
 
 steps:
+  - name: verify pull request
+    pull: if-not-exists
+    image: alpine/git
+    volumes:
+      - name: toolkit
+        path: /data/drone_data
+    commands:
+      - /data/drone_data/debio_toolkit -approval -repo=debionetwork/debio-frontend -id=${DRONE_PULL_REQUEST}
+    when:
+      branch:
+        - master
+        - staging
+        - development
 
   - name: build - devel
     pull: if-not-exists
@@ -64,6 +77,20 @@ steps:
       branch:
         - master
 
+  - name: merge pull request
+    pull: if-not-exists
+    image: alpine/git
+    volumes:
+      - name: toolkit
+        path: /data/drone_data
+    commands:
+      - /data/drone_data/debio_toolkit -merge -repo=debionetwork/debio-frontend -id=${DRONE_PULL_REQUEST}
+    when:
+      branch:
+        - master
+        - staging
+        - development
+
   - name: reload service - devel
     pull: if-not-exists
     image: appleboy/drone-ssh
@@ -80,7 +107,7 @@ steps:
       script:
         - docker stop debio_frontend_dev || true && docker rm debio_frontend_dev || true
         - docker rmi hub.debio.network/debio_frontend_dev:latest && docker pull hub.debio.network/debio_frontend_dev:latest
-        - docker run -d --network=host --name=debio_frontend_dev --env=DEBIOENV=development -v /etc/localtime:/etc/localtime:ro --restart=always hub.debio.network/debio_frontend_dev:latest
+        - docker run -d --name=debio_frontend_dev --env=debioenv=development -v /etc/localtime:/etc/localtime:ro -p 0.0.0.0:8080:80 --restart=always hub.debio.network/debio_frontend_dev:latest
     when:
       branch:
         - development
