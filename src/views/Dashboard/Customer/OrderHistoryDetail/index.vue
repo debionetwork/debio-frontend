@@ -101,7 +101,9 @@
             </v-row>
             <v-row v-if="dnaSampleStatus == 'ResultReady'">
               <v-col>
-                <RatingBox>
+                <RatingBox
+                  :orderId="orderId"
+                  :order="order">
                 </RatingBox>
               </v-col>
             </v-row>
