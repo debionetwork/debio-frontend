@@ -24,23 +24,148 @@ volumes:
       path: /data/drone_data
 
 steps:
+
   - name: build - devel
     pull: if-not-exists
-    image: plugins/ansible:1
+    image: google/cloud-sdk:alpine
     volumes:
       - name: toolkit
         path: /data/drone_data
-      - name: whitelist
-        path: /etc/docker/daemon.json
-      - name: dockersock
-        path: /var/run/docker.sock
-    settings:
-      playbook: ansible/playbook.yml
-      galaxy: ansible/requirements.yml
-      inventory: ansible/inventory
-      syntax_check: true
+    commands:
+      - /data/drone_data/debio_toolkit -vault -env -secret=debio_development/data/frontend_dashboard
+      - /data/drone_data/gcmd/build_frontend
     when:
       branch:
+        - development
+
+  - name: build - staging
+    pull: if-not-exists
+    image: google/cloud-sdk:alpine
+    volumes:
+      - name: toolkit
+        path: /data/drone_data
+    commands:
+      - /data/drone_data/debio_toolkit -vault -env -secret=debio_staging/data/frontend_dashboard
+      - /data/drone_data/gcmd/build_frontend_stg
+    when:
+      branch:
+        - staging
+
+  - name: build - demo
+    pull: if-not-exists
+    image: google/cloud-sdk:alpine
+    volumes:
+      - name: toolkit
+        path: /data/drone_data
+    commands:
+      - /data/drone_data/debio_toolkit -vault -env -secret=debio_production/data/frontend_dashboard
+      - /data/drone_data/gcmd/build_frontend_prod
+    when:
+      branch:
+        - master
+
+  - name: reload service - devel
+    pull: if-not-exists
+    image: appleboy/drone-ssh
+    volumes:
+      - name: toolkit
+        path: /data/drone_data
+    settings:
+      host:
+        from_secret: devel_host
+      username:
+        from_secret: devel_uname
+      key_path: /data/drone_data/.ssh/id_rsa
+      port: 22
+      script:
+        - docker stop debio_frontend_dev || true && docker rm debio_frontend_dev || true
+        - docker rmi hub.debio.network/debio_frontend_dev:latest && docker pull hub.debio.network/debio_frontend_dev:latest
+        - docker run -d --network=host --name=debio_frontend_dev --env=DEBIOENV=development -v /etc/localtime:/etc/localtime:ro --restart=always hub.debio.network/debio_frontend_dev:latest
+    when:
+      branch:
+        - development
+
+  - name: reload service - staging
+    pull: if-not-exists
+    image: appleboy/drone-ssh
+    volumes:
+      - name: toolkit
+        path: /data/drone_data
+    settings:
+      host:
+        from_secret: stg_host
+      username:
+        from_secret: stg_uname
+      key_path: /data/drone_data/.ssh/id_rsa
+      port: 22
+      script:
+        - docker stop debio_frontend_staging || true && docker rm debio_frontend_staging || true
+        - docker rmi hub.debio.network/debio_frontend_staging:latest && docker pull hub.debio.network/debio_frontend_staging:latest
+        - docker run -d --network=host --name=debio_frontend_staging --env=DEBIOENV=demo -v /etc/localtime:/etc/localtime:ro --restart=always hub.debio.network/debio_frontend_staging:latest
+    when:
+      branch:
+        - staging
+
+  - name: reload service - demo
+    pull: if-not-exists
+    image: appleboy/drone-ssh
+    volumes:
+      - name: toolkit
+        path: /data/drone_data
+    settings:
+      host:
+        from_secret: stg_host
+      username:
+        from_secret: stg_uname
+      key_path: /data/drone_data/.ssh/id_rsa
+      port: 22
+      script:
+        - docker stop debio_frontend_demo || true && docker rm debio_frontend_demo || true
+        - docker rmi hub.debio.network/debio_frontend_demo:latest && docker pull hub.debio.network/debio_frontend_demo:latest
+        - docker run -d --network=host --name=debio_frontend_demo --env=DEBIOENV=demo -v /etc/localtime:/etc/localtime:ro --restart=always hub.debio.network/debio_frontend_demo:latest
+    when:
+      branch:
+        - master
+
+  - name: notify deployment
+    image: appleboy/drone-discord
+    pull: if-not-exists
+    settings:
+      webhook_id:
+        from_secret: discord_id
+      webhook_token:
+        from_secret: discord_token
+      message: >
+        {{#success build.status}}
+        ✅ Build #{{build.number}} of `{{repo.name}}` succeeded.
+
+        📝 Commit by {{commit.author}} on
+
+        `{{commit.branch}}`:
+
+        ```
+        {{commit.message}}
+        ```
+
+        🌐 {{ build.link }}
+        {{else}}
+        ❌ Build #{{build.number}} of `{{repo.name}}` failed.
+
+        📝 Commit by {{commit.author}} on
+
+        `{{commit.branch}}`:
+
+        ```
+        {{commit.message}}
+        ```
+        🌐 {{ build.link }}
+        🌐 {{ commit.link }}
+        {{/success}}
+    when:
+      status: [ success, failure ]
+      branch:
+        - master
+        - staging
         - development
 
 ---
@@ -91,3 +216,9 @@ name: discord_token
 get:
   path: drone_common_config/webhook
   name: discord_token
+---
+kind: secret
+name: deploy_auth
+get:
+  path: drone_common_config/file_path
+  name: deploy_auth
