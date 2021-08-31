@@ -17,8 +17,15 @@ export default {
       height: null,
       data: new Map(),
       province: null,
-      currentProvince: null
+      currentProvince: null,
+      tooltipTotalRequest: 0,
+      tooltipTotalValue: 0,
+      tooltipCountry: '',
     }
+  },
+
+  props: {
+    serviceRequestByCountry: Object,
   },
 
   computed: {
@@ -52,7 +59,27 @@ export default {
       this.currentProvince = undefined
     },
 
+    createTooltip({country = '', totalRequests = '', totalValue = ''}) {
+      return `
+          <div class="header">
+            <h3>${country}</h3>
+          </div>
+          <div class="content">
+            <div style="display: flex; justify-content: space-between; width: 100%;">
+              <p>Total requests</p>
+              <p>${totalRequests} users</p>
+            </div>
+            <div style="display: flex; justify-content: space-between; width: 100%;">
+              <div>Total value staked</div>
+              <div>${totalValue.toLocaleString()} <b>DAI</b></div>
+            </div>
+          </div>
+        `
+    },
+
     renderD3() {
+      const self = this;
+      const serviceRequestByCountry = {...this.serviceRequestByCountry}
       const svg = d3.select("svg")
       const svgWidth = +svg.attr("width")
       const svgHeight = +svg.attr("height")
@@ -64,14 +91,13 @@ export default {
 
       var tooltip2 = d3.select("body")
         .append("div")
+          .attr("class", "debio-map-tooltip")
           .style("position", "absolute")
           .style("visibility", "hidden")
           .style("background-color", "white")
-          .style("border", "solid")
-          .style("border-width", "1px")
-          .style("border-radius", "5px")
-          .style("padding", "10px")
-          .html("<p>I'm a tooltip written in HTML</p><img src='https://github.com/holtzy/D3-graph-gallery/blob/master/img/section/ArcSmal.png?raw=true'></img><br>Fancy<br><span style='font-size: 40px;'>Isn't it?</span>")        
+          .style("min-width", "250px")
+          .html(self.createTooltip({}))
+      
 
       Promise.all([
         d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson"),
@@ -81,7 +107,7 @@ export default {
           let topo = loadData[0]
 
           // eslint-disable-next-line no-unused-vars
-          let onClickedArea = function(event) {
+          let onClickedArea = function() {
             d3.selectAll(".Country")
               .transition()
               .duration(200)
@@ -91,14 +117,8 @@ export default {
               .duration(200)
               .style("opacity", 1)
               .style("stroke", "black")
-
-            let coords = d3.pointer(event)
-            
-            return tooltip2
-              .style("visibility", "visible")
-              .style("top", (coords[1] + 80)+"px")
-              .style("left",(coords[0] - 80)+"px")
           }
+
 
           // Draw the map
           svg.append("g")
@@ -121,6 +141,25 @@ export default {
               .attr("class", function(d){ return "Country" } )
               .style("opacity", .8)
               .on("click", onClickedArea)
+              .on("mouseover", function(d){
+                // console.log(d.target.__data__.properties.name)
+                const country = d.target.__data__.properties.name
+                if (serviceRequestByCountry[country] != undefined) {
+                  const { totalRequests, totalValue } = serviceRequestByCountry[country]
+                  return tooltip2
+                    .html(self.createTooltip({ country, totalRequests, totalValue }))
+                    .style("visibility", "visible");
+                }
+              })
+              .on("mousemove", function(event){
+                // let coords = d3.pointer(event);
+                return tooltip2
+                  .style("top", (event.pageY-100)+"px")
+                  .style("left",(event.pageX-260)+"px");
+              })
+              .on("mouseout", function(){
+                return tooltip2.style("visibility", "hidden");
+              });
       })
     }
   }
@@ -129,5 +168,20 @@ export default {
 </script>
 
 <style lang="scss">
+  .debio-map-tooltip {
+    border-radius: 4px;
+    font-family: "Roboto", sans-serif !important;
+    border: 1px solid #edf0ee;
+    padding: 14px;
 
+    .header {
+      padding-bottom: 5px;
+    }
+    .content {
+      font-size: 14px;
+      div {
+        margin-top: 2px;
+      }
+    }
+  }
 </style>
