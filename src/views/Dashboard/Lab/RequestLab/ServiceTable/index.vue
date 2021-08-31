@@ -17,6 +17,9 @@
 				additional-class="laporan-table"
 				@onExpanded="handleExpanded"
 			>
+        <v-btn @click="$emit('closeMap', true)" slot="prepend" color="primary" outlined>
+          Back
+        </v-btn>
 				<template v-slot:search-bar>
 					<SearchBar
 						label="Search"
