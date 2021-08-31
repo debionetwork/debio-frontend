@@ -24,19 +24,6 @@ volumes:
       path: /data/drone_data
 
 steps:
-  - name: verify pull request
-    pull: if-not-exists
-    image: alpine/git
-    volumes:
-      - name: toolkit
-        path: /data/drone_data
-    commands:
-      - /data/drone_data/debio_toolkit -approval -repo=debionetwork/debio-frontend -id=${DRONE_PULL_REQUEST}
-    when:
-      branch:
-        - master
-        - staging
-        - development
 
   - name: build - devel
     pull: if-not-exists
@@ -76,20 +63,6 @@ steps:
     when:
       branch:
         - master
-
-  - name: merge pull request
-    pull: if-not-exists
-    image: alpine/git
-    volumes:
-      - name: toolkit
-        path: /data/drone_data
-    commands:
-      - /data/drone_data/debio_toolkit -merge -repo=debionetwork/debio-frontend -id=${DRONE_PULL_REQUEST}
-    when:
-      branch:
-        - master
-        - staging
-        - development
 
   - name: reload service - devel
     pull: if-not-exists
