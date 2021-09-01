@@ -166,6 +166,8 @@ import Dialog from '@/components/Dialog'
 import Button from '@/components/Button'
 import { submitTestResult, processDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
 import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting"
+import localStorage from "@/lib/local-storage"
+
 
 export default {
   name: 'ProcessSpecimen',
@@ -348,6 +350,7 @@ export default {
           this.submitted = true
         }
       )
+      this.sendingNotification()
     },
 
     addFileUploadEventListener(fileInputRef, fileType) {
@@ -511,6 +514,42 @@ export default {
         this.reportSucceed = false
         this.$refs.encryptUploadReport.value = null
       }
+    },
+
+    sendingNotification() {
+      const address = localStorage.getAddress()
+      const storageName = "LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + "customer"
+      const listNotificationJson = localStorage.getLocalStorageByName(storageName)
+
+      let listNotification = []
+      if (listNotificationJson != null && listNotificationJson != "") {
+        listNotification = JSON.parse(listNotificationJson)
+      }
+
+      const dateSet = new Date()
+      const timestamp = dateSet.getTime().toString()
+      const notifDate = dateSet.toLocaleString("en-US", {
+        weekday: "short",
+        day: "numeric", 
+        year: "numeric",
+        month: "long", 
+        hour: "numeric",
+        minute: "numeric",
+      });
+
+      const notification = {
+        message: "Congrats! You got 5 DBIO!",
+        timestamp: timestamp,
+        data: "",
+        route: "result-test",
+        params: "",
+        read: false,
+        notifDate: notifDate,
+      }
+
+      listNotification.push(notification)
+      localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotification));
+      listNotification.reverse();
     },
   },
 }

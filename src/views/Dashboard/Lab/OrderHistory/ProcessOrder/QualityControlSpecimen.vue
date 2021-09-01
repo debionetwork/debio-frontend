@@ -201,7 +201,6 @@ export default {
     try {
       const dnaSample = await queryDnaSamples(this.api, this.specimenNumber)
       if (dnaSample) {
-        console.log('dnaSample', dnaSample)
         this.rejectionTitle = dnaSample.rejected_title
         this.rejectionDescription = dnaSample.rejected_description
       }
