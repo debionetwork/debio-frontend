@@ -106,19 +106,6 @@
                     :specimen-number="specimenNumber"
                     :specimen-status="specimenStatus"
                     @qualityControlPassed="onQcCompleted" />
-                <GenotypeSpecimen
-                    v-if="showGenotypeDialog"
-                    :specimen-number="specimenNumber"
-                    :specimen-status="specimenStatus"
-                    @genotypeFinished="onGenotypeFinished" />
-                <ReviewSpecimen 
-                    v-if="showReviewDialog"
-                    :specimen-number="specimenNumber"
-                    @reviewedSpecimen="onSpecimenReviewed"/>
-                <ComputeSpecimen
-                    v-if="showComputeDialog"
-                    :specimen-number="specimenNumber"
-                    @computedSpecimen="onSpecimenComputed" />
                 <ProcessSpecimen 
                     v-if="showGenomeReportDialog || showResultDialog"
                     :order-id="orderId"
@@ -126,6 +113,8 @@
                     :specimen-status="specimenStatus"
                     :public-key="publicKey"
                     :is-processed="isOrderProcessed"
+                    @uploadGenome="onGenomeFileUploaded"
+                    @uploadReport="onReportFileUploaded"
                     @resultReady="onResultReady" />
 
                 <DialogAlert
@@ -147,22 +136,17 @@
 import { mapGetters, mapState } from 'vuex'
 import ReceiveSpecimen from './ReceiveSpecimen'
 import QualityControlSpecimen from './QualityControlSpecimen'
-import GenotypeSpecimen from './GenotypeSpecimen'
-import ReviewSpecimen from './ReviewSpecimen'
-import ComputeSpecimen from './ComputeSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
 import DialogAlert from '@/components/Dialog/DialogAlert'
 import Stepper from '@/components/Stepper'
+import store from 'store'
 
 export default {
   name: 'ProcessOrderHistory',
   components: {
     ReceiveSpecimen,
     QualityControlSpecimen,
-    GenotypeSpecimen,
-    ReviewSpecimen,
-    ComputeSpecimen,
     ProcessSpecimen,
     DialogAlert,
     Stepper,
@@ -184,12 +168,11 @@ export default {
     genomeFile: "",
     reportFile: "",
     stepperItems: [
-        { name: 'Received', selected: false },
-        { name: 'QC (DNA prep and extraction)', selected: false },
-        { name: 'Genotyping/Sequencing', selected: false },
-        { name: 'Review', selected: false },
-        { name: 'Compute', selected: false },
-        { name: 'Results Ready', selected: false },
+      { name: 'Received', selected: false },
+      { name: 'QC (DNA prep and extraction)', selected: false },
+      { name: 'Genome File', selected: false },
+      { name: 'Report File', selected: false },
+      { name: 'Results Ready', selected: false },
     ]
   }),
   async mounted(){
@@ -218,95 +201,86 @@ export default {
   },
   methods: {
     async setCheckboxByDnaStatus(){
-        if(this.specimenStatus == "Rejected") {
-            this.showRejectDialog = true
-            this.onQcCompleted()
-        }
+      if(this.specimenStatus == "Arrived") {
+        this.onSpecimenReceived()
+      }
 
-        if(this.specimenStatus == "Arrived") {
-            this.setStepperSelected(["Received"], false)
-        }
-        
-        if(this.specimenStatus == "QualityControlled") {
-            this.onQcCompleted()
-        }
+      if(this.specimenStatus == "Rejected") {
+        this.showRejectDialog = true
+        this.onQcCompleted()
+      }
+      
+      if(this.specimenStatus == "QualityControlled") {
+          this.onQcCompleted()
+      }
 
-        if(this.specimenStatus == "GenotypedSequenced") {
-            this.onGenotypeFinished()
-        }
+      if(store.get(`specimen-${this.specimenNumber}-genome-file`)) {
+        this.onGenomeFileUploaded()
+      }
 
-        if(this.specimenStatus == "Reviewed") {
-            this.onSpecimenReviewed()
-        }
+      if(store.get(`specimen-${this.specimenNumber}-report-file`)) {
+        this.onReportFileUploaded()
+      }
 
-        if(this.specimenStatus == "Computed") {
-            this.onSpecimenComputed()
-        }
-
-        if(this.specimenStatus == "ResultReady") {
-            this.onResultReady()
-        }
+      if(this.specimenStatus == "ResultReady") {
+        this.onResultReady()
+      }
     },
+
     onSpecimenReceived() {
-        this.setStepperSelected(["Received"], true)
+      this.setStepperSelected(["Received"], true)
     },
+
     onQcCompleted() {
-        this.setStepperSelected([
-                "Received",
-                "QC (DNA prep and extraction)",
-            ],
-            true
-        )
+      this.setStepperSelected([
+          "Received",
+          "QC (DNA prep and extraction)",
+        ],
+        true
+      )
     },
-    onGenotypeFinished() {
-        this.setStepperSelected([
-                "Received",
-                "QC (DNA prep and extraction)",
-                "Genotyping/Sequencing",
-            ],
-            true
-        )
+
+    onGenomeFileUploaded() {
+      this.setStepperSelected([
+          "Received",
+          "QC (DNA prep and extraction)",
+          "Genome File",
+        ],
+        true
+      )
     },
-    onSpecimenReviewed() {
-        this.setStepperSelected([
-                "Received",
-                "QC (DNA prep and extraction)",
-                "Genotyping/Sequencing",
-                "Review",
-            ],
-            true
-        )
+
+    onReportFileUploaded() {
+      this.setStepperSelected([
+          "Received",
+          "QC (DNA prep and extraction)",
+          "Genome File",
+          "Report File",
+        ],
+        true
+      )
     },
-    onSpecimenComputed() {
-        this.setStepperSelected([
-                "Received",
-                "QC (DNA prep and extraction)",
-                "Genotyping/Sequencing",
-                "Review",
-                "Compute",
-            ],
-            true
-        )
-    },
+
     onResultReady() {
         this.showResultDialog = true
         this.setStepperSelected([
-                "Received",
-                "QC (DNA prep and extraction)",
-                "Genotyping/Sequencing",
-                "Review",
-                "Compute",
-                "Results Ready",
-            ],
-            true
+            "Received",
+            "QC (DNA prep and extraction)",
+            "Genome File",
+            "Report File",
+            "Results Ready",
+          ],
+          true
         )
     },
+
     getImageLink(val){
         if(val && val != ""){
           return val
         }
         return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
     },
+
     setStepperSelected(names, selected) {
         this.stepperItems = this.stepperItems.map(item => {
             if (names.includes(item.name)) {
@@ -337,22 +311,10 @@ export default {
             && this.stepperItems.some(item => item.name == "QC (DNA prep and extraction)" && item.selected == false)
             || this.specimenStatus == "Rejected"
     },
-    showGenotypeDialog(){
-        return this.stepperItems.some(item => item.name == "QC (DNA prep and extraction)" && item.selected == true)
-            && this.stepperItems.some(item => item.name == "Genotyping/Sequencing" && item.selected == false)
-            && this.specimenStatus != "Rejected"
-    },
-    showReviewDialog(){
-        return this.stepperItems.some(item => item.name == "Genotyping/Sequencing" && item.selected == true)
-            && this.stepperItems.some(item => item.name == "Review" && item.selected == false)
-    },
-    showComputeDialog() {
-        return this.stepperItems.some(item => item.name == "Review" && item.selected == true)
-            && this.stepperItems.some(item => item.name == "Compute" && item.selected == false)
-    },
     showGenomeReportDialog() {
-        return this.stepperItems.some(item => item.name == "Compute" && item.selected == true)
+        return this.stepperItems.some(item => item.name == "QC (DNA prep and extraction)" && item.selected == true)
             && this.stepperItems.some(item => item.name == "Results Ready" && item.selected == false)
+            && this.specimenStatus != "Rejected"
     },
     _icon() {
       return this.serviceImage && (this.serviceImage.startsWith('mdi') || this.serviceImage.startsWith('$'))
