@@ -6,7 +6,7 @@
         style="display: none"
         ref="encryptUploadGenome"
       />
-      <div v-if="genomeSucceed || hasGenomeFile" class="d-flex mt-5 mb-5">
+      <div v-if="hasGenomeFile" class="d-flex mt-5 mb-5">
         <v-row >
           <v-col>
             <b class="secondary--text card-header mb-2" style="display: block">VCF Data</b>
@@ -27,7 +27,7 @@
           color="primary"
           large
           block
-          :disabled="loading.genome || loading.report || genomeSucceed"
+          :disabled="uploadGenomeDisabled"
           @click="uploadGenome"
         >
           <v-icon left dark class="pr-4">
@@ -52,7 +52,7 @@
         style="display: none"
         ref="encryptUploadReport"
       />
-      <div v-if="reportSucceed || hasReportFile" class="d-flex mt-5 mb-5">
+      <div v-if="hasReportFile" class="d-flex mt-5 mb-5">
         <v-row >
           <v-col>
             <b class="secondary--text card-header mb-2" style="display: block">Report Files</b>
@@ -73,7 +73,7 @@
           color="primary"
           large
           block
-          :disabled="loading.genome || loading.report || reportSucceed"
+          :disabled="uploadReportDisabled"
           @click="uploadReport"
         >
           <v-icon left dark class="pr-4">
@@ -92,7 +92,7 @@
       />
     </template>
 
-    <div v-if="genomeSucceed && reportSucceed && !submitted" class="mb-3">
+    <div v-if="sendReportButtonVisible" class="mb-3">
       <v-btn
         color="primary"
         large
@@ -167,6 +167,7 @@ import Button from '@/components/Button'
 import { submitTestResult, processDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
 import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting"
 import localStorage from "@/lib/local-storage"
+import store from 'store'
 
 
 export default {
@@ -223,7 +224,9 @@ export default {
     this.addFileUploadEventListener(this.$refs.encryptUploadReport, 'report')
 
     this.identity = Kilt.Identity.buildFromMnemonic(this.mnemonic)
-    
+
+    this.loadExistingFiles()
+
     const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
     if(testResult) this.setUploadFields(testResult)
   },
@@ -251,9 +254,38 @@ export default {
 
     hasReportFile() {
       return this.files.report.length > 0
-    }
+    },
+
+    uploadGenomeDisabled() {
+      return this.loading.genome || this.loading.report || this.genomeSucceed
+    },
+
+    uploadReportDisabled() {
+      return !this.hasGenomeFile || this.loading.genome || this.loading.report || this.reportSucceed;
+    },
+
+    sendReportButtonVisible() {
+      return this.hasGenomeFile && this.hasReportFile && !this.submitted
+    },
   },
   methods:{
+    loadExistingFiles() {
+      const genomeFile = store.get(`specimen-${this.specimenNumber}-genome-file`)
+      if (genomeFile) {
+        this.files = {
+          ...this.files,
+          genome: [genomeFile],
+        }
+      }
+      const reportFile = store.get(`specimen-${this.specimenNumber}-report-file`)
+      if (reportFile) {
+        this.files = {
+          ...this.files,
+          report: [reportFile]
+        }
+      }
+    },
+
     setUploadFields(testResult){
       const { result_link, report_link } = testResult
       if(result_link){
@@ -398,11 +430,15 @@ export default {
               context.genomeSucceed = true
               context.genomeUploadSucceedDialog = true
               context.$emit('uploadGenome')
+              
+              store.set(`specimen-${context.specimenNumber}-genome-file`, { fileName, fileType, ipfsPath })
             }
             if(file.fileType == 'report') {
               context.reportSucceed = true
               context.reportUploadSucceedDialog = true
               context.$emit('uploadReport')
+
+              store.set(`specimen-${context.specimenNumber}-report-file`, { fileName, fileType, ipfsPath })
             }
           } catch (err) {
             console.error(err)
