@@ -1,10 +1,12 @@
 ---
 kind: pipeline
 type: docker
-name: debio_frontend_deploy
+name: debio frontend deployment
 trigger:
   branch:
     - development
+    - master
+    - staging
   event:
     - pull_request
 
@@ -46,6 +48,7 @@ steps:
         path: /data/drone_data
     commands:
       - /data/drone_data/debio_toolkit -vault -env -secret=debio_development/data/frontend_dashboard
+      - /data/drone_data/debio_toolkit -vault -raw -secret=debio_development/data/frontend_file
       - /data/drone_data/gcmd/build_frontend
     when:
       branch:
@@ -59,6 +62,7 @@ steps:
         path: /data/drone_data
     commands:
       - /data/drone_data/debio_toolkit -vault -env -secret=debio_staging/data/frontend_dashboard
+      - /data/drone_data/debio_toolkit -vault -raw -secret=debio_staging/data/frontend_file
       - /data/drone_data/gcmd/build_frontend_stg
     when:
       branch:
@@ -84,7 +88,7 @@ steps:
       - name: toolkit
         path: /data/drone_data
     commands:
-      - /data/drone_data/debio_toolkit -merge -repo=debionetwork/debio-frontend -id=${DRONE_PULL_REQUEST}
+      - /data/drone_data/debio_toolkit -squash -repo=debionetwork/debio-frontend -id=${DRONE_PULL_REQUEST}
     when:
       branch:
         - master
