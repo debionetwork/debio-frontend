@@ -4,7 +4,8 @@ const defaultState = {
   labs: [],
   country: null,
   city: null,
-  category: null
+  category: null,
+  amount: 0
 }
 
 export default {
@@ -25,6 +26,9 @@ export default {
     SET_LABS(state, labs) {
       state.labs = labs
     },
+    SET_STAKING_AMOUNT(state, amount) {
+      state.amount = amount
+    }
   },
   actions: {
     async setCountryCity ({commit}, data) {

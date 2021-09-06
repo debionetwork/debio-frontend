@@ -340,7 +340,7 @@ import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import StakingDialog from "./StakingDialog.vue"
 import ServiceDialog from '@/components/Dialog/ServiceDialog'
 import categories from '@/constants/categories'
-import serviceHandler from "@/mixins/serviceHandler"
+import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
 
 export default {
   name: "FindLab",
@@ -413,6 +413,7 @@ export default {
     ...mapMutations({
       setLabToRequest: "testRequest/SET_LAB",
       setProductsToRequest: "testRequest/SET_PRODUCTS",
+      setCategory: "lab/SET_CATEGORY"
     }),
 
     async getCountries() {
@@ -642,15 +643,15 @@ export default {
       }
       this.dialogAlert = false;
     },
-
-    async onCategoryChange(category) {
+    onCategoryChange(category) {
       this.category = category
       if (category == "Other") {
         this.showSpecify = true
       }
-    }
-  }
-}
+      this.setCategory(category)
+    },
+  },
+};
 </script>
 
 <style lang="scss">

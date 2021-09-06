@@ -159,7 +159,7 @@ import {
 import { removeElectronicMedicalRecordInfo } from "@/lib/polkadotProvider/command/electronicMedicalRecord"
 import { downloadDecryptedFromIPFS } from "@/lib/ipfs"
 import { hexToU8a } from "@polkadot/util"
-import serviceHandler from "@/mixins/serviceHandler"
+import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
 
 export default {
   name: "emr",
@@ -247,7 +247,7 @@ export default {
   methods: {
     async getDocumentsHistory() {
       this.documentsHistory = []
-      this.dispatch(this.getEMRHistory)
+      await this.dispatch(this.getEMRHistory)
     },
 
     async getEMRHistory() {

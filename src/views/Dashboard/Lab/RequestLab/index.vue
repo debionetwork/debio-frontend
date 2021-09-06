@@ -1,8 +1,9 @@
 <template>
   <v-app>
     <v-main class="request-service">
-      <v-container fill-height fluid>
-        <ServiceTable />
+      <v-container v-if="!isLoading" fill-height fluid>
+        <MapCountry @openList="map = $event" v-if="map" :service-request-by-country="serviceRequestByCountry" />
+        <ServiceTable @closeMap="map = $event" v-if="!map" />
       </v-container>
     </v-main>
   </v-app>
@@ -10,13 +11,50 @@
 
 <script>
 import ServiceTable from "./ServiceTable"
+import MapCountry from "./Mapping/MapCountry"
 import serviceHandler from "@/mixins/serviceHandler"
+import { getServiceRequestCountries } from '@/api/service-request'
 
 export default {
   name: "RequestLab",
   mixins: [serviceHandler],
 
-  components: { ServiceTable }
+  components: { ServiceTable, MapCountry },
+
+  data() {
+    return {
+      map: true,
+      serviceRequestByCountry: {},
+      isLoading: true,
+    }
+  },
+
+  async mounted() {
+    this.isLoading = true
+    await this.fetchServiceRequestCountries()
+    this.isLoading = false
+  },
+
+  methods: {
+    async fetchServiceRequestCountries() {
+      try {
+        const serviceRequests = await getServiceRequestCountries()
+        for (let req of serviceRequests) {
+          if (this.serviceRequestByCountry[req.country] == undefined) {
+            this.serviceRequestByCountry[req.country] = {
+              ...req
+            }
+          } else {
+            this.serviceRequestByCountry[req.country].totalRequests += req.totalRequests
+            this.serviceRequestByCountry[req.country].totalRequests += req.totalValue
+          }
+        }
+        console.log(this.serviceRequestByCountry)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+  }
 }
 </script>
 

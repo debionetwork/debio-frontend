@@ -101,7 +101,9 @@
             </v-row>
             <v-row v-if="dnaSampleStatus == 'ResultReady'">
               <v-col>
-                <RatingBox>
+                <RatingBox
+                  :orderId="orderId"
+                  :order="order">
                 </RatingBox>
               </v-col>
             </v-row>
@@ -262,7 +264,7 @@ import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile"
 import { cancelOrder } from "@/lib/polkadotProvider/command/orders";
 import { startApp } from "@/lib/metamask";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
-import serviceHandler from "@/mixins/serviceHandler";
+import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
 
 export default {
   name: "RequestTestSuccess",

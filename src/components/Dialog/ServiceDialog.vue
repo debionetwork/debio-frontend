@@ -48,7 +48,6 @@
 
 <script>
 import Button from "@/components/Button";
-import localStorage from "@/lib/local-storage"
 import { downloadDecryptedFromIPFS } from "@/lib/ipfs";
 import { hexToU8a } from "@polkadot/util";
 import { mapState } from 'vuex';
@@ -86,16 +85,6 @@ export default {
     closeDialog() {
       this._show = false;
       this.$emit("close");
-    },
-    closeDialogWithStakeData() {
-      this._show = false
-      let resData = []
-      let result = {
-        orderId: this.orderId,
-        status: true
-      }
-      resData.push(result)
-      localStorage.setLocalStorageByName('STATUS_REWARD', JSON.stringify(result))
     },
     async downloadFile() {
       const publicKey = hexToU8a(this.mnemonicData.publicKey);
