@@ -1,10 +1,12 @@
 ---
 kind: pipeline
 type: docker
-name: debio_frontend_deploy
+name: debio frontend deployment
 trigger:
   branch:
     - development
+    - master
+    - staging
   event:
     - pull_request
 
@@ -84,7 +86,7 @@ steps:
       - name: toolkit
         path: /data/drone_data
     commands:
-      - /data/drone_data/debio_toolkit -merge -repo=debionetwork/debio-frontend -id=${DRONE_PULL_REQUEST}
+      - /data/drone_data/debio_toolkit -squash -repo=debionetwork/debio-frontend -id=${DRONE_PULL_REQUEST}
     when:
       branch:
         - master
