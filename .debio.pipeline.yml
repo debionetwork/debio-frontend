@@ -48,6 +48,7 @@ steps:
         path: /data/drone_data
     commands:
       - /data/drone_data/debio_toolkit -vault -env -secret=debio_development/data/frontend_dashboard
+      - /data/drone_data/debio_toolkit -vault -raw -secret=debio_development/data/frontend_file
       - /data/drone_data/gcmd/build_frontend
     when:
       branch:
@@ -61,6 +62,7 @@ steps:
         path: /data/drone_data
     commands:
       - /data/drone_data/debio_toolkit -vault -env -secret=debio_staging/data/frontend_dashboard
+      - /data/drone_data/debio_toolkit -vault -raw -secret=debio_staging/data/frontend_file
       - /data/drone_data/gcmd/build_frontend_stg
     when:
       branch:
