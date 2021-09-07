@@ -268,9 +268,11 @@ import {
   registerElectronicMedicalRecord,
 } from "@/lib/polkadotProvider/command/electronicMedicalRecord"
 import { queryGetEMRList } from "@/lib/polkadotProvider/query/electronicMedicalRecord"
+import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
 
 export default {
   name: "UploadEMR",
+  mixins: [serviceHandler],
 
   props: {
     show: Boolean,
