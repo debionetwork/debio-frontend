@@ -17,7 +17,7 @@
                 item-value="iso2"
                 @change="onCountryChange"
                 label="Select Country"
-                autocomplete="disabled"
+                autocomplete="off"
                 :disabled="showRequestNoLab"
                 outlined
               ></v-autocomplete>
@@ -32,7 +32,7 @@
                 @change="onStateChange"
                 label="Select State"
                 :disabled="!country || showRequestNoLab"
-                autocomplete="disabled"
+                autocomplete="off"
                 outlined
               ></v-autocomplete>
 
@@ -46,7 +46,7 @@
                 @change="onCityChange"
                 label="Select City"
                 :disabled="!state || showRequestNoLab"
-                autocomplete="disabled"
+                autocomplete="off"
                 outlined
               ></v-autocomplete>
 
@@ -59,7 +59,7 @@
                 menu-props="auto"
                 :label="noLab"
                 :disabled="!city || showRequestNoLab"
-                autocomplete="disabled"
+                autocomplete="off"
                 outlined
               >
                 <template slot='item' slot-scope='{ item }'>
@@ -82,7 +82,7 @@
                 label="Select Test / Category"
                 @change="onCategoryChange"
                 menu-props="auto"
-                autocomplete="disabled"
+                autocomplete="off"
                 outlined
               >
               </v-select>
@@ -425,6 +425,9 @@ export default {
     },
 
     async onCountryChange(selectedCountry) {
+      this.state = ""
+      this.city = ""
+
       const { data:
         { data }
       } = await this.dispatch(getStates, selectedCountry)
@@ -457,8 +460,8 @@ export default {
       this.products = [];
       const listLabID = await queryLabsByCountryRegionCity(
         this.api,
-        this.country + "-" + this.country + "-" + this.state,
         this.country + "-" + this.state,
+        this.city,
       );
 
       if (listLabID) {
