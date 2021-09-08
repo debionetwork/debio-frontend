@@ -36,11 +36,14 @@ export default {
       commit('SET_CITY', data.city)
     },
     async getLabByCategory({ commit, state }, category) {
+      commit('SET_CATEGORY', category)
       const baseUrl = process.env.VUE_APP_DEV_DEGENICS_BACKEND_URL
       const labs = await axios.get(`${baseUrl}/labs/${state.country}/${state.city}/${category}`);
       commit('SET_LABS', labs.data.body.hits.hits)
-      commit('SET_CATEGORY', category)
     },
+    async setStakingAmount({ commit }, amount) {
+      commit('SET_STAKING_AMOUNT', amount)
+    }
   },
   getters: {
     getLabByCategory(state) {

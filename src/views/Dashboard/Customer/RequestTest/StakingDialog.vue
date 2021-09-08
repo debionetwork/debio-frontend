@@ -94,7 +94,7 @@
 import DialogAlert from "@/components/Dialog/DialogAlert";
 import { approveDaiStakingAmount, checkAllowance, sendServiceRequestStaking } from '@/lib/metamask/serviceRequest'
 import { startApp, getTransactionReceiptMined } from "@/lib/metamask";
-import { mapState, mapMutations } from 'vuex'
+import { mapState } from 'vuex'
 import localStorage from "@/lib/local-storage"
 
 export default {
@@ -131,9 +131,6 @@ export default {
       city: state => state.lab.city,
       category: state => state.lab.category,
     }),
-    ...mapMutations({
-      stakingAmount: "lab/SET_STAKING_AMOUNT"
-    }),
   },
   methods: {
     closeDialog() {
@@ -145,6 +142,7 @@ export default {
         name: "service-request",
       });
     },
+
     async submitServiceRequestStaking() {
       this.ethAccount = await startApp();
       if (this.ethAccount.currentAccount == "no_install") {
@@ -165,7 +163,6 @@ export default {
             this.ethAccount.currentAccount,
             stakingAmount, // Approve only as much as needed to stake
           )
-          this.stakingAmount(stakingAmount)
           await getTransactionReceiptMined(txHash)
         }
 
@@ -179,6 +176,7 @@ export default {
         )
         await getTransactionReceiptMined(txHash)
 
+        await this.$store.dispatch("lab/setStakingAmount", stakingAmount);
 
         const address = localStorage.getAddress();
         const storageName = "LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + "customer";
@@ -224,7 +222,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>
