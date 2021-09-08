@@ -31,7 +31,7 @@
                     Test Category
                   </v-col>
                    <v-col>
-                  : {{category}}
+                  : {{category[0]}}
                   </v-col>
                 </v-row>
 
@@ -40,7 +40,7 @@
                     Staking Amount
                   </v-col>
                    <v-col>
-                  : {{stakingAmount}}
+                  : {{amount}}
                   </v-col>
                 </v-row>
 
@@ -52,7 +52,6 @@
                   : <span style="color: #DF711B" >{{status}}</span>
                   </v-col>
                 </v-row>
-                <!-- <div class="text-body-2">{{ city }}, {{ country }}</div> -->
               </template>
             </v-card-text>
             <div class="px-8">
@@ -75,16 +74,16 @@ export default {
   data: () => ({
     country: "",
     city: "",
-    stakingAmount: 0,
-    status: "Waiting a lab to respond"
+    status: "Waiting a lab to respond",
+
   }),
   computed:{
     ...mapGetters({
       labAccount: 'substrate/labAccount',
     }),
     ...mapState({
-      category: (state) => state.lab.category,
-      stakingAmount: (state) => state.lab.stakingAmount
+      category: state => state.lab.category,
+      amount: state => state.lab.amount,
     }),
   },
   async mounted () {
@@ -94,7 +93,3 @@ export default {
   },
 }
 </script>
-
-<style>
-
-</style>
