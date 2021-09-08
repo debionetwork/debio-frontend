@@ -1,4 +1,4 @@
-# debio-dashboard
+# debio-frontend-dashboard
 
 ## Project setup
 ```
