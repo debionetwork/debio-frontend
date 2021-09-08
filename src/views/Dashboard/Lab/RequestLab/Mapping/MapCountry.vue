@@ -1,103 +1,45 @@
-/* eslint-disable no-unused-vars */
 <template>
-  <v-card width="100%" min-height="739">
+  <v-card width="100%" min-height="739" id="map">
     <svg id="map" width="1500" height="700"></svg>
 
     <div class="search-bar__wrapper">
       <SearchBar
         label="Search"
-        @input="search = $event"
+        @input="searchQuery = $event"
       ></SearchBar>
-      <div class="search-bar__content rounded">
-        <span class="search-bar__content-title">Jakarta Indonesia</span>
+      <div class="search-bar__content rounded" v-if="!!filteredResults">
+        <span class="search-bar__content-title">{{ filteredResults.name }}</span>
         <div class="search-bar__results">
-          <div class="search-bar__result-item rounded">
-            <div class="search-bar__result-title">
-              Whole Genome Sequencing
+          <template v-if="filteredResults.services">
+            <div class="search-bar__result-item rounded" v-for="(service, idx) in filteredResults.services" :key="idx">
+              <div class="search-bar__result-title">{{ service.name }}</div>
+              <div class="search-bar__result-content">
+                <v-row>
+                  <v-col>Total requests</v-col>
+                  <v-col>
+                    <span>: {{ service.totalRequests }} Users</span>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col>Total value staked</v-col>
+                  <v-col>
+                    <p class="mb-0">: {{ service.totalStakedValues.dai }} DAI</p>
+                    <p class="ml-2 mb-0">{{ service.totalStakedValues.usd }} USD</p>
+                  </v-col>
+                </v-row>
+                <v-btn
+                  outlined
+                  color="primary"
+                  width="100%"
+                  class="search-bar__result-action"
+                  @click="$emit('openList', false)"
+                >
+                  See details
+                </v-btn>
+              </div>
             </div>
-            <div class="search-bar__result-content">
-              <v-row>
-                <v-col>Total requests</v-col>
-                <v-col>
-                  <span>: 16 Users</span>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col>Total value staked</v-col>
-                <v-col>
-                  <p class="mb-0">: 9000 DAI</p>
-                  <p class="ml-2 mb-0">9000 USD</p>
-                </v-col>
-              </v-row>
-              <v-btn
-                outlined
-                color="primary"
-                width="100%"
-                class="search-bar__result-action"
-                @click="$emit('openList', false)"
-              >
-                See details
-              </v-btn>
-            </div>
-          </div>
-          <div class="search-bar__result-item rounded">
-            <div class="search-bar__result-title">
-              Whole Genome Sequencing
-            </div>
-            <div class="search-bar__result-content">
-              <v-row>
-                <v-col>Total requests</v-col>
-                <v-col>
-                  <span>: 16 Users</span>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col>Total value staked</v-col>
-                <v-col>
-                  <p class="mb-0">: 9000 DAI</p>
-                  <p class="ml-2 mb-0">9000 USD</p>
-                </v-col>
-              </v-row>
-              <v-btn
-                outlined
-                color="primary"
-                width="100%"
-                class="search-bar__result-action"
-                @click="$emit('openList', false)"
-              >
-                See details
-              </v-btn>
-            </div>
-          </div>
-          <div class="search-bar__result-item rounded">
-            <div class="search-bar__result-title">
-              Whole Genome Sequencing
-            </div>
-            <div class="search-bar__result-content">
-              <v-row>
-                <v-col>Total requests</v-col>
-                <v-col>
-                  <span>: 16 Users</span>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col>Total value staked</v-col>
-                <v-col>
-                  <p class="mb-0">: 9000 DAI</p>
-                  <p class="ml-2 mb-0">9000 USD</p>
-                </v-col>
-              </v-row>
-              <v-btn
-                outlined
-                color="primary"
-                width="100%"
-                class="search-bar__result-action"
-                @click="$emit('openList', false)"
-              >
-                See details
-              </v-btn>
-            </div>
-          </div>
+          </template>
+          <div v-else class="search-bar__result">No services yet</div>
         </div>
       </div>
     </div>
@@ -106,6 +48,7 @@
       transition="slide-y-transition"
       max-height="397"
       :close-on-content-click="false"
+      ref="selectContinent"
       bottom
     >
       <template v-slot:activator="{ on, attrs }">
@@ -125,7 +68,7 @@
             :key="i"
             v-if="!continent.subItems"
             link
-            @click="onSelectContinent(continent)"
+            @click="onSelectContinent($event, continent)"
           >
             <v-list-item-content>
               <v-list-item-title>{{ continent.name }}</v-list-item-title>
@@ -150,7 +93,7 @@
               :key="subIndex"
               link
               class="pl-8"
-              @click="onSelectContinent(subItem)"
+              @click="onSelectContinent($event, subItem)"
             >
               <v-list-item-content>
                 <v-list-item-title>{{ subItem.name }}</v-list-item-title>
@@ -162,17 +105,17 @@
     </v-menu>
 
     <div class="controls">
-      <v-btn class="controls-item">
+      <v-btn class="controls-item" @click="getCurrentLocation()">
         <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M11 7C12.0609 7 13.0783 7.42143 13.8284 8.17157C14.5786 8.92172 15 9.93913 15 11C15 12.0609 14.5786 13.0783 13.8284 13.8284C13.0783 14.5786 12.0609 15 11 15C9.93913 15 8.92172 14.5786 8.17157 13.8284C7.42143 13.0783 7 12.0609 7 11C7 9.93913 7.42143 8.92172 8.17157 8.17157C8.92172 7.42143 9.93913 7 11 7ZM2.05 12H0V10H2.05C2.5 5.83 5.83 2.5 10 2.05V0H12V2.05C16.17 2.5 19.5 5.83 19.95 10H22V12H19.95C19.5 16.17 16.17 19.5 12 19.95V22H10V19.95C5.83 19.5 2.5 16.17 2.05 12ZM11 4C9.14348 4 7.36301 4.7375 6.05025 6.05025C4.7375 7.36301 4 9.14348 4 11C4 12.8565 4.7375 14.637 6.05025 15.9497C7.36301 17.2625 9.14348 18 11 18C12.8565 18 14.637 17.2625 15.9497 15.9497C17.2625 14.637 18 12.8565 18 11C18 9.14348 17.2625 7.36301 15.9497 6.05025C14.637 4.7375 12.8565 4 11 4Z" fill="#FE008A"/>
         </svg>
       </v-btn>
-      <v-btn class="controls-item">
+      <v-btn class="controls-item" id="zoom_in">
         <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M26.1667 18.8333H18.8333V26.1667H15.1667V18.8333H7.83333V15.1667H15.1667V7.83333H18.8333V15.1667H26.1667V18.8333ZM29.8333 0.5H4.16667C2.13167 0.5 0.5 2.13167 0.5 4.16667V29.8333C0.5 30.8058 0.886308 31.7384 1.57394 32.4261C2.26157 33.1137 3.19421 33.5 4.16667 33.5H29.8333C30.8058 33.5 31.7384 33.1137 32.4261 32.4261C33.1137 31.7384 33.5 30.8058 33.5 29.8333V4.16667C33.5 2.13167 31.85 0.5 29.8333 0.5Z" fill="#FE008A"/>
         </svg>
       </v-btn>
-      <v-btn class="controls-item">
+      <v-btn class="controls-item" id="zoom_out">
         <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M26.1667 18.8333H7.83333V15.1667H26.1667V18.8333ZM29.8333 0.5H4.16667C2.13167 0.5 0.5 2.13167 0.5 4.16667V29.8333C0.5 30.8058 0.886308 31.7384 1.57394 32.4261C2.26157 33.1137 3.19421 33.5 4.16667 33.5H29.8333C30.8058 33.5 31.7384 33.1137 32.4261 32.4261C33.1137 31.7384 33.5 30.8058 33.5 29.8333V4.16667C33.5 2.13167 31.85 0.5 29.8333 0.5Z" fill="#FE008A"/>
         </svg>
@@ -196,11 +139,13 @@ export default {
     width: null,
     height: null,
     data: new Map(),
+    searchQuery: "",
     province: null,
     currentProvince: null,
     tooltipTotalRequest: 0,
     tooltipTotalValue: 0,
     tooltipCountry: '',
+    countries: [],
     continents: [
       { name: 'World' },
       { name: 'Africa'  },
@@ -228,13 +173,27 @@ export default {
     ],
   }),
 
+  computed: {
+    filteredResults() {
+      return this.searchQuery
+        ? this.countries.find(country => (
+          this.searchQuery.toLowerCase().split(' ').every(v =>
+            country.name.toLowerCase().includes(v)
+          )
+        ))
+        : null
+    }
+  },
+
   mounted() {
     this.renderD3()
   },
 
   methods: {
-    onSelectContinent({ name }) {
+    onSelectContinent(e, { name }) {
       this.selectedContinent = name
+
+      console.log(this.$refs["selectContinent"].$el , e.target);
     },
 
     selectProvince(province) {
@@ -247,6 +206,32 @@ export default {
 
     closeInfo() {
       this.currentProvince = undefined
+    },
+
+    zoomInMap(zoom, svg, zoomLevel) {
+      console.log("Zoom In", svg, zoom)
+      return svg.transition()
+        .delay(100)
+        .duration(700)
+        .call(zoom.scaleBy, zoomLevel)
+    },
+
+    zoomOutMap(zoom, svg, zoomLevel) {
+      console.log("Zoom Out", svg, zoom)
+      return svg.transition()
+        .delay(100)
+        .duration(700)
+        .call(zoom.scaleBy, zoomLevel)
+    },
+
+    getCurrentLocation() {
+      const showPosition = (position) => {
+        console.log("showPosition ==> ", position)
+      }
+
+      if (navigator.geolocation) navigator.geolocation.watchPosition(showPosition)
+      else console.log("Geolocation is not supported by this browser.")
+
     },
 
     createTooltip({country = '', totalRequests = '', totalValue = ''}) {
@@ -275,11 +260,38 @@ export default {
       const svgHeight = +svg.attr("height")
       const data = new Map()
       const projection = d3.geoMercator()
-        .scale(170)
-        .center([-80, 60])
+        .scale(140)
+        .center([-90, 60])
         .translate([svgWidth / 2, svgHeight / 2])
 
-      var tooltip2 = d3.select("body")
+      var zoom = d3.zoom()
+        .scaleExtent([1/2, 4])
+        .on("zoom", zoomed);
+
+      svg.call(zoom);
+
+      function zoomed(event) {
+        const g = d3.select("g")
+        g.attr('transform', `translate(${event.transform.x}, ${event.transform.y}) scale(${event.transform.k})`)
+      }
+
+      function transition(zoomLevel) {
+        svg.transition()
+          .delay(100)
+          .duration(700)
+          .call(zoom.scaleBy, zoomLevel);
+      }
+
+      d3.selectAll('button').on('click', function() {
+        if (this.id === 'zoom_in') {
+          transition(2); // increase on 0.2 each time
+        }
+        if (this.id === 'zoom_out') {
+          transition(-2); // deacrease on 0.2 each time
+        }
+      })
+
+      var tooltip2 = d3.select("#map")
         .append("div")
           .attr("class", "debio-map-tooltip")
           .style("position", "absolute")
@@ -295,21 +307,29 @@ export default {
           data.set(d.code, +d.pop)
         })]).then(function(loadData){
           let topo = loadData[0]
+          self.countries = topo.features.map(map => {
+            const country = { name: map.properties.name }
+            if (map.id === "IDN") country.services = [
+              {
+                name: "Whole Genome Sequencing",
+                totalRequests: 90,
+                totalStakedValues: {
+                  dai: 1200,
+                  usd: 1000
+                }
+              },
+              {
+                name: "Whole Genome Sequencing 2",
+                totalRequests: 910,
+                totalStakedValues: {
+                  dai: 12020,
+                  usd: 100210
+                }
+              }
+            ]
 
-          // eslint-disable-next-line no-unused-vars
-          let onClickedArea = function() {
-            d3.selectAll(".Country")
-              .transition()
-              .duration(200)
-              .style("opacity", .5)
-            d3.select(this)
-              .transition()
-              .duration(200)
-              .style("opacity", 1)
-              .style("stroke", "black")
-          }
-
-
+            return country
+          })
           // Draw the map
           svg.append("g")
             .selectAll("path")
@@ -330,9 +350,16 @@ export default {
               // eslint-disable-next-line no-unused-vars
               .attr("class", function(d){ return "Country" } )
               .style("opacity", .8)
-              .on("click", onClickedArea)
               .on("mouseover", function(d){
-                // console.log(d.target.__data__.properties.name)
+                d3.selectAll(".Country")
+                  .transition()
+                  .duration(200)
+                  .style("opacity", .5)
+                d3.select(this)
+                  .transition()
+                  .duration(200)
+                  .style("opacity", 1)
+                  .style("stroke", "black")
                 const country = d.target.__data__.properties.name
                 if (serviceRequestByCountry[country] != undefined) {
                   const { totalRequests, totalValue } = serviceRequestByCountry[country]
@@ -344,8 +371,8 @@ export default {
               .on("mousemove", function(event){
                 // let coords = d3.pointer(event);
                 return tooltip2
-                  .style("top", (event.pageY-100)+"px")
-                  .style("left",(event.pageX-260)+"px");
+                  .style("top", (event.pageY-150)+"px")
+                  .style("left",(event.pageX-270)+"px");
               })
               .on("mouseout", function(){
                 return tooltip2.style("visibility", "hidden");
@@ -370,6 +397,7 @@ export default {
       border: 2px solid #F5F5F5;
       padding: 13px 14px;
       margin-top: 11px;
+      background: #FFFFFF;
 
       &-title {
         font-size: 25px;
@@ -501,6 +529,7 @@ export default {
     font-family: "Roboto", sans-serif !important;
     border: 1px solid #edf0ee;
     padding: 14px;
+    z-index: 99;
 
     .header {
       padding-bottom: 5px;
