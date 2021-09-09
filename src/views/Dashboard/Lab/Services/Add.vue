@@ -216,7 +216,7 @@ export default {
       description: [
         val => !!val || 'Description is Required',
         val => (val && val.length >= 50) || 'Min 50 Character',
-        val => (val && val.length <= 250) || 'Max 250 Character'],
+        val => (val && val.length <= 255) || 'Max 255 Character'],
       longDescription: [
         val => !!val || 'Long Description is Required',
         val => (val && val.length >= 500) || 'Max 500 Character',

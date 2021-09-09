@@ -18,6 +18,7 @@
                     outlined
                     v-model="profileImage"
                     accept="application/pdf, image/png, image/jpeg,"
+                    :rules="rules.fileInput"
                 ></v-file-input>
                 
                 <v-file-input
@@ -28,6 +29,7 @@
                     outlined
                     v-model="profileImage"
                     accept="application/pdf, image/png, image/jpeg,"
+                    :rules="rules.fileInput"
                 ></v-file-input>
 
                 <v-btn
@@ -47,6 +49,12 @@ export default {
   name: 'LabAccount',
   mounted() {
   },
+  data: () => ({
+    rules: {
+      fileInput: [
+      value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',],
+    },
+  }),
 }
 </script>
 

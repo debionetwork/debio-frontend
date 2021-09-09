@@ -305,10 +305,10 @@ export default {
     rules: {
       title: [
         val => !!val || 'Title is Required',
-        val => (val && val.length <= 8) || 'Max 8 Character'],
+        val => (val && val.length <= 50) || 'Max 50 Character'],
       description: [
         val => !!val || 'Description is Required',
-        val => (val && val.length <= 180) || 'Max 180 Character'],
+        val => (val && val.length <= 255) || 'Max 255 Character'],
     }
   }),
 

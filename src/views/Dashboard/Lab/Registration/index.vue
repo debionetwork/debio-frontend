@@ -139,10 +139,10 @@ export default {
         val => /.+@.+\..+/.test(val) || 'E-mail must be valid',],
       name: [
         val => !!val || 'Name is Required',
-        val => (val && val.length >= 50) || 'Min 50 Character'],
+        val => (val && val.length <= 255) || 'Max 255 Character'],
       address: [
         val => !!val || 'Address is Required',
-        val => (val && val.length <= 180) || 'Max 180 Character'],
+        val => (val && val.length <= 255) || 'Max 255 Character'],
       fileInput: [
         value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',],
     },

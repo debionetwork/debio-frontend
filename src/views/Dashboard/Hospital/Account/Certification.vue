@@ -152,7 +152,7 @@ export default {
     rules: {
       title: [
         val => !!val || 'Title is required',
-        val => (val && val.length <= 20) || 'Max 20 Character'],
+        val => (val && val.length <= 50) || 'Max 50 Character'],
       issuer: [
         val => !!val || 'Issuer is required',
         val => (val && val.length <= 100) || 'Max 100 Character'],
@@ -160,7 +160,7 @@ export default {
       year: [val => !!val || 'Year is required'],
       description: [
         val => !!val || 'Description is required',
-        val => (val && val.length <= 180) || 'Max 180 Character'],
+        val => (val && val.length <= 255) || 'Max 255 Character'],
     },
   }),
   computed: {
