@@ -39,7 +39,7 @@
             />
           </div>
           
-          <div class="mb-2">
+          <div v-if="stakingOption" class="mb-2">
             <v-card
               v-if="!dataStaked" 
               class="dg-card dg-menu-card grey lighten-1"
@@ -216,7 +216,8 @@ export default {
     resultLoading: false,
     baseUrl: "https://ipfs.io/ipfs/",
     stakeDialog: false,
-    dataStaked: false
+    dataStaked: false,
+    stakingOption: false
   }),
   async mounted() {
     this.resultLoading = true;
@@ -227,6 +228,9 @@ export default {
     await this.getLabServices();
     await this.getFileUploaded();
     await this.decryptWallet();
+    if (this.serviceName == "Whole Genome Sequencing") {
+      this.stakingOption = true
+    }
   },
   methods: {
     async getSpciments() {
