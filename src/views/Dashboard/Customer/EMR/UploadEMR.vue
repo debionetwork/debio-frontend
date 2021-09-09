@@ -106,6 +106,7 @@
               label="Title"
               outlined
               v-model="formTitle"
+              :rules="rules.title"
             ></v-text-field>
              <!-- placeholder="Title" -->
           </div>
@@ -117,6 +118,7 @@
               outlined
               rows="3"
               row-height="25"
+              :rules="rules.description"
             ></v-textarea>
           </div>
           <div class="mb-2">
@@ -300,6 +302,14 @@ export default {
     countFileUploaded: 0,
     fileType: "application/pdf",
     loadingUploadText: "",
+    rules: {
+      title: [
+        val => !!val || 'Title is Required',
+        val => (val && val.length <= 8) || 'Max 8 Character'],
+      description: [
+        val => !!val || 'Description is Required',
+        val => (val && val.length <= 180) || 'Max 180 Character'],
+    }
   }),
 
   computed: {

@@ -5,6 +5,7 @@
         type="file"
         style="display: none"
         ref="encryptUploadGenome"
+        accept=".vcf"
       />
       <div v-if="hasGenomeFile" class="d-flex mt-5 mb-5">
         <v-row >
@@ -51,6 +52,7 @@
         type="file"
         style="display: none"
         ref="encryptUploadReport"
+        accept="application/pdf"
       />
       <div v-if="hasReportFile" class="d-flex mt-5 mb-5">
         <v-row >
@@ -217,6 +219,7 @@ export default {
       genome: 0,
       report: 0,
     },
+    accept: ""
   }),
   async mounted(){    
     // Add file input event listener
@@ -311,6 +314,7 @@ export default {
     },
 
     uploadGenome() {
+      this.accept = ''
       this.$refs.encryptUploadGenome.click()
     },
 

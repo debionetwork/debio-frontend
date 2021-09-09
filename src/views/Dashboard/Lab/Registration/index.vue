@@ -5,7 +5,9 @@
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-text class="px-8 mt-5">
-              <v-form>
+              <v-form
+                lazy-validation
+                ref="labForm">
               <v-text-field
                 dense
                 label="Email"
@@ -13,6 +15,7 @@
                 autocomplete="new-password"
                 outlined
                 v-model="email"
+                :rules="rules.email"
                 ></v-text-field>
               
               <v-text-field
@@ -22,6 +25,7 @@
                 autocomplete="new-password"
                 outlined
                 v-model="labName"
+                :rules="rules.name"
                 ></v-text-field>
 
               <v-autocomplete
@@ -33,6 +37,7 @@
                 autocomplete="new-password"
                 label="Select Country"
                 outlined
+                :rules="[val => !!val || 'Country is Required']"
               ></v-autocomplete>
 
               <v-autocomplete
@@ -45,6 +50,7 @@
                 label="Select Region"
                 :disabled="!country"
                 outlined
+                :rules="[val => !!val || 'Region is Required']"
               ></v-autocomplete>
 
               <v-autocomplete
@@ -57,8 +63,9 @@
                 label="Select City"
                 :disabled="!region"
                 outlined
+                :rules="[val => !!val || 'City is Required']"
               ></v-autocomplete>
-              
+
               <v-text-field
                 dense
                 label="Address"
@@ -66,8 +73,9 @@
                 autocomplete="new-password"
                 outlined
                 v-model="address"
+                :rules="rules.address"
                 ></v-text-field>
-                              
+
                 <v-file-input
                   dense
                   label="Profile Image"
@@ -76,6 +84,8 @@
                   outlined
                   v-model="files"
                   @change="fileUploadEventListener"
+                  :rules="rules.fileInput"
+                  accept="image/png, image/jpeg"
                 ></v-file-input>
 
                 <v-btn
@@ -123,6 +133,19 @@ export default {
     files: [],
     isLoading: false,
     isUploading: false,
+    rules: {
+      email: [
+        val => !!val || 'E-mail is required',
+        val => /.+@.+\..+/.test(val) || 'E-mail must be valid',],
+      name: [
+        val => !!val || 'Name is Required',
+        val => (val && val.length >= 50) || 'Min 50 Character'],
+      address: [
+        val => !!val || 'Address is Required',
+        val => (val && val.length <= 180) || 'Max 180 Character'],
+      fileInput: [
+        value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',],
+    },
   }),
   async mounted() {
     await this.getCountries();
@@ -175,6 +198,9 @@ export default {
       return u8aToHex(cred.boxKeyPair.publicKey)
     },
     async registerLab(){
+      if (!this.validating()) {
+        return
+      }
       try{
         this.isLoading = true
         const ethAddress = await getWalletAddress()
@@ -251,6 +277,14 @@ export default {
         this.files = []
         this.imageUrl = ""
       }
+    },
+
+    validating() {
+      if (this.labName == "" || this.email == "" || this.imageUrl == "" || this.address == "" || this.country == "" || this.city == "" || this.region) {
+        this.$refs.labForm.validate()
+        return false
+      }
+      return true
     },
   }
 }

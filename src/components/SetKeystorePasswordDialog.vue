@@ -20,6 +20,7 @@
             v-model="accountName"
             label="Type in account name"
             :disabled="isLoading"
+            :rules="rules.name"
           >
           </v-text-field>
           <v-text-field
@@ -29,7 +30,7 @@
             :type="showPassword ? 'text' : 'password'"
             v-model="password"
             label="Type in your password"
-            :rules="[passwordRule]"
+            :rules="rules.passwordRule"
             :disabled="isLoading"
             @keyup.enter="onPasswordSet"
           >
@@ -106,11 +107,24 @@ export default {
     passwordConfirm: "",
     showPassword: false,
     showPasswordConfirm: false,
-    passwordRule: (val) => !!val || "Password is required",
+    // passwordRule: (val) => !!val || "Password is required",
     passwordConfirmRule: (password) => (val) =>
       (!!password && password == val) || "Passwords must match.",
     recaptchaVerified: false,
     accountName: "",
+    rules: {
+      name: [
+        val => !!val || 'Name is Required',
+        val => (val && val.length >= 8) || 'Min 8 Character'],
+      passwordRule: [
+        val => !!val || "Password is required",
+        val => (val && val.length >= 8) || 'Password Min 8 Character',
+        val => /^[a-zA-Z0-9-_]+$/.test(val) || 'Password must a-z, A-Z, '],
+      passwordConfirm: [
+        (password) => (val) =>
+        (!!password && password == val) || "Passwords must match.",
+      ]
+    }
   }),
   computed: {
     _show: {

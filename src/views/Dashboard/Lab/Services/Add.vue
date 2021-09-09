@@ -42,7 +42,7 @@
                     v-model="category"
                     outlined
                     :items="listCategories"
-                    :rules="[val => !!val || 'Category is Required']"
+                    :rules="rules.serviceCategory"
                     ></v-select>
                     
                     <v-text-field
@@ -51,7 +51,7 @@
                       placeholder="Service Name"
                       outlined
                       v-model="name"
-                      :rules="[val => !!val || 'Name is Required']"
+                      :rules="rules.serviceName"
                     ></v-text-field>
 
                     <div class="d-flex">
@@ -64,7 +64,7 @@
                           max="30"
                           v-model="currencyType"
                           :items="currencyList"
-                          :rules="[val => !!val || 'Currency Type is Required']"
+                          :rules="rules.curencyType"
                           ></v-select>
                         </v-col>
                         <v-col>
@@ -74,7 +74,7 @@
                             placeholder="Price"
                             outlined
                             v-model="price"
-                            :rules="[val => !!val || 'Price is Required']"
+                            :rules="rules.price"
                           ></v-text-field>
                         </v-col>
                         <v-col>
@@ -84,7 +84,7 @@
                           dense
                           v-model="currencyType"
                           :items="currencyList"
-                          :rules="[val => !!val || 'QC Currency Type is Required']"
+                          :rules="rules.qcQurencyType"
                           ></v-select>
                         </v-col>
                         <v-col>
@@ -94,7 +94,7 @@
                             placeholder="QC Price"
                             outlined
                             v-model="qcPrice"
-                            :rules="[val => !!val || 'QC Price is Required']"
+                            :rules="rules.cqPrice"
                           ></v-text-field>
                         </v-col>
                       </v-row>
@@ -106,7 +106,7 @@
                       placeholder="Short Description"
                       outlined
                       v-model="description"
-                      :rules="[val => !!val || 'Description is Required']"
+                      :rules="rules.description"
                     ></v-text-field>
                     
                     <v-row >
@@ -118,7 +118,7 @@
                           max="30"
                           outlined
                           v-model="expectedDuration"
-                          :rules="[val => !!val || 'Expected duration is Required']"
+                          :rules="rules.expectedDuration"
                         ></v-text-field>
                       </v-col>
                       <v-col cols="4">
@@ -127,7 +127,7 @@
                           dense
                           v-model="selectExpectedDuration"
                           :items="listExpectedDuration"
-                          :rules="[val => !!val || 'Expected duration is Required']"
+                          :rules="rules.expectedDuration"
                         ></v-select>
                       </v-col>
                     </v-row>
@@ -138,11 +138,12 @@
                       placeholder="Long Description"
                       outlined
                       v-model="longDescription"
+                      :rules="rules.longDescription"
                     ></v-textarea>
 
                     <v-file-input
-                      :rules="rules"
-                      accept="image/png, image/jpeg, image/bmp"
+                      :rules="rules.fileInput"
+                      accept="image/png, image/jpeg, image/bmp, .pdf"
                       dense
                       label="Test Result Sample"
                       placeholder="Test Result Sample"
@@ -196,9 +197,35 @@ export default {
     listExpectedDuration: ['WorkingDays', 'Hours', 'Days'],
     selectExpectedDuration: 'WorkingDays',
     expectedDuration: '',
-    rules: [
-      value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
-    ],
+    // rules: [
+    //   value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
+    // ],
+    rules: {
+      serviceCategory: [val => !!val || 'Category is Required'],
+      serviceName: [
+        val => !!val || 'Name is Required',
+        val => (val && val.length <= 50) || 'Max 50 Character'],
+      curencyType: [val => !!val || 'Currency Type is Required'],
+      price: [
+        val => !!val || 'Price is Required',
+        val => /^[0-9]+$/.test(val) || 'Price must be Number'],
+      qcQurencyType: [val => !!val || 'QC Currency Type is Required'],
+      cqPrice: [
+        val => !!val || 'QC Price is Required',
+        val => /^[0-9]+$/.test(val) || 'QC Price must be Number'],
+      description: [
+        val => !!val || 'Description is Required',
+        val => (val && val.length >= 50) || 'Min 50 Character',
+        val => (val && val.length <= 250) || 'Max 250 Character'],
+      longDescription: [
+        val => !!val || 'Long Description is Required',
+        val => (val && val.length >= 500) || 'Max 500 Character',
+        val => (val && val.length <= 1000) || 'Max 1000 Character'],
+      expectedDuration: [val => !!val || 'Expected duration is Required'],
+
+      fileInput: [
+      value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',],
+    }
   }),
   async mounted() {
     this.prefillValues()

@@ -62,7 +62,7 @@
                     placeholder="Title"
                     outlined
                     v-model="certTitle"
-                    :rules="[val => !!val || 'Title is required']"
+                    :rules="rules.title"
                     ></v-text-field>
                 <v-text-field
                     dense
@@ -70,7 +70,7 @@
                     placeholder="Issuer"
                     outlined
                     v-model="certIssuer"
-                    :rules="[val => !!val || 'Issuer is required']"
+                    :rules="rules.issuer"
                     ></v-text-field>
                 <div class="d-flex justify-space-between align-center">
                     <div class="mr-1">
@@ -80,7 +80,7 @@
                         :items="selectMonths"
                         outlined
                         v-model="certMonth"
-                        :rules="[val => !!val || 'Month is required']"
+                        :rules="rules.month"
                         ></v-select>
                     </div>
                     <div class="ml-1">
@@ -90,7 +90,7 @@
                         :items="selectYears"
                         outlined
                         v-model="certYear"
-                        :rules="[val => !!val || 'Year is required']"
+                        :rules="rules.year"
                         ></v-select>
                     </div>
                 </div>
@@ -98,7 +98,7 @@
                     outlined
                     label="Description"
                     v-model="certDescription"
-                    :rules="[val => !!val || 'Description is required']"
+                    :rules="rules.description"
                 ></v-textarea>
                 <v-file-input
                     dense
@@ -109,6 +109,7 @@
                     @change="fileUploadEventListener"
                     :rules="supportingDocumentsRules"
                     show-size
+                    accept="application/pdf, image/png, image/jpeg,"
                 ></v-file-input>
                 </v-form>
             </template>
@@ -148,6 +149,19 @@ export default {
     certificationDialog: false,
     isUploading: false,
     isEditCertificationDialog: false,
+    rules: {
+      title: [
+        val => !!val || 'Title is required',
+        val => (val && val.length <= 20) || 'Max 20 Character'],
+      issuer: [
+        val => !!val || 'Issuer is required',
+        val => (val && val.length <= 100) || 'Max 100 Character'],
+      month: [val => !!val || 'Month is required'],
+      year: [val => !!val || 'Year is required'],
+      description: [
+        val => !!val || 'Description is required',
+        val => (val && val.length <= 180) || 'Max 180 Character'],
+    },
   }),
   computed: {
     ...mapGetters({
@@ -168,7 +182,7 @@ export default {
     supportingDocumentsRules(){
       return [
         file => !file || file.type == 'application/pdf' || 'Document type should be application/pdf',
-        file => !file || file.size <= 10_097_152 || 'Document size should be less than 10 MB!',
+        file => !file || file.size <= 2_000_000 || 'Document size should be less than 2 MB!',
       ]
     }
   },

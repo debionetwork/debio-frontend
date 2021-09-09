@@ -17,6 +17,7 @@
                     prepend-icon="mdi-file-document"
                     outlined
                     v-model="profileImage"
+                    accept="application/pdf, image/png, image/jpeg,"
                 ></v-file-input>
                 
                 <v-file-input
@@ -26,6 +27,7 @@
                     prepend-icon="mdi-file-document"
                     outlined
                     v-model="profileImage"
+                    accept="application/pdf, image/png, image/jpeg,"
                 ></v-file-input>
 
                 <v-btn

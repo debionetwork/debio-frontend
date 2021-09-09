@@ -5,7 +5,9 @@
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-text class="px-8 mt-5">
-              <v-form>
+              <v-form
+                lazy-validation
+                ref="hospitalForm">
                 <v-text-field
                   dense
                   label="Email"
@@ -13,7 +15,7 @@
                   autocomplete="new-password"
                   outlined
                   v-model="email"
-                  :rules="[val => !!val || 'Email is Required']"
+                  :rules="rules.email"
                   ></v-text-field>
                 
                 <v-text-field
@@ -23,7 +25,7 @@
                   autocomplete="new-password"
                   outlined
                   v-model="hospitalName"
-                  :rules="[val => !!val || 'Name is Required']"
+                  :rules="rules.name"
                   ></v-text-field>
 
                 <v-autocomplete
@@ -71,7 +73,7 @@
                   autocomplete="new-password"
                   outlined
                   v-model="address"
-                  :rules="[val => !!val || 'Address is Required']"
+                  :rules="rules.address"
                   ></v-text-field>
                   
                 
@@ -84,7 +86,8 @@
                   outlined
                   v-model="files"
                   @change="fileUploadEventListener"
-                  :rules="[val => !!val || 'Image is Required']"
+                  :rules="rules.fileInput"
+                  accept="image/png, image/jpeg"
                 ></v-file-input>
 
                 <v-btn
@@ -129,6 +132,19 @@ export default {
     files: [],
     isLoading: false,
     isUploading: false,
+    rules: {
+      email: [
+        val => !!val || 'E-mail is required',
+        val => /.+@.+\..+/.test(val) || 'E-mail must be valid',],
+      name: [
+        val => !!val || 'Name is Required',
+        val => (val && val.length >= 8) || 'Min 8 Character'],
+      address: [
+        val => !!val || 'Address is Required',
+        val => (val && val.length <= 180) || 'Max 180 Character'],
+      fileInput: [
+        value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',],
+    },
   }),
   async mounted() {
     await this.getCountries();
@@ -175,6 +191,9 @@ export default {
       this.city = selectedCity;
     },
     async registerHospital(){
+      if (!this.validating()) {
+        return
+      }
       try{
         this.isLoading = true
         const ethAddress = await getWalletAddress()
@@ -234,6 +253,14 @@ export default {
         this.files = []
         this.image = ""
       }
+    },
+
+    validating() {
+      if (this.hospitalName == "" || this.email == "" || this.image == "" || this.address == "" || this.country == "" || this.city == "") {
+        this.$refs.hospitalForm.validate()
+        return false
+      }
+      return true
     },
   }
 }
