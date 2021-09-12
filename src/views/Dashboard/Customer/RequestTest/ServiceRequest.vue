@@ -14,7 +14,7 @@
                     Country
                   </v-col>
                    <v-col>
-                  : {{country}}
+                  : {{country[0].name}}
                   </v-col>
                 </v-row>
                 <v-row class="text-h6 mb-5" >
@@ -31,7 +31,7 @@
                     Test Category
                   </v-col>
                    <v-col>
-                  : {{category[0]}}
+                  : {{category}}
                   </v-col>
                 </v-row>
 
@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapState } from 'vuex'
 import countryData from "@/assets/json/country.json"
 import cityData from "@/assets/json/city.json"
 
@@ -74,22 +74,23 @@ export default {
   data: () => ({
     country: "",
     city: "",
+    category: "",
     status: "Waiting a lab to respond",
 
   }),
   computed:{
-    ...mapGetters({
-      labAccount: 'substrate/labAccount',
-    }),
     ...mapState({
-      category: state => state.lab.category,
       amount: state => state.lab.amount,
     }),
   },
   async mounted () {
-    const cities = Object.entries(cityData[this.labAccount.info.country].divisions) 
-    this.country = countryData.filter((country) => country['alpha-2'] == this.labAccount.info.country)[0].name
-    this.city = (cities.filter((city) => city[0] == this.labAccount.info.city))    
+
+    const { city, country, category } = this.$route.params
+    const cities = Object.entries(cityData[country].divisions) 
+    
+    this.category = category
+    this.country = countryData.filter((c) => c['alpha-2'] == country)
+    this.city = (cities.filter((c) => c[0] == city))    
   },
 }
 </script>

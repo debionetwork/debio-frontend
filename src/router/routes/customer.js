@@ -22,7 +22,7 @@ const customerRoutes = [{
       component: () => import(/* webpackChunkName */ '../../views/Dashboard/Customer/Home')
     },
     {
-      path: '/customer/service-request',
+      path: '/customer/service-request/:country/:city/:category',
       name: 'service-request',
       meta: {
         pageHeader: 'Service Request',
