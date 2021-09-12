@@ -15,7 +15,7 @@
                 autocomplete="new-password"
                 outlined
                 v-model="email"
-                :rules="rules.email"
+                :rules="emailRules"
                 ></v-text-field>
               
               <v-text-field
@@ -25,7 +25,7 @@
                 autocomplete="new-password"
                 outlined
                 v-model="labName"
-                :rules="rules.name"
+                :rules="nameRules"
                 ></v-text-field>
 
               <v-autocomplete
@@ -73,7 +73,7 @@
                 autocomplete="new-password"
                 outlined
                 v-model="address"
-                :rules="rules.address"
+                :rules="addressRules"
                 ></v-text-field>
 
                 <v-file-input
@@ -84,7 +84,7 @@
                   outlined
                   v-model="files"
                   @change="fileUploadEventListener"
-                  :rules="rules.fileInput"
+                  :rules="fileInputRules"
                   accept="image/png, image/jpeg"
                 ></v-file-input>
 
@@ -133,19 +133,6 @@ export default {
     files: [],
     isLoading: false,
     isUploading: false,
-    rules: {
-      email: [
-        val => !!val || 'E-mail is required',
-        val => /.+@.+\..+/.test(val) || 'E-mail must be valid',],
-      name: [
-        val => !!val || 'Name is Required',
-        val => (val && val.length <= 255) || 'Max 255 Character'],
-      address: [
-        val => !!val || 'Address is Required',
-        val => (val && val.length <= 255) || 'Max 255 Character'],
-      fileInput: [
-        value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',],
-    },
   }),
   async mounted() {
     await this.getCountries();
@@ -172,6 +159,29 @@ export default {
         return;
       }
       return this.labs.filter((l) => l.labAccount == this.labAccount)[0];
+    },
+    emailRules() {
+      return [
+        val => !!val || 'E-mail is required',
+        val => /.+@.+\..+/.test(val) || 'E-mail must be valid',
+      ]
+    },
+    nameRules() {
+      return [
+        val => !!val || 'Name is Required',
+        val => (val && val.length >= 8) || 'Min 8 Character'
+      ]
+    },
+    addressRules() {
+      return [
+        val => !!val || 'Address is Required',
+        val => (val && val.length <= 180) || 'Max 180 Character'
+      ]
+    },
+    fileInputRules() {
+      return [
+        value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
+      ]
     },
   },
   methods: {

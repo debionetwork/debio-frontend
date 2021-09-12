@@ -219,7 +219,6 @@ export default {
       genome: 0,
       report: 0,
     },
-    accept: ""
   }),
   async mounted(){    
     // Add file input event listener
@@ -314,7 +313,6 @@ export default {
     },
 
     uploadGenome() {
-      this.accept = ''
       this.$refs.encryptUploadGenome.click()
     },
 
