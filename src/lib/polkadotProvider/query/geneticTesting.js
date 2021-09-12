@@ -28,23 +28,28 @@ export async function queryDnaTestResultsByLab(api, labId){
 }
 
 export async function getDnaTestResultsDetailByLab(api, labId){
-    const resultIds = await queryDnaTestResultsByLab(api, labId)
-    let resultsWithDetail = []
-    if(resultIds != null){
-        for(let i = 0; i < resultIds.length; i++){
-            let resultDetail = await queryDnaSamples(api, resultIds[i])
-            let orderDetail = await getOrdersDetail(api, resultDetail.order_id)
-            let createdAtTimestamp = parseInt(orderDetail.created_at.replace(/,/g, ""))
-            const service = await queryServicesById(api, orderDetail.service_id)
-            const lab = await queryLabsById(api, service.owner_id)
-            orderDetail['created_at'] = (new Date(createdAtTimestamp)).toLocaleDateString()
-            orderDetail['lab_name'] = lab.info.name
-            orderDetail['service_name'] = service.info.name
-            resultDetail['order'] = orderDetail
-            resultsWithDetail.push(orderDetail)
+    try{
+        const resultIds = await queryDnaTestResultsByLab(api, labId)
+        let resultsWithDetail = []
+        if(resultIds != null){
+            for(let i = 0; i < resultIds.length; i++){
+                let resultDetail = await queryDnaSamples(api, resultIds[i])
+                let orderDetail = await getOrdersDetail(api, resultDetail.order_id)
+                let createdAtTimestamp = orderDetail.created_at
+                const service = await queryServicesById(api, orderDetail.service_id)
+                const lab = await queryLabsById(api, service.owner_id)
+                orderDetail['created_at'] = (new Date(createdAtTimestamp)).toLocaleDateString()
+                orderDetail['lab_name'] = lab.info.name
+                orderDetail['service_name'] = service.info.name
+                resultDetail['order'] = orderDetail
+                resultsWithDetail.push(resultDetail)
+            }
         }
+        return resultsWithDetail
     }
-    return resultsWithDetail
+    catch(err){
+        console.error(err)
+    }
 }
 
 export async function queryDnaTestResultsByOwner(api, ownerId){
