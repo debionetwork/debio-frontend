@@ -1,6 +1,8 @@
 <template>
-  <v-card width="100%" min-height="739" id="map">
-    <svg id="map" width="1500" height="700"></svg>
+  <v-card width="100%" min-height="739" id="map-container">
+    <h1 class="map-title">Requested Services</h1>
+
+    <svg id="map"></svg>
 
     <div class="search-bar__wrapper">
       <SearchBar
@@ -32,7 +34,7 @@
                   color="primary"
                   width="100%"
                   class="search-bar__result-action"
-                  @click="$emit('openList', false)"
+                  @click="handleSeeDetails()"
                 >
                   See details
                 </v-btn>
@@ -145,6 +147,7 @@ export default {
     tooltipTotalRequest: 0,
     tooltipTotalValue: 0,
     tooltipCountry: '',
+    active: false,
     countries: [],
     continents: [
       { name: 'World' },
@@ -192,8 +195,6 @@ export default {
   methods: {
     onSelectContinent(e, { name }) {
       this.selectedContinent = name
-
-      console.log(this.$refs["selectContinent"].$el , e.target);
     },
 
     selectProvince(province) {
@@ -209,7 +210,6 @@ export default {
     },
 
     zoomInMap(zoom, svg, zoomLevel) {
-      console.log("Zoom In", svg, zoom)
       return svg.transition()
         .delay(100)
         .duration(700)
@@ -217,7 +217,6 @@ export default {
     },
 
     zoomOutMap(zoom, svg, zoomLevel) {
-      console.log("Zoom Out", svg, zoom)
       return svg.transition()
         .delay(100)
         .duration(700)
@@ -232,6 +231,10 @@ export default {
       if (navigator.geolocation) navigator.geolocation.watchPosition(showPosition)
       else console.log("Geolocation is not supported by this browser.")
 
+    },
+
+    handleSeeDetails() {
+      this.$emit("openList", false)
     },
 
     createTooltip({country = '', totalRequests = '', totalValue = ''}) {
@@ -256,13 +259,19 @@ export default {
       const self = this;
       const serviceRequestByCountry = {...this.serviceRequestByCountry}
       const svg = d3.select("svg")
+      svg.attr("width", Math.round(document.querySelector(".v-card").getBoundingClientRect().width))
+      svg.attr("height", Math.round(document.querySelector(".v-card").getBoundingClientRect().height))
       const svgWidth = +svg.attr("width")
       const svgHeight = +svg.attr("height")
       const data = new Map()
       const projection = d3.geoMercator()
-        .scale(140)
-        .center([-90, 60])
+        .scale(150)
+        .center([0, 40])
         .translate([svgWidth / 2, svgHeight / 2])
+
+      const path = d3
+        .geoPath()
+        .projection(projection)
 
       var zoom = d3.zoom()
         .scaleExtent([1/2, 4])
@@ -282,16 +291,51 @@ export default {
           .call(zoom.scaleBy, zoomLevel);
       }
 
+      function boxZoom(box, centroid, paddingPerc) {
+        let minXY = box[0];
+        let maxXY = box[1];
+
+        let zoomWidth = Math.abs(minXY[0] - maxXY[0]);
+        let zoomHeight = Math.abs(minXY[1] - maxXY[1]);
+
+        let zoomMidX = centroid[0];
+        let zoomMidY = centroid[1];
+
+        zoomWidth = zoomWidth * (1 + paddingPerc / 100);
+        zoomHeight = zoomHeight * (1 + paddingPerc / 100);
+
+        let maxXscale = document.querySelector("svg").getBoundingClientRect().width / zoomWidth;
+        let maxYscale = document.querySelector("svg").getBoundingClientRect().height / zoomHeight;
+        let zoomScale = Math.min(maxXscale, maxYscale);
+
+        let offsetX = zoomScale * zoomMidX;
+        let offsetY = zoomScale * zoomMidY;
+
+        let dleft = Math.min(0, document.querySelector("svg").getBoundingClientRect().width / 2 - offsetX);
+        let dtop = Math.min(0, document.querySelector("svg").getBoundingClientRect().height / 2 - offsetY);
+
+        dleft = Math.max(document.querySelector("svg").getBoundingClientRect().width - svgWidth * zoomScale, dleft) + 220;
+        dtop = Math.max(document.querySelector("svg").getBoundingClientRect().height - svgHeight * zoomScale, dtop);
+
+        svg
+          .transition()
+          .duration(500)
+          .call(
+            zoom.transform,
+            d3.zoomIdentity.translate(dleft, dtop).scale(zoomScale)
+          );
+      }
+
       d3.selectAll('button').on('click', function() {
         if (this.id === 'zoom_in') {
-          transition(2); // increase on 0.2 each time
+          transition(2)
         }
         if (this.id === 'zoom_out') {
-          transition(-2); // deacrease on 0.2 each time
+          transition(-2)
         }
       })
 
-      var tooltip2 = d3.select("#map")
+      var tooltip2 = d3.select("#map-container")
         .append("div")
           .attr("class", "debio-map-tooltip")
           .style("position", "absolute")
@@ -306,8 +350,8 @@ export default {
         d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world_population.csv", function(d) {
           data.set(d.code, +d.pop)
         })]).then(function(loadData){
-          let topo = loadData[0]
-          self.countries = topo.features.map(map => {
+          let topo = loadData[0].features.filter(map => map.properties.name !== "Antarctica")
+          self.countries = topo.map(map => {
             const country = { name: map.properties.name }
             if (map.id === "IDN") country.services = [
               {
@@ -330,26 +374,39 @@ export default {
 
             return country
           })
-          // Draw the map
+
           svg.append("g")
             .selectAll("path")
-            .data(topo.features)
+            .data(topo)
             .enter()
             .append("path")
-              // draw each country
+
               .attr("d", d3.geoPath()
                 .projection(projection)
               )
-              // set the color of each country
               .attr("fill", function (d) {
                 let color = '#'+Math.floor(Math.random() * Math.pow(2,32) ^ 0xffffff).toString(16).substr(-6);
                 if (d.properties.name === "Antarctica") color = "#cccccc"
                 return color;
               })
               .style("stroke", "transparent")
-              // eslint-disable-next-line no-unused-vars
-              .attr("class", function(d){ return "Country" } )
+              .attr("class", function(){ return "Country" } )
               .style("opacity", .8)
+              .on("click", function(d){
+                self.active = true
+                d3.selectAll(".Country")
+                  .transition()
+                  .duration(200)
+                  .style("opacity", .5)
+                d3.select(this)
+                  .transition()
+                  .duration(200)
+                  .style("opacity", 1)
+                  .style("stroke", "black")
+                const country = d.target.__data__
+                self.searchQuery = country.properties.name
+                boxZoom(path.bounds(country), path.centroid(country), 70)
+              })
               .on("mouseover", function(d){
                 d3.selectAll(".Country")
                   .transition()
@@ -369,10 +426,9 @@ export default {
                 }
               })
               .on("mousemove", function(event){
-                // let coords = d3.pointer(event);
                 return tooltip2
-                  .style("top", (event.pageY-150)+"px")
-                  .style("left",(event.pageX-270)+"px");
+                  .style("top", (event.pageY-120)+"px")
+                  .style("left",(event.pageX-330)+"px")
               })
               .on("mouseout", function(){
                 return tooltip2.style("visibility", "hidden");
@@ -540,5 +596,11 @@ export default {
         margin-top: 2px;
       }
     }
+  }
+
+  .map-title {
+    position: absolute;
+    top: 70px;
+    left: 52px;
   }
 </style>

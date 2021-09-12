@@ -49,7 +49,6 @@ export default {
             this.serviceRequestByCountry[req.country].totalRequests += req.totalValue
           }
         }
-        console.log(this.serviceRequestByCountry)
       } catch (err) {
         console.log(err)
       }
@@ -60,6 +59,7 @@ export default {
 
 <style>
 .request-service {
+  padding: 1rem 3rem !important;
   background: rgba(0, 0, 0, 0.5);
   background: linear-gradient(
     25deg,

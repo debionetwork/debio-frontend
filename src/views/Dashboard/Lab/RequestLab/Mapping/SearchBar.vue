@@ -1,5 +1,6 @@
 <template>
-  <div class="d-flex">
+  <div class="d-flex justify-space-between">
+    <slot></slot>
     <div class="search-bar">
       <v-text-field
         hide-details="auto"

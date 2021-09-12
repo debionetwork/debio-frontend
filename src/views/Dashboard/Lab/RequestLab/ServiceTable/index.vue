@@ -1,6 +1,9 @@
 <template>
 	<v-row>
 		<v-col>
+      <v-btn @click="$emit('closeMap', true)" class="mb-3" color="white" outlined>
+        Back
+      </v-btn>
 			<ServerSideDataTable
 				:headers="headers"
 				:items="regions"
@@ -17,9 +20,6 @@
 				additional-class="laporan-table"
 				@onExpanded="handleExpanded"
 			>
-        <v-btn @click="$emit('closeMap', true)" slot="prepend" color="primary" outlined>
-          Back
-        </v-btn>
 				<template v-slot:search-bar>
 					<SearchBar
 						label="Search"
@@ -32,6 +32,7 @@
             with-dropdown
             @itemSelected="handleSelectedItem"
 					>
+            <h1>Requested Services</h1>
 					</SearchBar>
 				</template>
 
@@ -106,7 +107,7 @@
 
 <script>
 import ServerSideDataTable from '@/components/DataTable/ServerSideDataTable'
-import SearchBar from '@/components/DataTable/SearchBar'
+import SearchBar from "../Mapping/SearchBar"
 import Regions from "./regions.json"
 import localStorage from '@/lib/local-storage'
 
