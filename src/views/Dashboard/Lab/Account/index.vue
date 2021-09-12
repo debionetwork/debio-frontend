@@ -59,7 +59,7 @@
                   dense
                   label="Email"
                   placeholder="Email"
-                  autocomplete="new-password"
+                  autocomplete="off"
                   outlined
                   :disabled="!isEditable"
                   v-model="email"
@@ -69,7 +69,7 @@
                   dense
                   label="Lab Name"
                   placeholder="Lab Name"
-                  autocomplete="new-password"
+                  autocomplete="off"
                   outlined
                   :disabled="!isEditable"
                   v-model="labName"
@@ -79,10 +79,10 @@
                   dense
                   :items="countries"
                   item-text="name"
-                  item-value="alpha-2"
+                  item-value="iso2"
                   @change="onCountryChange"
                   label="Select Country"
-                  autocomplete="new-password"
+                  autocomplete="off"
                   v-model="country"
                   :disabled="!isEditable"
                   outlined
@@ -91,12 +91,12 @@
                 <v-autocomplete
                   dense
                   :items="regions"
-                  item-text="1"
-                  item-value="0"
+                  item-text="name"
+                  item-value="state_code"
                   @change="onRegionChange"
                   label="Select Region"
-                  :disabled="!country || !isEditable"
-                  autocomplete="new-password"
+                  :disabled="(!country || !isEditable)"
+                  autocomplete="off"
                   v-model="region"
                   outlined
                 ></v-autocomplete>
@@ -104,12 +104,13 @@
                 <v-autocomplete
                   dense
                   :items="cities"
-                  item-text="1"
-                  item-value="0"
+                  item-text="name"
+                  item-value="name"
+                  return-object
                   @change="onCityChange"
                   label="Select City"
-                  :disabled="!region || !isEditable"
-                  autocomplete="new-password"
+                  :disabled="(!region || !isEditable)"
+                  autocomplete="off"
                   v-model="city"
                   outlined
                 ></v-autocomplete>
@@ -118,7 +119,7 @@
                   dense
                   label="Address"
                   placeholder="Address"
-                  autocomplete="new-password"
+                  autocomplete="off"
                   outlined
                   v-model="address"
                   :disabled="!isEditable"
@@ -146,15 +147,17 @@
 <script>
 import { mapState, mapGetters } from "vuex"
 import { updateLab } from "@/lib/polkadotProvider/command/labs"
-import countryData from "@/assets/json/country.json"
-import cityData from "@/assets/json/city.json"
+import { getLocations, getStates, getCities } from "@/lib/location"
 import Kilt from "@kiltprotocol/sdk-js"
 import { u8aToHex } from "@polkadot/util"
 import Certification from "./Certification"
 import { upload } from "@/lib/ipfs"
+import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
 
 export default {
   name: 'LabAccount',
+  mixins: [serviceHandler],
+
   components: {
     Certification,
   },
@@ -166,11 +169,9 @@ export default {
     this.imageUrl = labInfo.profile_image
     
     await this.getCountries()
-    this.country = labInfo.country
-    this.regions = Object.entries(cityData[labInfo.country].divisions)
-    this.cities = Object.entries(cityData[labInfo.country].divisions)
-    this.region = labInfo.city
-    this.city = labInfo.city
+    await this.onCountryChange(labInfo.country)
+    await this.onRegionChange(labInfo.region)
+    await this.onCityChange({ name: labInfo.city })
   },
   data: () => ({
     email: "",
@@ -183,7 +184,6 @@ export default {
     countries: [],
     regions: [],
     cities: [],
-    isLoading: false,
     isEditable: false,
     isUploading: false
   }),
@@ -213,21 +213,38 @@ export default {
   },
   methods: {
     async getCountries() {
-      this.countries = countryData;
+      const { data:
+        { data }
+      } = await this.dispatch(getLocations)
+
+      this.countries = data;
     },
 
-    onCountryChange(selectedCountry) {
+    async onCountryChange(selectedCountry) {
+      this.region = ""
+      this.city = ""
+
+      const { data:
+        { data }
+      } = await this.dispatch(getStates, selectedCountry)
+
       this.country = selectedCountry;
-      this.regions = Object.entries(cityData[this.country].divisions);
+      this.regions = data;
     },
 
-    onRegionChange(selectedRegion) {
+    async onRegionChange(selectedRegion) {
+      this.city = ""
+
+      const { data:
+        { data }
+      } = await this.dispatch(getCities, this.country, selectedRegion)
+
       this.region = selectedRegion;
-      this.cities = Object.entries(cityData[this.country].divisions);
+      this.cities = data
     },
 
-    onCityChange(selectedCity) {
-      this.city = selectedCity;
+    onCityChange({ name }) {
+      this.city = name;
     },
 
     getKiltBoxPublicKey() {
