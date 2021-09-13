@@ -18,6 +18,7 @@
 				expand
 				:page-size="pageSize"
 				additional-class="laporan-table"
+        :expanded-value="prefillValue"
 				@onExpanded="handleExpanded"
 			>
 				<template v-slot:search-bar>
@@ -113,6 +114,9 @@ import localStorage from '@/lib/local-storage'
 
 export default {
   name: 'LabOrderHistory',
+  props: {
+    countryExpand: { type: String, default: "" }
+  },
 	
   components: {
     ServerSideDataTable,
@@ -185,6 +189,10 @@ export default {
       )
 
       return !this.onSelectedItem && !this.searchQuery ? this.fetchRegions() : filtered
+    },
+
+    prefillValue() {
+      return this.regions.filter(region => region.location.toLowerCase() === this.countryExpand.toLowerCase())
     }
   },
 
@@ -216,7 +224,19 @@ export default {
         total_amount_dai: counter(region.sub_locations, "total_amount_dai"),
         total_amount_usd: counter(region.sub_locations, "total_amount_usd"),
         isExpanded: false
-      }))
+      })).sort((a, b) => {
+        var nameA = a.location.toLowerCase()
+        var nameB = b.location.toLowerCase()
+
+        if (nameA < nameB) {
+          return -1;
+        }
+        if (nameA > nameB) {
+          return 1;
+        }
+
+        return 0;
+      })
 		},
 
     provideService(item){

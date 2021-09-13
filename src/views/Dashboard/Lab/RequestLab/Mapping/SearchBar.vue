@@ -17,7 +17,7 @@
       ></v-text-field>
       <div
         v-if="showResults"
-        class="search-bar__results elevation-5 mt-3 position-absolute rounded"
+        class="search-bar__results elevation-5 mt-3 rounded"
         v-click-outside="onClickOutside"
       >
         <div

@@ -88,6 +88,7 @@ export default {
     loading: Boolean,
     loadingText: String,
     pageSize: Number,
+    expandedValue: { type: Array, default: () => [] },
     currentPage: Number,
     hideEntries: Boolean,
     hideFooter: Boolean,
@@ -108,6 +109,7 @@ export default {
   mounted(){
     this.page = this.currentPage
     this.entriesPerPage = this.pageSize
+    this.expanded = this.expandedValue
   },
   computed: {
     dataTableSearchVal: {

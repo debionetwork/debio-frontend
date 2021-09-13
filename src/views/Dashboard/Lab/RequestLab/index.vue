@@ -2,8 +2,8 @@
   <v-app>
     <v-main class="request-service">
       <v-container v-if="!isLoading" fill-height fluid>
-        <MapCountry @openList="map = $event" v-if="map" :service-request-by-country="serviceRequestByCountry" />
-        <ServiceTable @closeMap="map = $event" v-if="!map" />
+        <MapCountry @openList="handleOpenList" v-if="map" :service-request-by-country="serviceRequestByCountry" />
+        <ServiceTable :country-expand="country" @closeMap="map = $event" v-if="!map" />
       </v-container>
     </v-main>
   </v-app>
@@ -24,6 +24,7 @@ export default {
   data() {
     return {
       map: true,
+      country: null,
       serviceRequestByCountry: {},
       isLoading: true,
     }
@@ -52,6 +53,11 @@ export default {
       } catch (err) {
         console.log(err)
       }
+    },
+
+    handleOpenList(mapState, countryName) {
+      this.map = mapState
+      this.country = countryName
     }
   }
 }
