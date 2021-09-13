@@ -137,9 +137,15 @@ export default {
       this._show = false;
     },
     actionAlert() {
+      console.log("category >>>", this.category)
       this.dialogAlert = false
       this.$router.push({
         name: "service-request",
+        params: {
+          city: this.city,
+          country: this.country,
+          category: this.category[0]
+        }
       });
     },
 
@@ -198,12 +204,18 @@ export default {
           minute: "numeric",
         });
 
+        const params = {
+          city: this.city,
+          country: this.country,
+          category: this.category[0]
+        }
+
         const notification = {
           message: "Your request has been submitted",
           timestamp: timestamp,
           data: "",
           route: "service-request",
-          params: "",
+          params: params,
           read: false,
           notifDate: notifDate,
         }
@@ -211,7 +223,6 @@ export default {
         listNotification.push(notification)
         localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotification));
         listNotification.reverse();
-
         this.isLoading = false
         this.dialogAlert = true
       } catch (err) {
