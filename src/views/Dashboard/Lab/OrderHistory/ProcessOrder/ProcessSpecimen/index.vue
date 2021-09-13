@@ -158,7 +158,6 @@ import serviceHandler from "@/mixins/serviceHandler"
 import FileCard from './FileCard'
 import ipfsWorker from '@/web-workers/ipfs-worker'
 import cryptWorker from '@/web-workers/crypt-worker'
-import specimenFilesTempStore from '@/lib/specimen-files-temp-store'
 import Kilt from '@kiltprotocol/sdk-js'
 import { fulfillOrder } from '@/lib/polkadotProvider/command/orders'
 import DialogAlert from '@/components/Dialog/DialogAlert'
@@ -167,24 +166,28 @@ import Button from '@/components/Button'
 import { submitTestResult, processDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
 import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting"
 import localStorage from "@/lib/local-storage"
-import store from 'store'
 
 
 export default {
   name: 'ProcessSpecimen',
+  
   components: {
     FileCard,
     DialogAlert,
     Dialog,
     Button
   },
+
   mixins: [serviceHandler],
+  
   props: {
+    isSubmitted: Boolean,
     orderId: String,
     specimenNumber: String,
     specimenStatus: String,
     publicKey: [Uint8Array, String],
   },
+
   data: () => ({
     identity: null,
     genomeSucceed: false,
@@ -218,6 +221,7 @@ export default {
       report: 0,
     },
   }),
+  
   async mounted(){    
     // Add file input event listener
     this.addFileUploadEventListener(this.$refs.encryptUploadGenome, 'genome')
@@ -225,11 +229,12 @@ export default {
 
     this.identity = Kilt.Identity.buildFromMnemonic(this.mnemonic)
 
-    this.loadExistingFiles()
-
     const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
     if(testResult) this.setUploadFields(testResult)
+
+    this.submitted = this.isSubmitted
   },
+
   computed: {
     ...mapGetters({
       api: 'substrate/getAPI',
@@ -268,24 +273,8 @@ export default {
       return this.hasGenomeFile && this.hasReportFile && !this.submitted
     },
   },
-  methods:{
-    loadExistingFiles() {
-      const genomeFile = store.get(`specimen-${this.specimenNumber}-genome-file`)
-      if (genomeFile) {
-        this.files = {
-          ...this.files,
-          genome: [genomeFile],
-        }
-      }
-      const reportFile = store.get(`specimen-${this.specimenNumber}-report-file`)
-      if (reportFile) {
-        this.files = {
-          ...this.files,
-          report: [reportFile]
-        }
-      }
-    },
 
+  methods:{
     setUploadFields(testResult){
       const { result_link, report_link } = testResult
       if(result_link){
@@ -294,7 +283,6 @@ export default {
           ipfsPath: [{ data: { path: result_link.split('/')[result_link.split('/').length-1] } }]
         }
         this.files.genome.push(genomeFile)
-        this.isProcessed = true
       }
       if(report_link){
         const reportFile = {
@@ -302,11 +290,6 @@ export default {
           ipfsPath: [{ data: { path: report_link.split('/')[report_link.split('/').length-1] } }]
         }
         this.files.report.push(reportFile)
-        this.isProcessed = true
-      }
-
-      if (this.isProcessed) {
-        this.submitted = true
       }
     },
 
@@ -341,8 +324,7 @@ export default {
         reportLink = this.getFileIpfsUrl(this.files.report[0])      
       }
 
-      await this.dispatch(
-        submitTestResult,
+      await submitTestResult(
         this.api,
         this.pair,
         this.specimenNumber,
@@ -355,26 +337,26 @@ export default {
       )
     },
 
-    sendTestResult() {
-      this.submitTestResult(async () => {
-        await this.dispatch(
-          fulfillOrder,
-          this.api,
-          this.pair,
-          this.orderId,
-        )
-        this.resultReady()
-      })
+    async sendTestResult() {
+      this.isLoading = true
+      await processDnaSample(
+        this.api,
+        this.pair,
+        this.specimenNumber,
+        "ResultReady",
+        async () => {
+          await this.resultReady()
+        },
+      )
     },
     
     async resultReady() {
       this.isProcessing = true
       await this.dispatch(
-        processDnaSample,
+        fulfillOrder,
         this.api,
         this.pair,
-        this.specimenNumber,
-        "ResultReady",
+        this.orderId,
         () => {
           this.$emit('resultReady')
           this.isLoading = false
@@ -421,8 +403,6 @@ export default {
               context.files[fileType].push({ fileName, fileType, ipfsPath })
             }
 
-            // Save files to localStorage
-            specimenFilesTempStore.set(context.specimenNumber, context.files)
             context.loading[file.fileType] = false
 
             // Emit finish
@@ -431,19 +411,21 @@ export default {
               context.genomeUploadSucceedDialog = true
               context.$emit('uploadGenome')
               
-              store.set(`specimen-${context.specimenNumber}-genome-file`, { fileName, fileType, ipfsPath })
+              context.submitTestResult(() => {
+                context.loading[file.fileType] = false
+              })
             }
             if(file.fileType == 'report') {
               context.reportSucceed = true
               context.reportUploadSucceedDialog = true
               context.$emit('uploadReport')
 
-              store.set(`specimen-${context.specimenNumber}-report-file`, { fileName, fileType, ipfsPath })
+              context.submitTestResult(() => {
+                context.loading[file.fileType] = false
+              })
             }
           } catch (err) {
             console.error(err)
-          } finally {
-            context.loading[file.fileType] = false
           }
         }
         fr.readAsText(file)
