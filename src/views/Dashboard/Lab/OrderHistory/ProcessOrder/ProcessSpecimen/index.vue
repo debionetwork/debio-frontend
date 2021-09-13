@@ -5,6 +5,7 @@
         type="file"
         style="display: none"
         ref="encryptUploadGenome"
+        accept=".vcf"
       />
       <div v-if="hasGenomeFile" class="d-flex mt-5 mb-5">
         <v-row >
@@ -51,6 +52,7 @@
         type="file"
         style="display: none"
         ref="encryptUploadReport"
+        accept="application/pdf"
       />
       <div v-if="hasReportFile" class="d-flex mt-5 mb-5">
         <v-row >

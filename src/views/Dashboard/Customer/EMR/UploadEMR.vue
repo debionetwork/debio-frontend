@@ -106,6 +106,7 @@
               label="Title"
               outlined
               v-model="formTitle"
+              :rules="titleRules"
             ></v-text-field>
              <!-- placeholder="Title" -->
           </div>
@@ -117,6 +118,7 @@
               outlined
               rows="3"
               row-height="25"
+              :rules="descriptionRules"
             ></v-textarea>
           </div>
           <div class="mb-2">
@@ -321,6 +323,18 @@ export default {
 
     checkAddCondition() {
       return this.formFilePath == null || this.formTitle == '' || this.isLoading
+    },
+    titleRules() {
+      return [
+        val => !!val || 'Title is Required',
+        val => (val && val.length <= 50) || 'Max 50 Character'
+      ]
+    },
+    descriptionRules() {
+      return [
+        val => !!val || 'Description is Required',
+        val => (val && val.length <= 255) || 'Max 255 Character'
+      ]
     }
   },
 
