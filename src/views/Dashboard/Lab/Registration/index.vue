@@ -12,7 +12,6 @@
                 dense
                 label="Email"
                 placeholder="Email"
-                autocomplete="new-password"
                 outlined
                 v-model="email"
                 :rules="emailRules"
@@ -22,7 +21,6 @@
                 dense
                 label="Lab Name"
                 placeholder="Lab Name"
-                autocomplete="new-password"
                 outlined
                 v-model="labName"
                 :rules="nameRules"
@@ -32,37 +30,38 @@
                 dense
                 :items="countries"
                 item-text="name"
-                item-value="alpha-2"
+                item-value="iso2"
                 @change="onCountryChange"
-                autocomplete="new-password"
-                label="Select Country"
+                :label="computeCountryLabel"
                 outlined
+                v-model="country"
                 :rules="[val => !!val || 'Country is Required']"
               ></v-autocomplete>
 
               <v-autocomplete
                 dense
-                :items="regions"
-                item-text="1"
-                item-value="0"
-                @change="onRegionChange"
-                autocomplete="new-password"
-                label="Select Region"
+                :items="states"
+                item-text="name"
+                item-value="state_code"
+                @change="onStateChange"
+                :label="computeStateLabel"
                 :disabled="!country"
                 outlined
+                v-model="state"
                 :rules="[val => !!val || 'Region is Required']"
               ></v-autocomplete>
 
               <v-autocomplete
                 dense
                 :items="cities"
-                item-text="1"
-                item-value="0"
+                item-text="name"
+                item-value="name"
+                return-object
                 @change="onCityChange"
-                autocomplete="new-password"
-                label="Select City"
-                :disabled="!region"
+                :label="computeCityLabel"
+                :disabled="!state"
                 outlined
+                v-model="city"
                 :rules="[val => !!val || 'City is Required']"
               ></v-autocomplete>
 
@@ -70,7 +69,6 @@
                 dense
                 label="Address"
                 placeholder="Address"
-                autocomplete="new-password"
                 outlined
                 v-model="address"
                 :rules="addressRules"
@@ -110,22 +108,24 @@ import { mapState, mapGetters } from "vuex"
 import { registerLab } from "@/lib/polkadotProvider/command/labs"
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile"
 import { getWalletAddress } from "@/lib/metamask/wallet"
-import countryData from "@/assets/json/country.json"
-import cityData from "@/assets/json/city.json"
 import Kilt from "@kiltprotocol/sdk-js"
 import { u8aToHex } from "@polkadot/util"
 import { upload } from "@/lib/ipfs"
+import { getLocations, getStates, getCities } from "@/lib/location"
+import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
 
 
 export default {
   name: 'LabRegistration',
+  mixins: [serviceHandler],
+
   data: () => ({
     country: "",
-    region: "",
+    state: "",
     city: "",
     countries: [],
     cities: [],
-    regions: [],
+    states: [],
     email: "",
     labName: "",
     address: "",
@@ -134,9 +134,7 @@ export default {
     isLoading: false,
     isUploading: false,
   }),
-  async mounted() {
-    await this.getCountries();
-  },
+
   computed: {
     ...mapGetters({
       api: 'substrate/getAPI',
@@ -144,69 +142,116 @@ export default {
       labAccount: 'substrate/labAccount',
       isLabAccountExist: 'substrate/isLabAccountExist',
     }),
+
     ...mapState({
       locationContract: state => state.ethereum.contracts.contractLocation,
       degenicsContract: state => state.ethereum.contracts.contractDegenics,
       mnemonic: state => state.substrate.mnemonicData.mnemonic,
     }),
+
     citiesSelection() {
       return this.cities
         .filter((c) => c.country == this.country)
         .map((c) => ({ value: c.city, text: c.city, country: c.country }));
     },
+
     selectedLab() {
       if (!this.labAccount) {
         return;
       }
       return this.labs.filter((l) => l.labAccount == this.labAccount)[0];
     },
+
     emailRules() {
       return [
         val => !!val || 'E-mail is required',
         val => /.+@.+\..+/.test(val) || 'E-mail must be valid',
       ]
     },
+
     nameRules() {
       return [
         val => !!val || 'Name is Required',
         val => (val && val.length >= 8) || 'Min 8 Character'
       ]
     },
+
     addressRules() {
       return [
         val => !!val || 'Address is Required',
         val => (val && val.length <= 180) || 'Max 180 Character'
       ]
     },
+
     fileInputRules() {
       return [
         value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
       ]
     },
+
+    computeCountryLabel() {
+      return !this.country && this.isLoading ? this.loadingPlaceholder : "Select Region"
+    },
+
+    computeStateLabel() {
+      return !this.state && this.isLoading ? this.loadingPlaceholder : "Select State"
+    },
+
+    computeCityLabel() {
+      return !this.city && this.isLoading ? this.loadingPlaceholder : "Select City"
+    }
   },
+
+  async mounted() {
+    await this.getCountries();
+  },
+
   methods: {
     setLabAccount(labAccount) {
       this.$store.state.substrate.labAccount = labAccount
       this.$store.state.substrate.isLabAccountExist = true
     },
+
     async getCountries() {
-      this.countries = countryData;
+      const { data:
+        { data }
+      } = await this.dispatch(getLocations)
+
+      this.countries = data;
     },
-    onCountryChange(selectedCountry) {
+
+    async onCountryChange(selectedCountry) {
+      this.state = ""
+      this.city = ""
+
+      const { data:
+        { data }
+      } = await this.dispatch(getStates, selectedCountry)
+
+      this.states = data;
       this.country = selectedCountry;
-      this.regions = Object.entries(cityData[this.country].divisions);
     },
-    onRegionChange(selectedRegion) {
-      this.region = selectedRegion;
-      this.cities = Object.entries(cityData[this.country].divisions);
+
+    async onStateChange(selectedState) {
+      this.city = ""
+
+      const { data:
+        { data }
+      } = await this.dispatch(getCities, this.country, selectedState)
+
+      this.cities = data;
+      this.state = selectedState;
     },
-    onCityChange(selectedCity) {
-      this.city = selectedCity;
+
+    onCityChange({ name }) {
+      this.city = name;
     },
+
     getKiltBoxPublicKey() {
       const cred = Kilt.Identity.buildFromMnemonic(this.mnemonic)
       return u8aToHex(cred.boxKeyPair.publicKey)
     },
+
     async registerLab(){
       if (!this.validating()) {
         return
@@ -224,7 +269,7 @@ export default {
             email: this.email,
             address: this.address,
             country: this.country,
-            region: this.region,
+            region: this.state,
             city: this.city,
           },
           async () => {
@@ -259,6 +304,7 @@ export default {
         console.error(e)
       }
     },
+
     fileUploadEventListener(file) {
       if (file && file.name) {
         if (file.name.lastIndexOf(".") <= 0) {
@@ -290,12 +336,12 @@ export default {
     },
 
     validating() {
-      if (this.labName == "" || this.email == "" || this.imageUrl == "" || this.address == "" || this.country == "" || this.city == "" || this.region) {
+      if (this.labName == "" || this.email == "" || this.imageUrl == "" || this.address == "" || this.country == "" || this.city == "" || this.state) {
         this.$refs.labForm.validate()
         return false
       }
       return true
-    },
+    }
   }
 }
 </script>

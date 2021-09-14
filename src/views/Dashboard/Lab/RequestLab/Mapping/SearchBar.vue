@@ -1,5 +1,6 @@
 <template>
-  <div class="d-flex">
+  <div class="d-flex justify-space-between">
+    <slot></slot>
     <div class="search-bar">
       <v-text-field
         hide-details="auto"
@@ -16,7 +17,7 @@
       ></v-text-field>
       <div
         v-if="showResults"
-        class="search-bar__results elevation-5 mt-3 position-absolute rounded"
+        class="search-bar__results elevation-5 mt-3 rounded"
         v-click-outside="onClickOutside"
       >
         <div

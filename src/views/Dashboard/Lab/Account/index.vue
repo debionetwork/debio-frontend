@@ -81,7 +81,7 @@
                   item-text="name"
                   item-value="iso2"
                   @change="onCountryChange"
-                  label="Select Country"
+                  :label="computeCountryLabel"
                   autocomplete="off"
                   v-model="country"
                   :disabled="!isEditable"
@@ -90,14 +90,14 @@
 
                 <v-autocomplete
                   dense
-                  :items="regions"
+                  :items="states"
                   item-text="name"
                   item-value="state_code"
-                  @change="onRegionChange"
-                  label="Select Region"
+                  @change="onStateChange"
+                  :label="computeStateLabel"
                   :disabled="(!country || !isEditable)"
                   autocomplete="off"
-                  v-model="region"
+                  v-model="state"
                   outlined
                 ></v-autocomplete>
 
@@ -108,8 +108,8 @@
                   item-value="name"
                   return-object
                   @change="onCityChange"
-                  label="Select City"
-                  :disabled="(!region || !isEditable)"
+                  :label="computeCityLabel"
+                  :disabled="(!state || !isEditable)"
                   autocomplete="off"
                   v-model="city"
                   outlined
@@ -158,35 +158,23 @@ export default {
   name: 'LabAccount',
   mixins: [serviceHandler],
 
-  components: {
-    Certification,
-  },
-  async mounted() {
-    const labInfo = this.labAccount.info
-    this.email = labInfo.email
-    this.labName = labInfo.name
-    this.address = labInfo.address
-    this.imageUrl = labInfo.profile_image
-    
-    await this.getCountries()
-    await this.onCountryChange(labInfo.country)
-    await this.onRegionChange(labInfo.region)
-    await this.onCityChange({ name: labInfo.city })
-  },
+  components: { Certification },
+
   data: () => ({
     email: "",
     labName: "",
     address: "",
     country: "",
-    region: "",
+    state: "",
     city: "",
     imageUrl: "",
     countries: [],
-    regions: [],
+    states: [],
     cities: [],
     isEditable: false,
     isUploading: false
   }),
+
   computed: {
     ...mapGetters({
       api: 'substrate/getAPI',
@@ -209,8 +197,34 @@ export default {
         file => !file || file.size <= 3_097_152 || 'Document size should be less than 3 MB!',
         file => !file || file.type == 'image/jpg' || file.type == 'image/jpeg' || 'Document type should be image/jpg',
       ]
+    },
+
+    computeCountryLabel() {
+      return !this.country && this.isLoading ? this.loadingPlaceholder : "Select Region"
+    },
+
+    computeStateLabel() {
+      return !this.state && this.isLoading ? this.loadingPlaceholder : "Select State"
+    },
+
+    computeCityLabel() {
+      return !this.city && this.isLoading ? this.loadingPlaceholder : "Select City"
     }
   },
+
+  async mounted() {
+    const labInfo = this.labAccount.info
+    this.email = labInfo.email
+    this.labName = labInfo.name
+    this.address = labInfo.address
+    this.imageUrl = labInfo.profile_image
+
+    await this.getCountries()
+    await this.onCountryChange(labInfo.country)
+    await this.onStateChange(labInfo.region) // Region means the state, backend response got region instead state
+    await this.onCityChange({ name: labInfo.city })
+  },
+
   methods: {
     async getCountries() {
       const { data:
@@ -221,7 +235,7 @@ export default {
     },
 
     async onCountryChange(selectedCountry) {
-      this.region = ""
+      this.state = ""
       this.city = ""
 
       const { data:
@@ -229,17 +243,17 @@ export default {
       } = await this.dispatch(getStates, selectedCountry)
 
       this.country = selectedCountry;
-      this.regions = data;
+      this.states = data;
     },
 
-    async onRegionChange(selectedRegion) {
+    async onStateChange(selectedState) {
       this.city = ""
 
       const { data:
         { data }
-      } = await this.dispatch(getCities, this.country, selectedRegion)
+      } = await this.dispatch(getCities, this.country, selectedState)
 
-      this.region = selectedRegion;
+      this.state = selectedState;
       this.cities = data
     },
 
@@ -268,7 +282,7 @@ export default {
             email: this.email,
             address: this.address,
             country: this.country,
-            region: this.region,
+            region: this.state, // Region means the state, backend parameter only accept region instead state
             city: this.city,
             profile_image: this.imageUrl,
           },

@@ -91,5 +91,36 @@
                 "total_amount_usd": 7912
             }
         ]
+    },
+    {
+        "id": 4,
+        "location": "Malaysia",
+        "service": "-",
+        "sub_locations": [
+            {
+                "id": 1,
+                "location": "Kuala Lumpur",
+                "service": "Whole Exome Sequencing",
+                "number_request": 199,
+                "total_amount_dai": 2123,
+                "total_amount_usd": 1000
+            },
+            {
+                "id": 2,
+                "location": "Miri",
+                "service": "Genotyping",
+                "number_request": 413,
+                "total_amount_dai": 2192,
+                "total_amount_usd": 1276
+            },
+            {
+                "id": 3,
+                "location": "Kuching",
+                "service": "Whole Genome Sequencing",
+                "number_request": 123,
+                "total_amount_dai": 2189,
+                "total_amount_usd": 7912
+            }
+        ]
     }
 ]

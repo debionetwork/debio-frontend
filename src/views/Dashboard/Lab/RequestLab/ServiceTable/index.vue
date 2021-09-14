@@ -1,6 +1,9 @@
 <template>
 	<v-row>
 		<v-col>
+      <v-btn @click="$emit('closeMap', true)" class="mb-3" color="white" outlined>
+        Back
+      </v-btn>
 			<ServerSideDataTable
 				:headers="headers"
 				:items="regions"
@@ -15,11 +18,9 @@
 				expand
 				:page-size="pageSize"
 				additional-class="laporan-table"
+        :expanded-value="prefillValue"
 				@onExpanded="handleExpanded"
 			>
-        <v-btn @click="$emit('closeMap', true)" slot="prepend" color="primary" outlined>
-          Back
-        </v-btn>
 				<template v-slot:search-bar>
 					<SearchBar
 						label="Search"
@@ -32,6 +33,7 @@
             with-dropdown
             @itemSelected="handleSelectedItem"
 					>
+            <h1>Requested Services</h1>
 					</SearchBar>
 				</template>
 
@@ -106,12 +108,15 @@
 
 <script>
 import ServerSideDataTable from '@/components/DataTable/ServerSideDataTable'
-import SearchBar from '@/components/DataTable/SearchBar'
+import SearchBar from "../Mapping/SearchBar"
 import Regions from "./regions.json"
 import localStorage from '@/lib/local-storage'
 
 export default {
   name: 'LabOrderHistory',
+  props: {
+    countryExpand: { type: String, default: "" }
+  },
 	
   components: {
     ServerSideDataTable,
@@ -184,6 +189,10 @@ export default {
       )
 
       return !this.onSelectedItem && !this.searchQuery ? this.fetchRegions() : filtered
+    },
+
+    prefillValue() {
+      return this.regions.filter(region => region.location.toLowerCase() === this.countryExpand.toLowerCase())
     }
   },
 
@@ -215,7 +224,19 @@ export default {
         total_amount_dai: counter(region.sub_locations, "total_amount_dai"),
         total_amount_usd: counter(region.sub_locations, "total_amount_usd"),
         isExpanded: false
-      }))
+      })).sort((a, b) => {
+        var nameA = a.location.toLowerCase()
+        var nameB = b.location.toLowerCase()
+
+        if (nameA < nameB) {
+          return -1;
+        }
+        if (nameA > nameB) {
+          return 1;
+        }
+
+        return 0;
+      })
 		},
 
     provideService(item){
