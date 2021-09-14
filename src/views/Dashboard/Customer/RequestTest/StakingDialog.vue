@@ -94,7 +94,7 @@
 import DialogAlert from "@/components/Dialog/DialogAlert";
 import { approveDaiStakingAmount, checkAllowance, sendServiceRequestStaking } from '@/lib/metamask/serviceRequest'
 import { startApp, getTransactionReceiptMined } from "@/lib/metamask";
-import { mapState, mapMutations } from 'vuex'
+import { mapState } from 'vuex'
 import localStorage from "@/lib/local-storage"
 
 export default {
@@ -131,20 +131,24 @@ export default {
       city: state => state.lab.city,
       category: state => state.lab.category,
     }),
-    ...mapMutations({
-      stakingAmount: "lab/SET_STAKING_AMOUNT"
-    }),
   },
   methods: {
     closeDialog() {
       this._show = false;
     },
     actionAlert() {
+      console.log("category >>>", this.category)
       this.dialogAlert = false
       this.$router.push({
         name: "service-request",
+        params: {
+          city: this.city,
+          country: this.country,
+          category: this.category[0]
+        }
       });
     },
+
     async submitServiceRequestStaking() {
       this.ethAccount = await startApp();
       if (this.ethAccount.currentAccount == "no_install") {
@@ -165,7 +169,6 @@ export default {
             this.ethAccount.currentAccount,
             stakingAmount, // Approve only as much as needed to stake
           )
-          this.stakingAmount(stakingAmount)
           await getTransactionReceiptMined(txHash)
         }
 
@@ -179,6 +182,7 @@ export default {
         )
         await getTransactionReceiptMined(txHash)
 
+        await this.$store.dispatch("lab/setStakingAmount", stakingAmount);
 
         const address = localStorage.getAddress();
         const storageName = "LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + "customer";
@@ -200,12 +204,18 @@ export default {
           minute: "numeric",
         });
 
+        const params = {
+          city: this.city,
+          country: this.country,
+          category: this.category[0]
+        }
+
         const notification = {
           message: "Your request has been submitted",
           timestamp: timestamp,
           data: "",
           route: "service-request",
-          params: "",
+          params: params,
           read: false,
           notifDate: notifDate,
         }
@@ -213,7 +223,6 @@ export default {
         listNotification.push(notification)
         localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotification));
         listNotification.reverse();
-
         this.isLoading = false
         this.dialogAlert = true
       } catch (err) {
@@ -224,7 +233,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

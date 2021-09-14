@@ -14,7 +14,7 @@
                     Country
                   </v-col>
                    <v-col>
-                  : {{country}}
+                  : {{country[0].name}}
                   </v-col>
                 </v-row>
                 <v-row class="text-h6 mb-5" >
@@ -40,7 +40,7 @@
                     Staking Amount
                   </v-col>
                    <v-col>
-                  : {{stakingAmount}}
+                  : {{amount}}
                   </v-col>
                 </v-row>
 
@@ -52,7 +52,6 @@
                   : <span style="color: #DF711B" >{{status}}</span>
                   </v-col>
                 </v-row>
-                <!-- <div class="text-body-2">{{ city }}, {{ country }}</div> -->
               </template>
             </v-card-text>
             <div class="px-8">
@@ -66,7 +65,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapState } from 'vuex'
 import countryData from "@/assets/json/country.json"
 import cityData from "@/assets/json/city.json"
 
@@ -75,26 +74,23 @@ export default {
   data: () => ({
     country: "",
     city: "",
-    stakingAmount: 0,
-    status: "Waiting a lab to respond"
+    category: "",
+    status: "Waiting a lab to respond",
+
   }),
   computed:{
-    ...mapGetters({
-      labAccount: 'substrate/labAccount',
-    }),
     ...mapState({
-      category: (state) => state.lab.category,
-      stakingAmount: (state) => state.lab.stakingAmount
+      amount: state => state.lab.amount,
     }),
   },
   async mounted () {
-    const cities = Object.entries(cityData[this.labAccount.info.country].divisions) 
-    this.country = countryData.filter((country) => country['alpha-2'] == this.labAccount.info.country)[0].name
-    this.city = (cities.filter((city) => city[0] == this.labAccount.info.city))    
+
+    const { city, country, category } = this.$route.params
+    const cities = Object.entries(cityData[country].divisions) 
+    
+    this.category = category
+    this.country = countryData.filter((c) => c['alpha-2'] == country)
+    this.city = (cities.filter((c) => c[0] == city))    
   },
 }
 </script>
-
-<style>
-
-</style>

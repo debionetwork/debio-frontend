@@ -5,35 +5,12 @@ export async function createOrder(api, pair, service_id, customer_box_public_key
   return result.toHuman()
 }
 
-export async function fulfillOrder(api, pair, order_id) {
-  const result = await api.tx.orders
+export async function fulfillOrder(api, pair, order_id, callback = ()=>{}) {
+  const unsub = await api.tx.orders
     .fulfillOrder(order_id)
-    .signAndSend(pair, { nonce: -1 }, ({ status, events }) => {
-      if (status.isInBlock || status.isFinalized) {
-        events
-          // find/filter for failed events
-          .filter(({ event }) =>
-            api.events.system.ExtrinsicFailed.is(event)
-          )
-          // we know that data for system.ExtrinsicFailed is
-          // (DispatchError, DispatchInfo)
-          .forEach(({ event: { data: [error, info] } }) => {
-            info
-            if (error.isModule) {
-              // for module errors, we have the section indexed, lookup
-              const decoded = api.registry.findMetaError(error.asModule);
-              const { documentation, method, section } = decoded;
-
-              console.log(`${section}.${method}: ${documentation.join(' ')}`);
-            } else {
-              // Other, CannotLookup, BadOrigin, no extra info
-              console.log(error.toString());
-            }
-          });
-      }
-    })
-
-  console.log(result)
+    .signAndSend(pair, { nonce: -1 }, ({ events, status }) => 
+      successCallback(api, { events, status, callback, unsub })
+    )
 }
 
 export async function refundOrder(api, pair, order_id) {
@@ -55,4 +32,17 @@ export async function cancelOrder(api, pair, order_id) {
     .cancelOrder(order_id)
     .signAndSend(pair, { nonce: -1 })
   return result.toHuman()
+}
+
+function successCallback(api, { events, status, callback, unsub }){
+  if (status.isFinalized) {
+    // find/filter for success events
+    const eventList = events.filter(({ event }) =>
+      api.events.system.ExtrinsicSuccess.is(event)
+    )
+    if(eventList.length > 0){
+      callback()
+      unsub()
+    }
+  }
 }

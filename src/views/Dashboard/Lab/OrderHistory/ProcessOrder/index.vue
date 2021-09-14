@@ -112,7 +112,7 @@
                     :specimen-number="specimenNumber"
                     :specimen-status="specimenStatus"
                     :public-key="publicKey"
-                    :is-processed="isOrderProcessed"
+                    :is-submitted="isSubmitted"
                     @uploadGenome="onGenomeFileUploaded"
                     @uploadReport="onReportFileUploaded"
                     @resultReady="onResultReady" />
@@ -140,7 +140,7 @@ import ProcessSpecimen from './ProcessSpecimen'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
 import DialogAlert from '@/components/Dialog/DialogAlert'
 import Stepper from '@/components/Stepper'
-import store from 'store'
+import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting"
 
 export default {
   name: 'ProcessOrderHistory',
@@ -158,7 +158,6 @@ export default {
     sellerEthAddress: "",
     specimenNumber: "",
     specimenStatus: "",
-    isOrderProcessed: false,
     serviceName: "",
     serviceDescription: "",
     serviceImage: "",
@@ -167,6 +166,7 @@ export default {
     showResultDialog: false,
     genomeFile: "",
     reportFile: "",
+    isSubmitted: false,
     stepperItems: [
       { name: 'Received', selected: false },
       { name: 'QC (DNA prep and extraction)', selected: false },
@@ -214,16 +214,23 @@ export default {
           this.onQcCompleted()
       }
 
-      if(store.get(`specimen-${this.specimenNumber}-genome-file`)) {
+      const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
+      if(testResult) this.setUploadFields(testResult)
+
+      if(this.specimenStatus == "ResultReady") {
+        this.isSubmitted = true
+        this.onResultReady()
+      }
+    },
+
+    setUploadFields(testResult){
+      const { result_link, report_link } = testResult
+      if(result_link && result_link != "") {
         this.onGenomeFileUploaded()
       }
 
-      if(store.get(`specimen-${this.specimenNumber}-report-file`)) {
+      if(report_link && report_link != "") {
         this.onReportFileUploaded()
-      }
-
-      if(this.specimenStatus == "ResultReady") {
-        this.onResultReady()
       }
     },
 
@@ -288,7 +295,6 @@ export default {
             }
             return { ...item }
         })
-        console.log(this.stepperItems)
     }
   },
   computed: {

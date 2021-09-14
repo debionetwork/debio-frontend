@@ -17,6 +17,7 @@
                     prepend-icon="mdi-file-document"
                     outlined
                     v-model="profileImage"
+                    :rules="fileInputRules"
                 ></v-file-input>
                 
                 <v-file-input
@@ -26,6 +27,7 @@
                     prepend-icon="mdi-file-document"
                     outlined
                     v-model="profileImage"
+                    :rules="fileInputRules"
                 ></v-file-input>
 
                 <v-btn
@@ -43,7 +45,12 @@
 <script>
 export default {
   name: 'LabAccount',
-  mounted() {
+  computed: {
+    fileInputRules() {
+      return [
+        value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
+      ]
+    }
   },
 }
 </script>

@@ -39,7 +39,7 @@
             />
           </div>
           
-          <div class="mb-2">
+          <div v-if="stakingOption" class="mb-2">
             <v-card
               v-if="!dataStaked" 
               class="dg-card dg-menu-card grey lighten-1"
@@ -208,6 +208,7 @@ export default {
     order: null,
     isDataPdf: false,
     serviceName: "",
+    serviceCategory: "",
     result: "",
     isLoading: false,
     actionType: "result",
@@ -216,7 +217,8 @@ export default {
     resultLoading: false,
     baseUrl: "https://ipfs.io/ipfs/",
     stakeDialog: false,
-    dataStaked: false
+    dataStaked: false,
+    stakingOption: false
   }),
   async mounted() {
     this.resultLoading = true;
@@ -227,6 +229,9 @@ export default {
     await this.getLabServices();
     await this.getFileUploaded();
     await this.decryptWallet();
+    if (this.serviceCategory == "Whole-Genome Sequencing") {
+      this.stakingOption = true
+    }
   },
   methods: {
     async getSpciments() {
@@ -235,7 +240,6 @@ export default {
           this.api,
           this.specimentNumberInput
         );
-        console.log(this.speciment);
       } catch (error) {
         this.resultLoading = false;
         console.log(error);
@@ -250,7 +254,8 @@ export default {
           this.api,
           this.order.service_id
         );
-        console.log("Lab -> ", this.lab);
+
+        this.serviceCategory = this.services.info.category
         this.serviceName = this.services.info.name;
       } catch (err) {
         this.resultLoading = false;
@@ -334,7 +339,6 @@ export default {
           this.result = event.data;
           this.resultLoading = false;
         };
-        console.log(this.result);
       } catch (e) {
         this.resultLoading = false;
       }

@@ -1,4 +1,4 @@
-# degenics-dashboard
+# debio-frontend-dashboard
 
 ## Project setup
 ```

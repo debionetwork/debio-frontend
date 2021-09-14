@@ -13,7 +13,7 @@
     <template v-if="testResults.length > 0">
       <div
         v-for="order in testResults"
-        :key="order.number"
+        :key="order.id"
         class="mb-2"
         @click="gotoResult(order)"
       >
@@ -73,7 +73,6 @@ export default {
         dnaTestResults.sort(
           (a, b) => parseInt(b.created_at) - parseInt(a.created_at)
         )
-
         if(dnaTestResults.length > 0){
           for (let i = 0; i < maxResults; i++) {
             this.prepareOrderData(dnaTestResults[i])
