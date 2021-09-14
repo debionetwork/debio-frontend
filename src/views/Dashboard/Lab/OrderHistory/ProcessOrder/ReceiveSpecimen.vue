@@ -36,7 +36,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { receiveDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
+import { processDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
 import DialogAlert from '@/components/Dialog/DialogAlert'
 
 export default {
@@ -65,10 +65,11 @@ export default {
     async receiveDnaSample() {
       if(this.valid){
         this.isLoading = true
-        await receiveDnaSample(
+        await processDnaSample(
           this.api,
           this.pair,
           this.specimenNumber,
+          "Arrived",
           () => {
             this.isLoading = false
             this.specimenAlertDialog = true

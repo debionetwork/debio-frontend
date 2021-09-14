@@ -34,11 +34,11 @@
                 <div class="d-flex justify-center pb-5 pt-5">
                     <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
                 </div>
-                <div align="center" class="pb-5">QC process has been completed. Do you want to proceed to Genotyping/Sequencing Process?</div>
+                <div align="center" class="pb-5">QC process has been completed. Do you want to proceed to Wet Work Process?</div>
             </template>
             <template v-slot:actions>
                 <div>
-                    <Button :loading="isLoading" @click="closeQcCompletionDialogProceed" class="mb-4" elevation="2" dark>Yes, Proceed to Genotyping/Sequencing Process</Button>
+                    <Button :loading="isLoading" @click="closeQcCompletionDialogProceed" class="mb-4" elevation="2" dark>Yes, Proceed to Wet Work Process</Button>
                     <Button :disabled="isLoading" @click="closeQcCompletionDialogReject" elevation="2" color="purple" dark>No, Reject Specimen</Button>
                 </div>
             </template>

@@ -123,6 +123,7 @@
       "Arrived",
       "Rejected",
       "QualityControlled",
+      "WetWork",
       "ResultReady"
     ]
   },

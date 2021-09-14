@@ -106,6 +106,11 @@
                     :specimen-number="specimenNumber"
                     :specimen-status="specimenStatus"
                     @qualityControlPassed="onQcCompleted" />
+                <WetWorkSpecimen
+                    v-if="showWetWorkDialog"
+                    :specimen-number="specimenNumber"
+                    :specimen-status="specimenStatus"
+                    @wetWorkCompleted="onWetWorkCompleted" />
                 <ProcessSpecimen 
                     v-if="showGenomeReportDialog || showResultDialog"
                     :order-id="orderId"
@@ -113,8 +118,7 @@
                     :specimen-status="specimenStatus"
                     :public-key="publicKey"
                     :is-submitted="isSubmitted"
-                    @uploadGenome="onGenomeFileUploaded"
-                    @uploadReport="onReportFileUploaded"
+                    @resultUploaded="onResultUploaded"
                     @resultReady="onResultReady" />
 
                 <DialogAlert
@@ -137,6 +141,7 @@ import { mapGetters, mapState } from 'vuex'
 import ReceiveSpecimen from './ReceiveSpecimen'
 import QualityControlSpecimen from './QualityControlSpecimen'
 import ProcessSpecimen from './ProcessSpecimen'
+import WetWorkSpecimen from './WetWorkSpecimen'
 import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
 import DialogAlert from '@/components/Dialog/DialogAlert'
 import Stepper from '@/components/Stepper'
@@ -147,6 +152,7 @@ export default {
   components: {
     ReceiveSpecimen,
     QualityControlSpecimen,
+    WetWorkSpecimen,
     ProcessSpecimen,
     DialogAlert,
     Stepper,
@@ -170,8 +176,8 @@ export default {
     stepperItems: [
       { name: 'Received', selected: false },
       { name: 'QC (DNA prep and extraction)', selected: false },
-      { name: 'Genome File', selected: false },
-      { name: 'Report File', selected: false },
+      { name: 'Wet Work', selected: false },
+      { name: 'Upload Result', selected: false },
       { name: 'Results Ready', selected: false },
     ]
   }),
@@ -214,6 +220,10 @@ export default {
           this.onQcCompleted()
       }
 
+      if(this.specimenStatus == "WetWork") {
+          this.onWetWorkCompleted()
+      }
+
       const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
       if(testResult) this.setUploadFields(testResult)
 
@@ -225,12 +235,10 @@ export default {
 
     setUploadFields(testResult){
       const { result_link, report_link } = testResult
-      if(result_link && result_link != "") {
-        this.onGenomeFileUploaded()
-      }
-
-      if(report_link && report_link != "") {
-        this.onReportFileUploaded()
+      if(result_link && result_link != ""
+        && report_link && report_link != ""
+      ) {
+        this.onResultUploaded()
       }
     },
 
@@ -247,38 +255,43 @@ export default {
       )
     },
 
-    onGenomeFileUploaded() {
+    onWetWorkCompleted() {
       this.setStepperSelected([
           "Received",
           "QC (DNA prep and extraction)",
-          "Genome File",
+          "Wet Work",
         ],
         true
       )
     },
 
-    onReportFileUploaded() {
+    onResultUploaded() {
       this.setStepperSelected([
           "Received",
           "QC (DNA prep and extraction)",
-          "Genome File",
-          "Report File",
+          "Wet Work",
+          "Upload Result",
         ],
         true
       )
     },
+
 
     onResultReady() {
         this.showResultDialog = true
         this.setStepperSelected([
             "Received",
             "QC (DNA prep and extraction)",
-            "Genome File",
-            "Report File",
+            "Wet Work",
+            "Upload Result",
             "Results Ready",
           ],
           true
         )
+    },
+
+    onResultSubmitted() {
+      console.log('hah')
     },
 
     getImageLink(val){
@@ -302,26 +315,41 @@ export default {
         genome: (state) => state.testResult.genome,
         report: (state) => state.testResult.report
     }),
+
     ...mapGetters({
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
     }),
+
     orderId() {
       return this.$route.params.order_id ? this.$route.params.order_id : ''
     },
+
     showReceiveDialog(){
         return this.stepperItems.some(item => item.name == "Received" && item.selected == false)
     },
+
     showQualityControlDialog(){
         return this.stepperItems.some(item => item.name == "Received" && item.selected == true)
             && this.stepperItems.some(item => item.name == "QC (DNA prep and extraction)" && item.selected == false)
             || this.specimenStatus == "Rejected"
     },
-    showGenomeReportDialog() {
+
+    showWetWorkDialog() {
+        console.log(this.stepperItems)
         return this.stepperItems.some(item => item.name == "QC (DNA prep and extraction)" && item.selected == true)
+            && this.stepperItems.some(item => item.name == "Wet Work" && item.selected == false)
+            && this.specimenStatus != "Rejected"
+    },
+
+    showGenomeReportDialog() {
+        return this.stepperItems.some(item => item.name == "Wet Work" && item.selected == true)
+            && this.stepperItems.some(item => item.name == "Upload Result" && item.selected == false)
+            || this.stepperItems.some(item => item.name == "Upload Result" && item.selected == true)
             && this.stepperItems.some(item => item.name == "Results Ready" && item.selected == false)
             && this.specimenStatus != "Rejected"
     },
+
     _icon() {
       return this.serviceImage && (this.serviceImage.startsWith('mdi') || this.serviceImage.startsWith('$'))
         ? this.serviceImage
