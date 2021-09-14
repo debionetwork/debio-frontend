@@ -25,8 +25,8 @@
                 <v-row>
                   <v-col>Total value staked</v-col>
                   <v-col>
-                    <p class="mb-0">: {{ service.totalStakedValues.dai }} DAI</p>
-                    <p class="ml-2 mb-0">{{ service.totalStakedValues.usd }} USD</p>
+                    <p class="mb-0">: {{ service.totalValue.dai }} DAI</p>
+                    <p class="ml-2 mb-0">{{ service.totalValue.usd }} USD</p>
                   </v-col>
                 </v-row>
                 <v-btn
@@ -129,6 +129,8 @@
 <script>
 import * as d3 from "d3"
 import SearchBar from "./SearchBar"
+import { convertSLug } from "@/utils/convertSlug"
+
 export default {
   name: "MapCountry",
   components: { SearchBar },
@@ -265,12 +267,12 @@ export default {
         .transition()
         .duration(200)
         .style("opacity", .5)
-      d3.select(`#${val.name}`)
+      d3.select(`#${convertSLug(val.name)}`)
         .transition()
         .duration(200)
         .style("opacity", 1)
         .style("stroke", "black")
-        const country = d3.select(`#${val.name}`)?._groups[0][0]?.__data__
+        const country = d3.select(`#${convertSLug(val.name)}`)?._groups[0][0]?.__data__
         if (!country) return
         boxZoom(path.bounds(country), path.centroid(country), 70)
     }
@@ -441,24 +443,9 @@ export default {
           let topo = loadData[0].features.filter(map => map.properties.name !== "Antarctica")
           self.countries = topo.map(map => {
             const country = { name: map.properties.name }
-            if (map.id === "IDN" || map.id === "MYS") country.services = [
-              {
-                name: "Whole Genome Sequencing",
-                totalRequests: 90,
-                totalStakedValues: {
-                  dai: 1200,
-                  usd: 1000
-                }
-              },
-              {
-                name: "Supplements",
-                totalRequests: 910,
-                totalStakedValues: {
-                  dai: 12020,
-                  usd: 100210
-                }
-              }
-            ]
+            const service = serviceRequestByCountry[map.properties.name]
+
+            if (service !== undefined) country.services = service.services
 
             return country
           })
@@ -468,7 +455,7 @@ export default {
             .data(topo)
             .enter()
             .append("path")
-              .attr("id", (d) => d.properties.name)
+              .attr("id", (d) => convertSLug(d.properties.name))
               .attr("d", d3.geoPath()
                 .projection(projection)
               )
