@@ -55,6 +55,7 @@ export default {
         { name: 'Registered', selected: false},
         { name: 'Received', selected: false},
         { name: 'QC (DNA prep and extraction)', selected: false},
+        { name: 'Wet Work', selected: false},
         { name: 'Results Ready', selected: false},
     ],
     isProcessCompleted: false,
@@ -78,8 +79,8 @@ export default {
         params: { number: this.order.dna_sample_tracking_id },
       });
     },
+
     setExpectedDuration(orderCreatedAt, duration, durationType) {
-      console.log('test')
       if (durationType == 'WorkingDays') {
         const expectedDate = addBusinessDays(new Date(orderCreatedAt), parseInt(duration))
         const expectedDateStr = format(expectedDate, 'MMMM dd, yyyy')
@@ -117,28 +118,21 @@ export default {
         this.lateExpectedDate = lateExpectedDateStr
       }
     },
+
     async setCheckBoxByDnaStatus() {
       if (this.specimenStatus == 'Registered') {
         this.setStepperSelected(['Registered'], true)
       }
       if (this.specimenStatus == 'Arrived') {
-        this.onSpecimenRecieved()
+        this.onSpecimenReceived()
       }
 
       if (this.specimenStatus == 'QualityControlled') {
         this.onQcCompleted()
       }
 
-      if (this.specimenStatus == 'GenotypedSequenced') {
-        this.onGenotypeFinished()
-      }
-      
-      if (this.specimenStatus == 'Reviewed') {
-        this.onSpecimenRecieved()
-      }
-
-      if (this.specimenStatus == 'Computed') {
-        this.onSpecimentComputed()
+      if (this.specimenStatus == 'WetWork') {
+        this.onWetWorkCompleted()
       }
 
       if (this.specimenStatus == 'ResultReady') {
@@ -147,6 +141,7 @@ export default {
         this.btnColor = "#52ffb6"
       }
     },
+
     setStepperSelected(names, selected) {
       this.stepperItems = this.stepperItems.map(item => {
         if (names.includes(item.name)) {
@@ -155,15 +150,18 @@ export default {
         return { ...item }
       })
     },
+
     onSpecimenRegistered() {
       this.setStepperSelected(['Registered'], true)
     },
-    onSpecimenRecieved() {
+
+    onSpecimenReceived() {
       this.setStepperSelected([
         'Registered',
         'Received',
       ], true)
     },
+
     onQcCompleted() {
       this.setStepperSelected([
         'Registered',
@@ -171,42 +169,23 @@ export default {
         'QC (DNA prep and extraction)',
       ], true)
     },
-    onGenotypeFinished() {
+
+    onWetWorkCompleted() {
       this.setStepperSelected([
         'Registered',
         'Received',
         'QC (DNA prep and extraction)',
-        'Genotyping/Sequencing',
+        'Wet Work',
       ], true)
     },
-    onSpecimenReeviewed() {
-      this.setStepperSelected([
-        'Registered',
-        'Received',
-        'QC (DNA prep and extraction)',
-        'Genotyping/Sequencing',
-        'Review',
-      ], true)
-    },
-    onSpecimentComputed() {
-      this.setStepperSelected([
-        'Registered',
-        'Received',
-        'QC (DNA prep and extraction)',
-        'Genotyping/Sequencing',
-        'Review',
-        'Compute'
-      ], true)
-    },
+
     onResultReady() {
       this.setStepperSelected([
         'Registered',
         'Received',
         'QC (DNA prep and extraction)',
-        'Genotyping/Sequencing',
-        'Review',
-        'Compute',
-        'Results Ready'
+        'Wet Work',
+        'Results Ready',
       ], true)
     },
   },

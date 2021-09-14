@@ -1,12 +1,12 @@
 <template>
     <div class="mt-5">
-        <v-btn
+        <v-btn 
             color="primary"
             block
-            @click="reviewDialog = true"
-        >Complete Review</v-btn>
+            @click="wetWorkDialog = true"
+        >Complete Wet Work process</v-btn>
 
-        <Dialog :show="reviewDialog" @close="reviewDialog = false">
+        <Dialog :show="wetWorkDialog" @close="wetWorkDialog = false">
             <template v-slot:title>
                 <div></div>
             </template>
@@ -14,27 +14,28 @@
                 <div class="d-flex justify-center pb-5 pt-5">
                     <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
                 </div>
-                <div align="center" class="pb-5">Are you sure you want to complete the review process</div>
+                <div align="center" class="pb-5">Are you sure you want to complete the Wet Work process?</div>
             </template>
             <template v-slot:actions>
                 <v-col col="12" md="6">
                   <Button @click="processDnaSample" :loading="isProcessing" elevation="2" dark>Yes</Button>
                 </v-col>
                 <v-col col="12" md="6">
-                  <Button @click="reviewDialog = false" :disabled="isProcessing" elevation="2" color="purple" dark>No</Button>
+                  <Button @click="wetWorkDialog = false" :disabled="isProcessing" elevation="2" color="purple" dark>No</Button>
                 </v-col>
             </template>
         </Dialog>
 
         <DialogAlert
-            :show="reviewAlertDialog"
+            :show="wetWorkAlertDialog"
             btnText="Continue"
-            textAlert="Completed Review"
+            textAlert="Wet Work has been completed."
             imgPath="success.png"
             imgWidth="50"
-            @toggle="reviewAlertDialog = $event"
-            @close="closeReviewAlertDialog"
+            @toggle="wetWorkAlertDialog = $event"
+            @close="closeWetWorkAlertDialog"
         ></DialogAlert>
+
     </div>
 </template>
 
@@ -46,7 +47,7 @@ import Button from '@/components/Button'
 import { processDnaSample } from "@/lib/polkadotProvider/command/geneticTesting"
 
 export default {
-  name: "ReviewSpecimen",
+  name: "WetWork",
   components: {
     Dialog,
     DialogAlert,
@@ -57,8 +58,8 @@ export default {
   },
   data: () => ({
     isProcessing: false,
-    reviewDialog: false,
-    reviewAlertDialog: false,
+    wetWorkDialog: false,
+    wetWorkAlertDialog: false,
   }),
   computed: {
     ...mapGetters({
@@ -73,16 +74,16 @@ export default {
         this.api,
         this.pair,
         this.specimenNumber,
-        "Reviewed",
+        "WetWork",
         () => {
           this.isProcessing = false
-          this.reviewDialog = false
-          this.reviewAlertDialog = true
+          this.wetWorkDialog = false
+          this.wetWorkAlertDialog = true
         }
       )
     },
-    closeReviewAlertDialog () {
-      this.$emit("reviewedSpecimen")
+    closeWetWorkAlertDialog () {
+      this.$emit("wetWorkCompleted")
     }
   },
 }

@@ -103,7 +103,7 @@
         :disabled="isLoading"
         @click="confirmationDialog = true"
       >
-        Send Report to Customer
+        Submit Result
         <template v-slot:loader>
           <v-progress-linear
             v-if="loading.report"
@@ -139,7 +139,7 @@
           <div class="d-flex justify-center pb-5 pt-5">
               <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
           </div>
-          <div align="center" class="pb-5">Are you sure you want to send the report to customer?</div>
+          <div align="center" class="pb-5">Are you sure you want to submit the results?</div>
       </template>
       <template v-slot:actions>
           <v-col col="12" md="6">
@@ -223,7 +223,7 @@ export default {
       report: 0,
     },
   }),
-  
+
   async mounted(){    
     // Add file input event listener
     this.addFileUploadEventListener(this.$refs.encryptUploadGenome, 'genome')
@@ -360,10 +360,10 @@ export default {
         this.pair,
         this.orderId,
         () => {
-          this.$emit('resultReady')
           this.isLoading = false
           this.confirmationDialog = false
           this.submitted = true
+          this.$emit('resultReady')
         }
       )
       this.sendingNotification()
@@ -424,6 +424,7 @@ export default {
 
               context.submitTestResult(() => {
                 context.loading[file.fileType] = false
+                context.$emit('resultUploaded')
               })
             }
           } catch (err) {
