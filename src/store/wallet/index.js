@@ -1,15 +1,15 @@
 import axios from "axios";
 
 const defaultState = {
-  ethAddress: null,
+  resultMsg: null,
 }
 
 export default {
   namespaced: true,
   state: { ...defaultState },
   mutations: {
-    SET_RESULT(state, ethAddress) {
-      state.ethAddress = ethAddress
+    SET_RESULT(state, resultMsg) {
+      state.resultMsg = resultMsg
     },
   },
   actions: {
