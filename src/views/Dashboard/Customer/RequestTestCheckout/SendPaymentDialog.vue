@@ -117,6 +117,7 @@ import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
 import Kilt from "@kiltprotocol/sdk-js";
 import { u8aToHex } from "@polkadot/util";
+import { sendPaymentEscrow } from "@/lib/metamask/escrow.js";
 
 export default {
   name: "SendPaymentDialog",
@@ -201,7 +202,8 @@ export default {
           this.password = "";
           if (orderStatus) {
             this.closeDialog();
-            this.setOpenMetaMask(true);
+            const txHash = await sendPaymentEscrow(this.api, orderId, this.ethAccount, this.ethSellerAddress)
+            await getTransactionReceiptMined(txHash)
             this.$router.push({
               name: "order-history-detail",
               params: { number: orderId },

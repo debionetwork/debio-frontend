@@ -6,6 +6,7 @@ const EscrowFactory = require('./abi/EscrowFactory.json')
 const ERC20Interface = require('./abi/ERC20Interface.json')
 const SimpleEscrow = require('./abi/SimpleEscrow.json')
 const ServiceRequest = require('./abi/ServiceRequest.json')
+const Escrow = require('./abi/Escrow.json')
 import store from '@/store/index'
 
 const defaultState = {
@@ -47,6 +48,9 @@ export default {
     },
     SET_CONTRACT_ServiceRequest(state, contractServiceRequest) {
       state.contractServiceRequest = contractServiceRequest
+    },
+    SET_CONTRACT_Escrow(state, contractEscrow) {
+      state.contractEscrow = contractEscrow
     }
   },
   actions: {
@@ -58,6 +62,7 @@ export default {
       const EscrowFactoryContract = new web3.eth.Contract(EscrowFactory, contractInfo.EscrowFactory.address)
       const SimpleEscrowContract = new web3.eth.Contract(SimpleEscrow, contractInfo.SimpleEscrow.address)
       const ServiceRequestContract = new web3.eth.Contract(ServiceRequest.abi, contractInfo.ServiceRequest.address)
+      const EscrowContract = new web3.eth.Contract(Escrow.abi, contractInfo.Escrow.address)
 
       let ERC20InterfaceContract;
       const coinName = store.getters['auth/getConfig'].tokenName;
@@ -86,6 +91,7 @@ export default {
       commit('SET_CONTRACT_ERC20Interface', ERC20InterfaceContract)
       commit('SET_CONTRACT_SimpleEscrow', SimpleEscrowContract)
       commit('SET_CONTRACT_ServiceRequest', ServiceRequestContract)
+      commit('SET_CONTRACT_Escrow', EscrowContract)
     }
   },
   getters: {
@@ -112,6 +118,9 @@ export default {
     },
     getServiceRequestContract(state) {
       return state.contractServiceRequest
+    },
+    getEscrowContract(state) {
+      return state.contractEscrow
     }
   }
 }
