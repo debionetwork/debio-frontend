@@ -159,7 +159,7 @@
 import { mapState, mapMutations } from "vuex";
 import { startApp } from "@/lib/metamask";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
-import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile";
+import localStorage from "@/lib/local-storage"
 import { getEthFromFaucet, getDaicFromFaucet } from "@/lib/faucet";
 
 export default {
@@ -270,7 +270,11 @@ export default {
         if (this.wallet.isLocked) {
           await this.wallet.decodePkcs8(this.password);
         }
-        await setEthAddress(this.api, this.wallet, this.selectAccount.address);
+
+        const accountId = localStorage.getAddress();
+        const ethAddress = this.selectAccount.address
+
+        await this.$store.dispatch("wallet/walletBinding", {accountId, ethAddress});
         this.setMetamaskAddress(this.selectAccount.address);
         this.$emit("status-wallet", {
           status: true,
@@ -298,6 +302,3 @@ export default {
   },
 };
 </script>
-
-<style>
-</style>
