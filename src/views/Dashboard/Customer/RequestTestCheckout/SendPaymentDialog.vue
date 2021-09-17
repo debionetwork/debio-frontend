@@ -200,15 +200,17 @@ export default {
           }
           this.isLoading = false;
           this.password = "";
-          if (orderStatus) {
-            this.closeDialog();
-            const txHash = await sendPaymentEscrow(this.api, orderId, this.ethAccount, this.ethSellerAddress)
-            await getTransactionReceiptMined(txHash)
-            this.$router.push({
-              name: "order-history-detail",
-              params: { number: orderId },
-            });
-          }
+
+          if (!orderStatus) return;
+          
+          this.closeDialog();
+          const txHash = await sendPaymentEscrow(this.api, orderId, this.ethAccount, this.ethSellerAddress)
+          await getTransactionReceiptMined(txHash)
+          this.$router.push({
+            name: "order-history-detail",
+            params: { number: orderId },
+          });
+          
         }
       }
     },
