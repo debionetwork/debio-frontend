@@ -277,7 +277,8 @@ export default {
   },
   methods: {
     prefillValues() {
-      if (!this.$route.params) return
+      const checkQuery = Object.keys(this.$route.query).length
+      if (!checkQuery) return
 
       const {
         name,
