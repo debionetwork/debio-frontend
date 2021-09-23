@@ -2,6 +2,9 @@ import { queryServicesById } from './services'
 import { queryLabsById } from './labs'
 import { queryDnaSamples } from './geneticTesting'
 import { ethAddressByAccountId } from './userProfile'
+import localStorage from '@/lib/local-storage'
+import axios from 'axios'
+const baseUrl = "https://backend-dev.debio.network"
 
 export async function getOrdersDetail(api, orderId){
   let orderDetail = await getOrdersData(api, orderId)
@@ -98,4 +101,12 @@ export async function escrowKey(api) {
 export async function lastOrderByCustomer(api, address) {
   const res = await api.query.orders.lastOrderByCustomer(address)
   return res.toHuman()
+}
+
+export async function searchOrder(searchQuery) {
+  const { data: { data } } = await axios.get(`${baseUrl}/orders/${localStorage.getAddress()}`, {
+    params: { size: 1000, page: 1, keyword: searchQuery || "" }
+  })
+
+  return data
 }
