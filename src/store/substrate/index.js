@@ -157,7 +157,7 @@ export default {
         const dataMnemonic = {
           privateKey: u8aToHex(identity.boxKeyPair.secretKey),
           publicKey: u8aToHex(identity.boxKeyPair.publicKey),
-          mnemonic: mnemonic,
+          mnemonic: u8aToHex(await Kilt.Utils.Crypto.hash(mnemonic))
         };
 
         localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(dataMnemonic));
