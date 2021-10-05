@@ -183,7 +183,7 @@ export default {
   }),
   async mounted(){
     try {
-      // If no order id redirect to order history list
+      // If no order id redirect to Payment History list
       if (!this.orderId) {
         this.$router.push({ name: 'lab-dashboard-order-history' })
       }
