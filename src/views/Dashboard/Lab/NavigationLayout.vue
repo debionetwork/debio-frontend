@@ -77,6 +77,8 @@ import UnlockWalletDialog from "@/components/UnlockWalletDialog";
 import HeaderNotification from "@/components/HeaderNotification";
 import WalletBinding from "@/components/WalletBinding";
 import DialogAlert from "@/components/Dialog/DialogAlert";
+import { queryBalance } from "@/lib/polkadotProvider/query/balance";
+import localStorage from "@/lib/local-storage";
 
 export default {
   name: "Dashboard",
@@ -99,9 +101,22 @@ export default {
     alertTextAlert: "",
     imgWidth: "270",
   }),
-  mounted() {
-    console.log("Is pair locked?", this.pair.isLocked);
+  async mounted() {
+    console.log("Is pair locked lab?", this.pair.isLocked);
     this.show = this.pair.isLocked;
+
+    const balance = await queryBalance(
+      this.api,
+      this.wallet.address
+    );
+
+    if (balance <= 0) {
+      this.$store.dispatch("registration/registration", {
+        accountId: localStorage.getAddress(),
+        role: "lab",
+      })
+    }
+
   },
   computed: {
     ...mapGetters({
@@ -109,6 +124,7 @@ export default {
     }),
     ...mapState({
       isLabAccountExist: (state) => state.substrate.isLabAccountExist,
+      api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
       lastEventData: (state) => state.substrate.lastEventData,
     }),
