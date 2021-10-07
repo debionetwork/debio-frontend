@@ -46,7 +46,7 @@
               class="mb-2"
               icon="mdi-clipboard-plus"
               title="Orders"
-              sub-title="Order history"
+              sub-title="Payment History"
               @click="$router.push({ name: 'lab-dashboard-order-history' })"
           ></MenuCard>
           </v-col>

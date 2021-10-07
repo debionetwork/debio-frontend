@@ -14,7 +14,7 @@ const customerRoutes = [{
           { text: "Dashboard", disabled: false, active: true, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", disabled: false, route: { name: "order-history" } },
           { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -30,7 +30,7 @@ const customerRoutes = [{
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", active: true, disabled: false, route: { name: "order-history" } },
           { text: "EMR", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -41,12 +41,12 @@ const customerRoutes = [{
       path: '/customer/order-history',
       name: 'order-history',
       meta: {
-        pageHeader: 'Order history',
+        pageHeader: 'Payment History',
         drawerButtons: [
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", active: true, disabled: false, route: { name: "order-history" } },
           { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -59,14 +59,14 @@ const customerRoutes = [{
       meta: {
         pageHeader: 'Order Detail',
         breadcrumbs: [
-          { text: 'Order History', href: '/customer/order-history' },
+          { text: 'Payment History', href: '/customer/order-history' },
           { text: 'Order Detail', disabled: true },
         ],
         drawerButtons: [
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", active: true, disabled: false, route: { name: "order-history" } },
           { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -80,7 +80,7 @@ const customerRoutes = [{
         pageHeader: 'DNA Collection Instructions',
         breadcrumbs: [
           { text: 'Home', href: '/customer' },
-          { text: 'Order History', href: '/customer/order-history' },
+          { text: 'Payment History', href: '/customer/order-history' },
           { text: 'Order Detail', href: '/customer/order-history-detail/:number' },
           { text: 'DNA Collection Instructions', disabled: true },
         ],
@@ -88,7 +88,7 @@ const customerRoutes = [{
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", active: true, disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", active: true, disabled: false, route: { name: "order-history" } },
           { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -109,7 +109,7 @@ const customerRoutes = [{
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", active: true, disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", disabled: false, route: { name: "order-history" } },
           { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -129,7 +129,7 @@ const customerRoutes = [{
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", disabled: false, route: { name: "order-history" } },
           { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -149,7 +149,7 @@ const customerRoutes = [{
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", disabled: false, route: { name: "order-history" } },
           { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -169,7 +169,7 @@ const customerRoutes = [{
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", disabled: false, route: { name: "order-history" } },
           { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -190,7 +190,7 @@ const customerRoutes = [{
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", disabled: false, route: { name: "order-history" } },
           { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -212,7 +212,7 @@ const customerRoutes = [{
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", disabled: false, route: { name: "order-history" } },
           { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -233,7 +233,7 @@ const customerRoutes = [{
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", disabled: false, route: { name: "order-history" } },
           { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -255,7 +255,7 @@ const customerRoutes = [{
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", active: true, disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", disabled: false, route: { name: "order-history" } },
           { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -275,7 +275,7 @@ const customerRoutes = [{
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", active: true, disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", disabled: false, route: { name: "order-history" } },
           { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -295,7 +295,7 @@ const customerRoutes = [{
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: true },
           { text: "Test Results", disabled: true },
-          { text: "Order History", disabled: true },
+          { text: "Payment History", disabled: true },
           { text: "EMR", subText: "(Electronic Medical Record)", disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -311,7 +311,7 @@ const customerRoutes = [{
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", disabled: false, route: { name: "order-history" } },
           { text: "EMR", subText: "(Electronic Medical Record)", active: true, disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
@@ -331,7 +331,7 @@ const customerRoutes = [{
           { text: "Dashboard", disabled: false, route: { name: "customer-home" } },
           { text: "Request Test", disabled: false, route: { name: "request-test" } },
           { text: "Test Results", disabled: false, route: { name: "all-test-result" } },
-          { text: "Order History", disabled: false, route: { name: "order-history" } },
+          { text: "Payment History", disabled: false, route: { name: "order-history" } },
           { text: "EMR", subText: "(Electronic Medical Record)", active: true, disabled: false, route: { name: "documents" } },
           { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
         ]
