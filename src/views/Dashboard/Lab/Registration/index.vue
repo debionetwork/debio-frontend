@@ -294,7 +294,7 @@ export default {
                   }
                 }
                 this.setLabAccount(labAccount)
-                this.$router.push('/lab')
+                this.$router.push('/lab/account')
               }
             )
           }
@@ -336,7 +336,7 @@ export default {
     },
 
     validating() {
-      if (this.labName == "" || this.email == "" || this.imageUrl == "" || this.address == "" || this.country == "" || this.city == "" || this.state) {
+      if (this.labName == "" || this.email == "" || this.imageUrl == "" || this.address == "" || this.country == "" || this.city == "" || this.state == "") {
         this.$refs.labForm.validate()
         return false
       }
