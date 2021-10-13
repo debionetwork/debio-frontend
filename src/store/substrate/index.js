@@ -148,16 +148,14 @@ export default {
         localStorage.setKeystore(JSON.stringify(json))
         localStorage.setAddress(pair.address)
         commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
-        console.log('Is pair locked?', pair.isLocked)
+        console.log('Is pair locked 1?', pair.isLocked)
         commit('SET_WALLET', pair) // FIXME: simpen untuk dev
         commit('SET_LOADING_WALLET', false)
 
         const identity = await Kilt.Identity.buildFromMnemonic(mnemonic);
-
         const privateKey = u8aToHex(identity.boxKeyPair.secretKey)
         const publicKey = u8aToHex(identity.boxKeyPair.publicKey)
         const encryptedMnemonic = await Kilt.Utils.Crypto.encryptAsymmetricAsStr(mnemonic, publicKey, privateKey)
-
         const dataMnemonic = {
           privateKey,
           publicKey,
@@ -184,7 +182,7 @@ export default {
           localStorage.setKeystore(JSON.stringify(file[0]))
           localStorage.setAddress(pair.address)
           commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
-          console.log('Is pair locked?', pair.isLocked)
+          console.log('Is pair locked 2?', pair.isLocked)
           commit('SET_WALLET', pair)
 
           localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(file[1]));
@@ -201,7 +199,7 @@ export default {
           localStorage.setKeystore(JSON.stringify(file))
           localStorage.setAddress(pair.address)
           commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
-          console.log('Is pair locked?', pair.isLocked)
+          console.log('Is pair locked 3?', pair.isLocked)
           commit('SET_WALLET', pair)
 
           return { success: true }
