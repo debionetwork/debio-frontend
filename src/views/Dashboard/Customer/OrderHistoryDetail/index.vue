@@ -540,6 +540,8 @@ export default {
         try {
           this.isLoading = true;
           await cancelOrder(this.api, this.wallet, this.$route.params.number);
+          localStorage.removeLocalStorageByName("lastOrderStatus")
+          this.checkLastOrder()
         } catch (err) {
           console.log(err);
           this.isLoading = false;

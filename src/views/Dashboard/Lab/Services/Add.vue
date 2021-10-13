@@ -42,6 +42,8 @@
                     v-model="category"
                     outlined
                     :items="listCategories"
+                    item-text="service_categories"
+                    item-value="service_categories"
                     :rules="serviceCategoryRules"
                     ></v-select>
                     
@@ -174,6 +176,7 @@
 import { mapGetters } from 'vuex'
 import { upload } from "@/lib/ipfs"
 import { createService } from '@/lib/polkadotProvider/command/services'
+import { getCategories } from "@/lib/categories"
 
 export default {
   name: 'AddLabServices',
@@ -198,57 +201,57 @@ export default {
     selectExpectedDuration: 'WorkingDays',
     expectedDuration: '',
   }),
+
   async mounted() {
     this.prefillValues()
-    this.listCategories = [
-      "Bioinformatics Data Analysis Support & Genetic Counseling", 
-      "Covid-19 Testing", 
-      "Single Nucleotide Polymorphism (SNP) Microarray", 
-      "Targeted Gene Panel Sequencing",
-      "Whole-Exome Sequencing",
-      "Whole-Genome Sequencing",
-      "Whole-Transcriptome Sequencing",
-      "Others"
-    ];
+    await this.getServiceCategory()
   },
+
   computed: {
     ...mapGetters({
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
     }),
+
     serviceCategoryRules() {
       return [
         val => !!val || 'Category is Required'
       ]
     },
+
     serviceNameRules() {
       return [
         val => !!val || 'Name is Required',
         val => (val && val.length <= 50) || 'Max 50 Character'
       ]
     },
+
     curencyTypeRules() {
       return [
         val => !!val || 'Currency Type is Required'
       ]
     },
+
     priceRules() {
       return [
         val => !!val || 'Price is Required',
         val => /^[0-9]+$/.test(val) || 'Price must be Number'
       ]
     },
+
     qcQurencyTypeRules() {
       return [
         val => !!val || 'QC Currency Type is Required'
       ]
     },
+    
     cqPriceRules() {
       return [
         val => !!val || 'QC Price is Required',
         val => /^[0-9]+$/.test(val) || 'QC Price must be Number'
       ]
     },
+
     descriptionRules() {
       return [
         val => !!val || 'Description is Required',
@@ -256,6 +259,7 @@ export default {
         val => (val && val.length <= 255) || 'Max 255 Character'
       ]
     },
+
     longDescriptionRules() {
       return [
         val => !!val || 'Long Description is Required',
@@ -263,11 +267,13 @@ export default {
         val => (val && val.length <= 1000) || 'Max 1000 Character'
       ]
     },
+
     expectedDurationRules() {
       return [
         val => !!val || 'Expected duration is Required'
       ]
     },
+
     fileInputRules() {
       return [
         value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
@@ -275,7 +281,14 @@ export default {
     },
 
   },
+
   methods: {
+
+    async getServiceCategory() {
+      const { data : data } = await getCategories()
+      this.listCategories =  data
+    },
+
     prefillValues() {
       const checkQuery = Object.keys(this.$route.query).length
       if (!checkQuery) return
@@ -302,6 +315,7 @@ export default {
       this.selectExpectedDuration = durationType
       this.expectedDuration = durationValue
     },
+
     async createService() {
       if(this.isLoading) return // If function already running return.
       if (!this.$refs.addServiceForm.validate()) {
@@ -346,6 +360,7 @@ export default {
         }
       )
     },
+
     imageUploadEventListener(file) {
       this.isUploading = true
       this.isLoading = true
@@ -371,6 +386,7 @@ export default {
         })
       }
     },
+
     fileUploadEventListener(file) {
       if (!file || file.size >= 2000000) {
         return
@@ -399,9 +415,10 @@ export default {
         })
       }
     },
+
     selectPicture() {
       this.$refs.fileInput.$refs.input.click()
-    },
+    }
   },
 }
 </script>

@@ -183,7 +183,7 @@ const labRoutes = [
               path: '/lab/orders',
               name: 'lab-dashboard-order-history',
               meta: {
-                pageHeader: 'Order History',
+                pageHeader: 'Payment History',
                 breadcrumbs: [
                   { text: 'Lab', href: '/lab' },
                   { text: 'Orders', disabled: true }

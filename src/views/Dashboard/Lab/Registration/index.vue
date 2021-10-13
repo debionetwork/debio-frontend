@@ -108,8 +108,6 @@ import { mapState, mapGetters } from "vuex"
 import { registerLab } from "@/lib/polkadotProvider/command/labs"
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile"
 import { getWalletAddress } from "@/lib/metamask/wallet"
-import Kilt from "@kiltprotocol/sdk-js"
-import { u8aToHex } from "@polkadot/util"
 import { upload } from "@/lib/ipfs"
 import { getLocations, getStates, getCities } from "@/lib/location"
 import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
@@ -146,7 +144,7 @@ export default {
     ...mapState({
       locationContract: state => state.ethereum.contracts.contractLocation,
       degenicsContract: state => state.ethereum.contracts.contractDegenics,
-      mnemonic: state => state.substrate.mnemonicData.mnemonic,
+      mnemonicData: state => state.substrate.mnemonicData
     }),
 
     citiesSelection() {
@@ -247,11 +245,6 @@ export default {
       this.city = name;
     },
 
-    getKiltBoxPublicKey() {
-      const cred = Kilt.Identity.buildFromMnemonic(this.mnemonic)
-      return u8aToHex(cred.boxKeyPair.publicKey)
-    },
-
     async registerLab(){
       if (!this.validating()) {
         return
@@ -259,7 +252,8 @@ export default {
       try{
         this.isLoading = true
         const ethAddress = await getWalletAddress()
-        const box_public_key = this.getKiltBoxPublicKey()
+        const box_public_key = this.mnemonicData.publicKey
+
         await registerLab(
           this.api,
           this.pair,
@@ -294,7 +288,7 @@ export default {
                   }
                 }
                 this.setLabAccount(labAccount)
-                this.$router.push('/lab')
+                this.$router.push('/lab/account')
               }
             )
           }
@@ -336,7 +330,7 @@ export default {
     },
 
     validating() {
-      if (this.labName == "" || this.email == "" || this.imageUrl == "" || this.address == "" || this.country == "" || this.city == "" || this.state) {
+      if (this.labName == "" || this.email == "" || this.imageUrl == "" || this.address == "" || this.country == "" || this.city == "" || this.state == "") {
         this.$refs.labForm.validate()
         return false
       }

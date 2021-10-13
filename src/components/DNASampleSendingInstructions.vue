@@ -64,10 +64,6 @@ export default {
   components: {
     BulletPoint,
   },
-  data: () => ({
-    country: "",
-    city: "",
-  }),
   props: {
     specimenNumber: String,
     lab: Object,
@@ -75,6 +71,10 @@ export default {
     sourcePage: String,
     hideOrderHistoryLink: Boolean,
   },
+  data: () => ({
+    country: "",
+    city: "",
+  }),
   computed: {
     instructions() {
       return [
@@ -85,8 +85,8 @@ export default {
           this.specimenNumber
         )}</b> on the sample's envelope.`,
         ` Send the envelope (without return address for maximum privacy), to
-          <div><b>${this.lab.info.name}</b></div>
-          <div><b>${this.lab.info.address ?? ""}</b></div>
+          <div><b>${this.lab.name}</b></div>
+          <div><b>${this.lab.address ?? ""}</b></div>
           <div><b>${this.city}, ${this.country}</b></div>
           <div style="margin-top: 12px; text-decoration: underline;"><b>You do not need to mention your name, address, or any personal information</b></div>
         `,
@@ -95,8 +95,8 @@ export default {
   },
   mounted() {
     if (this.lab != null) {
-      this.country = cityData[this.lab.info.country].name;
-      this.city = cityData[this.lab.info.country].divisions[this.lab.info.city];
+      this.country = cityData[this.lab.country].name;
+      this.city = cityData[this.lab.country].divisions[this.lab.city];
     }
   },
 };

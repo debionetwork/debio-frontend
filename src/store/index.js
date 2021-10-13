@@ -8,7 +8,7 @@ import substrate from './substrate'
 import lab from './lab'
 import feedback from './feedback'
 import registration from './registration'
-
+import wallet from './wallet'
 
 Vue.use(Vuex)
 Vue.config.devtools = true
@@ -22,7 +22,8 @@ export default new Vuex.Store({
     substrate,
     lab,
     feedback,
-    registration
+    registration,
+    wallet
   },
   state: {
   },
