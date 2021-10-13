@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="secondary--text mb-2"><b>Order History</b></div>
+    <div class="secondary--text mb-2"><b>Payment History</b></div>
     <div v-if="preparedOrderHistory.length == 0 && !isLoadingOrderHistory">
-      No order history found
+      No Payment History found
     </div>
     <v-progress-linear
       v-if="preparedOrderHistory.length == 0 && isLoadingOrderHistory"
@@ -44,7 +44,7 @@
         </template>
       </div>
       <PrimaryButton @click="goToOrderHistory"
-        >Show all order history</PrimaryButton
+        >Show all Payment History</PrimaryButton
       >
     </template>
   </div>

@@ -6,8 +6,8 @@
           <v-dialog v-model="dialogInstruction" max-width="600px">
             <DNASampleSendingInstructions
               :specimenNumber="selectedSpeciment.dna_sample_tracking_id"
-              :lab="selectedSpeciment.detaillab"
-              :orderId="selectedSpeciment.number"
+              :lab="selectedSpeciment.lab_info"
+              :orderId="selectedSpeciment.id"
               :sourcePage="'order-history'"
               hide-order-history-link
             >
@@ -43,7 +43,6 @@
           <DataTable
             :headers="headers"
             :items="orderHistory"
-            :search="search"
             :sort-by="['timestamp']"
             :sort-desc="[true]"
             :loading="isLoading"
@@ -177,11 +176,8 @@ import {
   ORDER_CANCEL
 } from "@/constants/specimen-status";
 import {
-  ordersByCustomer,
-  getOrdersData,
+  searchOrder,
 } from "@/lib/polkadotProvider/query/orders";
-import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
-import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import localStorage from "@/lib/local-storage"
 
 export default {
@@ -205,10 +201,10 @@ export default {
     ORDER_FAILED,
     ORDER_CANCEL,
     headers: [
-      { text: "Lab Name", value: "labName" },
-      { text: "Product Name", value: "title" },
+      { text: "Lab Name", value: "lab_info.name" },
+      { text: "Product Name", value: "service_info.name" },
       { text: "Specimen Number", value: "dna_sample_tracking_id" },
-      { text: "Date", value: "timestamp" },
+      { text: "Date", value: "created_at" },
       { text: "Status", value: "status" },
       {
         text: "Actions",
@@ -218,7 +214,6 @@ export default {
         width: "5%",
       },
     ],
-    speciments: [],
     selectedSpeciment: {},
     address: "",
     password: "",
@@ -245,19 +240,20 @@ export default {
         const dataEvent = JSON.parse(this.lastEventData.data.toString());
         if (this.lastEventData.section == "orders") {
           if (dataEvent[0].customer_id == this.wallet.address) {
-            this.getOrderHistory();
+            this.onSearchInput()
           }
         }
       }
     },
 
     async address() {
-      await this.getOrderHistory();
+      await this.onSearchInput()
     }
   },
 
   async mounted() {
     this.address = this.wallet.address;
+    await this.onSearchInput()
   },
 
   methods: {
@@ -267,95 +263,10 @@ export default {
       this.isProcessed = status ? status : null
     },
 
-    async getOrderHistory() {
-      this.checkLastOrder()
-      this.isLoading = true;
-      try {
-        this.orderHistory = [];
-        const listOrderId = await ordersByCustomer(this.api, this.address);
-
-        var lengthMax = 3;
-        if (listOrderId != null) {
-          listOrderId.reverse();
-          lengthMax = listOrderId.length;
-
-          for (let i = 0; i < lengthMax; i++) {
-            const detailOrder = await getOrdersData(this.api, listOrderId[i]);
-            if (detailOrder != null) {
-              const detaillab = await queryLabsById(
-                this.api,
-                detailOrder.seller_id
-              );
-              if (detaillab != null) {
-                const detailService = await queryServicesById(
-                  this.api,
-                  detailOrder.service_id
-                );
-                if (detailService != null) {
-                  this.prepareOrderData(detailOrder, detaillab, detailService);
-                }
-              }
-            }
-          }
-
-          if (this.orderHistory.length > 0) {
-            this.orderHistory.sort(
-              (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
-            );
-          }
-        }
-
-        this.isLoading = false;
-      } catch (err) {
-        console.log(err);
-        this.isLoading = false;
-      }
-    },
-
-    prepareOrderData(detailOrder, detaillab, detailService) {
-      const title = detailService.info.name;
-      const labName = detaillab.info.name;
-      let icon = "mdi-needle";
-      if (detailService.info.image != null) {
-        icon = detailService.info.image;
-      }
-
-      const number = detailOrder.id;
-      const dateSet = new Date(
-        parseInt(detailOrder.created_at.replace(/,/g, ""))
-      );
-      const timestamp = dateSet.getTime().toString();
-      const orderDate = dateSet.toLocaleString("en-US", {
-        weekday: "short", // long, short, narrow
-        day: "numeric", // numeric, 2-digit
-        year: "numeric", // numeric, 2-digit
-        month: "long", // numeric, 2-digit, long, short, narrow
-        hour: "numeric", // numeric, 2-digit
-        minute: "numeric",
-      });
-      const status = detailOrder.status;
-      const dna_sample_tracking_id = detailOrder.dna_sample_tracking_id;
-
-      const order = {
-        icon,
-        title,
-        number,
-        labName,
-        timestamp,
-        status,
-        dna_sample_tracking_id,
-        detaillab,
-        orderDate,
-      };
-
-      this.orderHistory.push(order);
-      if (this.isProcessed) this.orderHistory[0].status = this.isProcessed
-    },
-
     goToOrderDetail(item) {
       this.$router.push({
         name: "order-history-detail",
-        params: { number: item.number },
+        params: { number: item.id },
       });
     },
 
@@ -376,8 +287,15 @@ export default {
       this.selectedSpeciment = item;
     },
 
-    onSearchInput(val) {
-      this.search = val;
+    async onSearchInput(val) {
+      this.checkLastOrder()
+
+      const results = await searchOrder(val)
+      this.orderHistory = results.map(result => ({
+        ...result._source,
+        created_at: new Date(parseInt(result._source.created_at)).toLocaleDateString(),
+        timestamp: parseInt(result._source.created_at)
+      }))
     }
   },
 };
