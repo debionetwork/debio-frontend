@@ -7,6 +7,8 @@ import testRequest from './testRequest'
 import substrate from './substrate'
 import lab from './lab'
 import feedback from './feedback'
+import wallet from './wallet'
+
 
 
 
@@ -22,6 +24,7 @@ export default new Vuex.Store({
     substrate,
     lab,
     feedback,
+    wallet
   },
   state: {
   },
