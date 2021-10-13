@@ -154,10 +154,14 @@ export default {
 
         const identity = await Kilt.Identity.buildFromMnemonic(mnemonic);
 
+        const privateKey = u8aToHex(identity.boxKeyPair.secretKey)
+        const publicKey = u8aToHex(identity.boxKeyPair.publicKey)
+        const encryptedMnemonic = await Kilt.Utils.Crypto.encryptAsymmetricAsStr(mnemonic, publicKey, privateKey)
+
         const dataMnemonic = {
-          privateKey: u8aToHex(identity.boxKeyPair.secretKey),
-          publicKey: u8aToHex(identity.boxKeyPair.publicKey),
-          mnemonic: mnemonic
+          privateKey,
+          publicKey,
+          mnemonic: encryptedMnemonic
         };
 
         localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(dataMnemonic));
