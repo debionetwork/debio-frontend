@@ -1,6 +1,6 @@
 <template>
   <v-menu bottom left>
-    <!-- <template v-slot:activator="{ on, attrs }">
+    <template v-slot:activator="{ on, attrs }">
       <div
         class="
           d-flex
@@ -14,7 +14,7 @@
       >
         Change
       </div>
-    </template> -->
+    </template>
 
     <div class="mt-11">
       <v-card>
