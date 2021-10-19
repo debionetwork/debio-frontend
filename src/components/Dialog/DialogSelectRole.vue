@@ -13,17 +13,6 @@
             sm="3"
             align="center"
             style="cursor: pointer"
-            @click="closeDialog('customer')"
-          >
-            <v-img src="@/assets/customer-icon.png" max-width="65" />
-            <div>Customer</div>
-          </v-col>
-          <v-col
-            lg="3"
-            md="3"
-            sm="3"
-            align="center"
-            style="cursor: pointer"
             @click="closeDialog('lab')"
           >
             <v-img src="@/assets/lab-icon.png" max-width="65" />
@@ -35,10 +24,8 @@
             md="3"
             sm="3"
             align="center"
-            style="cursor: pointer"
-            @click="closeDialog('hospital')"
           >
-            <v-img src="@/assets/hospital-icon.png" max-width="65" />
+            <v-img src="@/assets/hospital-icon-gray.png" max-width="65"/>
             <div>Hospital</div>
           </v-col>
           <v-col
@@ -46,10 +33,8 @@
             md="3"
             sm="3"
             align="center"
-            style="cursor: pointer"
-            @click="closeDialog('doctor')"
           >
-            <v-img src="@/assets/doctor-icon.png" max-width="65" />
+            <v-img src="@/assets/doctor-icon-gray.png" max-width="65" />
             <div>Doctor</div>
           </v-col>
         </v-row>

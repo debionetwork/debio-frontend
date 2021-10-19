@@ -26,7 +26,7 @@
           @showWalletBinding="({ status }) => openWalletBinding(status)"
         ></HeaderUserInfo>
         <!-- Menu For Development Purposes -->
-        <MenuChangeRole />
+        <!-- <MenuChangeRole /> -->
         <HeaderNotification :role="'hospital'"></HeaderNotification>
       </div>
     </v-app-bar>
@@ -70,7 +70,7 @@
 import v from "voca";
 import { mapState, mapGetters } from "vuex";
 import Breadcrumbs from "@/views/Dashboard/Breadcrumbs";
-import MenuChangeRole from "@/components/MenuChangeRole";
+// import MenuChangeRole from "@/components/MenuChangeRole";
 import HeaderUserInfo from "@/components/HeaderUserInfo";
 import NavigationDrawer from "@/components/NavigationDrawer";
 import UnlockWalletDialog from "@/components/UnlockWalletDialog";
@@ -83,7 +83,7 @@ export default {
   components: {
     Breadcrumbs,
     NavigationDrawer,
-    MenuChangeRole,
+    // MenuChangeRole,
     HeaderUserInfo,
     UnlockWalletDialog,
     HeaderNotification,

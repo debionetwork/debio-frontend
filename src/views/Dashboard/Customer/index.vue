@@ -67,7 +67,7 @@
 
 <script>
 import v from "voca";
-import MenuChangeRole from "@/components/MenuChangeRole";
+// import MenuChangeRole from "@/components/MenuChangeRole";
 import Breadcrumbs from "@/views/Dashboard/Breadcrumbs";
 import NavigationDrawer from "@/components/NavigationDrawer";
 import HeaderUserInfo from "@/components/HeaderUserInfo";
@@ -79,7 +79,7 @@ import { mapState } from "vuex";
 export default {
   name: "Dashboard",
   components: {
-    MenuChangeRole,
+    // MenuChangeRole,
     Breadcrumbs,
     NavigationDrawer,
     HeaderUserInfo,
