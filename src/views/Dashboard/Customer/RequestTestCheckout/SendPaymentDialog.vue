@@ -106,7 +106,7 @@
 /* eslint-disable */
 import { mapState, mapActions, mapMutations } from "vuex";
 import cityData from "@/assets/json/city.json";
-import { startApp } from "@/lib/metamask";
+import { startApp, getTransactionReceiptMined } from "@/lib/metamask";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
 import {
   lastOrderByCustomer,
@@ -276,10 +276,11 @@ export default {
                       statusAddUse = true;
                     }
                   }
+                  this.statusAddUse = false
                   if (statusAddUse == false) {
                     this.isLoading = false;
                     this.password = "";
-                    this.error = "The address is not listed on Metamask.";
+                    this.error = "The address is not listed on Metamask, please re-bind your wallet before proceeding with the transaction.";
                     return;
                   }
                 } else {
