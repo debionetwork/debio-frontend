@@ -428,7 +428,7 @@ export default {
     category() {
       if (this.category == 'Covid-19') {
         this.isBiomedical = true
-        this.qcPrice = 0
+        this.qcPrice = "0"
       } else {
         this.isBiomedical = false
       }
