@@ -426,7 +426,6 @@ export default {
   
   watch: {
     category() {
-      // this.category == 'Covid-19' ? this.isBiomedical = true : this.isBiomedical = false
       if (this.category == 'Covid-19') {
         this.isBiomedical = true
         this.qcPrice = 0
