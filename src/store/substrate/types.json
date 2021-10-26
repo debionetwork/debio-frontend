@@ -1,5 +1,5 @@
 {
-  "AccountInfo": "AccountInfoWithDualRefCount",
+  "AccountInfoWithProviders": "AccountInfoWithDualRefCount",
   "Address": "MultiAddress",
   "LookupSource": "MultiAddress",
   "AccountIdOf": "AccountId",
@@ -122,8 +122,12 @@
       "Registered",
       "Arrived",
       "Rejected",
+      "Success",
+      "Failed",
       "QualityControlled",
-      "WetWork",
+      "GenotypedSequenced",
+      "Reviewed",
+      "Computed",
       "ResultReady"
     ]
   },
