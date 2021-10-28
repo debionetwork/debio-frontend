@@ -109,6 +109,7 @@
                     @change="fileUploadEventListener"
                     :rules="supportingDocumentsRules"
                     show-size
+                    v-model="files"
                     accept="application/pdf, image/png, image/jpeg,"
                 ></v-file-input>
                 </v-form>
@@ -152,6 +153,7 @@ export default {
     certificationDialog: false,
     isUploading: false,
     isEditCertificationDialog: false,
+    files: []
   }),
 
   computed: {
@@ -250,7 +252,7 @@ export default {
       })
     },
 
-    editCertification(cert) {
+    async editCertification(cert) {
       this.certId = cert.id
       this.certTitle = cert.info.title
       this.certIssuer = cert.info.issuer
@@ -258,6 +260,12 @@ export default {
       this.certYear = cert.info.year
       this.certDescription = cert.info.description
       this.certSupportingDocumentsUrl = cert.info.supporting_document
+
+      const res = await fetch(this.certSupportingDocumentsUrl)
+      const blob = await res.blob() // Gets the response and returns it as a blob
+      const file = new File([blob], this.certSupportingDocumentsUrl.substring(21), {type: "application/pdf"})
+      this.files = file
+
       this.certificationDialog = true
       this.isEditCertificationDialog = true
     },

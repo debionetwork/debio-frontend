@@ -88,6 +88,7 @@
                   @change="fileUploadEventListener"
                   :rules="fileInputRules"
                   :disabled="isLabAccountExist"
+                  show-size
                   accept="image/png, image/jpeg"
                 ></v-file-input>
 
@@ -255,7 +256,12 @@ export default {
         await this.onStateChange(this.labAccount.info.region) // Region means the state, backend response got region instead state
         this.city = this.labAccount.info.city
         await this.onCityChange({ name: this.labAccount.info.city })
-        this.files = this.labAccount.info.profile_image
+        this.imageUrl = this.labAccount.info.profile_image
+
+        const res = await fetch(this.imageUrl)
+        const blob = await res.blob() // Gets the response and returns it as a blob
+        const file = new File([blob], this.imageUrl.substring(21), {type: "image/jpeg"})
+        this.files = file
       }
     },
 

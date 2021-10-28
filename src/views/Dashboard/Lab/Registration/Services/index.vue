@@ -143,6 +143,7 @@
                     outlined
                     v-model="testResultSampleFile"
                     @change="fileUploadEventListener"
+                    show-size
                   ></v-file-input>
 
                   <v-btn
