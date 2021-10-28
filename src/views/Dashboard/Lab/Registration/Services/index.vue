@@ -2,7 +2,7 @@
   <div>
     <v-container>
       <v-row>
-        <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
+        <v-col cols="7">
           <v-card class="dg-card" elevation="0" outlined>
             <v-form ref="serviceForm">
               <v-card-text class="px-8 pb-8 pt-10">              
@@ -171,6 +171,11 @@
             @click="gotoDashboard"
           >Submit</v-btn>
         </v-col>
+        <v-col cols="5">
+          <Stepper
+            :stepper-items="stepperItems"
+          />
+        </v-col>
       </v-row>
     </v-container>
   </div>
@@ -182,6 +187,7 @@ import { upload } from "@/lib/ipfs"
 import { createService, updateService } from '@/lib/polkadotProvider/command/services'
 import { getCategories } from "@/lib/categories"
 import List from "./List"
+import Stepper from "../Stepper"
 import serviceHandler from "@/mixins/serviceHandler"
 
 
@@ -190,9 +196,12 @@ export default {
 
   mixins: [
     serviceHandler
-    ],
+  ],
 
-  components: { List },
+  components: { 
+    List,
+    Stepper
+  },
 
   data: () => ({
     category: '',
@@ -215,6 +224,10 @@ export default {
     selectExpectedDuration: 'WorkingDays',
     expectedDuration: '',
     isEdit: false,
+    stepperItems: [
+      { name: 'Lab Information', selected: true},
+      { name: 'Lab Verification', selected: false},
+    ]
   }),
 
   async mounted() {
@@ -305,6 +318,10 @@ export default {
     },
 
     gotoDashboard() {
+      this.stepperItems = [
+        { name: 'Lab Information', selected: true},
+        { name: 'Lab Verification', selected: true},
+      ]
       this.$router.push({ name: 'lab-dashboard' })
     },
 

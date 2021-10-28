@@ -2,7 +2,7 @@
   <div>
     <v-container>
       <v-row>
-        <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
+        <v-col cols="7">
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-text class="px-8 mt-5">
               <v-form
@@ -114,6 +114,11 @@
             @click="gotoServicesPage"
           >Next</v-btn>
         </v-col>
+        <v-col cols="5">
+          <Stepper
+            :stepper-items="stepperItems"
+          />
+        </v-col>
       </v-row>
     </v-container>
   </div>
@@ -126,6 +131,7 @@ import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile"
 import { getWalletAddress } from "@/lib/metamask/wallet"
 import { upload } from "@/lib/ipfs"
 import Certification from "./Certification"
+import Stepper from "./Stepper"
 import { getLocations, getStates, getCities } from "@/lib/location"
 import serviceHandler from "@/mixins/serviceHandler"
 
@@ -135,7 +141,10 @@ export default {
 
   mixins: [serviceHandler],
 
-  components: { Certification },
+  components: { 
+    Certification,
+    Stepper  
+  },
 
   async mounted() {
     await this.getCountries();
@@ -154,8 +163,11 @@ export default {
     address: "",
     imageUrl: "",
     files: [],
-    isLoading: false,
     isUploading: false,
+    stepperItems: [
+      { name: 'Lab Information', selected: true},
+      { name: 'Lab Verification', selected: false},
+    ]
   }),
 
   computed: {
