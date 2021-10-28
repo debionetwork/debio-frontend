@@ -319,6 +319,7 @@ export default {
             country: this.country,
             region: this.state,
             city: this.city,
+            profile_image: this.imageUrl
           },
           async () => {
             await setEthAddress(

@@ -170,7 +170,7 @@
             large
             class="mt-5 mb-3"
             :loading="isLoading || isUploading"
-            @click="dialogAlert = true"
+            @click="actionAlert"
           >Submit</v-btn>
         </v-col>
         <v-col cols="5">
@@ -338,11 +338,15 @@ export default {
     },
 
     gotoDashboard() {
+      this.$router.push({ name: 'lab-dashboard' })
+    },
+
+    actionAlert() {
       this.stepperItems = [
         { name: 'Lab Information', selected: true},
         { name: 'Lab Verification', selected: true},
       ]
-      this.$router.push({ name: 'lab-dashboard' })
+      this.dialogAlert = true
     },
 
     setServices() {
