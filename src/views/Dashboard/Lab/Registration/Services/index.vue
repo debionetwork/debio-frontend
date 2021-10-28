@@ -216,6 +216,7 @@ export default {
   },
 
   data: () => ({
+    serviceId: '',
     category: '',
     name: '',
     price: '',
@@ -359,6 +360,7 @@ export default {
     },
 
     async prefillServicesForm(service) {
+      this.serviceId = service.id
       this.name = service.info.name
       this.currencyType = service.info.prices_by_currency[0].currency.toUpperCase()
       this.price = service.info.prices_by_currency[0].price_components[0].value
@@ -375,6 +377,8 @@ export default {
       const blob = await res.blob() // Gets the response and returns it as a blob
       const file = new File([blob], service.info.test_result_sample.substring(21), {type: "application/pdf"})
       this.testResultSampleFile = file
+
+      this.isEdit = true
     },
 
     async triggerCreateOrUpdate() {
@@ -386,6 +390,7 @@ export default {
       
       if(this.isEdit) {
         await this.updateService()
+        this.isEdit = false
         return
       }
 
@@ -439,6 +444,7 @@ export default {
         updateService,
         this.api,
         this.pair,
+        this.serviceId,
         {
           name: this.name,
           prices_by_currency: [

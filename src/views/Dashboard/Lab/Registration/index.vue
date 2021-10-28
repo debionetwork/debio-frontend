@@ -133,7 +133,7 @@ import { upload } from "@/lib/ipfs"
 import Certification from "./Certification"
 import Stepper from "./Stepper"
 import { getLocations, getStates, getCities } from "@/lib/location"
-import serviceHandler from "@/mixins/serviceHandler"
+import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
 
 
 export default {
@@ -163,6 +163,7 @@ export default {
     address: "",
     imageUrl: "",
     files: [],
+    isLoading: false,
     isUploading: false,
     stepperItems: [
       { name: 'Lab Information', selected: true},
@@ -306,8 +307,7 @@ export default {
         const ethAddress = await getWalletAddress()
         const box_public_key = this.mnemonicData.publicKey
 
-        await this.dispatch(
-          registerLab,
+        await registerLab(
           this.api,
           this.pair,
           {
@@ -320,8 +320,7 @@ export default {
             city: this.city,
           },
           async () => {
-            await this.dispatch(
-              setEthAddress,
+            await setEthAddress(
               this.api,
               this.pair,
               ethAddress,
