@@ -94,8 +94,8 @@ const labRoutes = [
                 },
                 component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Registration'),
                 beforeEnter: (to, from, next) => {
-                  if(store.state.substrate.isLabAccountExist) next('/lab')
-                  else next()
+                  // if(store.state.substrate.isLabAccountExist) next('/lab')
+                  next()
                 }
             },
             // {

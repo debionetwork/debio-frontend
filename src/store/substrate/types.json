@@ -127,18 +127,18 @@
   "OrderOf": "Order",
   "OrderIdsOf": "Vec<H256>",
   "DnaSampleStatus": {
-  "_enum": [
-  "Registered",
-  "Arrived",
-  "Rejected",
-  "Success",
-  "Failed",
-  "QualityControlled",
-  "GenotypedSequenced",
-  "Reviewed",
-  "Computed",
-  "ResultReady"
-  ]
+    "_enum": [
+      "Registered",
+      "Arrived",
+      "Rejected",
+      "Success",
+      "Failed",
+      "QualityControlled",
+      "GenotypedSequenced",
+      "Reviewed",
+      "Computed",
+      "ResultReady"
+    ]
   },
   "DnaSampleTrackingId": "Text",
   "DnaSample": {
@@ -179,26 +179,26 @@
   },
   "EscrowOf": "Escrow",
   "Role": {
-  "_enum": [
-  "Customer",
-  "Lab",
-  "Hospital",
-  "Doctor"
-  ]
+    "_enum": [
+      "Customer",
+      "Lab",
+      "Hospital",
+      "Doctor"
+    ]
   },
   "ElectronicMedicalRecordFile": {
-  "id": "H256",
-  "owner_id": "AccountId",
-  "title": "Text",
-  "category": "Text",
-  "document_title": "Text",
-  "description": "Text",
-  "record_link": "Text",
-  "uploaded_at": "Moment"
+    "id": "H256",
+    "owner_id": "AccountId",
+    "title": "Text",
+    "description": "Text",
+    "record_link": "Text",
+    "uploaded_at": "Moment"
   },
   "ElectronicMedicalRecord": {
-  "owner_id": "AccountId",
-  "info": "Vec<H256>"
+    "owner_id": "AccountId",
+    "title": "Text",
+    "category": "Text",
+    "info": "Vec<H256>"
   },
   "ElectronicMedicalRecordOf": "ElectronicMedicalRecord",
   "ElectronicMedicalRecordFileOf": "ElectronicMedicalRecordFile",
@@ -309,4 +309,5 @@
   "next_fact_sequence": "u32",
   "observations": "Vec<Observation<AccountId>>"
   }
-  }
+}
+  
