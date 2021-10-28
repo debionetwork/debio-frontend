@@ -78,10 +78,6 @@ export default {
     }),
   },
 
-  data: () => ({
-    isLoading: false,
-  }),
-
   methods: {
     addService() {
       this.$emit('add-service')
@@ -94,8 +90,12 @@ export default {
     async deleteService(service) {
       const isConfirmed = confirm("Are you sure you want to delete this service?")
       if (isConfirmed) {
+        this.$emit('delete-service', true)
         await this.dispatch(deleteService, this.api, this.pair, service.id, () => {
-          if(this.labAccount.services.length == 0) this.$store.state.substrate.isServicesExist = false
+          if(this.labAccount.services.length == 0) {
+            this.$store.state.substrate.isServicesExist = false
+            this.$emit('delete-service', false)
+          }
         })
       }
     },

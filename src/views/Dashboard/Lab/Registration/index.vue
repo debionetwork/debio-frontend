@@ -107,6 +107,7 @@
 
           <v-btn
             :disabled="!isLabAccountExist"
+            :loading="isLoading || isUploading"
             color="primary"
             block
             large

@@ -160,6 +160,7 @@
           <List 
             @add-service="clearServicesForm"
             @edit-service="prefillServicesForm"
+            @delete-service="setDeleteLoading"
           />
 
           <v-btn
@@ -168,6 +169,7 @@
             block
             large
             class="mt-5 mb-3"
+            :loading="isLoading || isUploading"
             @click="dialogAlert = true"
           >Submit</v-btn>
         </v-col>
@@ -329,6 +331,10 @@ export default {
     async getServiceCategory() {
       const { data : data } = await getCategories()
       this.listCategories =  data
+    },
+
+    setDeleteLoading(isLoading){
+      this.isLoading = isLoading
     },
 
     gotoDashboard() {
