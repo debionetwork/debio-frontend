@@ -16,7 +16,7 @@ const labRoutes = [
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab'),
               beforeEnter: (to, from, next) => {
                 // Set drawer buttons here to make it dynamic :)
-                if(!store.state.substrate.isLabAccountExist){
+                if(!store.state.substrate.isServicesExist){
                   to.meta.drawerButtons = [
                     { text: "Dashboard", active: true, disabled: false, route: { name: "lab-dashboard" } },
                     { text: "Account" },
@@ -76,6 +76,7 @@ const labRoutes = [
                 component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Registration'),
                 beforeEnter: (to, from, next) => {
                   if(store.state.substrate.isLabAccountExist) next('/lab/registration/services')
+                  else if(store.state.substrate.isServicesExist) next('/lab')
                   else next()
                 }
             },
@@ -98,7 +99,8 @@ const labRoutes = [
                 },
                 component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Registration/Services'),
                 beforeEnter: (to, from, next) => {
-                  if(store.state.substrate.isServicesExist) next('/lab')
+                  if(!store.state.substrate.isLabAccountExist) next('/lab/registration')
+                  else if(store.state.substrate.isServicesExist) next('/lab')
                   else next()
                 }
             },

@@ -151,16 +151,15 @@
                     large
                     :disabled="isUploading"
                     :loading="isLoading"
-                    @click="gotoDashboard"
+                    @click="triggerCreateOrUpdate"
                   >Submit</v-btn>
               </v-card-text>
             </v-form>
           </v-card>
 
           <List 
-            @add-service="createService"
-            @edit-service="createService"
-            @delete-service="createService"
+            @add-service="clearServicesForm"
+            @edit-service="prefillServicesForm"
           />
 
           <v-btn
@@ -180,16 +179,18 @@
 <script>
 import { mapGetters } from 'vuex'
 import { upload } from "@/lib/ipfs"
-import { createService } from '@/lib/polkadotProvider/command/services'
+import { createService, updateService } from '@/lib/polkadotProvider/command/services'
 import { getCategories } from "@/lib/categories"
 import List from "./List"
-import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
+import serviceHandler from "@/mixins/serviceHandler"
 
 
 export default {
   name: 'LabRegistrationServices',
 
-  mixins: [serviceHandler],
+  mixins: [
+    serviceHandler
+    ],
 
   components: { List },
 
@@ -213,10 +214,10 @@ export default {
     listExpectedDuration: ['WorkingDays', 'Hours', 'Days'],
     selectExpectedDuration: 'WorkingDays',
     expectedDuration: '',
+    isEdit: false,
   }),
 
   async mounted() {
-    this.prefillValues()
     await this.getServiceCategory()
   },
 
@@ -303,44 +304,67 @@ export default {
       this.listCategories =  data
     },
 
-    prefillValues() {
-      const checkQuery = Object.keys(this.$route.query).length
-      if (!checkQuery) return
-
-      const {
-        name,
-        category,
-        qcValue,
-        currencyValue,
-        currencyType,
-        descriptionShort,
-        descriptionLong,
-        durationType,
-        durationValue
-      } = this.$route.query
-
-      this.name = name
-      this.category = category
-      this.price = currencyValue
-      this.qcPrice = qcValue
-      this.description = descriptionShort
-      this.longDescription = descriptionLong
-      this.currencyType = currencyType
-      this.selectExpectedDuration = durationType
-      this.expectedDuration = durationValue
-    },
-
     gotoDashboard() {
       this.$router.push({ name: 'lab-dashboard' })
     },
 
-    async createService() {
+    setServices() {
+      this.$store.state.substrate.isServicesExist = true
+    },
+
+    clearServicesForm() {
+      this.$refs.serviceForm.resetValidation()
+      this.name = ''
+      this.currencyType = 'DAI'
+      this.price = ''
+      this.qcPrice = ''
+      this.expectedDuration = ''
+      this.selectExpectedDuration = 'WorkingDays'
+      this.category = ''
+      this.description = ''
+      this.testResultSampleUrl = ''
+      this.longDescription = ''
+      this.imageUrl = ''
+      this.testResultSampleFile = []
+    },
+
+    async prefillServicesForm(service) {
+      this.name = service.info.name
+      this.currencyType = service.info.prices_by_currency[0].currency.toUpperCase()
+      this.price = service.info.prices_by_currency[0].price_components[0].value
+      this.qcPrice = service.info.prices_by_currency[0].additional_prices[0].value
+      this.expectedDuration = service.info.expected_duration.duration
+      this.selectExpectedDuration = service.info.expected_duration.duration_type
+      this.category = service.info.category
+      this.description = service.info.description
+      this.testResultSampleUrl = service.info.test_result_sample
+      this.longDescription = service.info.long_description
+      this.imageUrl = service.info.image
+
+      const res = await fetch(service.info.test_result_sample)
+      const blob = await res.blob() // Gets the response and returns it as a blob
+      const file = new File([blob], service.info.test_result_sample.substring(21), {type: "application/pdf"})
+      this.testResultSampleFile = file
+    },
+
+    async triggerCreateOrUpdate() {
       if(this.isLoading) return // If function already running return.
       if (!this.$refs.serviceForm.validate()) {
         return
       }
       this.isLoading = true
-      await createService(
+      
+      if(this.isEdit) {
+        await this.updateService()
+        return
+      }
+
+      await this.createService()
+    },
+
+    async createService() {
+      await this.dispatch(
+        createService,
         this.api,
         this.pair,
         {
@@ -373,13 +397,58 @@ export default {
           image: this.imageUrl,
         },
         () => {
-          this.$router.push('/lab/services')
+          this.setServices()
           this.isLoading = false
+          this.clearServicesForm()
+        }
+      )
+    },
+
+    async updateService() {
+      await this.dispatch(
+        updateService,
+        this.api,
+        this.pair,
+        {
+          name: this.name,
+          prices_by_currency: [
+            {
+              currency: this.currencyType,
+              price_components: [
+                {
+                  component: "component_1",
+                  value: this.price
+                }
+              ],
+              additional_prices: [
+                {
+                  component: "qc_component",
+                  value: this.qcPrice
+                }
+              ],
+            },
+          ],
+          expected_duration: { 
+            duration: this.expectedDuration, 
+            duration_type: this.selectExpectedDuration
+          },
+          category: this.category,
+          description: this.description,
+          test_result_sample: this.testResultSampleUrl,
+          long_description: this.longDescription,
+          image: this.imageUrl,
+        },
+        () => {
+          this.isLoading = false
+          this.clearServicesForm()
         }
       )
     },
 
     imageUploadEventListener(file) {
+      if(!file || file.length === 0) {
+        return
+      }
       this.isUploading = true
       this.isLoading = true
       this.imageUrl = ""
@@ -406,7 +475,7 @@ export default {
     },
 
     fileUploadEventListener(file) {
-      if (!file || file.size >= 2000000) {
+      if (!file || file.size >= 2000000 || file.length === 0) {
         return
       }
       this.isUploading = true

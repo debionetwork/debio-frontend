@@ -61,9 +61,13 @@
 
 <script>
 import { mapGetters } from "vuex"
+import serviceHandler from "@/mixins/serviceHandler"
+import { deleteService } from "@/lib/polkadotProvider/command/services"
 
 export default {
   name: 'Service',
+  
+  mixins: [serviceHandler],
 
   computed: {
     ...mapGetters({
@@ -74,9 +78,9 @@ export default {
     }),
   },
 
-  props: {
-    isLoading: Boolean,
-  },
+  data: () => ({
+    isLoading: false,
+  }),
 
   methods: {
     addService() {
@@ -87,8 +91,13 @@ export default {
       this.$emit('edit-service', service)
     },
 
-    deleteService(service) {
-      this.$emit('delete-service', service)
+    async deleteService(service) {
+      const isConfirmed = confirm("Are you sure you want to delete this service?")
+      if (isConfirmed) {
+        await this.dispatch(deleteService, this.api, this.pair, service.id, () => {
+          if(this.labAccount.services.length == 0) this.$store.state.substrate.isServicesExist = false
+        })
+      }
     },
   }
 }

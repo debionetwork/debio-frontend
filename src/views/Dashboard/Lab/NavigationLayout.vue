@@ -33,7 +33,7 @@
 
     <NavigationDrawer width="200" />
 
-    <v-main class="main" v-if="!isLabAccountExist && isLabDashboard">
+    <v-main class="main" v-if="!isServicesExist && isLabDashboard">
       <router-view></router-view>
     </v-main>
 
@@ -123,7 +123,7 @@ export default {
       pair: "substrate/wallet",
     }),
     ...mapState({
-      isLabAccountExist: (state) => state.substrate.isLabAccountExist,
+      isServicesExist: (state) => state.substrate.isServicesExist,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
       lastEventData: (state) => state.substrate.lastEventData,

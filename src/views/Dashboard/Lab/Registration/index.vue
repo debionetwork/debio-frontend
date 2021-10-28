@@ -127,7 +127,7 @@ import { getWalletAddress } from "@/lib/metamask/wallet"
 import { upload } from "@/lib/ipfs"
 import Certification from "./Certification"
 import { getLocations, getStates, getCities } from "@/lib/location"
-import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
+import serviceHandler from "@/mixins/serviceHandler"
 
 
 export default {
@@ -294,7 +294,8 @@ export default {
         const ethAddress = await getWalletAddress()
         const box_public_key = this.mnemonicData.publicKey
 
-        await registerLab(
+        await this.dispatch(
+          registerLab,
           this.api,
           this.pair,
           {
@@ -307,7 +308,8 @@ export default {
             city: this.city,
           },
           async () => {
-            await setEthAddress(
+            await this.dispatch(
+              setEthAddress,
               this.api,
               this.pair,
               ethAddress,
