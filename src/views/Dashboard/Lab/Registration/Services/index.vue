@@ -168,7 +168,7 @@
             block
             large
             class="mt-5 mb-3"
-            @click="gotoDashboard"
+            @click="dialogAlert = true"
           >Submit</v-btn>
         </v-col>
         <v-col cols="5">
@@ -178,6 +178,16 @@
         </v-col>
       </v-row>
     </v-container>
+
+    <DialogAlert
+      :show="dialogAlert"
+      btnText="Continue"
+      textAlert="You have been submitted your lab registration request, we will inform you as soon as possible"
+      imgPath="success.png"
+      imgWidth="75"
+      @toggle="dialogAlert = $event"
+      @close="gotoDashboard"
+    ></DialogAlert>
   </div>
 </template>
 
@@ -188,6 +198,7 @@ import { createService, updateService } from '@/lib/polkadotProvider/command/ser
 import { getCategories } from "@/lib/categories"
 import List from "./List"
 import Stepper from "../Stepper"
+import DialogAlert from "@/components/Dialog/DialogAlert"
 import serviceHandler from "@/mixins/serviceHandler"
 
 
@@ -200,7 +211,8 @@ export default {
 
   components: { 
     List,
-    Stepper
+    Stepper,
+    DialogAlert,
   },
 
   data: () => ({
@@ -227,7 +239,8 @@ export default {
     stepperItems: [
       { name: 'Lab Information', selected: true},
       { name: 'Lab Verification', selected: false},
-    ]
+    ],
+    dialogAlert: false,
   }),
 
   async mounted() {
