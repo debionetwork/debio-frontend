@@ -51,6 +51,7 @@
                     :disabled="!isEditable"
                     @change="fileUploadEventListener"
                     :rules="rules"
+                    v-model="files"
                     show-size
                   ></v-file-input>
                 </v-container>
@@ -171,6 +172,7 @@ export default {
     countries: [],
     states: [],
     cities: [],
+    files: [],
     isEditable: false,
     isUploading: false
   }),
@@ -223,6 +225,11 @@ export default {
     await this.onCountryChange(labInfo.country)
     await this.onStateChange(labInfo.region) // Region means the state, backend response got region instead state
     await this.onCityChange({ name: labInfo.city })
+
+    const res = await fetch(this.imageUrl)
+    const blob = await res.blob() // Gets the response and returns it as a blob
+    const file = new File([blob], this.imageUrl.substring(21), {type: "image/jpeg"})
+    this.files = file
   },
 
   methods: {

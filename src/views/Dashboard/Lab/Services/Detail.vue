@@ -42,6 +42,8 @@
                     v-model="category"
                     outlined
                     :items="listCategories"
+                    item-text="service_categories"
+                    item-value="service_categories"
                     :rules="[val => !!val || 'Category is Required']"
                     ></v-select>
 
@@ -172,10 +174,12 @@
 <script>
 import { mapGetters } from 'vuex'
 import { upload } from "@/lib/ipfs"
+import { getCategories } from "@/lib/categories"
 import { updateService } from '@/lib/polkadotProvider/command/services'
 
 export default {
   name: 'EditLabServices',
+
   data: () => ({
     name: "",
     category: "",
@@ -193,23 +197,16 @@ export default {
     currencyList: ['DAI', 'Ethereum'],
     currencyType: "",
     listExpectedDuration: ['WorkingDays', 'Hours', 'Days'],
+    listCategories: [],
     selectExpectedDuration: "",
     expectedDuration: "",
     rules: [
       value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
     ],
   }),
-  mounted(){
-    this.listCategories = [
-      "Bioinformatics Data Analysis Support & Genetic Counseling", 
-      "Covid-19 Testing", 
-      "Single Nucleotide Polymorphism (SNP) Microarray", 
-      "Targeted Gene Panel Sequencing",
-      "Whole-Exome Sequencing",
-      "Whole-Genome Sequencing",
-      "Whole-Transcriptome Sequencing",
-      "Others"
-    ]
+
+  async mounted(){
+    await this.getServiceCategory()
     const item = this.$route.params.item
     this.id = item.id
     this.name = item.info.name
@@ -240,13 +237,23 @@ export default {
       });
     }
   },
+
   computed: {
+
     ...mapGetters({
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
     }),
+
   },
+
   methods: {
+
+    async getServiceCategory() {
+      const { data : data } = await getCategories()
+      this.listCategories =  data
+    },
+
     async updateService() {
       if(this.isLoading) return // If function already running return.
       if (!this.$refs.addServiceForm.validate()) {
@@ -292,6 +299,7 @@ export default {
         }
       )
     },
+
     imageUploadEventListener(file) {
       this.isUploading = true
       this.isLoading = true
@@ -317,6 +325,7 @@ export default {
         })
       }
     },
+
     fileUploadEventListener(file) {
       if (!file || file.size >= 2000000) {
         return
@@ -345,9 +354,11 @@ export default {
         })
       }
     },
+
     selectPicture() {
       this.$refs.fileInput.$refs.input.click()
     },
+
   },
 }
 </script>
