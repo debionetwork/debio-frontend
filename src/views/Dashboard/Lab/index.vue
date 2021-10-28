@@ -13,14 +13,14 @@
 </style>
 
 <template>
-   <v-container :class="!isLabAccountExist ? 'center-all' : ''">
+   <v-container :class="!isServicesExist ? 'center-all' : ''">
        <v-container
-        v-if="!isLabAccountExist"
+        v-if="!isServicesExist"
         >
          <h1 class="title-text-color">You don't have a lab account yet</h1>
          <v-btn
           color="primary"
-          @click="$router.push({name:'lab-registration'})"
+           to="/lab/registration"
         >Register Now!</v-btn>
        </v-container>
        <v-row v-else>
@@ -98,7 +98,7 @@ export default {
   },
   computed: {
     ...mapState({
-      isLabAccountExist: (state) => state.substrate.isLabAccountExist,
+      isServicesExist: (state) => state.substrate.isServicesExist,
     }),
   },
 }

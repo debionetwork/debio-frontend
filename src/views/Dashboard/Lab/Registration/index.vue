@@ -2,7 +2,7 @@
   <div>
     <v-container>
       <v-row>
-        <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
+        <v-col cols="7">
           <v-card class="dg-card" elevation="0" outlined>
             <v-card-text class="px-8 mt-5">
               <v-form
@@ -14,6 +14,7 @@
                 placeholder="Email"
                 outlined
                 v-model="email"
+                :disabled="isLabAccountExist"
                 :rules="emailRules"
                 ></v-text-field>
               
@@ -23,6 +24,7 @@
                 placeholder="Lab Name"
                 outlined
                 v-model="labName"
+                :disabled="isLabAccountExist"
                 :rules="nameRules"
                 ></v-text-field>
 
@@ -35,6 +37,7 @@
                 :label="computeCountryLabel"
                 outlined
                 v-model="country"
+                :disabled="isLabAccountExist"
                 :rules="[val => !!val || 'Country is Required']"
               ></v-autocomplete>
 
@@ -45,7 +48,7 @@
                 item-value="state_code"
                 @change="onStateChange"
                 :label="computeStateLabel"
-                :disabled="!country"
+                :disabled="!country || isLabAccountExist"
                 outlined
                 v-model="state"
                 :rules="[val => !!val || 'Region is Required']"
@@ -59,7 +62,7 @@
                 return-object
                 @change="onCityChange"
                 :label="computeCityLabel"
-                :disabled="!state"
+                :disabled="!state || isLabAccountExist"
                 outlined
                 v-model="city"
                 :rules="[val => !!val || 'City is Required']"
@@ -72,6 +75,7 @@
                 outlined
                 v-model="address"
                 :rules="addressRules"
+                :disabled="isLabAccountExist"
                 ></v-text-field>
 
                 <v-file-input
@@ -83,6 +87,8 @@
                   v-model="files"
                   @change="fileUploadEventListener"
                   :rules="fileInputRules"
+                  :disabled="isLabAccountExist"
+                  show-size
                   accept="image/png, image/jpeg"
                 ></v-file-input>
 
@@ -90,13 +96,30 @@
                   color="primary"
                   block
                   large
-                  :disabled="isUploading"
+                  :disabled="isUploading || isLabAccountExist"
                   :loading="isLoading || isUploading"
                   @click="registerLab"
                 >Submit</v-btn>
               </v-form>
             </v-card-text>
           </v-card>
+
+          <Certification />
+
+          <v-btn
+            :disabled="!isLabAccountExist"
+            :loading="isLoading || isUploading"
+            color="primary"
+            block
+            large
+            class="mt-5 mb-3"
+            @click="gotoServicesPage"
+          >Next</v-btn>
+        </v-col>
+        <v-col cols="5">
+          <Stepper
+            :stepper-items="stepperItems"
+          />
         </v-col>
       </v-row>
     </v-container>
@@ -109,13 +132,26 @@ import { registerLab } from "@/lib/polkadotProvider/command/labs"
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile"
 import { getWalletAddress } from "@/lib/metamask/wallet"
 import { upload } from "@/lib/ipfs"
+import Certification from "./Certification"
+import Stepper from "./Stepper"
 import { getLocations, getStates, getCities } from "@/lib/location"
 import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
 
 
 export default {
   name: 'LabRegistration',
+
   mixins: [serviceHandler],
+
+  components: { 
+    Certification,
+    Stepper  
+  },
+
+  async mounted() {
+    await this.getCountries();
+    await this.setData();
+  },
 
   data: () => ({
     country: "",
@@ -131,6 +167,10 @@ export default {
     files: [],
     isLoading: false,
     isUploading: false,
+    stepperItems: [
+      { name: 'Lab Information', selected: true},
+      { name: 'Lab Verification', selected: false},
+    ]
   }),
 
   computed: {
@@ -200,11 +240,31 @@ export default {
     }
   },
 
-  async mounted() {
-    await this.getCountries();
-  },
-
   methods: {
+    gotoServicesPage() {
+      this.$router.push({ name: "lab-registration-services" })
+    },
+
+    async setData() {
+      if(this.isLabAccountExist){
+        this.labName = this.labAccount.info.name
+        this.email = this.labAccount.info.email
+        this.address = this.labAccount.info.address
+        this.country = this.labAccount.info.country
+        await this.onCountryChange(this.country)
+        this.state = this.labAccount.info.region
+        await this.onStateChange(this.labAccount.info.region) // Region means the state, backend response got region instead state
+        this.city = this.labAccount.info.city
+        await this.onCityChange({ name: this.labAccount.info.city })
+        this.imageUrl = this.labAccount.info.profile_image
+
+        const res = await fetch(this.imageUrl)
+        const blob = await res.blob() // Gets the response and returns it as a blob
+        const file = new File([blob], this.imageUrl.substring(21), {type: "image/jpeg"})
+        this.files = file
+      }
+    },
+
     setLabAccount(labAccount) {
       this.$store.state.substrate.labAccount = labAccount
       this.$store.state.substrate.isLabAccountExist = true
@@ -265,6 +325,7 @@ export default {
             country: this.country,
             region: this.state,
             city: this.city,
+            profile_image: this.imageUrl
           },
           async () => {
             await setEthAddress(
@@ -288,7 +349,6 @@ export default {
                   }
                 }
                 this.setLabAccount(labAccount)
-                this.$router.push('/lab/account')
               }
             )
           }
