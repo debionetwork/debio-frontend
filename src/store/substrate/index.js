@@ -1,6 +1,6 @@
 import types from "./types.json"
 import store from "@/store/index"
-import Kilt from "@kiltprotocol/sdk-js"
+import CryptoJS from 'crypto-js'
 import { u8aToHex } from "@polkadot/util" // u8aToString, stringToU8a
 import keyring from "@polkadot/ui-keyring"
 import { Keyring } from "@polkadot/keyring"
@@ -152,18 +152,8 @@ export default {
         commit('SET_WALLET', pair) // FIXME: simpen untuk dev
         commit('SET_LOADING_WALLET', false)
 
-        const identity = await Kilt.Identity.buildFromMnemonic(mnemonic);
-        const privateKey = u8aToHex(identity.boxKeyPair.secretKey)
-        const publicKey = u8aToHex(identity.boxKeyPair.publicKey)
-        const encryptedMnemonic = await Kilt.Utils.Crypto.encryptAsymmetricAsStr(mnemonic, publicKey, privateKey)
-        const dataMnemonic = {
-          privateKey,
-          publicKey,
-          mnemonic: encryptedMnemonic
-        };
-
-        localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(dataMnemonic));
-        commit('SET_MNEMONIC_DATA', dataMnemonic)
+        localStorage.setLocalStorageByName("mnemonic_data", CryptoJS.AES.encrypt(mnemonic, password));
+        commit('SET_MNEMONIC_DATA', mnemonic)
         return { success: true }
       } catch (err) {
         console.log(err)
@@ -203,11 +193,6 @@ export default {
           commit('SET_WALLET', pair)
 
           return { success: true }
-          /*
-          localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(file[1]));
-          commit('SET_MNEMONIC_DATA', file[1])
-          commit('SET_LOADING_WALLET', false)
-          */
         }
 
       } catch (err) {
@@ -216,19 +201,19 @@ export default {
         return { success: false, error: err.message }
       }
     },
-    async getAkun({ commit, state }, { address }) {
+    getEncryptedAccountData({ commit }, { password }) {
+      const encryptedMnemonic = localStorage.getLocalStorageByName("mnemonic_data");
+      if (encryptedMnemonic != null) {
+        commit('SET_MNEMONIC_DATA', CryptoJS.AES.decrypt(encryptedMnemonic, password));
+      }
+    },
+    async getAllAccounts({ commit, state }, { address }) {
       try {
         commit('SET_LOADING_WALLET', true)
         const pair = keyring.getPair(address);
         commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
         commit('SET_WALLET', pair)
         commit('SET_LOADING_WALLET', false)
-
-        const dataMnemonicJson = localStorage.getLocalStorageByName("mnemonic_data");
-        if (dataMnemonicJson != null && dataMnemonicJson != "") {
-          const dataMnemonic = JSON.parse(dataMnemonicJson);
-          commit('SET_MNEMONIC_DATA', dataMnemonic);
-        }
 
         commit('SET_LAB_ACCOUNT', null)
         commit('SET_IS_LAB_ACCOUNT_EXIST', false)

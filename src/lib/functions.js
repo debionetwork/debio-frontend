@@ -20,7 +20,7 @@ const globalFunctions = {
       if (isLoggedIn) {
         if (wallet == null) {
           if (address != "") {
-            await store.dispatch('substrate/getAkun', {
+            await store.dispatch('substrate/getAllAccounts', {
               address: address
             })
           }
@@ -35,7 +35,7 @@ const globalFunctions = {
       if (isLoggedIn) {
         if (wallet == null) {
           if (address != "") {
-            await store.dispatch('substrate/getAkun', {
+            await store.dispatch('substrate/getAllAccounts', {
               address: address
             })
           }

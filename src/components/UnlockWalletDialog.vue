@@ -46,6 +46,7 @@
 import { mapGetters } from 'vuex'
 import Dialog from './Dialog'
 import Button from './Button'
+import store from '@/store/index'
 
 export default {
   name: 'UnlockWalletDialog',
@@ -87,6 +88,10 @@ export default {
 
       try {
         this.pair.unlock(this.password)
+
+        await store.dispatch('substrate/getEncryptedAccountData', {
+          password: this.password
+        })
 
         this.isLoading = false
         this.password = ''
