@@ -168,9 +168,6 @@ export default {
       api: (state) => state.substrate.api,
     }),
   },
-  async mounted() {
-    await this.getKeyStoreLocal();
-  },
   methods: {
     ...mapActions({
       restoreAccountKeystore: "substrate/restoreAccountKeystore",
@@ -178,24 +175,6 @@ export default {
     ...mapMutations({
       setIsLoading: "substrate/SET_LOADING_WALLET",
     }),
-    async getKeyStoreLocal() {
-      try {
-        this.loading = true;
-        this.dataAccountJson = localStorage.getKeystore();
-        this.dataAccount = JSON.parse(this.dataAccountJson);
-        const { nonce, data: balance } = await this.api.query.system.account(
-          this.dataAccount.address
-        );
-        this.balance = balance.free.toHuman();
-        this.nonce = nonce;
-        this.dataMnemonicJson =
-          localStorage.getLocalStorageByName("mnemonic_data");
-        this.loading = false;
-      } catch (err) {
-        console.log(err);
-        this.loading = false;
-      }
-    },
     setKeystore() {
       this.keystore = this.dataAccountJson;
       this.fileName = "keystore";

@@ -111,7 +111,7 @@
             block
             large
             class="mt-5 mb-3"
-            @click="addServices"
+            @click="gotoServicesPage"
           >Next</v-btn>
         </v-col>
       </v-row>
@@ -226,8 +226,8 @@ export default {
   },
 
   methods: {
-    addServices() {
-
+    gotoServicesPage() {
+      this.$router.push({ name: "lab-registration-services" })
     },
 
     async setData() {

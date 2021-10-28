@@ -29,6 +29,7 @@ const defaultState = {
   walletPublicKey: '',
   labAccount: null,
   isLabAccountExist: false,
+  isServicesExist: false,
   doctorAccount: null,
   isDoctorAccountExist: false,
   hospitalAccount: null,
@@ -60,6 +61,9 @@ export default {
     },
     SET_IS_LAB_ACCOUNT_EXIST(state, isLabAccountExist) {
       state.isLabAccountExist = isLabAccountExist
+    },
+    SET_IS_SERVICES_EXIST(state, isServicesExist) {
+      state.isServicesExist = isServicesExist
     },
     SET_DOCTOR_ACCOUNT(state, doctorAccount) {
       state.doctorAccount = doctorAccount
@@ -111,7 +115,7 @@ export default {
           provider: wsProvider,
           types: types
         })
-
+        
         // Example of how to subscribe to events via storage
         api.query.system.events((events) => {
           console.log(`\nReceived ${events.length} events:`);
@@ -221,6 +225,10 @@ export default {
         if (labAccount) {
           commit('SET_LAB_ACCOUNT', labAccount)
           commit('SET_IS_LAB_ACCOUNT_EXIST', true)
+          
+          if(labAccount.services.length) {
+            commit('SET_IS_SERVICES_EXIST', true)
+          }
         }
 
         commit('SET_DOCTOR_ACCOUNT', null)
@@ -255,6 +263,10 @@ export default {
         if (labAccount) {
           commit('SET_LAB_ACCOUNT', labAccount)
           commit('SET_IS_LAB_ACCOUNT_EXIST', true)
+
+          if(labAccount.services.length) {
+            commit('SET_IS_SERVICES_EXIST', true)
+          }
         }
 
         return { success: true }
@@ -433,6 +445,9 @@ export default {
     },
     isLabAccountExist(state) {
       return state.isLabAccountExist
+    },
+    isServicesExist(state) {
+      return state.isServicesExist
     },
     doctorAccount(state) {
       return state.doctorAccount
