@@ -124,6 +124,24 @@
           "identity": 1
         }
       },
+      "labs": {
+        "LabRegistered": {
+          "message": "Your verification request has been submitted.",
+          "value": 0,
+          "value_message": "",
+          "route": "",
+          "params": "",
+          "identity": 1
+        },
+        "LabUpdateVerificationStatus": {
+          "message": "Your account has been",
+          "value": 0,
+          "value_message": "",
+          "route": "",
+          "params": "",
+          "identity": 1
+        }
+      },
       "orders": {
         "OrderPaid": {
           "message": "New order in.",
