@@ -11,6 +11,19 @@
 <template>
   <div>
     <v-container>
+      <v-dialog v-model="showModalAlert" persistent width="500">
+        <v-card>
+          <v-card-title>Your laboratory account is not verified yet</v-card-title>
+          <v-card-subtitle>
+            Verify your email 
+            <strong class="primary--text">{{ currentEmail }}</strong> 
+            first to add the services
+          </v-card-subtitle>
+          <v-card-actions>
+            <v-btn block color="primary" @click="$router.push({ name: 'lab-dashboard-services' })">Close</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <v-row>
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
             <v-card class="dg-card" elevation="0" outlined>
@@ -173,10 +186,11 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
 import { createService } from '@/lib/polkadotProvider/command/services'
 import { getCategories } from "@/lib/categories"
+import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 
 export default {
   name: 'AddLabServices',
@@ -189,11 +203,13 @@ export default {
     longDescription: '',
     imageUrl: "",
     testResultSampleUrl: "",
+    currentEmail: "",
     files: [],
     testResultSampleFile:[],
     listCategories:[],
     sampleFiles:[],
     isLoading: false,
+    showModalAlert: false,
     isUploading: false,
     currencyList: ['DAI', 'Ethereum'],
     currencyType: 'DAI',
@@ -208,9 +224,9 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
+    ...mapState({
+      api: (state) => state.substrate.api,
+      pair: (state) => state.substrate.wallet,
     }),
 
     serviceCategoryRules() {
@@ -280,6 +296,14 @@ export default {
       ]
     },
 
+  },
+
+  async created() {
+    const { verification_status, info: { email } } = await queryLabsById(this.api, this.pair.address)
+    if (verification_status && verification_status !== "Unverified") return
+
+    this.currentEmail = email
+    this.showModalAlert = true
   },
 
   methods: {
