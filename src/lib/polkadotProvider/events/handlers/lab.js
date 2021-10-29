@@ -13,6 +13,13 @@ const defaultHandler = {
 }
 
 const handler = {
+	labs: async (dataEvent, value, valueMessage) => {
+		const data = dataEvent;
+		const id = data[value];
+		const params = { number: id };
+		const wording = valueMessage
+		return { data, id, params, wording }
+	},
 	balances: async (dataEvent, value, valueMessage) => {
 		const data = dataEvent;
 		const id = data[value];

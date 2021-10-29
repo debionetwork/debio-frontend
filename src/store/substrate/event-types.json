@@ -124,6 +124,16 @@
           "identity": 1
         }
       },
+      "labs": {
+        "LabRegistered": {
+          "message": "Congratulations your curation request has been submitted!",
+          "value": 0,
+          "value_message": "",
+          "route": "",
+          "params": "",
+          "identity": 1
+        }
+      },
       "orders": {
         "OrderPaid": {
           "message": "New order in.",
