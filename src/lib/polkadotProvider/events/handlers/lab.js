@@ -17,7 +17,16 @@ const handler = {
 		const data = dataEvent;
 		const id = data[value];
 		const params = { number: id };
-		const wording = valueMessage
+		let wording = valueMessage
+
+		if (data.section == "LabUpdateVerificationStatus") {
+			const lab = data.data[0].toHuman()
+			if (lab.verification_status == "Verified") {
+				wording = `Congrats! ${wording}`
+			}
+			wording = `${wording} ${lab.verification_status.toLowerCase()}`
+		}
+		
 		return { data, id, params, wording }
 	},
 	balances: async (dataEvent, value, valueMessage) => {
