@@ -442,6 +442,7 @@ export default {
           long_description: this.longDescription,
           image: this.imageUrl,
         },
+        "RequestTest",
         () => {
           this.setServices()
           this.isLoading = false
