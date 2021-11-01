@@ -10,119 +10,128 @@
   "CountryRegionCode": "Text",
   "CityCode": "Text",
   "LabVerificationStatus": {
-  "_enum": [
-  "Unverified",
-  "Verified",
-  "Rejected",
-  "Revoked"
-  ]
+    "_enum": [
+      "Unverified",
+      "Verified",
+      "Rejected",
+      "Revoked"
+    ]
   },
   "LabInfo": {
-  "box_public_key": "H256",
-  "name": "Text",
-  "email": "Text",
-  "country": "Text",
-  "region": "Text",
-  "city": "Text",
-  "address": "Text",
-  "latitude": "Option<Text>",
-  "longitude": "Option<Text>",
-  "profile_image": "Option<Text>"
+    "box_public_key": "H256",
+    "name": "Text",
+    "email": "Text",
+    "country": "Text",
+    "region": "Text",
+    "city": "Text",
+    "address": "Text",
+    "phone_number": "Text",
+    "website": "Text",
+    "latitude": "Option<Text>",
+    "longitude": "Option<Text>",
+    "profile_image": "Option<Text>"
   },
   "Lab": {
-  "account_id": "AccountId",
-  "services": "Vec<H256>",
-  "certifications": "Vec<H256>",
-  "verification_status": "LabVerificationStatus",
-  "info": "LabInfo"
+    "account_id": "AccountId",
+    "services": "Vec<H256>",
+    "certifications": "Vec<H256>",
+    "verification_status": "LabVerificationStatus",
+    "info": "LabInfo"
   },
   "LabOf": "Lab",
   "Price": {
-  "component": "Text",
-  "value": "u128"
+    "component": "Text",
+    "value": "u128"
   },
   "CurrencyType": {
-  "_enum": [
-  "Dai",
-  "Ethereum"
-  ]
+    "_enum": [
+      "DAI",
+      "ETH"
+    ]
   },
   "PriceByCurrency": {
-  "currency": "CurrencyType",
-  "total_price": "u128",
-  "price_components": "Vec<Price>",
-  "additional_prices": "Vec<Price>"
+    "currency": "CurrencyType",
+    "total_price": "u128",
+    "price_components": "Vec<Price>",
+    "additional_prices": "Vec<Price>"
   },
   "ServiceInfo": {
-  "name": "Text",
-  "prices_by_currency": "Vec<PriceByCurrency>",
-  "expected_duration": "ExpectedDuration",
-  "category": "Text",
-  "description": "Text",
-  "test_result_sample": "Text",
-  "long_description": "Option<Text>",
-  "image": "Option<Text>",
-  "dna_collection_process": "Option<Text>"
+    "name": "Text",
+    "prices_by_currency": "Vec<PriceByCurrency>",
+    "expected_duration": "ExpectedDuration",
+    "category": "Text",
+    "description": "Text",
+    "test_result_sample": "Text",
+    "long_description": "Option<Text>",
+    "image": "Option<Text>"
+  },
+  "ServiceFlow": {
+    "_enum": [
+      "RequestTest",
+      "StakingRequestService"
+    ]
   },
   "DurationType": {
-  "_enum": [
-  "WorkingDays",
-  "Hours",
-  "Days"
-  ]
+    "_enum": [
+      "WorkingDays",
+      "Hours",
+      "Days"
+    ]
   },
   "ExpectedDuration": {
-  "duration": "i8",
-  "duration_type": "DurationType"
+    "duration": "i8",
+    "duration_type": "DurationType"
   },
   "Service": {
-  "id": "H256",
-  "owner_id": "AccountId",
-  "info": "ServiceInfo"
+    "id": "H256",
+    "owner_id": "AccountId",
+    "info": "ServiceInfo",
+    "service_flow": "ServiceFlow"
   },
   "ServiceOf": "Service",
   "ServiceInfoOf": "ServiceInfo",
   "ServiceIdOf": "H256",
   "CertificationInfo": {
-  "title": "Text",
-  "issuer": "Text",
-  "month": "Text",
-  "year": "Text",
-  "description": "Text",
-  "supporting_document": "Option<Text>"
+    "title": "Text",
+    "issuer": "Text",
+    "month": "Text",
+    "year": "Text",
+    "description": "Text",
+    "supporting_document": "Option<Text>"
   },
   "Certification": {
-  "id": "H256",
-  "owner_id": "AccountId",
-  "info": "CertificationInfo"
+    "id": "H256",
+    "owner_id": "AccountId",
+    "info": "CertificationInfo"
   },
   "CertificationOf": "Certification",
   "CertificationInfoOf": "CertificationInfo",
   "CertificationIdOf": "H256",
   "OrderStatus": {
-  "_enum": [
-  "Unpaid",
-  "Paid",
-  "Fulfilled",
-  "Refunded",
-  "Cancelled",
-  "Failed"
-  ]
+    "_enum": [
+      "Unpaid",
+      "Paid",
+      "Fulfilled",
+      "Refunded",
+      "Cancelled",
+      "Failed"
+    ]
   },
   "MomentOf": "Moment",
   "Order": {
-  "id": "H256",
-  "service_id": "H256",
-  "customer_id": "AccountId",
-  "customer_box_public_key": "H256",
-  "seller_id": "AccountId",
-  "dna_sample_tracking_id": "Text",
-  "currency": "CurrencyType",
-  "prices": "Vec<Price>",
-  "additional_prices": "Vec<Price>",
-  "status": "OrderStatus",
-  "created_at": "u64",
-  "updated_at": "u64"
+    "id": "H256",
+    "service_id": "H256",
+    "customer_id": "AccountId",
+    "customer_box_public_key": "H256",
+    "seller_id": "AccountId",
+    "dna_sample_tracking_id": "Text",
+    "currency": "CurrencyType",
+    "prices": "Vec<Price>",
+    "additional_prices": "Vec<Price>",
+    "status": "OrderStatus",
+    "order_flow": "ServiceFlow",
+    "created_at": "u64",
+    "updated_at": "u64"
   },
   "OrderOf": "Order",
   "OrderIdsOf": "Vec<H256>",
@@ -131,51 +140,47 @@
       "Registered",
       "Arrived",
       "Rejected",
-      "Success",
-      "Failed",
       "QualityControlled",
-      "GenotypedSequenced",
-      "Reviewed",
-      "Computed",
+      "WetWork",
       "ResultReady"
     ]
   },
   "DnaSampleTrackingId": "Text",
   "DnaSample": {
-  "tracking_id": "Text",
-  "lab_id": "AccountId",
-  "owner_id": "AccountId",
-  "status": "DnaSampleStatus",
-  "order_id": "H256",
-  "rejected_title": "Option<Text>",
-  "rejected_description": "Option<Text>",
-  "created_at": "Moment",
-  "updated_at": "Moment"
+    "tracking_id": "Text",
+    "lab_id": "AccountId",
+    "owner_id": "AccountId",
+    "status": "DnaSampleStatus",
+    "order_id": "H256",
+    "rejected_title": "Option<Text>",
+    "rejected_description": "Option<Text>",
+    "created_at": "Moment",
+    "updated_at": "Moment"
   },
   "DnaSampleOf": "DnaSample",
   "DnaTestResult": {
-  "tracking_id": "Text",
-  "lab_id": "Option<AccountId>",
-  "owner_id": "AccountId",
-  "comments": "Option<Text>",
-  "result_link": "Option<Text>",
-  "report_link": "Option<Text>",
-  "order_id": "Option<H256>",
-  "created_at": "Moment",
-  "updated_at": "Moment"
+    "tracking_id": "Text",
+    "lab_id": "Option<AccountId>",
+    "owner_id": "AccountId",
+    "comments": "Option<Text>",
+    "result_link": "Option<Text>",
+    "report_link": "Option<Text>",
+    "order_id": "Option<H256>",
+    "created_at": "Moment",
+    "updated_at": "Moment"
   },
   "DnaTestResultOf": "DnaTestResult",
   "DnaTestResultSubmission": {
-  "comments": "Option<Text>",
-  "result_link": "Option<Text>",
-  "report_link": "Option<Text>"
+    "comments": "Option<Text>",
+    "result_link": "Option<Text>",
+    "report_link": "Option<Text>"
   },
   "Escrow": {
-  "account_id": "AccountId",
-  "order_id": "H256",
-  "amount_to_pay": "u128",
-  "amount_paid": "u128",
-  "expires_at": "u64"
+    "account_id": "AccountId",
+    "order_id": "H256",
+    "amount_to_pay": "u128",
+    "amount_paid": "u128",
+    "expires_at": "u64"
   },
   "EscrowOf": "Escrow",
   "Role": {
@@ -186,7 +191,7 @@
       "Doctor"
     ]
   },
-  "ElectronicMedicalRecordFile": {
+  "ElectronicMedicalRecordInfo": {
     "id": "H256",
     "owner_id": "AccountId",
     "title": "Text",
@@ -198,73 +203,73 @@
     "owner_id": "AccountId",
     "title": "Text",
     "category": "Text",
-    "info": "Vec<H256>"
+    "files": "Vec<H256>"
   },
   "ElectronicMedicalRecordOf": "ElectronicMedicalRecord",
   "ElectronicMedicalRecordFileOf": "ElectronicMedicalRecordFile",
   "ElectronicMedicalRecordFileIdOf": "H256",
   "DoctorInfo": {
-  "name": "Text",
-  "email": "Text",
-  "country": "Text",
-  "region": "Text",
-  "city": "Text",
-  "address": "Text",
-  "latitude": "Option<Text>",
-  "longitude": "Option<Text>",
-  "profile_image": "Option<Text>"
+    "name": "Text",
+    "email": "Text",
+    "country": "Text",
+    "region": "Text",
+    "city": "Text",
+    "address": "Text",
+    "latitude": "Option<Text>",
+    "longitude": "Option<Text>",
+    "profile_image": "Option<Text>"
   },
   "Doctor": {
-  "account_id": "AccountId",
-  "certifications": "Vec<H256>",
-  "info": "DoctorInfo"
+    "account_id": "AccountId",
+    "certifications": "Vec<H256>",
+    "info": "DoctorInfo"
   },
   "DoctorOf": "Doctor",
   "DoctorCertificationInfo": {
-  "title": "Text",
-  "issuer": "Text",
-  "month": "Text",
-  "year": "Text",
-  "description": "Text",
-  "supporting_document": "Option<Text>"
+    "title": "Text",
+    "issuer": "Text",
+    "month": "Text",
+    "year": "Text",
+    "description": "Text",
+    "supporting_document": "Option<Text>"
   },
   "DoctorCertification": {
-  "id": "H256",
-  "owner_id": "AccountId",
-  "info": "DoctorCertificationInfo"
+    "id": "H256",
+    "owner_id": "AccountId",
+    "info": "DoctorCertificationInfo"
   },
   "DoctorCertificationOf": "DoctorCertification",
   "DoctorCertificationInfoOf": "DoctorCertificationInfo",
   "DoctorCertificationIdOf": "H256",
   "HospitalInfo": {
-  "name": "Text",
-  "email": "Text",
-  "country": "Text",
-  "region": "Text",
-  "city": "Text",
-  "address": "Text",
-  "latitude": "Option<Text>",
-  "longitude": "Option<Text>",
-  "profile_image": "Option<Text>"
+    "name": "Text",
+    "email": "Text",
+    "country": "Text",
+    "region": "Text",
+    "city": "Text",
+    "address": "Text",
+    "latitude": "Option<Text>",
+    "longitude": "Option<Text>",
+    "profile_image": "Option<Text>"
   },
   "Hospital": {
-  "account_id": "AccountId",
-  "certifications": "Vec<H256>",
-  "info": "HospitalInfo"
+    "account_id": "AccountId",
+    "certifications": "Vec<H256>",
+    "info": "HospitalInfo"
   },
   "HospitalOf": "Hospital",
   "HospitalCertificationInfo": {
-  "title": "Text",
-  "issuer": "Text",
-  "month": "Text",
-  "year": "Text",
-  "description": "Text",
-  "supporting_document": "Option<Text>"
+    "title": "Text",
+    "issuer": "Text",
+    "month": "Text",
+    "year": "Text",
+    "description": "Text",
+    "supporting_document": "Option<Text>"
   },
   "HospitalCertification": {
-  "id": "H256",
-  "owner_id": "AccountId",
-  "info": "HospitalCertificationInfo"
+    "id": "H256",
+    "owner_id": "AccountId",
+    "info": "HospitalCertificationInfo"
   },
   "HospitalCertificationOf": "HospitalCertification",
   "HospitalCertificationInfoOf": "HospitalCertificationInfo",
@@ -272,42 +277,41 @@
   "BeefyKey": "[u8; 33]",
   "SessionKeys5B": "(AccountId, AccountId, AccountId, AccountId, BeefyKey)",
   "Validator": {
-  "id": "AccountId",
-  "weight": "u128"
+    "id": "AccountId",
+    "weight": "u128"
   },
   "ValidatorSet": {
-  "sequence_number": "u32",
-  "set_id": "u32",
-  "validators": "Vec<Validator>"
+    "sequence_number": "u32",
+    "set_id": "u32",
+    "validators": "Vec<Validator>"
   },
   "BurnEvent": {
-  "sequence_number": "u32",
-  "sender_id": "Vec<u8>",
-  "receiver": "AccountId",
-  "amount": "u128"
+    "sequence_number": "u32",
+    "sender_id": "Vec<u8>",
+    "receiver": "AccountId",
+    "amount": "u128"
   },
   "LockEvent": {
-  "sequence_number": "u32",
-  "token_id": "Vec<u8>",
-  "sender_id": "Vec<u8>",
-  "receiver": "AccountId",
-  "amount": "u128"
+    "sequence_number": "u32",
+    "token_id": "Vec<u8>",
+    "sender_id": "Vec<u8>",
+    "receiver": "AccountId",
+    "amount": "u128"
   },
   "AssetIdOf": "u32",
   "AssetBalanceOf": "u128",
   "TAssetBalance": "u128",
   "Observation": {
-  "_enum": {
-  "UpdateValidatorSet": "(ValidatorSet<AccountId>)",
-  "Burn": "(BurnEvent<AccountId>)",
-  "LockAsset": "(LockEvent<AccountId>)"
-  }
+    "_enum": {
+      "UpdateValidatorSet": "(ValidatorSet<AccountId>)",
+      "Burn": "(BurnEvent<AccountId>)",
+      "LockAsset": "(LockEvent<AccountId>)"
+    }
   },
   "ObservationsPayload": {
-  "public": "[u8; 33]",
-  "block_number": "BlockNumber",
-  "next_fact_sequence": "u32",
-  "observations": "Vec<Observation<AccountId>>"
+    "public": "[u8; 33]",
+    "block_number": "BlockNumber",
+    "next_fact_sequence": "u32",
+    "observations": "Vec<Observation<AccountId>>"
   }
 }
-  
