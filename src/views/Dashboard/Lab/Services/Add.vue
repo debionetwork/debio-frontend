@@ -6,6 +6,9 @@
   cursor: pointer;
   border: 1px solid lightgrey;
 }
+.services__modal-title {
+  white-space: nowrap;
+}
 </style>
 
 <template>
@@ -13,14 +16,14 @@
     <v-container>
       <v-dialog v-model="showModalAlert" persistent width="450">
         <v-card>
-          <v-card-title>{{ messageWarning.title }}</v-card-title>
+          <v-card-title class="services__modal-title">{{ messageWarning.title }}</v-card-title>
           <v-card-subtitle class="mt-1" v-html="messageWarning.subtitle"></v-card-subtitle>
           <v-card-actions>
             <v-btn
               block color="primary"
               @click="handleRedirect"
             >
-              Close
+              {{ messageWarning.actionTitle }}
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -313,30 +316,47 @@ export default {
       const currentLab = await queryLabsById(this.api, this.pair.address)
       if (!currentLab) return
 
+      const gitbookLink = `<a href="https://docs.debio.network/complete-guidelines/lab-guideline" target="_blank">contact us</a>`
+
       const MESSAGE = Object.freeze({
         UNVERIFIED: {
-          title: "Your laboratory account not verified yet",
+          type: "UNVERIFIED",
+          actionTitle: "Go to dashboard",
+          title: "Your verification process is still under review",
           subtitle: `
-            Please verify your email 
-            <strong class="primary--text">${currentLab.info?.email}</strong> 
-            / contact to our admin first to add the services
+            We're sorry to say that you cannot provide a service until you are verified. 
+            Please ${gitbookLink} for more infomation
           `
         },
         REJECTED: {
-          title: "Your laboratory account Rejected",
-          subtitle: "Please contact us"
+          type: "REJECTED",
+          actionTitle: "Go to dashboard",
+          title: "Your verification process is rejected",
+          subtitle: `
+            We're sorry to say that you cannot provide a service because your verification status is rejected
+            Please contact us ${gitbookLink} for more infomation
+          `
         },
         REVOKED: {
-          title: "Your laboratory account is Revoked",
-          subtitle: "Please contact us"
+          type: "REVOKED",
+          actionTitle: "Go to dashboard",
+          title: "Your verification process is revoked",
+          subtitle: `
+            We're sorry to say that you cannot provide a service because your verification status is revoked
+            Please contact us ${gitbookLink} for more infomation
+          `
         },
         NOT_EXIST: {
-          title: "Your laboratory is not registered yet",
-          subtitle: "Please register your lab account"
+          type: "NOT_EXIST",
+          actionTitle: "Complete register",
+          title: "You are not registered yet",
+          subtitle: "Please complete registration process and fill in your lab's service"
         },
         CITY_NOT_MATCH: {
-          title: "Your location not match with this service",
-          subtitle: `Please select service with your location (${currentLab.info.city})`
+          type: "CITY_NOT_MATCH",
+          actionTitle: "Select another",
+          title: "Oh no! Your lab's location is not match with the requested service you pick.",
+          subtitle: "Please select another one"
         }
       })
 
@@ -508,8 +528,17 @@ export default {
         },
         NOT_EXIST: {
           name: "lab-registration-services"
+        },
+        CITY_NOT_MATCH: {
+          name: "request-lab"
         }
       })
+
+      if (this.messageWarning?.type === "CITY_NOT_MATCH") {
+        this.$router.push(REDIRECT_TO["CITY_NOT_MATCH"])
+
+        return
+      }
 
       const compute = !this.exist ? "NOT_EXIST" : this.statusLab.toUpperCase()
 
