@@ -47,6 +47,18 @@
                     :rules="serviceCategoryRules"
                     ></v-select>
                     
+                    <v-select
+                    dense
+                    label="Type of Biological Sample"
+                    placeholder="Type of Biological Sample"
+                    v-model="biologicalType"
+                    outlined
+                    :items="listbiologicalType"
+                    item-text="dna_collection_process"
+                    item-value="dna_collection_process"
+                    :rules="biologicalTypeRules"
+                    ></v-select>
+
                     <v-text-field
                       dense
                       label="Service Name"
@@ -200,6 +212,15 @@ export default {
     listExpectedDuration: ['WorkingDays', 'Hours', 'Days'],
     selectExpectedDuration: 'WorkingDays',
     expectedDuration: '',
+    biologicalType: "",
+    listbiologicalType: [
+      "BLOOD CELLS - DRIED BLOOD SPOT COLLECTION PROCESS",
+      "COVID-19 SALIVA TEST",
+      "EPITHELIAL CELLS - BUCCAL SWAB COLLECTION PROCESS",
+      "FECAL MATTERS - STOOL COLLECTION PROCESS",
+      "SALIVA - SALIVA COLLECTION PROCESS",
+      "URINE - CLEAN CATCH URINE COLLECTION PROCESS"
+    ]
   }),
 
   async mounted() {
@@ -216,6 +237,12 @@ export default {
     serviceCategoryRules() {
       return [
         val => !!val || 'Category is Required'
+      ]
+    },
+
+    biologicalTypeRules() {
+      return [
+        val => !!val || 'Biologocal type is Require'
       ]
     },
 
@@ -302,7 +329,8 @@ export default {
         descriptionShort,
         descriptionLong,
         durationType,
-        durationValue
+        durationValue,
+        //should add variable for dna_collection_proccess
       } = this.$route.query
 
       this.name = name
@@ -353,6 +381,7 @@ export default {
           test_result_sample: this.testResultSampleUrl,
           long_description: this.longDescription,
           image: this.imageUrl,
+          dna_collection_process: this.biologicalType,
         },
         () => {
           this.$router.push('/lab/services')
