@@ -11,16 +11,17 @@
 <template>
   <div>
     <v-container>
-      <v-dialog v-model="showModalAlert" persistent width="500">
+      <v-dialog v-model="showModalAlert" persistent width="450">
         <v-card>
-          <v-card-title>Your laboratory account is not verified yet</v-card-title>
-          <v-card-subtitle>
-            Verify your email 
-            <strong class="primary--text">{{ currentEmail }}</strong> 
-            first to add the services
-          </v-card-subtitle>
+          <v-card-title>{{ messageWarning.title }}</v-card-title>
+          <v-card-subtitle class="mt-1" v-html="messageWarning.subtitle"></v-card-subtitle>
           <v-card-actions>
-            <v-btn block color="primary" @click="$router.push({ name: 'lab-dashboard-services' })">Close</v-btn>
+            <v-btn
+              block color="primary"
+              @click="handleRedirect"
+            >
+              Close
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -203,7 +204,9 @@ export default {
     longDescription: '',
     imageUrl: "",
     testResultSampleUrl: "",
-    currentEmail: "",
+    statusLab: null,
+    messageWarning: {},
+    service_flow: "requestTest",
     files: [],
     testResultSampleFile:[],
     listCategories:[],
@@ -225,7 +228,9 @@ export default {
 
   computed: {
     ...mapState({
+      servicePayload: (state) => state.lab.providePayload,
       api: (state) => state.substrate.api,
+      exist: (state) => state.substrate.isLabAccountExist,
       pair: (state) => state.substrate.wallet,
     }),
 
@@ -298,15 +303,61 @@ export default {
 
   },
 
-  async created() {
-    const { verification_status, info: { email } } = await queryLabsById(this.api, this.pair.address)
-    if (verification_status && verification_status !== "Unverified") return
-
-    this.currentEmail = email
-    this.showModalAlert = true
+  created() {
+    this.validate()
   },
 
   methods: {
+
+    async validate () {
+      const currentLab = await queryLabsById(this.api, this.pair.address)
+      if (!currentLab) return
+
+      const MESSAGE = Object.freeze({
+        UNVERIFIED: {
+          title: "Your laboratory account not verified yet",
+          subtitle: `
+            Please verify your email 
+            <strong class="primary--text">${currentLab.info?.email}</strong> 
+            / contact to our admin first to add the services
+          `
+        },
+        REJECTED: {
+          title: "Your laboratory account Rejected",
+          subtitle: "Please contact us"
+        },
+        REVOKED: {
+          title: "Your laboratory account is Revoked",
+          subtitle: "Please contact us"
+        },
+        NOT_EXIST: {
+          title: "Your laboratory is not registered yet",
+          subtitle: "Please register your lab account"
+        },
+        CITY_NOT_MATCH: {
+          title: "Your location not match with this service",
+          subtitle: `Please select service with your location (${currentLab.info.city})`
+        }
+      })
+
+      if (currentLab.verification_status === "verified") {
+        if (currentLab.info?.city !== this.servicePayload?.location) return
+
+        this.showModalAlert = true
+
+        this.messageWarning = MESSAGE["CITY_NOT_MATCH"]
+
+        return
+      }
+
+      this.statusLab = currentLab.verification_status
+
+      const compute = !this.exist ? "NOT_EXIST" : currentLab.verification_status.toUpperCase()
+
+      this.messageWarning = MESSAGE[compute]
+
+      this.showModalAlert = true
+    },
 
     async getServiceCategory() {
       const { data : data } = await getCategories()
@@ -314,7 +365,7 @@ export default {
     },
 
     prefillValues() {
-      const checkQuery = Object.keys(this.$route.query).length
+      const checkQuery = Object.keys(this.servicePayload).length
       if (!checkQuery) return
 
       const {
@@ -326,8 +377,9 @@ export default {
         descriptionShort,
         descriptionLong,
         durationType,
-        durationValue
-      } = this.$route.query
+        durationValue,
+        service_flow
+      } = this.servicePayload
 
       this.name = name
       this.category = category
@@ -338,6 +390,7 @@ export default {
       this.currencyType = currencyType
       this.selectExpectedDuration = durationType
       this.expectedDuration = durationValue
+      this.service_flow = service_flow
     },
 
     async createService() {
@@ -377,9 +430,11 @@ export default {
           test_result_sample: this.testResultSampleUrl,
           long_description: this.longDescription,
           image: this.imageUrl,
+          service_flow: this.service_flow
         },
         () => {
           this.$router.push('/lab/services')
+          this.$store.dispatch("lab/setProvideService", {})
           this.isLoading = false
         }
       )
@@ -438,6 +493,27 @@ export default {
           context.isLoading = false
         })
       }
+    },
+
+    handleRedirect() {
+      const REDIRECT_TO = Object.freeze({
+        UNVERIFIED: {
+          name: "lab-dashboard"
+        },
+        REJECTED: {
+          name: "lab-dashboard"
+        },
+        REVOKED: {
+          name: "lab-dashboard"
+        },
+        NOT_EXIST: {
+          name: "lab-registration-services"
+        }
+      })
+
+      const compute = !this.exist ? "NOT_EXIST" : this.statusLab.toUpperCase()
+
+      this.$router.push(REDIRECT_TO[compute])
     },
 
     selectPicture() {
