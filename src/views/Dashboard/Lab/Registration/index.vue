@@ -76,7 +76,27 @@
                 v-model="address"
                 :rules="addressRules"
                 :disabled="isLabAccountExist"
-                ></v-text-field>
+              ></v-text-field>
+
+              <v-text-field
+                dense
+                label="Phone Number"
+                placeholder="Phone Number"
+                outlined
+                v-model="phoneNumber"
+                :rules="phoneNumberRules"
+                :disabled="isLabAccountExist"
+              ></v-text-field>
+
+              <v-text-field
+                dense
+                label="Website"
+                placeholder="Website"
+                outlined
+                v-model="website"
+                :rules="websiteRules"
+                :disabled="isLabAccountExist"
+              ></v-text-field>
 
                 <v-file-input
                   dense
@@ -163,6 +183,8 @@ export default {
     email: "",
     labName: "",
     address: "",
+    phoneNumber: "",
+    website: "",
     imageUrl: "",
     files: [],
     isLoading: false,
@@ -217,7 +239,23 @@ export default {
     addressRules() {
       return [
         val => !!val || 'Address is Required',
-        val => (val && val.length <= 180) || 'Max 180 Character'
+        val => (val && val.length <= 180) || 'Max 180 Characters'
+      ]
+    },
+
+    phoneNumberRules() {
+      return [
+        val => !!val || 'Phone Number is Required',
+        val => /^\+?([0-9]{10,15})$/.test(val) || 'Phone Number must be valid',
+        val => (val && val.length <= 15) || 'Max 15 Digits'
+      ]
+    },
+
+    websiteRules() {
+      return [
+        val => !!val || 'Website URL is Required',
+        val => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(val) || 'Website URL must be valid', //eslint-disable-line
+        val => (val && val.length <= 2048) || 'Max 2048 Characters'
       ]
     },
 
@@ -250,6 +288,8 @@ export default {
         this.labName = this.labAccount.info.name
         this.email = this.labAccount.info.email
         this.address = this.labAccount.info.address
+        this.phoneNumber = this.labAccount.info.phone_number
+        this.website = this.labAccount.info.website
         this.country = this.labAccount.info.country
         await this.onCountryChange(this.country)
         this.state = this.labAccount.info.region
@@ -322,6 +362,8 @@ export default {
             name: this.labName,
             email: this.email,
             address: this.address,
+            phone_number: this.phoneNumber,
+            website: this.website,
             country: this.country,
             region: this.state,
             city: this.city,
