@@ -53,7 +53,7 @@
                     placeholder="Type of Biological Sample"
                     v-model="biologicalType"
                     outlined
-                    :items="listbiologicalType"
+                    :items="listBiologicalType"
                     item-text="dna_collection_process"
                     item-value="dna_collection_process"
                     :rules="biologicalTypeRules"
@@ -213,13 +213,13 @@ export default {
     selectExpectedDuration: 'WorkingDays',
     expectedDuration: '',
     biologicalType: "",
-    listbiologicalType: [
-      "BLOOD CELLS - DRIED BLOOD SPOT COLLECTION PROCESS",
-      "COVID-19 SALIVA TEST",
-      "EPITHELIAL CELLS - BUCCAL SWAB COLLECTION PROCESS",
-      "FECAL MATTERS - STOOL COLLECTION PROCESS",
-      "SALIVA - SALIVA COLLECTION PROCESS",
-      "URINE - CLEAN CATCH URINE COLLECTION PROCESS"
+    listBiologicalType: [
+      "Covid 19 Saliva Test",
+      "Blood Cells - Dried Blood Spot Collection Process",
+      "Epithelial Cells - Buccal Swab Collection Process",
+      "Fecal Matters - Stool Collection Process",
+      "Saliva - Saliva Collection Process",
+      "Urine - Clean Catch Urine Collection Process",
     ]
   }),
 
@@ -330,7 +330,7 @@ export default {
         descriptionLong,
         durationType,
         durationValue,
-        //should add variable for dna_collection_proccess
+        biologicalType
       } = this.$route.query
 
       this.name = name
@@ -342,6 +342,7 @@ export default {
       this.currencyType = currencyType
       this.selectExpectedDuration = durationType
       this.expectedDuration = durationValue
+      this.biologicalType = biologicalType
     },
 
     async createService() {

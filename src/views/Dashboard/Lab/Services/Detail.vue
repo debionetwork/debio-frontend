@@ -203,11 +203,13 @@ export default {
     rules: [
       value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
     ],
+    biologicalType: "",
   }),
 
   async mounted(){
     await this.getServiceCategory()
     const item = this.$route.params.item
+    console.log(item, 'item')
     this.id = item.id
     this.name = item.info.name
     this.price = item.info.prices_by_currency[0].price_components[0].value
@@ -220,6 +222,7 @@ export default {
     this.expectedDuration = item.info.expected_duration.duration
     this.selectExpectedDuration = item.info.expected_duration.duration_type
     this.category = item.info.category
+    this.biologicalType = item.info.dna_collection_process
     
     if(this.imageUrl){
       fetch(this.imageUrl)
@@ -292,6 +295,7 @@ export default {
           test_result_sample: this.testResultSampleUrl,
           long_description: this.longDescription,
           image: this.imageUrl,
+          dna_collection_process: this.biologicalType,
         },
         () => {
           this.$router.push('/lab/services')
