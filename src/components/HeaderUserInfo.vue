@@ -110,6 +110,7 @@ export default {
     logOut() {
       this.clearAuth();
       localStorage.clear();
+      this.$store.dispatch("lab/setProvideService", {})
       this.$router.push("/login");
     },
     downloadKeystore() {
