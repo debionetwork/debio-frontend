@@ -98,7 +98,6 @@
                         </v-col>
                         <v-col>
                           <v-select
-                          :disabled="isBiomedical"
                           label="QC Currency"
                           outlined
                           dense
@@ -109,13 +108,12 @@
                         </v-col>
                         <v-col>
                           <v-text-field
-                            :disabled="isBiomedical"
                             dense
                             label="QC Price"
                             placeholder="QC Price"
                             outlined
                             v-model="qcPrice"
-                            :rules="qcPriceRules"
+                            :rules="cqPriceRules"
                           ></v-text-field>
                         </v-col>
                       </v-row>
@@ -224,7 +222,6 @@ export default {
     listExpectedDuration: ['WorkingDays', 'Hours', 'Days'],
     selectExpectedDuration: 'WorkingDays',
     expectedDuration: '',
-    isBiomedical: false
   }),
 
   async mounted() {
@@ -272,10 +269,10 @@ export default {
       ]
     },
     
-    qcPriceRules() {
+    cqPriceRules() {
       return [
-        val => !!val || this.isBiomedical || 'QC Price is Required',
-        val => /^[0-9]+$/.test(val) || this.isBiomedical || 'QC Price must be Number'
+        val => !!val || 'QC Price is Required',
+        val => /^[0-9]+$/.test(val) || 'QC Price must be Number'
       ]
     },
 
@@ -552,16 +549,5 @@ export default {
       this.$refs.fileInput.$refs.input.click()
     }
   },
-  
-  watch: {
-    category() {
-      if (this.category == 'Covid-19') {
-        this.isBiomedical = true
-        this.qcPrice = "0"
-      } else {
-        this.isBiomedical = false
-      }
-    }
-  }
 }
 </script>
