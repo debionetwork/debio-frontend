@@ -64,6 +64,18 @@
                     :rules="serviceCategoryRules"
                     ></v-select>
                     
+                    <v-select
+                    dense
+                    label="Type of Biological Sample"
+                    placeholder="Type of Biological Sample"
+                    v-model="biologicalType"
+                    outlined
+                    :items="listBiologicalType"
+                    item-text="dna_collection_process"
+                    item-value="dna_collection_process"
+                    :rules="biologicalTypeRules"
+                    ></v-select>
+
                     <v-text-field
                       dense
                       label="Service Name"
@@ -224,6 +236,15 @@ export default {
     listExpectedDuration: ['WorkingDays', 'Hours', 'Days'],
     selectExpectedDuration: 'WorkingDays',
     expectedDuration: '',
+    biologicalType: "",
+    listBiologicalType: [
+      "Covid 19 Saliva Test",
+      "Blood Cells - Dried Blood Spot Collection Process",
+      "Epithelial Cells - Buccal Swab Collection Process",
+      "Fecal Matters - Stool Collection Process",
+      "Saliva - Saliva Collection Process",
+      "Urine - Clean Catch Urine Collection Process",
+    ],
     isBiomedical: false
   }),
 
@@ -243,6 +264,12 @@ export default {
     serviceCategoryRules() {
       return [
         val => !!val || 'Category is Required'
+      ]
+    },
+
+    biologicalTypeRules() {
+      return [
+        val => !!val || 'Biologocal type is Require'
       ]
     },
 
@@ -401,6 +428,7 @@ export default {
         descriptionLong,
         durationType,
         durationValue,
+        biologicalType,
         service_flow
       } = this.servicePayload
 
@@ -413,6 +441,7 @@ export default {
       this.currencyType = currencyType
       this.selectExpectedDuration = durationType
       this.expectedDuration = durationValue
+      this.biologicalType = biologicalType
       this.service_flow = service_flow
     },
 
@@ -453,6 +482,7 @@ export default {
           test_result_sample: this.testResultSampleUrl,
           long_description: this.longDescription,
           image: this.imageUrl,
+          dna_collection_process: this.biologicalType,
           service_flow: this.service_flow
         },
         () => {
