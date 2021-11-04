@@ -280,15 +280,14 @@ export default {
         return filtered
       }, {})
 
+      this.$store.dispatch("lab/setProvideService", { ...parameterQueries, service_flow: "stakingRequestService" })
+
       if (!isLoggedIn) {
-        this.$router.push({ name: "login", query: { redirect: "lab-dashboard-add-services", ...parameterQueries } })
+        this.$router.push({ name: "login", query: { redirect: "lab-dashboard-add-services" } })
         return
       }
 
-      this.$router.push({
-        name: "lab-dashboard-add-services",
-        query: { ...parameterQueries }
-      })
+      this.$router.push({ name: "lab-dashboard-add-services" })
     },
 
     handleSelectedItem(item) {

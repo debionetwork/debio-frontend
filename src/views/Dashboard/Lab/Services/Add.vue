@@ -6,11 +6,28 @@
   cursor: pointer;
   border: 1px solid lightgrey;
 }
+.services__modal-title {
+  white-space: nowrap;
+}
 </style>
 
 <template>
   <div>
     <v-container>
+      <v-dialog v-model="showModalAlert" persistent width="450">
+        <v-card>
+          <v-card-title class="services__modal-title">{{ messageWarning.title }}</v-card-title>
+          <v-card-subtitle class="mt-1" v-html="messageWarning.subtitle"></v-card-subtitle>
+          <v-card-actions>
+            <v-btn
+              block color="primary"
+              @click="handleRedirect"
+            >
+              {{ messageWarning.actionTitle }}
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <v-row>
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
             <v-card class="dg-card" elevation="0" outlined>
@@ -175,10 +192,11 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
 import { createService } from '@/lib/polkadotProvider/command/services'
 import { getCategories } from "@/lib/categories"
+import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 
 export default {
   name: 'AddLabServices',
@@ -191,11 +209,15 @@ export default {
     longDescription: '',
     imageUrl: "",
     testResultSampleUrl: "",
+    statusLab: null,
+    messageWarning: {},
+    service_flow: "requestTest",
     files: [],
     testResultSampleFile:[],
     listCategories:[],
     sampleFiles:[],
     isLoading: false,
+    showModalAlert: false,
     isUploading: false,
     currencyList: ['DAI', 'Ethereum'],
     currencyType: 'DAI',
@@ -211,9 +233,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
+    ...mapState({
+      servicePayload: (state) => state.lab.providePayload,
+      api: (state) => state.substrate.api,
+      exist: (state) => state.substrate.isLabAccountExist,
+      pair: (state) => state.substrate.wallet,
     }),
 
     serviceCategoryRules() {
@@ -285,7 +309,78 @@ export default {
 
   },
 
+  created() {
+    this.validate()
+  },
+
   methods: {
+
+    async validate () {
+      const currentLab = await queryLabsById(this.api, this.pair.address)
+      if (!currentLab) return
+
+      const gitbookLink = `<a href="https://docs.debio.network/complete-guidelines/lab-guideline" target="_blank">contact us</a>`
+
+      const MESSAGE = Object.freeze({
+        UNVERIFIED: {
+          type: "UNVERIFIED",
+          actionTitle: "Go to dashboard",
+          title: "Your verification process is still under review",
+          subtitle: `
+            We're sorry to say that you cannot provide a service until you are verified. 
+            Please ${gitbookLink} for more infomation
+          `
+        },
+        REJECTED: {
+          type: "REJECTED",
+          actionTitle: "Go to dashboard",
+          title: "Your verification process is rejected",
+          subtitle: `
+            We're sorry to say that you cannot provide a service because your verification status is rejected
+            Please contact us ${gitbookLink} for more infomation
+          `
+        },
+        REVOKED: {
+          type: "REVOKED",
+          actionTitle: "Go to dashboard",
+          title: "Your verification process is revoked",
+          subtitle: `
+            We're sorry to say that you cannot provide a service because your verification status is revoked
+            Please contact us ${gitbookLink} for more infomation
+          `
+        },
+        NOT_EXIST: {
+          type: "NOT_EXIST",
+          actionTitle: "Complete register",
+          title: "You are not registered yet",
+          subtitle: "Please complete registration process and fill in your lab's service"
+        },
+        CITY_NOT_MATCH: {
+          type: "CITY_NOT_MATCH",
+          actionTitle: "Select another",
+          title: "Oh no! Your lab's location is not match with the requested service you pick.",
+          subtitle: "Please select another one"
+        }
+      })
+
+      if (currentLab.verification_status === "verified") {
+        if (currentLab.info?.city !== this.servicePayload?.location) return
+
+        this.showModalAlert = true
+
+        this.messageWarning = MESSAGE["CITY_NOT_MATCH"]
+
+        return
+      }
+
+      this.statusLab = currentLab.verification_status
+
+      const compute = !this.exist ? "NOT_EXIST" : currentLab.verification_status.toUpperCase()
+
+      this.messageWarning = MESSAGE[compute]
+
+      this.showModalAlert = true
+    },
 
     async getServiceCategory() {
       const { data : data } = await getCategories()
@@ -293,7 +388,7 @@ export default {
     },
 
     prefillValues() {
-      const checkQuery = Object.keys(this.$route.query).length
+      const checkQuery = Object.keys(this.servicePayload).length
       if (!checkQuery) return
 
       const {
@@ -305,8 +400,9 @@ export default {
         descriptionShort,
         descriptionLong,
         durationType,
-        durationValue
-      } = this.$route.query
+        durationValue,
+        service_flow
+      } = this.servicePayload
 
       this.name = name
       this.category = category
@@ -317,6 +413,7 @@ export default {
       this.currencyType = currencyType
       this.selectExpectedDuration = durationType
       this.expectedDuration = durationValue
+      this.service_flow = service_flow
     },
 
     async createService() {
@@ -356,9 +453,11 @@ export default {
           test_result_sample: this.testResultSampleUrl,
           long_description: this.longDescription,
           image: this.imageUrl,
+          service_flow: this.service_flow
         },
         () => {
           this.$router.push('/lab/services')
+          this.$store.dispatch("lab/setProvideService", {})
           this.isLoading = false
         }
       )
@@ -417,6 +516,36 @@ export default {
           context.isLoading = false
         })
       }
+    },
+
+    handleRedirect() {
+      const REDIRECT_TO = Object.freeze({
+        UNVERIFIED: {
+          name: "lab-dashboard"
+        },
+        REJECTED: {
+          name: "lab-dashboard"
+        },
+        REVOKED: {
+          name: "lab-dashboard"
+        },
+        NOT_EXIST: {
+          name: "lab-registration-services"
+        },
+        CITY_NOT_MATCH: {
+          name: "request-lab"
+        }
+      })
+
+      if (this.messageWarning?.type === "CITY_NOT_MATCH") {
+        this.$router.push(REDIRECT_TO["CITY_NOT_MATCH"])
+
+        return
+      }
+
+      const compute = !this.exist ? "NOT_EXIST" : this.statusLab.toUpperCase()
+
+      this.$router.push(REDIRECT_TO[compute])
     },
 
     selectPicture() {
