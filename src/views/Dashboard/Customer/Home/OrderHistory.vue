@@ -23,7 +23,7 @@
               <OrderCard
                 :icon="order.icon"
                 :title="order.title"
-                :specimenNumber="order.dna_sample_tracking_id"
+                :specimenNumber="order.dnaSampleTrackingId"
                 :labName="order.labName"
                 :timestamp="order.timestamp"
                 :status="order.status"
@@ -37,7 +37,7 @@
           <OrderCard
             :icon="order.icon"
             :title="order.title"
-            :specimenNumber="order.dna_sample_tracking_id"
+            :specimenNumber="order.dnaSampleTrackingId"
             :labName="order.labName"
             :timestamp="order.timestamp"
             :status="order.status"
@@ -86,7 +86,7 @@ export default {
       if (this.lastEventData != null) {
         const dataEvent = JSON.parse(this.lastEventData.data.toString());
         if (this.lastEventData.section == "orders") {
-          if (dataEvent[0].customer_id == this.wallet.address) {
+          if (dataEvent[0].customerId == this.wallet.address) {
             this.getOrderHistory();
           }
         }
@@ -119,11 +119,11 @@ export default {
             const detailOrder = await getOrdersData(this.api, listOrderId[i]);
             const detaillab = await queryLabsById(
               this.api,
-              detailOrder.seller_id
+              detailOrder.sellerId
             );
             const detailService = await queryServicesById(
               this.api,
-              detailOrder.service_id
+              detailOrder.serviceId
             );
             this.prepareOrderData(detailOrder, detaillab, detailService);
           }
@@ -151,7 +151,7 @@ export default {
 
       const number = detailOrder.id;
       const dateSet = new Date(
-        parseInt(detailOrder.created_at.replace(/,/g, ""))
+        parseInt(detailOrder.createdAt.replace(/,/g, ""))
       );
       const timestamp = dateSet.getTime().toString();
       const orderDate = dateSet.toLocaleString("en-US", {
@@ -163,7 +163,7 @@ export default {
         minute: "numeric",
       });
       const status = detailOrder.status;
-      const dna_sample_tracking_id = detailOrder.dna_sample_tracking_id;
+      const dnaSampleTrackingId = detailOrder.dnaSampleTrackingId;
       const order = {
         icon,
         title,
@@ -171,7 +171,7 @@ export default {
         labName,
         timestamp,
         status,
-        dna_sample_tracking_id,
+        dnaSampleTrackingId,
         orderDate,
       };
 

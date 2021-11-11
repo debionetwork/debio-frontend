@@ -56,7 +56,7 @@
                     <v-divider></v-divider>
                     <div class="payment-failed__status-detail d-flex justify-space-between">
                       <div class="payment-failed__speciment-number font-weight-bold">
-                        Specimen Number: {{ orderDetails.dna_sample_tracking_id | specimenNumber }}
+                        Specimen Number: {{ orderDetails.dnaSampleTrackingId | specimenNumber }}
                       </div>
                       <div class="payment-failed__status">
                         <StatusChip class="px-7" :status="ORDER_FAILED" />
@@ -186,7 +186,7 @@ export default {
     },
 
     formatedDate() {
-      const dateRaw = parseInt(this.orderDetails?.created_at.replaceAll(",", ""))
+      const dateRaw = parseInt(this.orderDetails?.createdAt.replaceAll(",", ""))
 
       return new Date(dateRaw).toLocaleDateString()
     },

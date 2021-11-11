@@ -54,8 +54,8 @@
                     v-model="biologicalType"
                     outlined
                     :items="listBiologicalType"
-                    item-text="dna_collection_process"
-                    item-value="dna_collection_process"
+                    item-text="dnaCollectionProcess"
+                    item-value="dnaCollectionProcess"
                     :rules="biologicalTypeRules"
                     ></v-select>
 
@@ -230,17 +230,17 @@ export default {
     console.log(item, 'item')
     this.id = item.id
     this.name = item.info.name
-    this.price = item.info.prices_by_currency[0].price_components[0].value
-    this.qcPrice = item.info.prices_by_currency[0].additional_prices[0].value
-    this.currencyType = item.info.prices_by_currency[0].currency.toUpperCase()
+    this.price = item.info.pricesByCurrency[0].priceComponents[0].value
+    this.qcPrice = item.info.pricesByCurrency[0].additionalPrices[0].value
+    this.currencyType = item.info.pricesByCurrency[0].currency.toUpperCase()
     this.description = item.info.description
-    this.longDescription = item.info.long_description
+    this.longDescription = item.info.longDescription
     this.imageUrl = item.info.image
-    this.testResultSampleUrl = item.info.test_result_sample
-    this.expectedDuration = item.info.expected_duration.duration
-    this.selectExpectedDuration = item.info.expected_duration.duration_type
+    this.testResultSampleUrl = item.info.testResultSample
+    this.expectedDuration = item.info.expectedDuration.duration
+    this.selectExpectedDuration = item.info.expectedDuration.durationType
     this.category = item.info.category
-    this.biologicalType = item.info.dna_collection_process
+    this.biologicalType = item.info.dnaCollectionProcess
     
     if(this.imageUrl){
       fetch(this.imageUrl)
@@ -360,16 +360,16 @@ export default {
         this.id,
         {
           name: this.name,
-          prices_by_currency: [
+          pricesByCurrency: [
             {
               currency: this.currencyType,
-              price_components: [
+              priceComponents: [
                 {
                   component: "component_1",
                   value: this.price
                 }
               ],
-              additional_prices: [
+              additionalPrices: [
                 {
                   component: "qc_component",
                   value: this.qcPrice
@@ -377,16 +377,16 @@ export default {
               ],
             },
           ],
-          expected_duration: { 
+          expectedDuration: { 
             duration: this.expectedDuration, 
-            duration_type: this.selectExpectedDuration
+            durationType: this.selectExpectedDuration
           },
           category: this.category,
           description: this.description,
-          test_result_sample: this.testResultSampleUrl,
-          long_description: this.longDescription,
+          testResultSample: this.testResultSampleUrl,
+          longDescription: this.longDescription,
           image: this.imageUrl,
-          dna_collection_process: this.biologicalType,
+          dnaCollectionProcess: this.biologicalType,
         },
         () => {
           this.$router.push('/lab/services')

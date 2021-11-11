@@ -167,11 +167,11 @@ export default {
     },
     async getFileUploaded(fileType, fileName) {
       try {
-        if (this.dataDetail.record_link != "") {
+        if (this.dataDetail.recordLink != "") {
           this.files.push({
             fileType: fileType,
             fileName: fileName,
-            fileLink: this.dataDetail.record_link,
+            fileLink: this.dataDetail.recordLink,
           });
         }
 
@@ -224,7 +224,7 @@ export default {
     async downloadFile() {
       if (this.typeDoc == "emr") {
         this.showDialogLoading = true;
-        const path = this.dataDetail.record_link.replace(this.baseUrl, "");
+        const path = this.dataDetail.recordLink.replace(this.baseUrl, "");
         await downloadDecryptedFromIPFS(
           path,
           this.privateKey,

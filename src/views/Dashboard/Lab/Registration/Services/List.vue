@@ -37,17 +37,17 @@
                     </div>
                     <div>
                       <span>
-                        Price     : {{ service.info.prices_by_currency[0].total_price }} {{ service.info.prices_by_currency[0].currency }}
+                        Price     : {{ service.info.pricesByCurrency[0].totalPrice }} {{ service.info.pricesByCurrency[0].currency }}
                       </span>
                     </div>
                     <div>
                       <span>
-                        Duration  :{{ service.info.expected_duration.duration }} {{ service.info.expected_duration.duration_type }}
+                        Duration  :{{ service.info.expectedDuration.duration }} {{ service.info.expectedDuration.durationType }}
                       </span>
                     </div>
                     <div class="mt-3 mb-3">{{ service.info.description }}</div>
-                    <div v-if="service.info.test_result_sample" class="mt-3 mb-3">
-                      <a :href="service.info.test_result_sample" class="support-url" target="_blank">
+                    <div v-if="service.info.testResultSample" class="mt-3 mb-3">
+                      <a :href="service.info.testResultSample" class="support-url" target="_blank">
                         <v-icon class="mx-1" small>mdi-file-document</v-icon>
                         Test Result Sample
                       </a>

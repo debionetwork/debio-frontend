@@ -1,4 +1,3 @@
-import types from "./types.json"
 import store from "@/store/index"
 import CryptoJS from 'crypto-js'
 import { u8aToHex } from "@polkadot/util" // u8aToString, stringToU8a
@@ -112,8 +111,7 @@ export default {
         const PROVIDER_SOCKET = store.getters['auth/getConfig'].substrateWs;
         const wsProvider = new WsProvider(PROVIDER_SOCKET)
         const api = await ApiPromise.create({
-          provider: wsProvider,
-          types: types
+          provider: wsProvider
         })
         
         // Example of how to subscribe to events via storage

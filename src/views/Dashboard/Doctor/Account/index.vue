@@ -146,7 +146,7 @@ export default {
     this.email = doctorInfo.email
     this.doctorName = doctorInfo.name
     this.address = doctorInfo.address
-    this.image = doctorInfo.profile_image
+    this.image = doctorInfo.profileImage
     
     await this.getCountries()
     this.country = doctorInfo.country
@@ -230,7 +230,7 @@ export default {
           {
             name: this.doctorName,
             email: this.email,
-            profile_image: this.image,
+            profileImage: this.image,
             address: this.address,
             country: this.country,
             city: this.city,

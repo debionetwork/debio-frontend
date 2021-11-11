@@ -373,20 +373,20 @@ export default {
     async prefillServicesForm(service) {
       this.serviceId = service.id
       this.name = service.info.name
-      this.currencyType = service.info.prices_by_currency[0].currency.toUpperCase()
-      this.price = service.info.prices_by_currency[0].price_components[0].value
-      this.qcPrice = service.info.prices_by_currency[0].additional_prices[0].value
-      this.expectedDuration = service.info.expected_duration.duration
-      this.selectExpectedDuration = service.info.expected_duration.duration_type
+      this.currencyType = service.info.pricesByCurrency[0].currency.toUpperCase()
+      this.price = service.info.pricesByCurrency[0].priceComponents[0].value
+      this.qcPrice = service.info.pricesByCurrency[0].additionalPrices[0].value
+      this.expectedDuration = service.info.expectedDuration.duration
+      this.selectExpectedDuration = service.info.expectedDuration.durationType
       this.category = service.info.category
       this.description = service.info.description
-      this.testResultSampleUrl = service.info.test_result_sample
-      this.longDescription = service.info.long_description
+      this.testResultSampleUrl = service.info.testResultSample
+      this.longDescription = service.info.longDescription
       this.imageUrl = service.info.image
 
-      const res = await fetch(service.info.test_result_sample)
+      const res = await fetch(service.info.testResultSample)
       const blob = await res.blob() // Gets the response and returns it as a blob
-      const file = new File([blob], service.info.test_result_sample.substring(21), {type: "application/pdf"})
+      const file = new File([blob], service.info.testResultSample.substring(21), {type: "application/pdf"})
       this.testResultSampleFile = file
 
       this.isEdit = true
@@ -415,16 +415,16 @@ export default {
         this.pair,
         {
           name: this.name,
-          prices_by_currency: [
+          pricesByCurrency: [
             {
               currency: this.currencyType,
-              price_components: [
+              priceComponents: [
                 {
                   component: "component_1",
                   value: this.price
                 }
               ],
-              additional_prices: [
+              additionalPrices: [
                 {
                   component: "qc_component",
                   value: this.qcPrice
@@ -432,14 +432,14 @@ export default {
               ],
             },
           ],
-          expected_duration: { 
+          expectedDuration: { 
             duration: this.expectedDuration, 
-            duration_type: this.selectExpectedDuration
+            durationType: this.selectExpectedDuration
           },
           category: this.category,
           description: this.description,
-          test_result_sample: this.testResultSampleUrl,
-          long_description: this.longDescription,
+          testResultSample: this.testResultSampleUrl,
+          longDescription: this.longDescription,
           image: this.imageUrl,
         },
         "RequestTest",
@@ -459,16 +459,16 @@ export default {
         this.serviceId,
         {
           name: this.name,
-          prices_by_currency: [
+          pricesByCurrency: [
             {
               currency: this.currencyType,
-              price_components: [
+              priceComponents: [
                 {
                   component: "component_1",
                   value: this.price
                 }
               ],
-              additional_prices: [
+              additionalPrices: [
                 {
                   component: "qc_component",
                   value: this.qcPrice
@@ -476,14 +476,14 @@ export default {
               ],
             },
           ],
-          expected_duration: { 
+          expectedDuration: { 
             duration: this.expectedDuration, 
-            duration_type: this.selectExpectedDuration
+            durationType: this.selectExpectedDuration
           },
           category: this.category,
           description: this.description,
-          test_result_sample: this.testResultSampleUrl,
-          long_description: this.longDescription,
+          testResultSample: this.testResultSampleUrl,
+          longDescription: this.longDescription,
           image: this.imageUrl,
         },
         () => {

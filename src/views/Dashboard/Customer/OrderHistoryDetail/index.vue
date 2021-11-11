@@ -83,7 +83,7 @@
                   <div>
                     <div><b>Specimen Number:</b></div>
                     <div class="grey--text text--darken-1">
-                      {{ order.dna_sample_tracking_id }}
+                      {{ order.dnaSampleTrackingId }}
                     </div>
                   </div>
                 </template>
@@ -418,15 +418,15 @@ export default {
       ).toFixed(2);
 
       this.totalQcPrice = parseFloat(
-        this.order.additional_prices[0].value.replaceAll(",", ".")
+        this.order.additionalPrices[0].value.replaceAll(",", ".")
       ).toFixed(2);
 
       this.totalPay = (
         parseFloat(this.priceOrder) + parseFloat(this.totalQcPrice)
       ).toFixed(2);
 
-      this.lab = await queryLabsById(this.api, this.order.seller_id);
-      this.service = await queryServicesById(this.api, this.order.service_id);
+      this.lab = await queryLabsById(this.api, this.order.sellerId);
+      this.service = await queryServicesById(this.api, this.order.serviceId);
 
       if (this.openPayMetamask) {
         this.openMetamask();
@@ -483,7 +483,7 @@ export default {
       }
       const ethSellerAddress = await ethAddressByAccountId(
         this.api,
-        this.lab.account_id
+        this.lab.accountId
       );
       if (ethSellerAddress == null) {
         this.alertTextBtn = "Close";
@@ -563,7 +563,7 @@ export default {
     goToResult() {
       this.$router.push({
         name: "result-test",
-        params: { number: this.order.dna_sample_tracking_id },
+        params: { number: this.order.dnaSampleTrackingId },
       });
     },
 

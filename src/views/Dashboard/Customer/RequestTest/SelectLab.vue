@@ -55,7 +55,7 @@
               md="6"
               >
               <SelectableMenuCard
-                  :icon="lab._source.info.profile_image"
+                  :icon="lab._source.info.profileImage"
                   :title="lab._source.info.name"
                   :sub-title="lab._source.info.address"
                   @click="selectLab(lab)"
@@ -137,10 +137,10 @@ export default {
     async selectLab(lab) {
       const services = lab._source.services
       this.service = services.filter((s) => s.info.category == this.category)
-      if (this.service[0].info.expected_duration.duration_type == "WorkingDays") {
+      if (this.service[0].info.expectedDuration.durationType == "WorkingDays") {
         this.durationType = "working days"
       } else {
-        this.durationType = this.service[0].info.expected_duration.duration_type
+        this.durationType = this.service[0].info.expectedDuration.durationType
       }
       this.accountId = this.service[0].id
 
@@ -151,12 +151,12 @@ export default {
       this.icon = this.service[0].info.image
       this.serviceName = this.service[0].info.name
       this.description = this.service[0].info.description
-      this.duration = `${this.service[0].info.expected_duration.duration} ${this.durationType} `
-      this.downloadPath = this.service[0].info.test_result_sample
-      this.additionalPrices = this.service[0].info.prices_by_currency[0].additional_prices[0].value
-      this.currency = this.service[0].info.prices_by_currency[0].currency
-      this.price = this.service[0].info.prices_by_currency[0].price_components[0].value
-      this.totalPrice = this.service[0].info.prices_by_currency[0].total_price
+      this.duration = `${this.service[0].info.expectedDuration.duration} ${this.durationType} `
+      this.downloadPath = this.service[0].info.testResultSample
+      this.additionalPrices = this.service[0].info.pricesByCurrency[0].additionalPrices[0].value
+      this.currency = this.service[0].info.pricesByCurrency[0].currency
+      this.price = this.service[0].info.pricesByCurrency[0].priceComponents[0].value
+      this.totalPrice = this.service[0].info.pricesByCurrency[0].totalPrice
       this.serviceId = lab._id
       this.dialogAlert = true
 

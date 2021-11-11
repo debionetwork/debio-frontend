@@ -194,11 +194,11 @@ export default {
       this.serviceName = order.service_name
       this.serviceDescription = order.service_description
       this.serviceImage = order.service_image
-      this.publicKey = order.customer_box_public_key
-      this.createdAt = order.created_at
+      this.publicKey = order.customerBoxPublicKey
+      this.createdAt = order.createdAt
       this.customerEthAddress = order.customer_eth_address ? order.customer_eth_address : "Address not set"
       this.sellerEthAddress = order.seller_eth_address
-      this.specimenNumber = order.dna_sample_tracking_id
+      this.specimenNumber = order.dnaSampleTrackingId
       this.specimenStatus = order.dna_sample_status
       this.setCheckboxByDnaStatus()
     } catch (err) {
@@ -234,9 +234,9 @@ export default {
     },
 
     setUploadFields(testResult){
-      const { result_link, report_link } = testResult
-      if(result_link && result_link != ""
-        && report_link && report_link != ""
+      const { resultLink, reportLink } = testResult
+      if(resultLink && resultLink != ""
+        && reportLink && reportLink != ""
       ) {
         this.onResultUploaded()
       }
@@ -322,7 +322,7 @@ export default {
     }),
 
     orderId() {
-      return this.$route.params.order_id ? this.$route.params.order_id : ''
+      return this.$route.params.orderId ? this.$route.params.orderId : ''
     },
 
     showReceiveDialog(){

@@ -8,7 +8,7 @@
                   :headers="headers"
                   :items="orders"
                   :search="search"
-                  :sort-by="['created_at']"
+                  :sort-by="['createdAt']"
                   :sort-desc="[true]"
                   :loading="isLoading"
                   :total-item-length="totalOrders"
@@ -24,8 +24,8 @@
                         @input="search = $event"
                      ></SearchBar>
                   </template>
-                  <template v-slot:[`item.dna_sample_tracking_id`]="{ item }">
-                    {{ item.dna_sample_tracking_id }}
+                  <template v-slot:[`item.dnaSampleTrackingId`]="{ item }">
+                    {{ item.dnaSampleTrackingId }}
                   </template>
                   <template v-slot:[`item.actions`]="{ item }">
                      <v-container>
@@ -61,9 +61,9 @@ export default {
   },
   data: () => ({
     headers: [
-      { text: 'Date', value: 'created_at' },
+      { text: 'Date', value: 'createdAt' },
       { text: 'Product Name', value: 'service_name' },
-      { text: 'Specimen Number', value: 'dna_sample_tracking_id' },
+      { text: 'Specimen Number', value: 'dnaSampleTrackingId' },
       { text: 'Status', value: 'status' },
       { text: 'Actions', value: 'actions', sortable: false, align: 'center', width: '5%' },
     ],
@@ -92,14 +92,14 @@ export default {
       let { orders, totalOrders } = await getOrdersDetailByAddressPagination(this.api, this.pair.address, this.page, this.pageSize)
       for(let i = 0; i < orders.length; i++){
         const order = orders[i]
-        order.created_at = (new Date(order.created_at)).toLocaleDateString()
+        order.createdAt = (new Date(order.createdAt)).toLocaleDateString()
         this.orders.push(order)
       }
       this.totalOrders = totalOrders
       this.isLoading = false
     },
     processOrder(item){
-      this.$router.push({ name: 'lab-dashboard-process-order', params: { order_id: item.id }})
+      this.$router.push({ name: 'lab-dashboard-process-order', params: { orderId: item.id }})
     },
     buttonClass(item){
       if(item.status == "Success"){

@@ -1,35 +1,35 @@
-export async function createOrder(api, pair, service_id, customer_box_public_key, priceIndex) {
+export async function createOrder(api, pair, serviceId, customerBoxPublicKey, priceIndex) {
   const result = await api.tx.orders
-    .createOrder(service_id, priceIndex, customer_box_public_key)
+    .createOrder(serviceId, priceIndex, customerBoxPublicKey)
     .signAndSend(pair, { nonce: -1 })
   return result.toHuman()
 }
 
-export async function fulfillOrder(api, pair, order_id, callback = ()=>{}) {
+export async function fulfillOrder(api, pair, orderId, callback = ()=>{}) {
   const unsub = await api.tx.orders
-    .fulfillOrder(order_id)
+    .fulfillOrder(orderId)
     .signAndSend(pair, { nonce: -1 }, ({ events, status }) => 
       successCallback(api, { events, status, callback, unsub })
     )
 }
 
-export async function refundOrder(api, pair, order_id) {
+export async function refundOrder(api, pair, orderId) {
   const result = await api.tx.orders
-    .refundOrder(order_id)
+    .refundOrder(orderId)
     .signAndSend(pair, { nonce: -1 })
   return result.toHuman()
 }
 
-export async function setOrderPaid(api, pair, order_id) {
+export async function setOrderPaid(api, pair, orderId) {
   const result = await api.tx.orders
-    .setOrderPaid(order_id)
+    .setOrderPaid(orderId)
     .signAndSend(pair, { nonce: -1 })
   return result.toHuman()
 }
 
-export async function cancelOrder(api, pair, order_id) {
+export async function cancelOrder(api, pair, orderId) {
   const result = await api.tx.orders
-    .cancelOrder(order_id)
+    .cancelOrder(orderId)
     .signAndSend(pair, { nonce: -1 })
   return result.toHuman()
 }

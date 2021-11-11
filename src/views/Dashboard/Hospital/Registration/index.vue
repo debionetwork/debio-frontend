@@ -218,7 +218,7 @@ export default {
               {
                 name: this.hospitalName,
                 email: this.email,
-                profile_image: this.image,
+                profileImage: this.image,
                 address: this.address,
                 country: this.country,
                 city: this.city,

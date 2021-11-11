@@ -21,10 +21,10 @@ const handler = {
 
 		if (data.section == "LabUpdateVerificationStatus") {
 			const lab = data.data[0].toHuman()
-			if (lab.verification_status == "Verified") {
+			if (lab.verificationStatus == "Verified") {
 				wording = `Congrats! ${wording}`
 			}
-			wording = `${wording} ${lab.verification_status.toLowerCase()}`
+			wording = `${wording} ${lab.verificationStatus.toLowerCase()}`
 		}
 		
 		return { data, id, params, wording }

@@ -23,7 +23,7 @@
               <OrderCard
                 :icon="order.icon"
                 :title="order.title"
-                :specimenNumber="order.dna_sample_tracking_id"
+                :specimenNumber="order.dnaSampleTrackingId"
                 :labName="order.labName"
                 :timestamp="order.timestamp"
                 :status="order.status"
@@ -36,7 +36,7 @@
           <OrderCard
             :icon="order.icon"
             :title="order.title"
-            :specimenNumber="order.dna_sample_tracking_id"
+            :specimenNumber="order.dnaSampleTrackingId"
             :labName="order.labName"
             :timestamp="order.timestamp"
             :status="order.status"
@@ -107,9 +107,9 @@ export default {
       }
 
       const number = detailOrder.id
-      const timestamp = (detailOrder.created_at / 1000).toString()
+      const timestamp = (detailOrder.createdAt / 1000).toString()
       const status = detailOrder.status
-      const dna_sample_tracking_id = detailOrder.dna_sample_tracking_id
+      const dnaSampleTrackingId = detailOrder.dnaSampleTrackingId
 
       const order = {
         icon,
@@ -118,7 +118,7 @@ export default {
         labName,
         timestamp,
         status,
-        dna_sample_tracking_id,
+        dnaSampleTrackingId,
       }
 
       this.preparedOrderHistory.push(order)
@@ -137,7 +137,7 @@ export default {
       }
       this.$router.push({ 
         name: 'lab-dashboard-process-order', 
-        params: { order_id: item.id }
+        params: { orderId: item.id }
       })
     },
   },

@@ -87,7 +87,7 @@ export default {
       if (this.lastEventData != null) {
         const dataEvent = JSON.parse(this.lastEventData.data.toString());
         if (this.lastEventData.section == "geneticTesting") {
-          if (dataEvent[0].owner_id == this.wallet.address) {
+          if (dataEvent[0].ownerId == this.wallet.address) {
             this.getTestResults();
           }
         }
@@ -134,15 +134,15 @@ export default {
             if (dnaTestResults != null) {
               const detaillab = await queryLabsById(
                 this.api,
-                dnaTestResults.lab_id
+                dnaTestResults.labId
               );
               const detailOrder = await getOrdersData(
                 this.api,
-                dnaTestResults.order_id
+                dnaTestResults.orderId
               );
               const detailService = await queryServicesById(
                 this.api,
-                detailOrder.service_id
+                detailOrder.serviceId
               );
               this.prepareOrderData(dnaTestResults, detaillab, detailService);
             }
@@ -171,9 +171,9 @@ export default {
 
       let dateSet = new Date();
       let timestamp = dateSet.getTime().toString();
-      if (dnaTestResults.updated_at != null) {
+      if (dnaTestResults.updatedAt != null) {
         dateSet = new Date(
-          parseInt(dnaTestResults.updated_at.replace(/,/g, ""))
+          parseInt(dnaTestResults.updatedAt.replace(/,/g, ""))
         );
         timestamp = dateSet.getTime().toString();
       }
@@ -186,7 +186,7 @@ export default {
         minute: "numeric",
       });
 
-      const number = dnaTestResults.tracking_id;
+      const number = dnaTestResults.trackingId;
       const status = SUCCESS;
 
       const date = format(fromUnixTime(timestamp), "MMMM dd yyyy");
