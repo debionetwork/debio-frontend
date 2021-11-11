@@ -66,8 +66,8 @@ export default {
       this.specimenStatus = this.order.dna_sample_status
       this.setCheckBoxByDnaStatus()
 
-      const { created_at, expected_duration: { duration, duration_type } } = this.order
-      this.setExpectedDuration(created_at, duration, duration_type)
+      const { createdAt, expectedDuration: { duration, durationType } } = this.order
+      this.setExpectedDuration(createdAt, duration, durationType)
     } catch (error) {
       console.log(error)
     }
@@ -76,7 +76,7 @@ export default {
     goToResult() {
       this.$router.push({
         name: "result-test",
-        params: { number: this.order.dna_sample_tracking_id },
+        params: { number: this.order.dnaSampleTrackingId },
       });
     },
 

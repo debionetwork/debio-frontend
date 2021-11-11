@@ -7,21 +7,21 @@ import axios from 'axios'
 
 export async function getOrdersDetail(api, orderId){
   let orderDetail = await getOrdersData(api, orderId)
-  orderDetail['customer_eth_address'] = await ethAddressByAccountId(api, orderDetail.customer_id)
-  orderDetail['seller_eth_address'] = await ethAddressByAccountId(api, orderDetail.seller_id)
-  orderDetail['created_at'] = parseInt(orderDetail.created_at.replace(/,/g, ""))
+  orderDetail['customer_eth_address'] = await ethAddressByAccountId(api, orderDetail.customerId)
+  orderDetail['seller_eth_address'] = await ethAddressByAccountId(api, orderDetail.sellerId)
+  orderDetail['createdAt'] = parseInt(orderDetail.createdAt.replace(/,/g, ""))
 
-  const dna = await queryDnaSamples(api, orderDetail.dna_sample_tracking_id)
+  const dna = await queryDnaSamples(api, orderDetail.dnaSampleTrackingId)
   if(dna){
     orderDetail['dna_sample_status'] = dna.status
   }
 
-  const service = await queryServicesById(api, orderDetail.service_id)
+  const service = await queryServicesById(api, orderDetail.serviceId)
   if(service != null){
     orderDetail['service_name'] = service.info.name
     orderDetail['service_description'] = service.info.description
     orderDetail['service_image'] = service.info.image
-    orderDetail['expected_duration'] = service.info.expected_duration
+    orderDetail['expectedDuration'] = service.info.expectedDuration
   }
 
   return orderDetail
@@ -54,19 +54,19 @@ export async function getOrdersDetailByAddressPagination(api, address, page, pag
     let orderDetail = await getOrdersData(api, orderIds[i])
     if(orderDetail['status'] == "Unpaid") continue // Skip unpaid orders
 
-    const dna = await queryDnaSamples(api, orderDetail.dna_sample_tracking_id)
+    const dna = await queryDnaSamples(api, orderDetail.dnaSampleTrackingId)
     if(dna){
       orderDetail['dna_sample_status'] = dna.status
     }
 
-    const service = await queryServicesById(api, orderDetail.service_id)
-    orderDetail['created_at'] = parseInt(orderDetail.created_at.replace(/,/g, ""))
+    const service = await queryServicesById(api, orderDetail.serviceId)
+    orderDetail['createdAt'] = parseInt(orderDetail.createdAt.replace(/,/g, ""))
     
     let lab = null
     if(service){
       orderDetail['service_name'] = service.info.name
       orderDetail['service_image'] = service.info.image
-      lab = await queryLabsById(api, service.owner_id)
+      lab = await queryLabsById(api, service.ownerId)
     }
 
     if(lab){

@@ -205,7 +205,7 @@ const labRoutes = [
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/OrderHistory')
             },
             {
-              path: '/lab/orders/:order_id/process',
+              path: '/lab/orders/:orderId/process',
               name: 'lab-dashboard-process-order',
               meta: {
                 pageHeader: 'Process Order',

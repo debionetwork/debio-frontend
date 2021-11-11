@@ -71,8 +71,8 @@
                     v-model="biologicalType"
                     outlined
                     :items="listBiologicalType"
-                    item-text="dna_collection_process"
-                    item-value="dna_collection_process"
+                    item-text="dnaCollectionProcess"
+                    item-value="dnaCollectionProcess"
                     :rules="biologicalTypeRules"
                     ></v-select>
 
@@ -223,7 +223,7 @@ export default {
     testResultSampleUrl: "",
     statusLab: null,
     messageWarning: {},
-    service_flow: "requestTest",
+    serviceFlow: "requestTest",
     files: [],
     testResultSampleFile:[],
     listCategories:[],
@@ -390,7 +390,7 @@ export default {
         }
       })
 
-      if (currentLab.verification_status === "verified") {
+      if (currentLab.verificationStatus === "verified") {
         if (currentLab.info?.city !== this.servicePayload?.location) return
 
         this.showModalAlert = true
@@ -400,9 +400,9 @@ export default {
         return
       }
 
-      this.statusLab = currentLab.verification_status
+      this.statusLab = currentLab.verificationStatus
 
-      const compute = !this.exist ? "NOT_EXIST" : currentLab.verification_status.toUpperCase()
+      const compute = !this.exist ? "NOT_EXIST" : currentLab.verificationStatus.toUpperCase()
 
       this.messageWarning = MESSAGE[compute]
 
@@ -429,7 +429,7 @@ export default {
         durationType,
         durationValue,
         biologicalType,
-        service_flow
+        serviceFlow
       } = this.servicePayload
 
       this.name = name
@@ -442,7 +442,7 @@ export default {
       this.selectExpectedDuration = durationType
       this.expectedDuration = durationValue
       this.biologicalType = biologicalType
-      this.service_flow = service_flow
+      this.serviceFlow = serviceFlow
     },
 
     async createService() {
@@ -456,16 +456,16 @@ export default {
         this.pair,
         {
           name: this.name,
-          prices_by_currency: [
+          pricesByCurrency: [
             {
               currency: this.currencyType,
-              price_components: [
+              priceComponents: [
                 {
                   component: "component_1",
                   value: this.price
                 }
               ],
-              additional_prices: [
+              additionalPrices: [
                 {
                   component: "qc_component",
                   value: this.qcPrice
@@ -473,17 +473,17 @@ export default {
               ],
             },
           ],
-          expected_duration: { 
+          expectedDuration: { 
             duration: this.expectedDuration, 
-            duration_type: this.selectExpectedDuration
+            durationType: this.selectExpectedDuration
           },
           category: this.category,
           description: this.description,
-          test_result_sample: this.testResultSampleUrl,
-          long_description: this.longDescription,
+          testResultSample: this.testResultSampleUrl,
+          longDescription: this.longDescription,
           image: this.imageUrl,
-          dna_collection_process: this.biologicalType,
-          service_flow: this.service_flow
+          dnaCollectionProcess: this.biologicalType,
+          serviceFlow: this.serviceFlow
         },
         () => {
           this.$router.push('/lab/services')

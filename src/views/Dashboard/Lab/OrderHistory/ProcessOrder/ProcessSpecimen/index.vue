@@ -278,18 +278,18 @@ export default {
 
   methods:{
     setUploadFields(testResult){
-      const { result_link, report_link } = testResult
-      if(result_link){
+      const { resultLink, reportLink } = testResult
+      if(resultLink){
         const genomeFile = {
           fileName: 'Genome File', // FIXME: Harusnya di simpan di dan di ambil dari blockchain  
-          ipfsPath: [{ data: { path: result_link.split('/')[result_link.split('/').length-1] } }]
+          ipfsPath: [{ data: { path: resultLink.split('/')[resultLink.split('/').length-1] } }]
         }
         this.files.genome.push(genomeFile)
       }
-      if(report_link){
+      if(reportLink){
         const reportFile = {
           fileName: 'Report File', // FIXME: Harusnya di simpan di dan di ambil dari blockchain
-          ipfsPath: [{ data: { path: report_link.split('/')[report_link.split('/').length-1] } }]
+          ipfsPath: [{ data: { path: reportLink.split('/')[reportLink.split('/').length-1] } }]
         }
         this.files.report.push(reportFile)
       }
@@ -332,8 +332,8 @@ export default {
         this.specimenNumber,
         {
           comment: this.comment,
-          report_link: reportLink,
-          result_link: genomeLink
+          reportLink: reportLink,
+          resultLink: genomeLink
         },
         callback
       )

@@ -37,8 +37,8 @@
                     </div>
                     <div>{{ cert.info.month }} {{ cert.info.year }} • {{ cert.info.issuer }}</div>
                     <div class="mt-3 mb-3">{{ cert.info.description }}</div>
-                    <div v-if="cert.info.supporting_document" class="mt-3 mb-3">
-                    <a :href="cert.info.supporting_document" class="support-url" target="_blank">
+                    <div v-if="cert.info.supportingDocument" class="mt-3 mb-3">
+                    <a :href="cert.info.supportingDocument" class="support-url" target="_blank">
                         <v-icon class="mx-1" small>mdi-file-document</v-icon>
                         Supporting Documents
                     </a>
@@ -227,7 +227,7 @@ export default {
         month: this.certMonth,
         year: this.certYear,
         description: this.certDescription,
-        supporting_document: this.certSupportingDocumentsUrl
+        supportingDocument: this.certSupportingDocumentsUrl
       }
       await this.dispatch(createCertification, this.api, this.pair, certificationInfo, () => {
         this.closeCertificationDialog()
@@ -240,7 +240,7 @@ export default {
       this.certMonth = cert.info.month
       this.certYear = cert.info.year
       this.certDescription = cert.info.description
-      this.certSupportingDocumentsUrl = cert.info.supporting_document
+      this.certSupportingDocumentsUrl = cert.info.supportingDocument
       this.certificationDialog = true
       this.isEditCertificationDialog = true
     },
@@ -254,7 +254,7 @@ export default {
         month: this.certMonth,
         year: this.certYear,
         description: this.certDescription,
-        supporting_document: this.certSupportingDocumentsUrl
+        supportingDocument: this.certSupportingDocumentsUrl
       }
       await this.dispatch(updateCertification, this.api, this.pair, this.certId, certificationInfo, () => {
         this.closeCertificationDialog()

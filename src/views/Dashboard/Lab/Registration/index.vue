@@ -288,7 +288,7 @@ export default {
         this.labName = this.labAccount.info.name
         this.email = this.labAccount.info.email
         this.address = this.labAccount.info.address
-        this.phoneNumber = this.labAccount.info.phone_number
+        this.phoneNumber = this.labAccount.info.phoneNumber
         this.website = this.labAccount.info.website
         this.country = this.labAccount.info.country
         await this.onCountryChange(this.country)
@@ -296,7 +296,7 @@ export default {
         await this.onStateChange(this.labAccount.info.region) // Region means the state, backend response got region instead state
         this.city = this.labAccount.info.city
         await this.onCityChange({ name: this.labAccount.info.city })
-        this.imageUrl = this.labAccount.info.profile_image
+        this.imageUrl = this.labAccount.info.profileImage
 
         const res = await fetch(this.imageUrl)
         const blob = await res.blob() // Gets the response and returns it as a blob
@@ -352,22 +352,22 @@ export default {
       try{
         this.isLoading = true
         const ethAddress = await getWalletAddress()
-        const box_public_key = this.mnemonicData.publicKey
+        const boxPublicKey = this.mnemonicData.publicKey
 
         await registerLab(
           this.api,
           this.pair,
           {
-            box_public_key,
+            boxPublicKey,
             name: this.labName,
             email: this.email,
             address: this.address,
-            phone_number: this.phoneNumber,
+            phoneNumber: this.phoneNumber,
             website: this.website,
             country: this.country,
             region: this.state,
             city: this.city,
-            profile_image: this.imageUrl
+            profileImage: this.imageUrl
           },
           async () => {
             await setEthAddress(
@@ -377,17 +377,17 @@ export default {
               () => {
                 this.isLoading = false
                 const labAccount = {
-                  account_id: this.pair.address,
+                  accountId: this.pair.address,
                   services: [],
                   certifications: [],
                   info: {
-                    box_public_key,
+                    boxPublicKey,
                     name: this.labName,
                     email: this.email,
                     address: this.address,
                     country: this.country,
                     city: this.city,
-                    profile_image: this.imageUrl,
+                    profileImage: this.imageUrl,
                   }
                 }
                 this.setLabAccount(labAccount)

@@ -72,9 +72,9 @@ export default {
     rate: 0,
     comment: "",
     dialogAlert: false,
-    lab_id: "",
-    service_id: "",
-    customer_id: "",
+    labId: "",
+    serviceId: "",
+    customerId: "",
     date: "",
   }),
   computed: {
@@ -90,13 +90,13 @@ export default {
   methods: {
     async sendFeedback () {
       await this.getDate()
-      const { rate, comment, lab_id, service_id, customer_id, createdAt, orderId } = this
+      const { rate, comment, labId, serviceId, customerId, createdAt, orderId } = this
       this.$store.dispatch('feedback/sendFeedback', {
         rate, 
         comment,
-        lab_id,
-        service_id,
-        customer_id,
+        labId,
+        serviceId,
+        customerId,
         createdAt,
         orderId
         })
@@ -120,9 +120,9 @@ export default {
     }
   },
   mounted() {
-    this.lab_id = this.order.seller_id
-    this.service_id = this.order.service_id
-    this.customer_id = this.order.customer_id
+    this.labId = this.order.sellerId
+    this.serviceId = this.order.serviceId
+    this.customerId = this.order.customerId
   },
 }
 </script>

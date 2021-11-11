@@ -34,11 +34,11 @@ export async function getDnaTestResultsDetailByLab(api, labId){
         if(resultIds != null){
             for(let i = 0; i < resultIds.length; i++){
                 let resultDetail = await queryDnaSamples(api, resultIds[i])
-                let orderDetail = await getOrdersDetail(api, resultDetail.order_id)
-                let createdAtTimestamp = orderDetail.created_at
-                const service = await queryServicesById(api, orderDetail.service_id)
-                const lab = await queryLabsById(api, service.owner_id)
-                orderDetail['created_at'] = (new Date(createdAtTimestamp)).toLocaleDateString()
+                let orderDetail = await getOrdersDetail(api, resultDetail.orderId)
+                let createdAtTimestamp = orderDetail.createdAt
+                const service = await queryServicesById(api, orderDetail.serviceId)
+                const lab = await queryLabsById(api, service.ownerId)
+                orderDetail['createdAt'] = (new Date(createdAtTimestamp)).toLocaleDateString()
                 orderDetail['lab_name'] = lab.info.name
                 orderDetail['service_name'] = service.info.name
                 resultDetail['order'] = orderDetail

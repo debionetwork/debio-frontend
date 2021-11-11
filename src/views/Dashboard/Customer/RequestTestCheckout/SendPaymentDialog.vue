@@ -193,7 +193,7 @@ export default {
           let orderStatus = false;
           let orderId = "";
           for (let i = 0; i < dataEvent.length; i++) {
-            if (dataEvent[i].customer_id == this.wallet.address) {
+            if (dataEvent[i].customerId == this.wallet.address) {
               orderStatus = true;
               orderId = dataEvent[i].id;
             }
@@ -232,7 +232,7 @@ export default {
         // Checking seller ready eth Address
         this.ethSellerAddress = await ethAddressByAccountId(
           this.api,
-          this.lab.account_id
+          this.lab.accountId
         );
         if (this.ethSellerAddress == null) {
           this.isLoading = false;
@@ -308,13 +308,13 @@ export default {
 
               const balance = await getBalanceETH(this.metamaskWalletAddress);
               if (balance > 0) {
-                const customer_box_public_key = this.getKiltBoxPublicKey();
+                const customerBoxPublicKey = this.getKiltBoxPublicKey();
                 for (let i = 0; i < this.products.length; i++) {
                   await createOrder(//customer udah create order, notif dari cust apa dari lab nya.
                     this.api,
                     this.wallet,
                     this.products[i].accountId,
-                    customer_box_public_key,
+                    customerBoxPublicKey,
                     this.products[i].indexPrice
                   );
                 }

@@ -256,8 +256,8 @@
                 :title="product.serviceName"
                 :sub-title="product.serviceData.info.description"
                 :hover-text="
-                  product.serviceData.info.long_description
-                    ? product.serviceData.info.long_description
+                  product.serviceData.info.longDescription
+                    ? product.serviceData.info.longDescription
                     : product.serviceData.info.description
                 "
                 :is-selected="isProductSelected(product)"
@@ -468,9 +468,9 @@ export default {
         for (let i = 0; i < listLabID.length; i++) {
           const detailLab = await queryLabsById(this.api, listLabID[i]);
           let labId = listLabID[i-1]
-          if (detailLab && detailLab.account_id != labId ) {
+          if (detailLab && detailLab.accountId != labId ) {
             const labName = detailLab.info.name;
-            const accountId = detailLab.account_id;
+            const accountId = detailLab.accountId;
             const address = detailLab.info.address;
             const labData = detailLab;
 
@@ -522,21 +522,21 @@ export default {
                 let price = 0;
                 let additionalPrices = 0;
                 let totalPrice = 0
-                if (detailService.info.prices_by_currency != null) {
-                  currency = detailService.info.prices_by_currency[0].currency;
+                if (detailService.info.pricesByCurrency != null) {
+                  currency = detailService.info.pricesByCurrency[0].currency;
                   if (
-                    detailService.info.prices_by_currency[0].price_components.length > 0
+                    detailService.info.pricesByCurrency[0].priceComponents.length > 0
                   ) {
                     price =
-                      detailService.info.prices_by_currency[0].price_components[0].value;
+                      detailService.info.pricesByCurrency[0].priceComponents[0].value;
                   }
                   if (
-                    detailService.info.prices_by_currency[0].additional_prices
+                    detailService.info.pricesByCurrency[0].additionalPrices
                       .length > 0
                   ) {
                     additionalPrices =
-                      detailService.info.prices_by_currency[0]
-                        .additional_prices[0].value;
+                      detailService.info.pricesByCurrency[0]
+                        .additionalPrices[0].value;
                   }
                   totalPrice = Number(price) + Number(additionalPrices)
                   totalPrice = totalPrice.toString()
@@ -608,16 +608,16 @@ export default {
     },
 
     onContinue() {
-      if (this.selectedProducts[0].serviceData.info.expected_duration.duration_type == "WorkingDays") {
+      if (this.selectedProducts[0].serviceData.info.expectedDuration.durationType == "WorkingDays") {
         this.durationType = "working days"
       } else {
-        this.durationType = this.selectedProducts[0].serviceData.info.expected_duration.duration_type
+        this.durationType = this.selectedProducts[0].serviceData.info.expectedDuration.durationType
       }
       this.icon = this.selectedProducts[0].icon
       this.serviceName = this.selectedProducts[0].serviceName
       this.description = this.selectedProducts[0].serviceData.info.description
-      this.duration = `${this.selectedProducts[0].serviceData.info.expected_duration.duration} ${this.durationType}`
-      this.downloadPath = this.selectedProducts[0].serviceData.info.test_result_sample
+      this.duration = `${this.selectedProducts[0].serviceData.info.expectedDuration.duration} ${this.durationType}`
+      this.downloadPath = this.selectedProducts[0].serviceData.info.testResultSample
       this.serviceId = this.selectedProducts[0].serviceData.id
       
       this.dialogAlert = true

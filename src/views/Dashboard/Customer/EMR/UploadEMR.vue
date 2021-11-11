@@ -347,7 +347,7 @@ export default {
       if (this.lastEventData != null) {
         const dataEvent = JSON.parse(this.lastEventData.data.toString())
         if (this.lastEventData.method == "ElectronicMedicalRecordInfoAdded") {
-          if (dataEvent[0].owner_id == this.wallet.address) {
+          if (dataEvent[0].ownerId == this.wallet.address) {
             this.countFileUploaded = this.countFileUploaded + 1
             this.loadingUploadText =
               "Document EMR " + this.countFileUploaded + ": Saved"
@@ -370,7 +370,7 @@ export default {
           this.lastEventData.method == "ElectronicMedicalRecordAdded"
         ) {
           if (
-            dataEvent[0].owner_id == this.wallet.address &&
+            dataEvent[0].ownerId == this.wallet.address &&
             this.registerEMR
           ) {
             this.prosesFiles()
@@ -441,7 +441,7 @@ export default {
           const dataBody = {
             title: dataFile.title,
             description: dataFile.desc,
-            record_link: link,
+            recordLink: link,
           }
           await addElectronicMedicalRecordInfo(
             context.api,

@@ -23,13 +23,13 @@
                 @input="onSearchInput"
               ></SearchBar>
             </template>
-            <!-- <template v-slot:[`item.dna_sample_tracking_id`]="{ item }">
+            <!-- <template v-slot:[`item.dnaSampleTrackingId`]="{ item }">
               {{ timestamp | timestampToDateTime }}
             </template>
              -->
 
             <template v-slot:[`item.actions`]="{ item }">
-              <v-container v-if="item.data.record_link != ''">
+              <v-container v-if="item.data.recordLink != ''">
                 <div class="d-flex align-center">
                   <v-btn icon @click="goToDetail(item)">
                     <v-icon color="grey">mdi-eye</v-icon>
@@ -219,7 +219,7 @@ export default {
       if (this.lastEventData != null) {
         const dataEvent = JSON.parse(this.lastEventData.data.toString())
         if (this.lastEventData.method == "ElectronicMedicalRecordInfoRemoved") {
-          if (dataEvent[0].owner_id == this.wallet.address) {
+          if (dataEvent[0].ownerId == this.wallet.address) {
             this.getDocumentsHistory()
           }
         }
@@ -283,7 +283,7 @@ export default {
     prepareEMRData(dataEMR) {
       const title = dataEMR.title
       const description = dataEMR.description
-      var d = new Date(parseInt(dataEMR.uploaded_at.replace(/,/g, "")))
+      var d = new Date(parseInt(dataEMR.uploadedAt.replace(/,/g, "")))
       const timestamp = d.getTime().toString()
       const data = dataEMR
       const date = d.toLocaleString("en-US", {
@@ -314,7 +314,7 @@ export default {
       } else {
         this.$router.push({
           name: "result-test",
-          params: { number: item.dna_sample_tracking_id },
+          params: { number: item.dnaSampleTrackingId },
         })
       }
     },
@@ -325,7 +325,7 @@ export default {
         const publicKey = hexToU8a(this.mnemonicData.publicKey)
         const privateKey = hexToU8a(this.mnemonicData.privateKey)
         const baseUrl = "https://ipfs.io/ipfs/"
-        const path = item.data.record_link.replace(baseUrl, "")
+        const path = item.data.recordLink.replace(baseUrl, "")
         await this.dispatch(downloadDecryptedFromIPFS,
           path,
           privateKey,

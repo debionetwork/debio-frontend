@@ -259,9 +259,9 @@ export default {
     this.email = labInfo.email
     this.labName = labInfo.name
     this.address = labInfo.address
-    this.phoneNumber = labInfo.phone_number
+    this.phoneNumber = labInfo.phoneNumber
     this.website = labInfo.website
-    this.imageUrl = labInfo.profile_image
+    this.imageUrl = labInfo.profileImage
 
     await this.getCountries()
     await this.onCountryChange(labInfo.country)
@@ -321,21 +321,21 @@ export default {
       }
       try{
         this.isLoading = true
-        const box_public_key = this.getKiltBoxPublicKey()
+        const boxPublicKey = this.getKiltBoxPublicKey()
         await updateLab(
           this.api,
           this.pair,
           {
-            box_public_key,
+            boxPublicKey,
             name: this.labName,
             email: this.email,
             address: this.address,
-            phone_number: this.phoneNumber,
+            phoneNumber: this.phoneNumber,
             website: this.website,
             country: this.country,
             region: this.state, // Region means the state, backend parameter only accept region instead state
             city: this.city,
-            profile_image: this.imageUrl,
+            profileImage: this.imageUrl,
           },
           () => {
             this.isLoading = false

@@ -28,14 +28,14 @@ export async function sendPaymentEscrow(api, orderId, ethAccount, sellerEth) {
   const web3 = store.getters['metamask/getWeb3']
   const currentData = await getOrdersData(api, orderId);
 
-  const serviceId = currentData.service_id
-  const customerSubstrateAddress = currentData.customer_id
-  const sellerSubstrateAddress = currentData.seller_id
+  const serviceId = currentData.serviceId
+  const customerSubstrateAddress = currentData.customerId
+  const sellerSubstrateAddress = currentData.sellerId
   const customerEthAddress = ethAccount.currentAccount
   const sellerEthAddress = sellerEth
-  const dnaSampleTrackingId = currentData.dna_sample_tracking_id
+  const dnaSampleTrackingId = currentData.dnaSampleTrackingId
   const testingPrice = currentData.prices[0].value
-  const qcPrice = currentData.additional_prices[0].value
+  const qcPrice = currentData.additionalPrices[0].value
   const payAmount = (parseFloat(testingPrice) + parseFloat(qcPrice)).toFixed(2);
 
   console.log({

@@ -255,7 +255,7 @@ export default {
         this.api,
         this.pair,
         {
-          tracking_id: this.specimenNumber,
+          trackingId: this.specimenNumber,
           rejected_title: this.rejectionTitle,
           rejected_description: this.rejectionDescription,
         },

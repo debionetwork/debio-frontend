@@ -71,7 +71,7 @@ export default {
           this.wallet.address
         )
         dnaTestResults.sort(
-          (a, b) => parseInt(b.created_at) - parseInt(a.created_at)
+          (a, b) => parseInt(b.createdAt) - parseInt(a.createdAt)
         )
         if(dnaTestResults.length > 0){
           for (let i = 0; i < maxResults; i++) {
@@ -94,9 +94,9 @@ export default {
 
       let dateSet = new Date();
       let timestamp = dateSet.getTime().toString();
-      if (dnaTestResults.updated_at != null) {
+      if (dnaTestResults.updatedAt != null) {
         dateSet = new Date(
-          parseInt(dnaTestResults.updated_at.replace(/,/g, ""))
+          parseInt(dnaTestResults.updatedAt.replace(/,/g, ""))
         );
         timestamp = dateSet.getTime().toString();
       }
@@ -109,7 +109,7 @@ export default {
         minute: "numeric",
       });
 
-      const number = dnaTestResults.tracking_id;
+      const number = dnaTestResults.trackingId;
       const status = SUCCESS;
 
       const order = {

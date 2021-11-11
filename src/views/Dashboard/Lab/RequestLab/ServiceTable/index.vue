@@ -7,7 +7,7 @@
 			<ServerSideDataTable
 				:headers="headers"
 				:items="regions"
-				:sort-by="['created_at']"
+				:sort-by="['createdAt']"
 				:sort-desc="[true]"
 				:loading="isLoading"
 				:handle-page-change="handlePageChange"
@@ -43,7 +43,7 @@
 							class="expanded"
 							:headers="headers"
 							:items="item ? item.sub_locations : []"
-							:sort-by="['created_at']"
+							:sort-by="['createdAt']"
 							:sort-desc="[true]"
 							:loading="isLoading"
 							hide-entries
@@ -280,7 +280,7 @@ export default {
         return filtered
       }, {})
 
-      this.$store.dispatch("lab/setProvideService", { ...parameterQueries, service_flow: "stakingRequestService" })
+      this.$store.dispatch("lab/setProvideService", { ...parameterQueries, serviceFlow: "stakingRequestService" })
 
       if (!isLoggedIn) {
         this.$router.push({ name: "login", query: { redirect: "lab-dashboard-add-services" } })

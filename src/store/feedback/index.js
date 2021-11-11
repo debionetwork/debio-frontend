@@ -22,10 +22,10 @@ export default {
     async sendFeedback({commit}, feedback) {
       commit('SET_FEEDBACK', feedback)
       const data = {
-        "lab_id": feedback.lab_id,
-        "service_id": feedback.service_id,
-        "order_id": feedback.orderId,
-        "rating_by": feedback.customer_id,
+        "labId": feedback.labId,
+        "serviceId": feedback.serviceId,
+        "orderId": feedback.orderId,
+        "rating_by": feedback.customerId,
         "rating": feedback.rate,
         "created": feedback.createdAt
     }

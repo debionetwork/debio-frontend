@@ -5,8 +5,8 @@
         <v-col>
           <v-dialog v-model="dialogInstruction" max-width="600px">
             <DNASampleSendingInstructions
-              :specimenNumber="selectedSpeciment.dna_sample_tracking_id"
-              :lab="selectedSpeciment.lab_info"
+              :specimenNumber="selectedSpeciment.dnaSampleTrackingId"
+              :lab="selectedSpeciment.LabInfo"
               :orderId="selectedSpeciment.id"
               :sourcePage="'order-history'"
               hide-order-history-link
@@ -54,8 +54,8 @@
                 @input="onSearchInput"
               ></SearchBar>
             </template>
-            <template v-slot:[`item.dna_sample_tracking_id`]="{ item }">
-              {{ item.dna_sample_tracking_id }}
+            <template v-slot:[`item.dnaSampleTrackingId`]="{ item }">
+              {{ item.dnaSampleTrackingId }}
             </template>
             <template v-slot:[`item.timestamp`]="{ item }">
               {{ item.orderDate }}
@@ -201,10 +201,10 @@ export default {
     ORDER_FAILED,
     ORDER_CANCEL,
     headers: [
-      { text: "Lab Name", value: "lab_info.name" },
+      { text: "Lab Name", value: "LabInfo.name" },
       { text: "Product Name", value: "service_info.name" },
-      { text: "Specimen Number", value: "dna_sample_tracking_id" },
-      { text: "Date", value: "created_at" },
+      { text: "Specimen Number", value: "dnaSampleTrackingId" },
+      { text: "Date", value: "createdAt" },
       { text: "Status", value: "status" },
       {
         text: "Actions",
@@ -239,7 +239,7 @@ export default {
       if (this.lastEventData != null) {
         const dataEvent = JSON.parse(this.lastEventData.data.toString());
         if (this.lastEventData.section == "orders") {
-          if (dataEvent[0].customer_id == this.wallet.address) {
+          if (dataEvent[0].customerId == this.wallet.address) {
             this.onSearchInput()
           }
         }
@@ -273,7 +273,7 @@ export default {
     gotoResult(item) {
       this.$router.push({
         name: "result-test",
-        params: { number: item.dna_sample_tracking_id },
+        params: { number: item.dnaSampleTrackingId },
       });
     },
 
@@ -293,8 +293,8 @@ export default {
       const results = await searchOrder(val)
       this.orderHistory = results.map(result => ({
         ...result._source,
-        created_at: new Date(parseInt(result._source.created_at)).toLocaleDateString(),
-        timestamp: parseInt(result._source.created_at)
+        createdAt: new Date(parseInt(result._source.createdAt)).toLocaleDateString(),
+        timestamp: parseInt(result._source.createdAt)
       }))
     }
   },

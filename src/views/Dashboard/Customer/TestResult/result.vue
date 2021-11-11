@@ -247,12 +247,12 @@ export default {
     },
     async getLabServices() {
       try {
-        this.lab = await queryLabsById(this.api, this.speciment.lab_id);
-        this.order = await getOrdersData(this.api, this.speciment.order_id);
+        this.lab = await queryLabsById(this.api, this.speciment.labId);
+        this.order = await getOrdersData(this.api, this.speciment.orderId);
         this.ownerAddress = this.order.customer_eth_address;
         this.services = await queryServicesById(
           this.api,
-          this.order.service_id
+          this.order.serviceId
         );
 
         this.serviceCategory = this.services.info.category
@@ -264,21 +264,21 @@ export default {
     },
     async getFileUploaded() {
       try {
-        if (this.speciment.report_link != "") {
+        if (this.speciment.reportLink != "") {
           this.files.push({
             fileType: "report",
             fileName: this.serviceName + " Report",
-            fileLink: this.speciment.report_link,
+            fileLink: this.speciment.reportLink,
             fileTitle: "Download Report",
             fileSubTitle: "Download Your Test Report"
           });
         }
 
-        if (this.speciment.result_link != "") {
+        if (this.speciment.resultLink != "") {
           this.files.push({
             fileType: "result",
             fileName: this.serviceName + " Result",
-            fileLink: this.speciment.result_link,
+            fileLink: this.speciment.resultLink,
             fileTitle: "Download Raw Data",
             fileSubTitle: "Download Your Genomic Data"
           });
@@ -296,7 +296,7 @@ export default {
       // }
       try {
         //this.wallet.decodePkcs8(this.password);
-        this.publicKey = this.lab.info.box_public_key;
+        this.publicKey = this.lab.info.boxPublicKey;
         if (this.actionType == "result") {
           await this.parseResult();
         }
@@ -318,7 +318,7 @@ export default {
       try {
         const path = this.files[0].fileLink.replace(this.baseUrl, "");
         const secretKey = this.privateKey;
-        const publicKey = this.lab.info.box_public_key;
+        const publicKey = this.lab.info.boxPublicKey;
 
         const pair = {
           secretKey,
