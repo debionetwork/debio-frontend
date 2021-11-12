@@ -32,9 +32,9 @@ export default {
 
       let configApp;
       if (roleApp == "demo") {
-        const tokenName = process.env.VUE_APP_DEGENICS_USE_TOKEN_NAME;
-        const escrowETHAddress = process.env.VUE_APP_DEGENICS_ESCROW_ETH_ADDRESS;
-        const substrateWs = process.env.VUE_APP_DEGENICS_SUBSTRATE_WS;
+        const tokenName = process.env.VUE_APP_DEBIO_USE_TOKEN_NAME;
+        const escrowETHAddress = process.env.VUE_APP_DEBIO_ESCROW_ETH_ADDRESS;
+        const substrateWs = process.env.VUE_APP_DEBIO_SUBSTRATE_WS;
         const urlFaucet = process.env.VUE_APP_URL_FAUCET;
         const web3Rpc = process.env.VUE_APP_WEB3_RPC;
         configApp = {
@@ -45,9 +45,9 @@ export default {
           web3Rpc
         };
       } else {
-        const tokenName = process.env.VUE_APP_DEV_DEGENICS_USE_TOKEN_NAME;
-        const escrowETHAddress = process.env.VUE_APP_DEV_DEGENICS_ESCROW_ETH_ADDRESS;
-        const substrateWs = process.env.VUE_APP_DEV_DEGENICS_SUBSTRATE_WS;
+        const tokenName = process.env.VUE_APP_DEV_DEBIO_USE_TOKEN_NAME;
+        const escrowETHAddress = process.env.VUE_APP_DEV_DEBIO_ESCROW_ETH_ADDRESS;
+        const substrateWs = process.env.VUE_APP_DEV_DEBIO_SUBSTRATE_WS;
         const urlFaucet = process.env.VUE_APP_DEV_URL_FAUCET;
         const web3Rpc = process.env.VUE_APP_DEV_WEB3_RPC;
         configApp = {
