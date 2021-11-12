@@ -162,9 +162,9 @@ export default {
       console.log(response)
       let recaptchaBackendUrl = ''
       if (process.env.NODE_ENV == 'demo') {
-        recaptchaBackendUrl = `${process.env.VUE_APP_DEGENICS_BACKEND_URL}/recaptcha`;
+        recaptchaBackendUrl = `${process.env.VUE_APP_DEBIO_BACKEND_URL}/recaptcha`;
       } else {
-        recaptchaBackendUrl = `${process.env.VUE_APP_DEV_DEGENICS_BACKEND_URL}/recaptcha`;
+        recaptchaBackendUrl = `${process.env.VUE_APP_DEV_DEBIO_BACKEND_URL}/recaptcha`;
       }
       const result = await axios.post(recaptchaBackendUrl, { response });
 

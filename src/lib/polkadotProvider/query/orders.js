@@ -103,7 +103,7 @@ export async function lastOrderByCustomer(api, address) {
 }
 
 export async function searchOrder(searchQuery) {
-  const { data: { data } } = await axios.get(`${process.env.VUE_APP_DEV_DEGENICS_BACKEND_URL}/orders/${localStorage.getAddress()}`, {
+  const { data: { data } } = await axios.get(`${process.env.VUE_APP_DEV_DEBIO_BACKEND_URL}/orders/${localStorage.getAddress()}`, {
     params: { size: 1000, page: 1, keyword: searchQuery || "" }
   })
 
