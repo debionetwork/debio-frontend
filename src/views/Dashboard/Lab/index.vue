@@ -108,8 +108,5 @@ export default {
       isServicesExist: (state) => state.substrate.isServicesExist,
     }),
   },
-  mounted(){
-    console.log(this.labAccount);
-  }
 }
 </script>
