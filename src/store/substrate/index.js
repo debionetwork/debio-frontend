@@ -362,6 +362,7 @@ export default {
             hour: "numeric", // numeric, 2-digit
             minute: "numeric",
           });
+
           if (statusAdd) {
             listNotification.push({
               message: message,

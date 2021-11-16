@@ -19,12 +19,11 @@ const handler = {
 		const params = { number: id };
 		let wording = valueMessage
 
-		if (data.section == "LabUpdateVerificationStatus") {
-			const lab = data.data[0].toHuman()
-			if (lab.verificationStatus == "Verified") {
+		if (data[2] == "LabUpdateVerificationStatus") {
+			if (data[0].verificationStatus == "Verified") {
 				wording = `Congrats! ${wording}`
 			}
-			wording = `${wording} ${lab.verificationStatus.toLowerCase()}`
+			wording = `${wording} ${data[0].verificationStatus.toLowerCase()}`
 		}
 		
 		return { data, id, params, wording }
