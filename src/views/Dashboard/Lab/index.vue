@@ -39,7 +39,7 @@
                 inline
                 color="primary"
                 :size="20"
-                v-if="labAccount.verified_status == 'Verified'"
+                v-if="labAccount.verificationStatus == 'Verified'"
               >mdi-check-decagram</v-icon>
               <v-icon 
                 inline
@@ -48,7 +48,7 @@
                 v-else
               >mdi-information</v-icon>
 
-              <b v-if="labAccount.verified_status == 'Verified'">Your account has been verified</b>
+              <b v-if="labAccount.verificationStatus == 'Verified'">Your account has been verified</b>
               <b v-else>Your account has not been verified</b>
             </div>
           </v-card>
