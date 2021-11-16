@@ -134,9 +134,9 @@
           "identity": 1
         },
         "LabUpdateVerificationStatus": {
-          "message": "Your account has been",
+          "message": "",
           "value": 0,
-          "value_message": "",
+          "value_message": "Your account has been",
           "route": "",
           "params": "",
           "identity": 1

@@ -11,8 +11,10 @@ export async function processEvent(state, address, event, role){
     let message = ""
     let data = null
     let params = null
-
+    
     const dataEvent = JSON.parse(event.data.toString())
+    dataEvent.push(event.method)
+
     if (dataEvent.length > 0) {
         let handler = handlers[role][event.section]
         if(!handler){
@@ -26,6 +28,16 @@ export async function processEvent(state, address, event, role){
         const identity = state.configEvent["role"][role][event.section][event.method].identity  
         
         const res = await handler(dataEvent, value, valueMessage)
+
+        // Hardcode condition for LabUpdateVerificationStatus
+        if(
+            res.data[2] == "LabUpdateVerificationStatus" &&
+            res.data[0].accountId == address
+        ) {
+            statusAdd = true
+            message = res.wording
+        }
+
         if (res.data[identity] == address) {
             statusAdd = true
             message = state.configEvent["role"][role][event.section][event.method].message + " " + res.wording
