@@ -190,8 +190,8 @@ export default {
     isLoading: false,
     isUploading: false,
     stepperItems: [
-      { name: 'Lab Information', selected: true},
-      { name: 'Lab Verification', selected: false},
+      { name: "Lab Information", selected: false},
+      { name: "Lab Services", selected: false},
     ]
   }),
 
@@ -391,6 +391,10 @@ export default {
                   }
                 }
                 this.setLabAccount(labAccount)
+                this.stepperItems = [
+                  { name: "Lab Information", selected: true},
+                  { name: "Lab Services", selected: false},
+                ]
               }
             )
           }
