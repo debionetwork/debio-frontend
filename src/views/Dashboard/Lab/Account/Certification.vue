@@ -109,6 +109,7 @@
                     @change="fileUploadEventListener"
                     :rules="supportingDocumentsRules"
                     show-size
+                    v-model="files"
                     accept="application/pdf, image/png, image/jpeg,"
                 ></v-file-input>
                 </v-form>
@@ -132,11 +133,14 @@ import { upload } from "@/lib/ipfs"
 
 export default {
   name: 'Certification',
+
   components: {
     Dialog,
     Button,
   },
+
   mixins: [serviceHandler],
+
   data: () => ({
     certId: "", // for update certification
     certTitle: "",
@@ -149,7 +153,9 @@ export default {
     certificationDialog: false,
     isUploading: false,
     isEditCertificationDialog: false,
+    files: []
   }),
+
   computed: {
     ...mapGetters({
       api: 'substrate/getAPI',
@@ -233,7 +239,7 @@ export default {
         this.closeCertificationDialog()
       })
     },
-    editCertification(cert) {
+    async editCertification(cert) {
       this.certId = cert.id
       this.certTitle = cert.info.title
       this.certIssuer = cert.info.issuer
@@ -241,6 +247,12 @@ export default {
       this.certYear = cert.info.year
       this.certDescription = cert.info.description
       this.certSupportingDocumentsUrl = cert.info.supportingDocument
+
+      const res = await fetch(this.certSupportingDocumentsUrl)
+      const blob = await res.blob() // Gets the response and returns it as a blob
+      const file = new File([blob], this.certSupportingDocumentsUrl.substring(21), {type: "application/pdf"})
+      this.files = file
+
       this.certificationDialog = true
       this.isEditCertificationDialog = true
     },
