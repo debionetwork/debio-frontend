@@ -194,7 +194,7 @@ export default {
         this.balance = balance.free.toHuman();
         this.loading = false;
       } catch (err) {
-        console.log(err);
+        console.error(err);
         this.loading = false;
       }
     },
