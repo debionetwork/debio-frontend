@@ -167,14 +167,38 @@ export default {
       isLoading: (state) => state.substrate.isLoadingWallet,
       api: (state) => state.substrate.api,
     }),
+
   },
+
+  async mounted() {
+    await this.getKeyStoreLocal();
+  },
+
   methods: {
     ...mapActions({
       restoreAccountKeystore: "substrate/restoreAccountKeystore",
     }),
+
     ...mapMutations({
       setIsLoading: "substrate/SET_LOADING_WALLET",
     }),
+
+    async getKeyStoreLocal() {
+      try {
+        this.loading = true;
+        this.dataAccountJson = localStorage.getKeystore();
+        this.dataAccount = JSON.parse(this.dataAccountJson);
+        const { data: balance } = await this.api.query.system.account(
+          this.dataAccount.address
+        );
+        this.balance = balance.free.toHuman();
+        this.loading = false;
+      } catch (err) {
+        console.error(err);
+        this.loading = false;
+      }
+    },
+
     setKeystore() {
       this.keystore = this.dataAccountJson;
       this.fileName = "keystore";
