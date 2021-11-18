@@ -241,8 +241,8 @@ export default {
     expectedDuration: '',
     isEdit: false,
     stepperItems: [
-      { name: 'Lab Information', selected: true},
-      { name: 'Lab Verification', selected: false},
+      { name: "Lab Information", selected: true},
+      { name: "Lab Services", selected: false},
     ],
     dialogAlert: false,
   }),
@@ -336,6 +336,12 @@ export default {
 
     setDeleteLoading(isLoading){
       this.isLoading = isLoading
+      if (!this.isServicesExist) {
+        this.stepperItems = [
+          { name: "Lab Information", selected: true},
+          { name: "Lab Services", selected: false},
+        ]
+      }
     },
 
     gotoDashboard() {
@@ -343,10 +349,6 @@ export default {
     },
 
     actionAlert() {
-      this.stepperItems = [
-        { name: 'Lab Information', selected: true},
-        { name: 'Lab Verification', selected: true},
-      ]
       this.dialogAlert = true
     },
 
@@ -445,8 +447,13 @@ export default {
         "RequestTest",
         () => {
           this.setServices()
-          this.isLoading = false
           this.clearServicesForm()
+
+          this.isLoading = false
+          this.stepperItems = [
+            { name: "Lab Information", selected: true},
+            { name: "Lab Services", selected: true},
+          ]
         }
       )
     },
