@@ -22,7 +22,7 @@ const labRoutes = [
                     { text: "Account" },
                     { text: "Services" },
                     { text: "Order" },
-                    { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
+                    { text: "Customer Care", href: "https://docs.debio.network/" },
                   ]
                 }
                 else{
@@ -31,7 +31,7 @@ const labRoutes = [
                     { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
                     { text: "Services", disabled: false, route: { name: "lab-dashboard-services" } },
                     { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
-                    { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
+                    { text: "Customer Care", href: "https://docs.debio.network/" },
                   ]
                 }
                 next()
@@ -51,7 +51,7 @@ const labRoutes = [
                   { text: "Account", active: true, disabled: false, route: { name: "lab-dashboard-account" } },
                   { text: "Services", disabled: false, route: { name: "lab-dashboard-services" } },
                   { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
-                  { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
+                  { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Account'),
@@ -70,7 +70,7 @@ const labRoutes = [
                       { text: "Account" },
                       { text: "Services" },
                       { text: "Order" },
-                      { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
+                      { text: "Customer Care", href: "https://docs.debio.network/" },
                     ]
                 },
                 component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Registration'),
@@ -94,7 +94,7 @@ const labRoutes = [
                       { text: "Account" },
                       { text: "Services" },
                       { text: "Order" },
-                      { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
+                      { text: "Customer Care", href: "https://docs.debio.network/" },
                     ]
                 },
                 component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Registration/Services'),
@@ -140,7 +140,7 @@ const labRoutes = [
                     { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
                     { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-services" } },
                     { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
-                    { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
+                    { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Services')
@@ -160,7 +160,7 @@ const labRoutes = [
                     { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
                     { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-services" } },
                     { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
-                    { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
+                    { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Services/Add')
@@ -180,7 +180,7 @@ const labRoutes = [
                     { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
                     { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-services" } },
                     { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
-                    { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
+                    { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Services/Detail')
@@ -199,7 +199,7 @@ const labRoutes = [
                     { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
                     { text: "Services", disabled: false, route: { name: "lab-dashboard-services" } },
                     { text: "Order", active: true, disabled: false, route: { name: "lab-dashboard-order-history" } },
-                    { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
+                    { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/OrderHistory')
@@ -219,7 +219,7 @@ const labRoutes = [
                     { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
                     { text: "Services", disabled: false, route: { name: "lab-dashboard-services" } },
                     { text: "Order", active: true, disabled: false, route: { name: "lab-dashboard-order-history" } },
-                    { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
+                    { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/OrderHistory/ProcessOrder')
