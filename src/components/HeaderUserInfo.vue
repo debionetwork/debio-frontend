@@ -12,7 +12,7 @@
               {{ name }}
             </div>
             <div class="ml-3 light_primary--text" style="font-size: 14px">
-              {{ balance }}
+              {{ formatBalance }}
             </div>
           </div>
         </div>
@@ -51,13 +51,13 @@
   </v-menu>
 </template>
 
-
 <script>
 import { mapState, mapMutations, mapActions } from "vuex";
 import localStorage from "@/lib/local-storage";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
 import { queryBalance } from "@/lib/polkadotProvider/query/balance";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
+import store from "../store"
 
 export default {
   name: "HeaderUserInfo",
@@ -69,6 +69,10 @@ export default {
       metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
       metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance,
     }),
+
+    formatBalance() {
+      return (+this.balance).toFixed(3)
+    },
   },
   data: () => ({
     isLoading: false,
@@ -85,8 +89,9 @@ export default {
     ...mapActions({
       clearAuth: "auth/clearAuth",
     }),
-    getBalance(balanceNummber) {
-      this.balance = balanceNummber;
+    getBalance(balanceNumber) {
+      const web3 = store.getters['metamask/getWeb3']
+      this.balance = web3.utils.fromWei(web3.utils.toBN(`${balanceNumber.replace(/,/g, '')}`, 'ether'));
       if (this.balance == "0") {
         this.balance = "0 DBIO";
       }
@@ -94,13 +99,13 @@ export default {
     async fetchWalletBalance() {
       try {
         this.isLoading = true;
-        const balanceNummber = await queryBalance(
+        const balanceNumber = await queryBalance(
           this.api,
           this.wallet.address
         );
-        this.getBalance(balanceNummber);
+        this.getBalance(balanceNumber);
         this.name = this.wallet.meta.name;
-        this.setWalletBalance(balanceNummber);
+        this.setWalletBalance(balanceNumber);
         this.isLoading = false;
       } catch (err) {
         console.error(err);
