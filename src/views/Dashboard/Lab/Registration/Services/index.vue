@@ -176,6 +176,7 @@
         </v-col>
         <v-col cols="5">
           <Stepper
+            stepper-description="You need to complete all the steps to verify your account"
             :stepper-items="stepperItems"
           />
         </v-col>

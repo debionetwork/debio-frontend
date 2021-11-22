@@ -1,7 +1,7 @@
 <template>
     <v-card class="stepper-card">
         <div>
-            You need to complete all the steps to create a service
+            {{ stepperDescription }}
         </div>
         <Stepper
             size="medium"
@@ -19,6 +19,7 @@ export default {
   components: { Stepper },
 
   props: {
+    stepperDescription: String,
     stepperItems: Array
   }
 }
