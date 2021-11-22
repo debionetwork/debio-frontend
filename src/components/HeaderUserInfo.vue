@@ -12,7 +12,7 @@
               {{ name }}
             </div>
             <div class="ml-3 light_primary--text" style="font-size: 14px">
-              {{ balance }}
+              {{ balance }} DBIO
             </div>
           </div>
         </div>
@@ -58,6 +58,7 @@ import localStorage from "@/lib/local-storage";
 import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile";
 import { queryBalance } from "@/lib/polkadotProvider/query/balance";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
+import { fromEther } from "@/lib/balance-format"
 
 export default {
   name: "HeaderUserInfo",
@@ -85,10 +86,11 @@ export default {
     ...mapActions({
       clearAuth: "auth/clearAuth",
     }),
-    getBalance(balanceNummber) {
-      this.balance = balanceNummber;
+    async getBalance(balanceNummber) {
+
+      this.balance = Number(await fromEther(balanceNummber)).toFixed(3);
       if (this.balance == "0") {
-        this.balance = "0 DBIO";
+        this.balance = "0";
       }
     },
     async fetchWalletBalance() {

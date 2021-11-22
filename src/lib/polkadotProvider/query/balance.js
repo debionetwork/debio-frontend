@@ -3,5 +3,5 @@ export async function queryBalance(api, addr) {
   const { nonce, data: balance } = await api.query.system.account(
     addr
   );
-  return balance.free.toHuman();
+  return balance.free.toHuman().replace(/,/g, "");
 }

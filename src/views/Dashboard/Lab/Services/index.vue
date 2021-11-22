@@ -58,6 +58,12 @@
                         ></v-img>
                      </v-container>
                   </template>
+                  
+                  <template v-slot:[`item.info.price`]="{ item }">
+                     <span> {{ formatPrice(item.info.price) }} </span>
+                  </template>
+                   
+
                   <template v-slot:[`item.actions`]="{ item }">
                      <v-container class="d-flex">
                         <v-btn
@@ -117,12 +123,12 @@ export default {
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
       labAccount: 'substrate/labAccount',
+      web3: 'metamask/getWeb3'
    }),
   },
   methods:{
    onSearchInput(val) {
       this.search = val
-      console.log(this.labAccount.services)
    },
    gotoDetails(item){
       
@@ -133,6 +139,11 @@ export default {
          return val
       }
       return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
+   },
+   formatPrice(price) {
+      const priceAndCurrency = price.replace(/,/g, "").split(" ")
+      const formatedPrice = this.web3.utils.fromWei(String(priceAndCurrency[0], 'ether'))
+      return `${formatedPrice} ${priceAndCurrency[1]}`
    },
    isIcon(imageName) {
       return imageName && (imageName.startsWith('mdi') || imageName.startsWith('$dgi'))
