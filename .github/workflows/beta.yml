@@ -185,7 +185,7 @@ jobs:
             ./connect.sh
             helm repo add debio https://charts.debio.network
             helm repo update
-            helm upgrade debio-customer-ui debio/debio-customer-ui \
+            helm upgrade debio-frontend debio/debio-frontend \
               --install \
               --set-string image.tag=${{ needs.compute-build-info.outputs.latest_tag }} \
               --set ingress.enabled=true \
@@ -195,7 +195,7 @@ jobs:
               --set-string ingress.hosts[0].host=lab.testnet.debio.network \
               --set-string ingress.hosts[0].paths[0].path=/ \
               --set-string ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
-              --set-string ingress.tls[0].secretName=debio-customer-ui-tls \
+              --set-string ingress.tls[0].secretName=debio-frontend-tls \
               --set-string ingress.tls[0].hosts[0]=lab.testnet.debio.network \
               --set autoscaling.enabled=true
-            kubectl rollout status deployment/debio-customer-ui
+            kubectl rollout status deployment/debio-frontend
