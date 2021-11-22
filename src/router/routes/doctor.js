@@ -20,14 +20,14 @@ const doctorRoutes = [
                   to.meta.drawerButtons = [
                     { text: "Dashboard", active: true, disabled: false, route: { name: "doctor-dashboard" } },
                     { text: "Account" },
-                    { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
+                    { text: "Customer Care", href: "https://docs.debio.network/" },
                   ]
                 }
                 else{
                   to.meta.drawerButtons = [
                     { text: "Dashboard", active: true, disabled: false, route: { name: "doctor-dashboard" } },
                     { text: "Account", disabled: false, route: { name: "doctor-dashboard-account" } },
-                    { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
+                    { text: "Customer Care", href: "https://docs.debio.network/" },
                   ]
                 }
                 next()
@@ -45,7 +45,7 @@ const doctorRoutes = [
                 drawerButtons: [
                   { text: "Dashboard", disabled: false, route: { name: "doctor-dashboard" } },
                   { text: "Account", active: true, disabled: false, route: { name: "doctor-dashboard-account" } },
-                  { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
+                  { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Doctor/Account'),
@@ -81,7 +81,7 @@ const doctorRoutes = [
                     drawerButtons: [
                       { text: "Dashboard", active: true, disabled: false, route: { name: "doctor-dashboard" } },
                       { text: "Account" },
-                      { text: "Customer Care", href: "https://docs.debio.network/getting-started" },
+                      { text: "Customer Care", href: "https://docs.debio.network/" },
                     ]
                 },
                 component: () => import(/* webpackChunkName */ '../../views/Dashboard/Doctor/Registration'),
