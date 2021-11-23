@@ -137,6 +137,8 @@
 <script>
 import localStorage from "../lib/local-storage";
 import { mapActions, mapState, mapMutations } from "vuex";
+import { queryBalance } from "@/lib/polkadotProvider/query/balance"
+import { fromEther } from "@/lib/balance-format";
 export default {
   name: "DialogSelectUserLogin",
   data: () => ({
@@ -188,10 +190,8 @@ export default {
         this.loading = true;
         this.dataAccountJson = localStorage.getKeystore();
         this.dataAccount = JSON.parse(this.dataAccountJson);
-        const { data: balance } = await this.api.query.system.account(
-          this.dataAccount.address
-        );
-        this.balance = balance.free.toHuman();
+        const balance = await queryBalance(this.api, this.dataAccount.address)
+        this.balance = Number(await fromEther(balance)).toFixed(3)
         this.loading = false;
       } catch (err) {
         console.error(err);

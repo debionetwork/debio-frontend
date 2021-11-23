@@ -259,6 +259,8 @@ export default {
       api: (state) => state.substrate.api,
       exist: (state) => state.substrate.isLabAccountExist,
       pair: (state) => state.substrate.wallet,
+      web3: (state) => state.metamask.web3
+
     }),
 
     serviceCategoryRules() {
@@ -462,13 +464,13 @@ export default {
               priceComponents: [
                 {
                   component: "component_1",
-                  value: this.price
+                  value: this.web3.utils.toWei(String(this.price), 'ether')
                 }
               ],
               additionalPrices: [
                 {
                   component: "qc_component",
-                  value: this.qcPrice
+                  value: this.web3.utils.toWei(String(this.qcPrice), 'ether')
                 }
               ],
             },
