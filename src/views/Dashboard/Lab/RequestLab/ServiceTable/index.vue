@@ -27,8 +27,8 @@
 						@input="handleOnSearch"
 						class="justify-end"
             :filteredItems="filteredRegions"
-            item-text="location"
-            item-value="location"
+            item-text="country"
+            item-value="country"
             return-object
             with-dropdown
             @itemSelected="handleSelectedItem"
@@ -37,19 +37,19 @@
 					</SearchBar>
 				</template>
 
-				<template v-slot:expanded-item="{ item }">
+				<template v-slot:expanded-item="{ item: subItem }">
 					<td colspan="6" class="expanded-wrapper">
 						<ServerSideDataTable
 							class="expanded"
 							:headers="headers"
-							:items="item ? item.sub_locations : []"
+							:items="subItem ? subItem.services : []"
 							:sort-by="['createdAt']"
 							:sort-desc="[true]"
 							:loading="isLoading"
 							hide-entries
 							hide-footer
 						>
-							<template v-slot:[`item.actions`]="{ item }">
+							<template v-slot:[`item.actions`]="{ item, index }">
 
 								<v-container>
 									<v-btn
@@ -58,7 +58,7 @@
 										dark
 										small
 										width="200"
-										@click="provideService(item)"
+										@click="provideService(subItem, index)"
 									>
 										Provide this service
 									</v-btn>
@@ -66,25 +66,29 @@
 
 							</template>
 
+              <template v-slot:[`item.country`]="{ item }">
+                {{ item.city }}
+              </template>
+
               <template v-slot:[`item.number_request`]="{ item }">
                 {{ item.number_request > 1000 ? "1000+" : item.number_request }}
               </template>
 
               <template v-slot:[`item.total_amount_dai`]="{ item }">
-                {{ item.total_amount_dai }} DAI
+                {{ item.totalValue.dai }} DBIO
               </template>
 
               <template v-slot:[`item.total_amount_usd`]="{ item }">
-                {{ item.total_amount_usd }} USD
+                {{ item.totalValue.usd }} USD
               </template>
 
 						</ServerSideDataTable>
 					</td>
 				</template>
 
-				<template v-slot:[`item.location`]="{ item }">
+				<template v-slot:[`item.country`]="{ item }">
 					<div :class="['row-location d-flex align-center', { 'row-location--active': item.isExpanded }]">
-						<span>{{ item.location }}</span>
+						<span>{{ item.country }}</span>
 					</div>
 				</template>
 
@@ -93,7 +97,7 @@
 				</template>
 
 				<template v-slot:[`item.total_amount_dai`]="{ item }">
-					{{ item.total_amount_dai }} DAI
+					{{ item.total_amount_dai }} DBIO
 				</template>
 
 				<template v-slot:[`item.total_amount_usd`]="{ item }">
@@ -109,13 +113,13 @@
 <script>
 import ServerSideDataTable from '@/components/DataTable/ServerSideDataTable'
 import SearchBar from "../Mapping/SearchBar"
-import Regions from "./regions.json"
 import localStorage from '@/lib/local-storage'
 
 export default {
   name: 'LabOrderHistory',
   props: {
-    countryExpand: { type: String, default: "" }
+    countryExpand: { type: String, default: "" },
+    countries: { type: Array, default: () => [] }
   },
 	
   components: {
@@ -127,25 +131,25 @@ export default {
     headers: [
       {
 				text: 'Location',
-				value: 'location',
+				value: 'country',
 				sortable: false,
 				width: '270px'
 			},
       {
 				text: 'Number of requests',
-				value: 'number_request',
+				value: 'totalRequests',
 				sortable: false,
 				align: 'center',
 				width: '100px'
 			},
       {
 				text: 'Service',
-				value: 'service',
+				value: 'category',
 				sortable: false,
 				width: '270px'
 			},
       {
-				text: 'Total Amount (in DAI)',
+				text: 'Total Amount (in DBIO)',
 				value: 'total_amount_dai',
 				sortable: false,
 				align: 'center',
@@ -185,14 +189,14 @@ export default {
   computed: {
     filteredRegions() {
       const filtered = this.regions.filter(region =>
-        this.searchQuery.toLowerCase().split(' ').every(v => region.location.toLowerCase().includes(v))
+        this.searchQuery.toLowerCase().split(' ').every(v => region.country.toLowerCase().includes(v))
       )
 
-      return !this.onSelectedItem && !this.searchQuery ? this.fetchRegions() : filtered
+      return !this.onSelectedItem && !this.searchQuery ? [] : filtered
     },
 
     prefillValue() {
-      return this.regions.filter(region => region.location.toLowerCase() === this.countryExpand.toLowerCase())
+      return this.regions.filter(region => region.country.toLowerCase() === this.countryExpand.toLowerCase())
     }
   },
 
@@ -211,22 +215,23 @@ export default {
 			})
 		},
 
-		fetchRegions() {
-      const counter = (arrayCounters, key) => {
+		async fetchRegions() {
+      const counter = (arrayCounters, key, childKey) => {
         return arrayCounters.reduce((accumulator, v) => {
-          return accumulator + v[key]
+          if (childKey) return accumulator + v[key][childKey]
+          else return accumulator + v[key]
         }, 0)
       }
 
-			this.regions = Regions.map(region => ({
+			this.regions = this.countries.map(region => ({
         ...region,
-        number_request: counter(region.sub_locations, "number_request"),
-        total_amount_dai: counter(region.sub_locations, "total_amount_dai"),
-        total_amount_usd: counter(region.sub_locations, "total_amount_usd"),
+        number_request: counter(region.services, "totalRequests"),
+        total_amount_dai: counter(region.services, "totalValue", "dai"),
+        total_amount_usd: counter(region.services, "totalValue", "usd"),
         isExpanded: false
       })).sort((a, b) => {
-        var nameA = a.location.toLowerCase()
-        var nameB = b.location.toLowerCase()
+        var nameA = a.country.toLowerCase()
+        var nameB = b.country.toLowerCase()
 
         if (nameA < nameB) {
           return -1;
@@ -239,7 +244,7 @@ export default {
       })
 		},
 
-    provideService(item){
+    provideService(item, idx){
       const camelize = (str) => {
         return str.replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
           return index === 0 ? word.toLowerCase() : word.toUpperCase()
@@ -249,16 +254,18 @@ export default {
       const keystore = localStorage.getAddress()
       const isLoggedIn = !!keystore
       const payload = {
-        name: item.service,
-        category: "Single Nucleotide Polymorphism (SNP) Microarray",
-        location: item.location,
-        qc: { type: "DAI", value: 56 },
-        currency: { type: "Ethereum", value: 89 },
-        description: {
-          short: "It is a paradisematic country",
-          long: "Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life One day however a small line of blind text by the name of Lorem Ipsum decided to leave for the far World of Grammar."
+        category: item.services[idx].category,
+        country: {
+          code: item.countryId,
+          name: item.country
         },
-        duration: { type: "Hours", value: 9 },
+        city: {
+          code: item.services[idx].regionCode,
+          name: item.services[idx].city
+        },
+        qc: { type: "DAI", value: 0 },
+        currency: { type: "DAI", value: 0 },
+        serviceFlow: "StakingRequestService"
       }
 
       const parameterQueries = Object.entries(payload).reduce((filtered, [key, value]) => {
@@ -280,7 +287,7 @@ export default {
         return filtered
       }, {})
 
-      this.$store.dispatch("lab/setProvideService", { ...parameterQueries, serviceFlow: "stakingRequestService" })
+      this.$store.dispatch("lab/setProvideService", { ...parameterQueries, serviceFlow: "StakingRequestService" })
 
       if (!isLoggedIn) {
         this.$router.push({ name: "login", query: { redirect: "lab-dashboard-add-services" } })
@@ -292,7 +299,7 @@ export default {
 
     handleSelectedItem(item) {
       this.onSelectedItem = true
-      this.regions = this.regions.filter(region => region.id === item.id)
+      this.regions = this.regions.filter(region => region.countryId === item.countryId)
     },
 
     async handlePageChange(value){
