@@ -9,13 +9,13 @@
       class="mt-2"
       indeterminate
       color="primary"
-    ></v-progress-linear>
+    />
     <template v-if="testResults.length > 0">
       <div
         v-for="order in testResults"
         :key="order.id"
         class="mb-2"
-        @click="gotoResult(order)"
+        @click="gotoResult(order.id)"
       >
         <OrderCard
           :icon="order.icon"
@@ -84,6 +84,7 @@ export default {
         this.isLoadingTestResults = false;
       }
     },
+
     prepareOrderData(dnaTestResults) {
       const title = dnaTestResults.order.service_name;
       const labName = dnaTestResults.order.lab_name;
@@ -109,10 +110,12 @@ export default {
         minute: "numeric",
       });
 
+      const id = dnaTestResults.order.id;
       const number = dnaTestResults.trackingId;
       const status = SUCCESS;
 
       const order = {
+        id,
         icon,
         title,
         number,
@@ -124,15 +127,18 @@ export default {
 
       this.testResults.push(order);
     },
+
     goToTestResults() {
       this.$router.push({
-        name: "all-test-result",
+        name: "lab-dashboard-order-history",
+        params: { testResult: true }
       });
     },
-    gotoResult(item) {
+
+    gotoResult(id) {
       this.$router.push({
-        name: "result-test",
-        params: { number: item.number },
+        name: "lab-dashboard-process-order",
+        params: { orderId: id },
       });
     },
   },
