@@ -34,7 +34,7 @@
       :loading="loading"
       :show-expand="expand"
       :expanded.sync="expanded"
-      item-key="id"
+      :item-key="itemKey"
       @click:row="clickedRow"
       :single-expand="singleExpand"
       :loading-text="computedLoadingText"
@@ -84,6 +84,7 @@ export default {
     handlePageChange: Function,
     handlePageSizeChange: Function,
     sortBy: Array,
+    itemKey: { type: String, default: "id" },
     sortDesc: Array,
     loading: Boolean,
     loadingText: String,
@@ -133,7 +134,7 @@ export default {
       if (!this.expand) return
 
       slot.expand(!slot.isExpanded)
-      this.$emit("onExpanded", !slot.isExpanded, _item.id)
+      this.$emit("onExpanded", !slot.isExpanded, _item.countryId) // Please add more option later on this params
     },
     setEntriesPerPage(val) {
       this.entriesPerPage = val

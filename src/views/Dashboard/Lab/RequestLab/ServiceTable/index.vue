@@ -17,8 +17,8 @@
 				hide-entries
 				expand
 				:page-size="pageSize"
-				additional-class="laporan-table"
         :expanded-value="prefillValue"
+        itemKey="countryId"
 				@onExpanded="handleExpanded"
 			>
 				<template v-slot:search-bar>
@@ -192,7 +192,7 @@ export default {
         this.searchQuery.toLowerCase().split(' ').every(v => region.country.toLowerCase().includes(v))
       )
 
-      return !this.onSelectedItem && !this.searchQuery ? [] : filtered
+      return !this.onSelectedItem && !this.searchQuery ? this.regions : filtered
     },
 
     prefillValue() {
@@ -204,6 +204,8 @@ export default {
     handleOnSearch(val) {
       this.onSelectedItem = false
       this.searchQuery = val
+
+      if (!this.onSelectedItem && !val) this.fetchRegions()
     },
 
 		handleExpanded(expanded, id) {
@@ -211,7 +213,7 @@ export default {
 			this.regions.forEach(region => {
 				region.isExpanded = false
 
-				if (region.id === id) region.isExpanded = expanded
+				if (region.countryId === id) region.isExpanded = expanded
 			})
 		},
 
