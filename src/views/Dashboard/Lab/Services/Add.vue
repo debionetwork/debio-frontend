@@ -6,9 +6,6 @@
   cursor: pointer;
   border: 1px solid lightgrey;
 }
-.services__modal-title {
-  white-space: nowrap;
-}
 </style>
 
 <template>
