@@ -46,6 +46,7 @@
 							:sort-by="['createdAt']"
 							:sort-desc="[true]"
 							:loading="isLoading"
+              :pageSize="1000"
 							hide-entries
 							hide-footer
 						>

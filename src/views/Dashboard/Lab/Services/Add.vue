@@ -405,7 +405,11 @@ export default {
       }
 
       if (Object.keys(this.servicePayload).length) {
-        if (currentLab.verificationStatus === "Verified" && currentLab.info?.country !== this.servicePayload.countryCode) {
+        if (
+          currentLab.verificationStatus === "Verified" &&
+          currentLab.info?.country !== this.servicePayload.countryCode ||
+          currentLab.info?.region !== this.servicePayload.cityCode
+        ) {
 
           this.showModalAlert = true
 
