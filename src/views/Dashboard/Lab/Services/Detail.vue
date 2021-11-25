@@ -185,7 +185,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
 import { getCategories } from "@/lib/categories"
 import { updateService } from '@/lib/polkadotProvider/command/services'
@@ -227,7 +227,6 @@ export default {
   async mounted(){
     await this.getServiceCategory()
     const item = this.$route.params.item
-    console.log(item, 'item')
     this.id = item.id
     this.name = item.info.name
     this.price = item.info.pricesByCurrency[0].priceComponents[0].value
@@ -260,6 +259,9 @@ export default {
   },
 
   computed: {
+    ...mapState({
+      web3: (state) => state.metamask.web3
+    }),
 
     ...mapGetters({
       api: 'substrate/getAPI',
@@ -366,13 +368,13 @@ export default {
               priceComponents: [
                 {
                   component: "component_1",
-                  value: this.price
+                  value: this.web3.utils.toWei(String(this.price), 'ether')
                 }
               ],
               additionalPrices: [
                 {
                   component: "qc_component",
-                  value: this.qcPrice
+                  value: this.web3.utils.toWei(String(this.qcPrice), 'ether')
                 }
               ],
             },
