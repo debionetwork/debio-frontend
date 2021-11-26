@@ -6,15 +6,12 @@
   cursor: pointer;
   border: 1px solid lightgrey;
 }
-.services__modal-title {
-  white-space: nowrap;
-}
 </style>
 
 <template>
   <div>
     <v-container>
-      <v-dialog v-model="showModalAlert" persistent width="450">
+      <v-dialog v-if="messageWarning" v-model="showModalAlert" persistent width="450">
         <v-card>
           <v-card-title class="services__modal-title">{{ messageWarning.title }}</v-card-title>
           <v-card-subtitle class="mt-1" v-html="messageWarning.subtitle"></v-card-subtitle>
@@ -59,6 +56,7 @@
                     v-model="category"
                     outlined
                     :items="listCategories"
+                    :disabled="!!servicePayload"
                     item-text="service_categories"
                     item-value="service_categories"
                     :rules="serviceCategoryRules"
@@ -96,6 +94,7 @@
                           v-model="currencyType"
                           :items="currencyList"
                           :rules="curencyTypeRules"
+                          :disabled="!!servicePayload"
                           ></v-select>
                         </v-col>
                         <v-col>
@@ -104,13 +103,13 @@
                             label="Price"
                             placeholder="Price"
                             outlined
-                            v-model="price"
+                            v-model.number="price"
                             :rules="priceRules"
                           ></v-text-field>
                         </v-col>
                         <v-col>
                           <v-select
-                          :disabled="isBiomedical"
+                          :disabled="isBiomedical || !!servicePayload"
                           label="QC Currency"
                           outlined
                           dense
@@ -126,7 +125,7 @@
                             label="QC Price"
                             placeholder="QC Price"
                             outlined
-                            v-model="qcPrice"
+                            v-model.number="qcPrice"
                             :rules="qcPriceRules"
                           ></v-text-field>
                         </v-col>
@@ -206,9 +205,11 @@
 <script>
 import { mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
-import { createService } from '@/lib/polkadotProvider/command/services'
+import { createService, claimRequestService } from '@/lib/polkadotProvider/command/services'
 import { getCategories } from "@/lib/categories"
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
+import { getProvideRequestService } from "@/lib/services";
+import { toEther } from "@/lib/balance-format"
 
 export default {
   name: 'AddLabServices',
@@ -223,7 +224,7 @@ export default {
     testResultSampleUrl: "",
     statusLab: null,
     messageWarning: {},
-    serviceFlow: "requestTest",
+    serviceFlow: "RequestTest",
     files: [],
     testResultSampleFile:[],
     listCategories:[],
@@ -231,7 +232,7 @@ export default {
     isLoading: false,
     showModalAlert: false,
     isUploading: false,
-    currencyList: ['DAI', 'Ethereum'],
+    currencyList: ['DAI', 'ETH'],
     currencyType: 'DAI',
     listExpectedDuration: ['WorkingDays', 'Hours', 'Days'],
     selectExpectedDuration: 'WorkingDays',
@@ -258,9 +259,9 @@ export default {
       servicePayload: (state) => state.lab.providePayload,
       api: (state) => state.substrate.api,
       exist: (state) => state.substrate.isLabAccountExist,
-      pair: (state) => state.substrate.wallet,
-      web3: (state) => state.metamask.web3
-
+      wallet: (state) => state.substrate.wallet,
+      web3: (state) => state.metamask.web3,
+      lastEventData: (state) => state.substrate.lastEventData,
     }),
 
     serviceCategoryRules() {
@@ -319,7 +320,7 @@ export default {
     longDescriptionRules() {
       return [
         val => !!val || 'Long Description is Required',
-        val => (val && val.length >= 500) || 'Max 500 Character',
+        val => (val && val.length >= 500) || 'Min 500 Character',
         val => (val && val.length <= 1000) || 'Max 1000 Character'
       ]
     },
@@ -345,10 +346,9 @@ export default {
   methods: {
 
     async validate () {
-      const currentLab = await queryLabsById(this.api, this.pair.address)
-      if (!currentLab) return
+      const currentLab = await queryLabsById(this.api, this.wallet.address)
 
-      const gitbookLink = `<a href="https://docs.debio.network/complete-guidelines/lab-guideline" target="_blank">contact us</a>`
+      const gitbookLink = `<a href="https://t.me/debionetwork" target="_blank">contact us</a>`
 
       const MESSAGE = Object.freeze({
         UNVERIFIED: {
@@ -389,17 +389,34 @@ export default {
           actionTitle: "Select another",
           title: "Oh no! Your lab's location is not match with the requested service you pick.",
           subtitle: "Please select another one"
+        },
+        UNEXPECTED: {
+          type: "UNEXPECTED",
+          actionTitle: "OK",
+          title: "Oh no! Someting went wrong.",
+          subtitle: "Please try again later"
         }
       })
 
-      if (currentLab.verificationStatus === "verified") {
-        if (currentLab.info?.city !== this.servicePayload?.location) return
-
+      if (!currentLab) {
         this.showModalAlert = true
 
-        this.messageWarning = MESSAGE["CITY_NOT_MATCH"]
+        this.messageWarning = MESSAGE["UNEXPECTED"]
+      }
 
-        return
+      if (Object.keys(this.servicePayload).length) {
+        if (
+          currentLab.verificationStatus === "Verified" &&
+          currentLab.info?.country !== this.servicePayload.countryCode ||
+          currentLab.info?.region !== this.servicePayload.cityCode
+        ) {
+
+          this.showModalAlert = true
+
+          this.messageWarning = MESSAGE["CITY_NOT_MATCH"]
+
+          return
+        }
       }
 
       this.statusLab = currentLab.verificationStatus
@@ -421,7 +438,6 @@ export default {
       if (!checkQuery) return
 
       const {
-        name,
         category,
         qcValue,
         currencyValue,
@@ -434,7 +450,6 @@ export default {
         serviceFlow
       } = this.servicePayload
 
-      this.name = name
       this.category = category
       this.price = currencyValue
       this.qcPrice = qcValue
@@ -452,47 +467,48 @@ export default {
       if (!this.$refs.addServiceForm.validate()) {
         return
       }
-      this.isLoading = true
-      await createService(
-        this.api,
-        this.pair,
-        {
-          name: this.name,
-          pricesByCurrency: [
-            {
-              currency: this.currencyType,
-              priceComponents: [
-                {
-                  component: "component_1",
-                  value: this.web3.utils.toWei(String(this.price), 'ether')
-                }
-              ],
-              additionalPrices: [
-                {
-                  component: "qc_component",
-                  value: this.web3.utils.toWei(String(this.qcPrice), 'ether')
-                }
-              ],
+      try {
+        this.isLoading = true
+        await createService(
+          this.api,
+          this.wallet,
+          {
+            name: this.name,
+            pricesByCurrency: [
+              {
+                currency: this.currencyType,
+                totalPrice: await toEther(this.price + this.qcPrice),
+                priceComponents: [
+                  {
+                    component: "testing_price",
+                    value: await toEther(this.price)
+                  }
+                ],
+                additionalPrices: [
+                  {
+                    component: "qc_price",
+                    value: await toEther(this.qcPrice)
+                  }
+                ],
+              },
+            ],
+            expectedDuration: { 
+              duration: this.expectedDuration, 
+              durationType: this.selectExpectedDuration
             },
-          ],
-          expectedDuration: { 
-            duration: this.expectedDuration, 
-            durationType: this.selectExpectedDuration
+            category: this.category,
+            description: this.description,
+            testResultSample: this.testResultSampleUrl,
+            longDescription: this.longDescription,
+            image: this.imageUrl,
+            dnaCollectionProcess: this.biologicalType
           },
-          category: this.category,
-          description: this.description,
-          testResultSample: this.testResultSampleUrl,
-          longDescription: this.longDescription,
-          image: this.imageUrl,
-          dnaCollectionProcess: this.biologicalType,
-          serviceFlow: this.serviceFlow
-        },
-        () => {
-          this.$router.push('/lab/services')
-          this.$store.dispatch("lab/setProvideService", {})
-          this.isLoading = false
-        }
-      )
+          this.serviceFlow
+        )
+      } catch (error) {
+        console.error(error)
+        this.isLoading = false
+      }
     },
 
     imageUploadEventListener(file) {
@@ -550,6 +566,36 @@ export default {
       }
     },
 
+    async handleClaimRequest(id) {
+      try {
+        if (Object.keys(this.servicePayload).length) {
+          const dataRequestServices = await getProvideRequestService(this.servicePayload)
+
+          const request = []
+
+          for (let i=0; i < dataRequestServices.length; i++) {
+            request.push(
+              claimRequestService(this.api, this.wallet, {
+                id,
+                hash: dataRequestServices[i].request.hash,
+                testing_price: await toEther(this.price),
+                qc_price: await toEther(this.qcPrice)
+              })
+            )
+          }
+
+          await Promise.all(request)
+
+          this.$router.push('/lab/services')
+          this.$store.dispatch("lab/setProvideService", {})
+          this.isLoading = false
+        }
+      } catch (error) {
+        console.error(error);
+        this.isLoading = false
+      }
+    },
+
     handleRedirect() {
       const REDIRECT_TO = Object.freeze({
         UNVERIFIED: {
@@ -593,6 +639,14 @@ export default {
       } else {
         this.isBiomedical = false
       }
+    },
+
+    lastEventData(val) {
+      if (val === null) return
+      const dataEvent = JSON.parse(val.data.toString())
+      if (val.method !== "ServiceCreated") return
+
+      if (dataEvent[1] === this.wallet.address) this.handleClaimRequest(dataEvent[0].id)
     }
   }
 }

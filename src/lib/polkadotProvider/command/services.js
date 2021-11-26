@@ -1,5 +1,13 @@
 import { labCommandCallback } from '@/lib/polkadotProvider/command/labs'
 
+export async function claimRequestService(api, pair, service, callback = () => {}){
+    const unsub = await api.tx.serviceRequest
+        .claimRequest(service.hash, service.id, service.testing_price, service.qc_price)
+        .signAndSend(pair, { nonce: -1 }, async ({ events = [], status }) => {
+            await labCommandCallback(api, pair, { events, status, callback, unsub })
+        })
+}
+
 export async function createService(api, pair, serviceInfo, serviceFlow, callback = () => {}){
     const unsub = await api.tx.services
         .createService(serviceInfo, serviceFlow)

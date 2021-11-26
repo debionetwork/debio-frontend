@@ -3,7 +3,7 @@
     <v-main class="request-service">
       <v-container v-if="!isLoading" fill-height fluid>
         <MapCountry @openList="handleOpenList" v-if="map" :service-request-by-country="serviceRequestByCountry" />
-        <ServiceTable :country-expand="country" @closeMap="map = $event" v-if="!map" />
+        <ServiceTable :country-expand="country" :countries="countries" @closeMap="map = $event" v-if="!map" />
       </v-container>
     </v-main>
   </v-app>
@@ -25,6 +25,7 @@ export default {
     return {
       map: true,
       country: null,
+      countries: [],
       serviceRequestByCountry: {},
       isLoading: true,
     }
@@ -40,6 +41,7 @@ export default {
     async fetchServiceRequestCountries() {
       try {
         const serviceRequests = await getServiceRequestCountries()
+        this.countries = serviceRequests
         for (let req of serviceRequests) {
           if (this.serviceRequestByCountry[req.country] == undefined) {
             this.serviceRequestByCountry[req.country] = {
@@ -51,7 +53,7 @@ export default {
           }
         }
       } catch (err) {
-        console.log(err)
+        console.error(err)
       }
     },
 
