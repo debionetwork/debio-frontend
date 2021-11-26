@@ -480,7 +480,7 @@ export default {
                 totalPrice: await toEther(this.price + this.qcPrice),
                 priceComponents: [
                   {
-                    component: "test_price",
+                    component: "testing_price",
                     value: await toEther(this.price)
                   }
                 ],
