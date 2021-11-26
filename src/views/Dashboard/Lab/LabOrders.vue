@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="secondary--text mb-2"><b>Payment History</b></div>
+    <div class="secondary--text mb-2"><b>Order History</b></div>
     <div v-if="preparedOrderHistory.length == 0 && !isLoadingOrderHistory">
       No Payment History found
     </div>
@@ -9,7 +9,7 @@
       class="mt-2"
       indeterminate
       color="primary"
-    ></v-progress-linear>
+    />
     <template v-if="preparedOrderHistory.length > 0">
       <div
         v-for="order in preparedOrderHistory"
@@ -43,9 +43,9 @@
           />
         </template>
       </div>
-      <PrimaryButton @click="goToOrderHistory"
-        >Show all Payment History</PrimaryButton
-      >
+      <PrimaryButton @click="goToOrderHistory">
+        Show all Order History
+      </PrimaryButton>
     </template>
   </div>
 </template>
@@ -95,6 +95,7 @@ export default {
         this.isLoadingOrderHistory = false
       }
     },
+
     prepareOrderData(detailOrder) {
       this.orderHistory.push(detailOrder)
 
@@ -123,21 +124,17 @@ export default {
 
       this.preparedOrderHistory.push(order)
     },
+
     goToOrderHistory() {
       this.$router.push({
         name: "lab-dashboard-order-history",
       })
     },
-    gotoDetailOrder(number) {
-      let item = null
-      for(let i = 0; i < this.orderHistory.length; i++){
-        if(this.orderHistory[i].id == number){
-          item = this.orderHistory[i]
-        }
-      }
+    
+    gotoDetailOrder(id) {
       this.$router.push({ 
         name: 'lab-dashboard-process-order', 
-        params: { orderId: item.id }
+        params: { orderId: id }
       })
     },
   },

@@ -1,50 +1,49 @@
-
 <template>
-   <div>
-      <v-container>
-         <v-row>
-            <v-col>
-               <ServerSideDataTable
-                  :headers="headers"
-                  :items="orders"
-                  :search="search"
-                  :sort-by="['createdAt']"
-                  :sort-desc="[true]"
-                  :loading="isLoading"
-                  :total-item-length="totalOrders"
-                  :handle-page-change="handlePageChange"
-                  :handle-page-size-change="handlePageSizeChange"
-                  :current-page="page"
-                  :page-size="pageSize"
-                  additional-class="laporan-table"
-               >
-                  <template v-slot:search-bar>
-                     <SearchBar
-                        label="Search"
-                        @input="search = $event"
-                     ></SearchBar>
-                  </template>
-                  <template v-slot:[`item.dnaSampleTrackingId`]="{ item }">
-                    {{ item.dnaSampleTrackingId }}
-                  </template>
-                  <template v-slot:[`item.actions`]="{ item }">
-                     <v-container>
-                        <v-btn
-                          v-if="item.status != 'Cancelled'"
-                          :class="buttonClass(item)"
-                          dark
-                          small
-                          width="200"
-                          @click="processOrder(item)"
-                        >{{ item.dna_sample_status }}</v-btn>
-                     </v-container>
-                  </template>
-                  <!-- Rows -->
-               </ServerSideDataTable>
-            </v-col>
-         </v-row>
-      </v-container>
-   </div>
+  <div>
+    <v-container>
+      <v-row>
+        <v-col>
+          <ServerSideDataTable
+            :headers="headers"
+            :items="filterResultReady"
+            :search="search"
+            :sort-by="['createdAt']"
+            :sort-desc="[true]"
+            :loading="isLoading"
+            :total-item-length="totalOrders"
+            :handle-page-change="handlePageChange"
+            :handle-page-size-change="handlePageSizeChange"
+            :current-page="page"
+            :page-size="pageSize"
+            additional-class="laporan-table"
+          >
+            <template v-slot:search-bar>
+              <SearchBar
+                label="Search"
+                @input="search = $event"
+              />
+            </template>
+            <template v-slot:[`item.dnaSampleTrackingId`]="{ item }">
+              {{ item.dnaSampleTrackingId }}
+            </template>
+            <template v-slot:[`item.actions`]="{ item }">
+              <v-container>
+                <v-btn
+                  v-if="item.status != 'Cancelled'"
+                  :class="buttonClass(item)"
+                  dark
+                  small
+                  width="200"
+                  @click="processOrder(item)"
+                >{{ item.dna_sample_status }}</v-btn>
+              </v-container>
+            </template>
+            <!-- Rows -->
+          </ServerSideDataTable>
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
 </template>
 
 <script>
@@ -84,6 +83,13 @@ export default {
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
     }),
+
+    filterResultReady() {
+      if (this.$route.params.testResult == true) {
+        return this.orders.filter(order => order.status == 'Fulfilled')
+      }
+      return this.orders
+    }
   },
   methods: {
     async loadData(){
@@ -98,20 +104,23 @@ export default {
       this.totalOrders = totalOrders
       this.isLoading = false
     },
+
     processOrder(item){
       this.$router.push({ name: 'lab-dashboard-process-order', params: { orderId: item.id }})
     },
+
     buttonClass(item){
       if(item.status == "Success"){
         return "Success"
       }
       return "btn-sending"
     },
+
     async handlePageChange(value){
       this.page = value
       await this.loadData()
-
     },
+
     async handlePageSizeChange(value){
       this.pageSize = value
       this.page = 1 // If change page size restart from page 1
@@ -119,19 +128,17 @@ export default {
     }
   },
 }
-
-
 </script>
 
 <style lang="scss">
 @import "@/styles/variables.scss";
 
 .btn-sending {
-   background-color: $color-primary !important;
+  background-color: $color-primary !important;
 }
 
 .Sending {
-   background-color: $color-primary !important;
+  background-color: $color-primary !important;
 }
 
 .Received {
