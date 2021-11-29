@@ -2,10 +2,7 @@
   <v-app>
     <v-app-bar app color="secondary" dark class="dg-app-bar" clipped-left>
       <div class="dg-app-bar-items-container">
-        <a
-          href="https://www.degenics.com/"
-          target="_blank"
-          style="text-decoration: none"
+        <a @click.stop="goToDashboard" style="text-decoration: none"
         >
           <div class="d-flex align-center">
             <v-img
@@ -17,11 +14,11 @@
               width="40"
             />
             <div class="text-h6 font-weight-bold light_primary--text">
-              DeBio {{ isDoctor ? "Doctor" : "" }}
+              DeBio {{ isDoctor && "Doctor" }}
             </div>
           </div>
         </a>
-        <v-spacer></v-spacer>
+        <v-spacer/>
         <HeaderUserInfo
           @showWalletBinding="({ status }) => openWalletBinding(status)"
         ></HeaderUserInfo>
@@ -34,7 +31,7 @@
     <NavigationDrawer width="200" />
 
     <v-main class="main" v-if="!isDoctorAccountExist && isDoctorDashboard">
-      <router-view></router-view>
+      <router-view/>
     </v-main>
 
     <v-main class="dg-dashboard-main ml-5" v-else>
@@ -59,7 +56,7 @@
         </div>
       </v-container>
 
-      <router-view></router-view>
+      <router-view/>
     </v-main>
 
     <UnlockWalletDialog :show="show" @toggle="toggle()"></UnlockWalletDialog>
@@ -107,17 +104,21 @@ export default {
     ...mapGetters({
       pair: "substrate/wallet",
     }),
+
     ...mapState({
       isDoctorAccountExist: (state) => state.substrate.isDoctorAccountExist,
       wallet: (state) => state.substrate.wallet,
       lastEventData: (state) => state.substrate.lastEventData,
     }),
+
     isDoctor() {
       return this.$route.path.indexOf("doctor") > 0;
     },
+
     isDoctorDashboard() {
       return this.$route.path === "/doctor" || this.$route.path === "/doctor/";
     },
+
     pageHeader() {
       return this.$route.meta.pageHeader
         ? this.$route.meta.pageHeader
@@ -139,14 +140,20 @@ export default {
     toggle() {
       this.show = false;
     },
+
     openWalletBinding(status) {
       this.showWalletBinding = status;
     },
+
     connectWalletResult(status, img) {
       if (status) {
         this.alertImgPath = img;
         this.dialogAlert = true;
       }
+    },
+
+    goToDashboard() {
+      this.$router.push({ path: '/doctor' });
     },
   },
 };
