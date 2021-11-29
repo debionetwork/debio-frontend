@@ -46,6 +46,7 @@ export default {
   },
   props: {
     specimenNumber: String,
+    isBiological: Boolean
   },
   data: () => ({
     isLoading: false,
@@ -65,16 +66,45 @@ export default {
     async receiveDnaSample() {
       if(this.valid){
         this.isLoading = true
-        await processDnaSample(
-          this.api,
-          this.pair,
-          this.specimenNumber,
-          "Arrived",
-          () => {
-            this.isLoading = false
-            this.specimenAlertDialog = true
-          }
-        )
+        console.log(this.specimenNumber)
+        console.log(this.isBiological, "biological")
+
+        if (!this.isBiological) {
+          await processDnaSample(
+            this.api,
+            this.pair,
+            this.specimenNumber,
+            "Arrived",
+            () => {
+              this.isLoading = false
+              this.specimenAlertDialog = true
+            }
+          )
+        } else {
+          await processDnaSample(
+            this.api,
+            this.pair,
+            this.specimenNumber,
+            "QualityControlled",
+            () => {
+              this.isLoading = false
+              this.specimenAlertDialog = true
+            }
+          )
+        }
+
+        // if (this.isBiological == true) {
+        //   await processDnaSample(
+        //     this.api,
+        //     this.pair,
+        //     this.specimenNumber,
+        //     "QualityControlled",
+        //     () => {
+        //       this.isLoading = false
+        //       this.specimenAlertDialog = true
+        //     }
+        //   )
+        // }
       }
     },
   },

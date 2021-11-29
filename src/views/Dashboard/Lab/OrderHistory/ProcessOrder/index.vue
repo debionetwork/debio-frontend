@@ -100,6 +100,7 @@
                 <ReceiveSpecimen 
                     v-if="showReceiveDialog" 
                     :specimen-number="specimenNumber"
+                    :is-biological="isBiological"
                     @specimenReceived="onSpecimenReceived" />
                 <QualityControlSpecimen
                     v-if="showQualityControlDialog"
@@ -146,6 +147,7 @@ import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
 import DialogAlert from '@/components/Dialog/DialogAlert'
 import Stepper from '@/components/Stepper'
 import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting"
+import { queryServicesById } from "@/lib/polkadotProvider/query/services"
 
 export default {
   name: 'ProcessOrderHistory',
@@ -179,7 +181,9 @@ export default {
       { name: 'Wet Work', selected: false },
       { name: 'Upload Result', selected: false },
       { name: 'Results Ready', selected: false },
-    ]
+    ],
+    dnaCollectionProcess: "",
+    isBiological: false
   }),
   async mounted(){
     try {
@@ -188,6 +192,18 @@ export default {
         this.$router.push({ name: 'lab-dashboard-order-history' })
       }
       const order = await getOrdersDetail(this.api, this.orderId)
+      const serviceInfo = await queryServicesById(this.api, order.serviceId)
+
+      this.dnaCollectionProcess = serviceInfo.info.dnaCollectionProcess
+      if (this.dnaCollectionProcess.includes("Covid")) {
+        this.isBiological = true
+      }
+      // this.isBiological = true//just for testing deleted soon
+
+      // console.log(this.dnaCollectionProcess, "dna collection process")
+      // console.log(this.isBiological, "biological status")
+      // console.log(order, "order ====")
+
       if(order.status == "Cancelled"){
           this.cancelledOrderDialog = true
       }
@@ -209,6 +225,9 @@ export default {
     async setCheckboxByDnaStatus(){
       if(this.specimenStatus == "Arrived") {
         this.onSpecimenReceived()
+        if (this.isBiological == true) {
+          this.onQcCompleted()
+        }
       }
 
       if(this.specimenStatus == "Rejected") {

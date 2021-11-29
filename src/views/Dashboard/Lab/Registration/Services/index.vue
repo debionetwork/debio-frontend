@@ -36,6 +36,18 @@
                   item-value="service_categories"
                   :rules="serviceCategoryRules"
                   ></v-select>
+
+                  <v-select
+                    dense
+                    label="Type of Biological Sample"
+                    placeholder="Type of Biological Sample"
+                    v-model="biologicalType"
+                    outlined
+                    :items="listBiologicalType"
+                    item-text="dnaCollectionProcess"
+                    item-value="dnaCollectionProcess"
+                    :rules="biologicalTypeRules"
+                  ></v-select>
                   
                   <v-text-field
                     dense
@@ -246,6 +258,15 @@ export default {
       { name: "Lab Services", selected: false},
     ],
     dialogAlert: false,
+    biologicalType: "",
+    listBiologicalType: [
+      "Blood Cells - Dried Blood Spot Collection Process",
+      "Epithelial Cells - Buccal Swab Collection Process",
+      "Fecal Matters - Stool Collection Process",
+      "Saliva - Saliva Collection Process",
+      "Urine - Clean Catch Urine Collection Process",
+    ],
+    isBiomedical: false
   }),
 
   async mounted() {
@@ -371,6 +392,7 @@ export default {
       this.longDescription = ''
       this.imageUrl = ''
       this.testResultSampleFile = []
+      this.biologicalType = ''
     },
 
     async prefillServicesForm(service) {
@@ -444,6 +466,7 @@ export default {
           testResultSample: this.testResultSampleUrl,
           longDescription: this.longDescription,
           image: this.imageUrl,
+          dnaCollectionProcess: this.biologicalType
         },
         "RequestTest",
         () => {
@@ -493,6 +516,7 @@ export default {
           testResultSample: this.testResultSampleUrl,
           longDescription: this.longDescription,
           image: this.imageUrl,
+          dnaCollectionProcess: this.biologicalType
         },
         () => {
           this.isLoading = false

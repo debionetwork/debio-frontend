@@ -239,7 +239,6 @@ export default {
     expectedDuration: '',
     biologicalType: "",
     listBiologicalType: [
-      "Covid 19 Saliva Test",
       "Blood Cells - Dried Blood Spot Collection Process",
       "Epithelial Cells - Buccal Swab Collection Process",
       "Fecal Matters - Stool Collection Process",
