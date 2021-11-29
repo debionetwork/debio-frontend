@@ -127,6 +127,7 @@ export default {
     },
 
     async handleSearch(val) {
+      this.page = 1
       await this.fetchDataOrders(val)
     },
 
