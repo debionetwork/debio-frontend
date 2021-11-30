@@ -66,9 +66,6 @@ export default {
     async receiveDnaSample() {
       if(this.valid){
         this.isLoading = true
-        console.log(this.specimenNumber)
-        console.log(this.isBiological, "biological")
-
         if (!this.isBiological) {
           await processDnaSample(
             this.api,
@@ -92,19 +89,6 @@ export default {
             }
           )
         }
-
-        // if (this.isBiological == true) {
-        //   await processDnaSample(
-        //     this.api,
-        //     this.pair,
-        //     this.specimenNumber,
-        //     "QualityControlled",
-        //     () => {
-        //       this.isLoading = false
-        //       this.specimenAlertDialog = true
-        //     }
-        //   )
-        // }
       }
     },
   },

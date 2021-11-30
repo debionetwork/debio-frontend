@@ -198,11 +198,6 @@ export default {
       if (this.dnaCollectionProcess.includes("Covid")) {
         this.isBiological = true
       }
-      // this.isBiological = true//just for testing deleted soon
-
-      // console.log(this.dnaCollectionProcess, "dna collection process")
-      // console.log(this.isBiological, "biological status")
-      // console.log(order, "order ====")
 
       if(order.status == "Cancelled"){
           this.cancelledOrderDialog = true
