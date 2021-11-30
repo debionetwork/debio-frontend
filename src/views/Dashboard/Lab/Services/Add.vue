@@ -56,7 +56,7 @@
                     v-model="category"
                     outlined
                     :items="listCategories"
-                    :disabled="!!servicePayload"
+                    :disabled="hasServicePayload"
                     item-text="service_categories"
                     item-value="service_categories"
                     :rules="serviceCategoryRules"
@@ -94,7 +94,7 @@
                           v-model="currencyType"
                           :items="currencyList"
                           :rules="curencyTypeRules"
-                          :disabled="!!servicePayload"
+                          :disabled="hasServicePayload"
                           ></v-select>
                         </v-col>
                         <v-col>
@@ -109,7 +109,7 @@
                         </v-col>
                         <v-col>
                           <v-select
-                          :disabled="isBiomedical || !!servicePayload"
+                          :disabled="isBiomedical || hasServicePayload"
                           label="QC Currency"
                           outlined
                           dense
@@ -262,6 +262,10 @@ export default {
       web3: (state) => state.metamask.web3,
       lastEventData: (state) => state.substrate.lastEventData,
     }),
+
+    hasServicePayload() {
+      return Object.keys(this.servicePayload).length
+    },
 
     serviceCategoryRules() {
       return [
