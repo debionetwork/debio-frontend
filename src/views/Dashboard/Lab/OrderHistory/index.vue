@@ -143,7 +143,6 @@ export default {
       return "btn-sending"
     },
     actionButton(status){
-      console.log(status)
       if (status === "Registered") {
         return "Received"
       }
