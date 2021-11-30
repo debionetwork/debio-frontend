@@ -96,6 +96,7 @@ export default {
       this.isLoading = true
       this.orders = []
       let { orders, totalOrders } = await getOrdersDetailByAddressPagination(this.api, this.pair.address, this.page, this.pageSize)
+      
       for(let i = 0; i < orders.length; i++){
         const order = orders[i]
         order.createdAt = (new Date(order.createdAt)).toLocaleDateString()
