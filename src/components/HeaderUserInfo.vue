@@ -87,8 +87,8 @@ export default {
       clearAuth: "auth/clearAuth",
     }),
     async getBalance(balanceNummber) {
-
-      this.balance = Number(await fromEther(balanceNummber)).toFixed(3);
+      const balance = Number(await fromEther(balanceNummber)).toFixed(3)
+      this.balance = balance.replace(/\.000/,'')
       if (this.balance == "0") {
         this.balance = "0";
       }

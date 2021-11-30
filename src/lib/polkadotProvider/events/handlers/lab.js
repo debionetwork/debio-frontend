@@ -1,4 +1,6 @@
 import { toFormatDebioCoin } from "@/lib/polkadotProvider/index"
+import store from "@/store"
+
 
 const defaultHandler = {
 	get: function (target, name) {
@@ -29,11 +31,12 @@ const handler = {
 		return { data, id, params, wording }
 	},
 	balances: async (dataEvent, value, valueMessage) => {
+    const web3 = store.getters['metamask/getWeb3']
 		const data = dataEvent;
 		const id = data[value];
 		const params = { number: id };
 		const finalText = await toFormatDebioCoin(data[valueMessage])
-		const wording = finalText + " DBIO!"
+		const wording = web3.utils.fromWei(finalText, 'ether') + " DBIO!"
 		return { data, id, params, wording }
 	},
 	orders: async (dataEvent, value, valueMessage) => {
