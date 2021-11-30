@@ -26,13 +26,13 @@
             <template v-slot:[`item.actions`]="{ item }">
               <v-container>
                 <v-btn
-                  v-if="item.status != 'Cancelled'"
+                  v-if="item.status != 'Cancelled' && item.status != 'Rejected'"
                   :class="buttonClass(item)"
                   dark
                   small
                   width="200"
                   @click="processOrder(item)"
-                >{{ item._source.dna_sample_status }}</v-btn>
+                >{{ actionButton(item.dna_sample_status) }}</v-btn>
               </v-container>
             </template>
             <!-- Rows -->
@@ -142,7 +142,27 @@ export default {
       }
       return "btn-sending"
     },
+    actionButton(status){
+      if (status === "Registered") {
+        return "Received"
+      }
 
+      if (status === "Arrived") {
+        return "Quality Control"
+      }
+
+      if (status === "QualityControlled") {
+        return "Analyze"
+      }
+
+      if (status === "WetWork") {
+        return "Upload Result"
+      }
+
+      if (status === "ResultReady") {
+        return "Result Ready"
+      }
+    },
     async handlePageChange(value){
       this.page = value
       await this.fetchDataOrders()
