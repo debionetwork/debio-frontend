@@ -23,7 +23,7 @@
         </a>
         <v-spacer></v-spacer>
         <HeaderUserInfo
-          @showWalletBinding="({ status }) => openWalletBinding(status)"
+          @showWalletBinding="openWalletBinding"
         ></HeaderUserInfo>
         <!-- Menu For Development Purposes -->
         <!-- <MenuChangeRole /> -->
@@ -32,17 +32,17 @@
     </v-app-bar>
 
     <NavigationDrawer width="200" />
+    <WalletBinding
+      :show="showWalletBinding"
+      @toggle="showWalletBinding = $event"
+      @status-wallet="({ status, img }) => connectWalletResult(status, img)"
+    ></WalletBinding>
 
     <v-main class="main" v-if="!isServicesExist && isLabDashboard">
       <router-view></router-view>
     </v-main>
 
     <v-main class="dg-dashboard-main ml-5" v-else>
-      <WalletBinding
-        :show="showWalletBinding"
-        @toggle="showWalletBinding = $event"
-        @status-wallet="({ status, img }) => connectWalletResult(status, img)"
-      ></WalletBinding>
       <DialogAlert
         :show="dialogAlert"
         :btnText="alertTextBtn"

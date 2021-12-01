@@ -155,7 +155,7 @@ export default {
       }
     },
     openWalletBinding() {
-      this.$emit("showWalletBinding", { status: true });
+      this.$emit("showWalletBinding", true);
     },
     async checkMetamaskAddress() {
       if (this.metamaskWalletAddress == "") {

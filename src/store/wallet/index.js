@@ -13,15 +13,20 @@ export default {
     },
   },
   actions: {
-    async walletBinding({commit}, data) {
-      
-      const debioApiKey = process.env.VUE_APP_DEBIO_API_KEY
-      const baseUrl = process.env.VUE_APP_DEV_DEBIO_BACKEND_URL
-      const result = await axios.post(`${baseUrl}/substrate/wallet-binding`, data , {
-      headers: {
-        "debio-api-key" : debioApiKey
-      }})
-      commit('SET_RESULT', result.data)
+    async walletBinding({commit}, payload) {
+      try {
+        const debioApiKey = process.env.VUE_APP_DEBIO_API_KEY
+        const baseUrl = process.env.VUE_APP_DEV_DEBIO_BACKEND_URL
+        const { data } = await axios.post(`${baseUrl}/substrate/wallet-binding`, payload , {
+          headers: {
+            "debio-api-key" : debioApiKey
+          }
+        })
+
+        commit('SET_RESULT', data)
+      } catch (e) {
+        console.error(e)
+      }
     }
   },
 }
