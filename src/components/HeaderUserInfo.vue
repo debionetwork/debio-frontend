@@ -113,6 +113,7 @@ export default {
       this.clearAuth();
       localStorage.clear();
       this.$store.dispatch("lab/setProvideService", {})
+      this.$store.commit("substrate/SET_IS_SERVICES_EXIST", false)
       this.$router.push("/login");
     },
     downloadKeystore() {
