@@ -1,5 +1,5 @@
 import axios from "axios"
-const baseUrl = "https://backend-dev.debio.network"
+const baseUrl = process.env.VUE_APP_DEV_DEBIO_BACKEND_URL
 
 export const getLocations = async () => {
   return axios.get(`${baseUrl}/location`)
