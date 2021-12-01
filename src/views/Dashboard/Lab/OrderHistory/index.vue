@@ -23,16 +23,21 @@
                 @input="handleSearch"
               />
             </template>
+
+            <template v-slot:[`item.status`]="{ item }">
+              <span> {{ getStatus(item._source.dna_sample_status)}} </span>
+            </template>
+
             <template v-slot:[`item.actions`]="{ item }">
               <v-container>
                 <v-btn
-                  v-if="item._source.status != 'Cancelled' && item._source.status != 'Rejected'"
+                  v-if="item._source.status != 'Cancelled'"
                   :class="buttonClass(item)"
                   dark
                   small
                   width="200"
                   @click="processOrder(item)"
-                >{{ actionButton(item._source.dna_sample_status ) }}</v-btn>
+                >{{ actionButton(item._source.dna_sample_status) }}</v-btn>
               </v-container>
             </template>
             <!-- Rows -->
@@ -60,12 +65,13 @@ export default {
     ServerSideDataTable,
     SearchBar,
   },
+
   data: () => ({
     headers: [
       { text: 'Date', value: '_source.created_at' },
       { text: 'Product Name', value: '_source.service_info.name' },
       { text: 'Specimen Number', value: '_source.dna_sample_tracking_id' },
-      { text: 'Status', value: '_source.status' },
+      { text: 'Status', value: 'status' },
       { text: 'Actions', value: 'actions', sortable: false, align: 'center', width: '5%' },
     ],
     orders: [],
@@ -77,9 +83,11 @@ export default {
     search: '',
     isLoading: false,
   }),
+
   async created() {
     this.fetchDataOrders()
   },
+
   computed: {
     ...mapGetters({
       api: 'substrate/getAPI',
@@ -142,27 +150,35 @@ export default {
       }
       return "btn-sending"
     },
-    actionButton(status){
-      if (status === "Registered") {
+
+    getStatus(status) {
+
+      if (status === "Arrived") {
         return "Received"
       }
 
-      if (status === "Arrived") {
-        return "Quality Control"
-      }
-
-      if (status === "QualityControlled") {
-        return "Analyze"
-      }
-
       if (status === "WetWork") {
-        return "Upload Result"
+        return "Analyzed"
       }
 
       if (status === "ResultReady") {
         return "Result Ready"
       }
+
+      if (status === "QualityControlled") {
+        return "Quality Controlled"
+      }
+
+      return status
     },
+
+    actionButton(status){
+      if (status === "Rejected" || status === "ResultReady") {
+        return "Details"
+      }
+      return "Proceed"
+    },
+
     async handlePageChange(value){
       this.page = value
       await this.fetchDataOrders()
