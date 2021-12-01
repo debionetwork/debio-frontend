@@ -7,8 +7,7 @@
 			<ServerSideDataTable
 				:headers="headers"
 				:items="regions"
-				:sort-by="['createdAt']"
-				:sort-desc="[true]"
+        :sort-by="['city']"
 				:loading="isLoading"
 				:handle-page-change="handlePageChange"
 				:handle-page-size-change="handlePageSizeChange"
@@ -43,8 +42,7 @@
 							class="expanded"
 							:headers="headers"
 							:items="subItem ? subItem.services : []"
-							:sort-by="['createdAt']"
-							:sort-desc="[true]"
+							:sort-by="['city']"
 							:loading="isLoading"
               :pageSize="1000"
 							hide-entries
