@@ -37,8 +37,8 @@ import OrderCard from "@/components/OrderCard";
 import PrimaryButton from "@/components/PrimaryButton";
 import { SUCCESS } from "@/constants/specimen-status";
 import {
-  getDnaTestResultsDetailByLab,
-} from "@/lib/polkadotProvider/query/geneticTesting"
+  getTestResultHistory,
+} from "@/lib/polkadotProvider/query/orders"
 
 export default {
   name: "TestResults",
@@ -64,33 +64,26 @@ export default {
       this.isLoadingTestResults = true;
       try {
         this.testResults = [];
-        let maxResults = 3;
-        // Get specimens
-        let dnaTestResults = await getDnaTestResultsDetailByLab(
-          this.api,
-          this.wallet.address
-        )
-        dnaTestResults.sort(
-          (a, b) => parseInt(b.createdAt) - parseInt(a.createdAt)
-        )
-        if(dnaTestResults.length > 0){
-          for (let i = 0; i < maxResults; i++) {
-            this.prepareOrderData(dnaTestResults[i])
+        let {orders} = await getTestResultHistory(this.api, this.wallet.address)
+
+        if(orders.length > 0){
+          for (let i = 0; i < orders.length; i++) {
+            this.prepareOrderData(orders[i])
           }
         }
-
-        this.isLoadingTestResults = false;
       } catch (err) {
+        console.log(err)
+      } finally {
         this.isLoadingTestResults = false;
       }
     },
 
     prepareOrderData(dnaTestResults) {
-      const title = dnaTestResults.order.service_name;
-      const labName = dnaTestResults.order.lab_name;
+      const title = dnaTestResults.service_name;
+      const labName = dnaTestResults.lab_name;
       let icon = "mdi-needle";
-      if (dnaTestResults.order.image != null) {
-        icon = dnaTestResults.order.image;
+      if (dnaTestResults.image != null) {
+        icon = dnaTestResults.image;
       }
 
       let dateSet = new Date();
@@ -110,8 +103,8 @@ export default {
         minute: "numeric",
       });
 
-      const id = dnaTestResults.order.id;
-      const number = dnaTestResults.trackingId;
+      const id = dnaTestResults.id;
+      const number = dnaTestResults.dnaSampleTrackingId;
       const status = SUCCESS;
 
       const order = {

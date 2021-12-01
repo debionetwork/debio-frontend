@@ -55,7 +55,7 @@ import { mapState } from "vuex"
 import OrderCard from "@/components/OrderCard"
 import PrimaryButton from "@/components/PrimaryButton"
 import {
-  getOrdersDetailByAddressPagination,
+  fetchOrderHistory,
 } from "@/lib/polkadotProvider/query/orders"
 
 export default {
@@ -84,7 +84,7 @@ export default {
       this.isLoadingOrderHistory = true
       try {
         const address = this.wallet.address
-        let orders = (await getOrdersDetailByAddressPagination( this.api, address, 1, 3)).orders
+        let {orders} = await fetchOrderHistory(this.api, address)
 
         for (let i = 0; i < orders.length; i++) {
           this.prepareOrderData(orders[i])

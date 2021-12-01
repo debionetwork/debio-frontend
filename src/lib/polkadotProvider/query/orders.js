@@ -109,3 +109,82 @@ export async function searchOrder(searchQuery) {
 
   return data
 }
+
+export async function fetchOrderHistory(api, address) {
+  let orders = []
+  let orderIds = await ordersBySeller(api, address)
+  orderIds.reverse()
+
+  if(orderIds == null){
+    return {
+      orders: [],
+      totalOrders: 0
+    }
+  }
+  
+  for(let i = 0; i < orderIds.length; i++){
+    let orderDetail = await getOrdersData(api, orderIds[i])
+    if(orderDetail['status'] == "Unpaid") continue // Skip unpaid orders
+    if(orderDetail['status'] == "Cancelled") continue // Skip cancelled orders
+
+    const dna = await queryDnaSamples(api, orderDetail.dnaSampleTrackingId)
+    if (dna) orderDetail['dna_sample_status'] = dna.status
+
+    const service = await queryServicesById(api, orderDetail.serviceId)
+    orderDetail['createdAt'] = parseInt(orderDetail.createdAt.replace(/,/g, ""))
+    
+    let lab = null
+    if (service) {
+      orderDetail['service_name'] = service.info.name
+      orderDetail['service_image'] = service.info.image
+      lab = await queryLabsById(api, service.ownerId)
+    }
+    if (lab) orderDetail['lab_name'] = lab.info.name
+
+    orders.push(orderDetail)
+  }
+
+  return {
+    orders: orders.slice(0,3),
+    totalOrders: orderIds.length
+  }
+}
+
+export async function getTestResultHistory(api, address) {
+  let orders = []
+  let orderIds = await ordersBySeller(api, address)
+  orderIds.reverse()
+
+  if(orderIds == null){
+    return {
+      orders: [],
+      totalOrders: 0
+    }
+  }
+  
+  for(let i = 0; i < orderIds.length; i++){
+    let orderDetail = await getOrdersData(api, orderIds[i])
+    if(orderDetail['status'] !== "Fulfilled") continue
+
+    const dna = await queryDnaSamples(api, orderDetail.dnaSampleTrackingId)
+    if (dna) orderDetail['dna_sample_status'] = dna.status
+
+    const service = await queryServicesById(api, orderDetail.serviceId)
+    orderDetail['createdAt'] = parseInt(orderDetail.createdAt.replace(/,/g, ""))
+    
+    let lab = null
+    if (service) {
+      orderDetail['service_name'] = service.info.name
+      orderDetail['service_image'] = service.info.image
+      lab = await queryLabsById(api, service.ownerId)
+    }
+    if (lab) orderDetail['lab_name'] = lab.info.name
+
+    orders.push(orderDetail)
+  }
+  
+  return {
+    orders: orders.slice(0,3),
+    totalOrders: orderIds.length
+  }
+}
