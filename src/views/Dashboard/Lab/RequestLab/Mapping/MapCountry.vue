@@ -14,7 +14,7 @@
         <div class="search-bar__result-lists">
           <template v-if="filteredResults.services">
             <div class="search-bar__result-item rounded" v-for="(service, idx) in filteredResults.services" :key="idx">
-              <div class="search-bar__result-title">{{ service.name }}</div>
+              <div class="search-bar__result-title">{{ service.category }}</div>
               <div class="search-bar__result-content">
                 <v-row>
                   <v-col>Total requests</v-col>
@@ -339,7 +339,7 @@ export default {
             </div>
             <div style="display: flex; justify-content: space-between; width: 100%;">
               <div>Total value staked</div>
-              <div>${totalValue.toLocaleString()} <b>DAI</b></div>
+              <div>${totalValue || 0} <b>DAI</b></div>
             </div>
           </div>
         `

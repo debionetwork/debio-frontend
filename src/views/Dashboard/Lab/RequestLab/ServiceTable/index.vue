@@ -76,11 +76,11 @@
               </template>
 
               <template v-slot:[`item.total_amount_dai`]="{ item }">
-                {{ item.totalValue.dai }} DBIO
+                {{ item.totalValue.dai }}
               </template>
 
               <template v-slot:[`item.total_amount_usd`]="{ item }">
-                {{ item.totalValue.usd }} USD
+                {{ item.totalValue.usd }}
               </template>
 
 						</ServerSideDataTable>
@@ -98,11 +98,11 @@
 				</template>
 
 				<template v-slot:[`item.total_amount_dai`]="{ item }">
-					{{ item.total_amount_dai }} DBIO
+					{{ item.total_amount_dai }}
 				</template>
 
 				<template v-slot:[`item.total_amount_usd`]="{ item }">
-					{{ item.total_amount_usd }} USD
+					{{ item.total_amount_usd }}
 				</template>
 
 				<template v-slot:[`item.actions`]>-</template>
