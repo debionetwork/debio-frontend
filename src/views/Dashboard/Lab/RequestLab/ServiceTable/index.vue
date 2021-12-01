@@ -7,8 +7,7 @@
 			<ServerSideDataTable
 				:headers="headers"
 				:items="regions"
-				:sort-by="['createdAt']"
-				:sort-desc="[true]"
+        :sort-by="['city']"
 				:loading="isLoading"
 				:handle-page-change="handlePageChange"
 				:handle-page-size-change="handlePageSizeChange"
@@ -43,8 +42,7 @@
 							class="expanded"
 							:headers="headers"
 							:items="subItem ? subItem.services : []"
-							:sort-by="['createdAt']"
-							:sort-desc="[true]"
+							:sort-by="['city']"
 							:loading="isLoading"
               :pageSize="1000"
 							hide-entries
@@ -76,11 +74,11 @@
               </template>
 
               <template v-slot:[`item.total_amount_dai`]="{ item }">
-                {{ item.totalValue.dai }} DBIO
+                {{ item.totalValue.dai }}
               </template>
 
               <template v-slot:[`item.total_amount_usd`]="{ item }">
-                {{ item.totalValue.usd }} USD
+                {{ item.totalValue.usd }}
               </template>
 
 						</ServerSideDataTable>
@@ -98,11 +96,11 @@
 				</template>
 
 				<template v-slot:[`item.total_amount_dai`]="{ item }">
-					{{ item.total_amount_dai }} DBIO
+					{{ item.total_amount_dai }}
 				</template>
 
 				<template v-slot:[`item.total_amount_usd`]="{ item }">
-					{{ item.total_amount_usd }} USD
+					{{ item.total_amount_usd }}
 				</template>
 
 				<template v-slot:[`item.actions`]>-</template>

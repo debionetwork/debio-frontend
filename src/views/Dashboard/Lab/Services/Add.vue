@@ -6,6 +6,9 @@
   cursor: pointer;
   border: 1px solid lightgrey;
 }
+.services__modal-title {
+  word-break: break-word;
+}
 </style>
 
 <template>

@@ -19,7 +19,7 @@
         </a>
         <v-spacer/>
         <HeaderUserInfo
-          @showWalletBinding="({ status }) => openWalletBinding(status)"
+          @showWalletBinding="openWalletBinding"
         ></HeaderUserInfo>
         <!-- Menu For Development Purposes -->
         <!-- <MenuChangeRole /> -->
@@ -28,17 +28,17 @@
     </v-app-bar>
 
     <NavigationDrawer width="200" />
+    <WalletBinding
+      :show="showWalletBinding"
+      @toggle="showWalletBinding = $event"
+      @status-wallet="({ status, img }) => connectWalletResult(status, img)"
+    ></WalletBinding>
 
     <v-main class="main" v-if="!isServicesExist && isLabDashboard">
       <router-view/>
     </v-main>
 
     <v-main class="dg-dashboard-main ml-5" v-else>
-      <WalletBinding
-        :show="showWalletBinding"
-        @toggle="showWalletBinding = $event"
-        @status-wallet="({ status, img }) => connectWalletResult(status, img)"
-      ></WalletBinding>
       <DialogAlert
         :show="dialogAlert"
         :btnText="alertTextBtn"
@@ -137,8 +137,10 @@ export default {
     },
   },
   watch: {
-    lastEventData() {
-      if (this.lastEventData != null) {
+    lastEventData(val) {
+      if (val !== null) {
+        if (val.method === "LabRegistered") return
+
         this.$store.dispatch("substrate/addListNotification", {
           address: this.wallet.address,
           event: this.lastEventData,

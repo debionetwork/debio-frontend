@@ -7,6 +7,7 @@
         class="bri-search-field"
         :class="{ 'has-filter': showFilter }"
         :label="label"
+        :value="searchQuery"
         outlined
         autocomplete="off"
         dense
@@ -79,6 +80,7 @@ export default {
     },
 
     onItemSelected(item) {
+      this.searchQuery = item[this.itemValue]
       const selection = this.returnObject
         ? item
         : item[this.itemValue]

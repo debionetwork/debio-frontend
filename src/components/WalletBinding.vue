@@ -195,8 +195,8 @@ export default {
     }),
   },
   watch: {
-    show() {
-      if (this.show) {
+    show(val) {
+      if (val) {
         this.password = "";
         this.error = "";
         this.loading = false;
@@ -212,10 +212,10 @@ export default {
     ...mapMutations({
       setMetamaskAddress: "metamask/SET_WALLET_ADDRESS",
     }),
-    async getMunnyFromFaucet(address) {
-      await getEthFromFaucet(address);
-      await getDaicFromFaucet(address);
-    },
+    // async getMunnyFromFaucet(address) { TODO: Remove this function later
+    //   await getEthFromFaucet(address); TODO: Remove this function later
+    //   await getDaicFromFaucet(address); TODO: Remove this function later
+    // }, TODO: Remove this function later
     async setWalllet(walletName) {
       this.error = "";
       this.loading = true;
@@ -280,7 +280,7 @@ export default {
           status: true,
           img: "metamask-account-connected.png",
         });
-        await this.getMunnyFromFaucet(this.selectAccount.address);
+        // await this.getMunnyFromFaucet(this.selectAccount.address); TODO: Remove this function later
         this.isLoading = false;
         this.closeDialog();
       } catch (err) {
