@@ -37,7 +37,9 @@
                   small
                   width="200"
                   @click="processOrder(item)"
-                >{{ actionButton(item._source.dna_sample_status) }}</v-btn>
+                >
+                  {{ actionButton(item._source.dna_sample_status, item._source.testResult ) }}
+                </v-btn>
               </v-container>
             </template>
             <!-- Rows -->
@@ -52,7 +54,7 @@
 import { mapGetters } from 'vuex'
 import { getOrdersDetailByAddressPagination } from '@/lib/polkadotProvider/query/orders'
 import ServerSideDataTable from '@/components/DataTable/ServerSideDataTable'
-import { queryDnaSamples } from '@/lib/polkadotProvider/query/geneticTesting'
+import { queryDnaSamples, queryDnaTestResults } from '@/lib/polkadotProvider/query/geneticTesting'
 import SearchBar from '@/components/DataTable/SearchBar'
 import { getOrdersData } from '@/lib/orders'
 import serviceHandler from '@/lib/metamask/mixins/serviceHandler'
@@ -107,11 +109,13 @@ export default {
       const orders = await this.dispatch(getOrdersData, this.pair.address, this.page, this.pageSize, keyword)
       for (let order of orders.data) {
         const dna = await queryDnaSamples(this.api, order._source.dna_sample_tracking_id)
+        const dnaTestResult = await queryDnaTestResults(this.api, order._source.dna_sample_tracking_id)
         const data = {
           ...order,
           _source: {
             ...order._source,
             dna_sample_status: dna?.status,
+            testResult: dnaTestResult,
             created_at: (new Date(parseInt(order._source.created_at))).toLocaleDateString()
           }
         }
@@ -150,11 +154,22 @@ export default {
       }
       return "btn-sending"
     },
-
-    getStatus(status) {
+    
+    getStatus(status, testResult){
+      if (status === "Registered") {
+        return "Registered"
+      }
 
       if (status === "Arrived") {
         return "Received"
+      }
+
+      if (status === "QualityControlled") {
+        return "Quality Controlled"
+      }
+
+      if (status === "WetWork" && testResult) {
+        return "Upload Result"
       }
 
       if (status === "WetWork") {
