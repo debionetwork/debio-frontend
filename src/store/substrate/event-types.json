@@ -217,6 +217,16 @@
           "params": "number",
           "identity": "lab_id"
         }
+      },
+      "rewards": {
+        "RewardFunds": {
+          "message": "Congrats! You’ve got  from wallet binding ",
+          "value": 0,
+          "value_message": 1,
+          "route": "",
+          "params": "",
+          "identity": 2
+        }
       }
     }
   }
