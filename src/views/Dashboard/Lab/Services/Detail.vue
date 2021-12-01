@@ -93,6 +93,7 @@
                         </v-col>
                         <v-col>
                           <v-select
+                          :disabled="isBiomedical"
                           label="QC Currency"
                           outlined
                           dense
@@ -103,6 +104,7 @@
                         </v-col>
                         <v-col>
                           <v-text-field
+                            :disabled="isBiomedical"
                             dense
                             label="QC Price"
                             placeholder="QC Price"
@@ -215,13 +217,13 @@ export default {
     expectedDuration: "",
     biologicalType: "",
     listBiologicalType: [
-      "Covid 19 Saliva Test",
       "Blood Cells - Dried Blood Spot Collection Process",
       "Epithelial Cells - Buccal Swab Collection Process",
       "Fecal Matters - Stool Collection Process",
       "Saliva - Saliva Collection Process",
       "Urine - Clean Catch Urine Collection Process",
-    ]
+    ],
+    isBiomedical: false
   }),
 
   async mounted(){
@@ -457,5 +459,16 @@ export default {
     },
 
   },
+
+  watch: {
+    category() {
+      if (this.category == 'Covid-19') {
+        this.isBiomedical = true
+        this.qcPrice = "0"
+      } else {
+        this.isBiomedical = false
+      }
+    },
+  }
 }
 </script>

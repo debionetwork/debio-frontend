@@ -31,8 +31,34 @@
                     <div class="d-flex justify-space-between align-center" style="width: 100%;">
                     <div class=""><b>{{ cert.info.title }}</b></div>
                     <div class="d-flex">
-                        <v-icon class="mx-1" small @click="editCertification(cert)">mdi-pencil</v-icon>
-                        <v-icon class="mx-1" small @click="deleteCertification(cert)">mdi-delete</v-icon>
+                      <v-dialog v-model="showDeletePrompt" persistent width="477">
+                        <v-card class="d-flex flex-column px-15 py-13">
+                          <v-icon size="80" class="mx-auto" color="primary">mdi-information-outline</v-icon>
+                          <v-card-title class="text-center">Are you sure you want delete this certification?</v-card-title>
+                          <v-card-actions style="gap: 40px">
+                            <v-btn
+                              style="flex: 1"
+                              color="#BA8DBB"
+                              class="white--text"
+                              raised
+                              @click="showDeletePrompt = false"
+                            >
+                              No
+                            </v-btn>
+                            <v-btn
+                              style="flex: 1"
+                              color="primary"
+                              class="ml-0"
+                              raised
+                              @click="deleteCertification(cert)"
+                            >
+                              Yes
+                            </v-btn>
+                          </v-card-actions>
+                        </v-card>
+                      </v-dialog>
+                      <v-icon class="mx-1" small @click="editCertification(cert)">mdi-pencil</v-icon>
+                      <v-icon class="mx-1" small @click="showDeletePrompt = true">mdi-delete</v-icon>
                     </div>
                     </div>
                     <div>{{ cert.info.month }} {{ cert.info.year }} • {{ cert.info.issuer }}</div>
@@ -152,6 +178,7 @@ export default {
     selectMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     certificationDialog: false,
     isUploading: false,
+    showDeletePrompt: false,
     isEditCertificationDialog: false,
     files: []
   }),
@@ -272,11 +299,9 @@ export default {
         this.closeCertificationDialog()
       })
     },
+
     async deleteCertification(cert) {
-      const isConfirmed = confirm("Are you sure you want to delete this certification?")
-      if (isConfirmed) {
-        await this.dispatch(deleteCertification, this.api, this.pair, cert.id)
-      }
+      await this.dispatch(deleteCertification, this.api, this.pair, cert.id)
     },
     fileUploadEventListener(file) {
       this.certSupportingDocumentsUrl = ""

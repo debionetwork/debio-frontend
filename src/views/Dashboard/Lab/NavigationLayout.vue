@@ -2,11 +2,7 @@
   <v-app>
     <v-app-bar app color="secondary" dark class="dg-app-bar" clipped-left>
       <div class="dg-app-bar-items-container">
-        <a
-          href="https://www.degenics.com/"
-          target="_blank"
-          style="text-decoration: none"
-        >
+        <a @click.stop="goToDashboard"  style="text-decoration: none">
           <div class="d-flex align-center">
             <v-img
               alt="Vuetify Logo"
@@ -17,11 +13,11 @@
               width="40"
             />
             <div class="text-h6 font-weight-bold light_primary--text">
-              DeBio {{ isLab ? "Lab" : "" }}
+              DeBio {{ isLab && "Lab" }}
             </div>
           </div>
         </a>
-        <v-spacer></v-spacer>
+        <v-spacer/>
         <HeaderUserInfo
           @showWalletBinding="openWalletBinding"
         ></HeaderUserInfo>
@@ -39,7 +35,7 @@
     ></WalletBinding>
 
     <v-main class="main" v-if="!isServicesExist && isLabDashboard">
-      <router-view></router-view>
+      <router-view/>
     </v-main>
 
     <v-main class="dg-dashboard-main ml-5" v-else>
@@ -59,7 +55,7 @@
         </div>
       </v-container>
 
-      <router-view></router-view>
+      <router-view/>
     </v-main>
 
     <UnlockWalletDialog :show="show" @toggle="toggle()"></UnlockWalletDialog>
@@ -105,35 +101,35 @@ export default {
     console.log("Is pair locked lab?", this.pair.isLocked);
     this.show = this.pair.isLocked;
 
-    const balance = await queryBalance(
-      this.api,
-      this.wallet.address
-    );
+    const balance = await queryBalance(this.api, this.wallet.address);
 
     if (balance <= 0) {
       this.$store.dispatch("registration/registration", {
         accountId: localStorage.getAddress(),
         role: "lab",
-      })
+      });
     }
-
   },
   computed: {
     ...mapGetters({
       pair: "substrate/wallet",
     }),
+
     ...mapState({
       isServicesExist: (state) => state.substrate.isServicesExist,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
       lastEventData: (state) => state.substrate.lastEventData,
     }),
+
     isLab() {
       return this.$route.path.indexOf("lab") > 0;
     },
+
     isLabDashboard() {
       return this.$route.path === "/lab" || this.$route.path === "/lab/";
     },
+
     pageHeader() {
       return this.$route.meta.pageHeader
         ? this.$route.meta.pageHeader
@@ -157,14 +153,19 @@ export default {
     toggle() {
       this.show = false;
     },
+
     openWalletBinding(status) {
       this.showWalletBinding = status;
     },
+    
     connectWalletResult(status, img) {
       if (status) {
         this.alertImgPath = img;
         this.dialogAlert = true;
       }
+    },
+    goToDashboard() {
+      this.$router.push({ path: '/lab' });
     },
   },
 };

@@ -121,6 +121,7 @@ import sendTransaction from '../../../lib/send-transaction'
 import localStorage from '../../../lib/local-storage'
 import Wallet from '../../../lib/dgnx-wallet'
 import { mapState } from 'vuex'
+import { SUCCESS } from '@/constants/specimen-status'
 
 
 

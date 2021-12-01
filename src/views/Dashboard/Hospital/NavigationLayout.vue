@@ -2,11 +2,7 @@
   <v-app>
     <v-app-bar app color="secondary" dark class="dg-app-bar" clipped-left>
       <div class="dg-app-bar-items-container">
-        <a
-          href="https://www.degenics.com/"
-          target="_blank"
-          style="text-decoration: none"
-        >
+        <a @click.stop="goToDashboard" style="text-decoration: none">
           <div class="d-flex align-center">
             <v-img
               alt="Vuetify Logo"
@@ -17,11 +13,11 @@
               width="40"
             />
             <div class="text-h6 font-weight-bold light_primary--text">
-              DeBio {{ isHospital ? "Hospital" : "" }}
+              DeBio {{ isHospital && "Hospital" }}
             </div>
           </div>
         </a>
-        <v-spacer></v-spacer>
+        <v-spacer/>
         <HeaderUserInfo
           @showWalletBinding="({ status }) => openWalletBinding(status)"
         ></HeaderUserInfo>
@@ -34,7 +30,7 @@
     <NavigationDrawer width="200" />
 
     <v-main class="main" v-if="!isHospitalAccountExist && isHospitalDashboard">
-      <router-view></router-view>
+      <router-view/>
     </v-main>
 
     <v-main class="dg-dashboard-main ml-5" v-else>
@@ -59,7 +55,7 @@
         </div>
       </v-container>
 
-      <router-view></router-view>
+      <router-view/>
     </v-main>
 
     <UnlockWalletDialog :show="show" @toggle="toggle()"></UnlockWalletDialog>
@@ -107,17 +103,21 @@ export default {
     ...mapGetters({
       pair: "substrate/wallet",
     }),
+
     ...mapState({
       isHospitalAccountExist: (state) => state.substrate.isHospitalAccountExist,
       wallet: (state) => state.substrate.wallet,
       lastEventData: (state) => state.substrate.lastEventData,
     }),
+
     isHospital() {
       return this.$route.path.indexOf("hospital") > 0;
     },
+
     isHospitalDashboard() {
       return this.$route.path === "/hospital" || this.$route.path === "/hospital/";
     },
+
     pageHeader() {
       return this.$route.meta.pageHeader
         ? this.$route.meta.pageHeader
@@ -139,14 +139,20 @@ export default {
     toggle() {
       this.show = false;
     },
+
     openWalletBinding(status) {
       this.showWalletBinding = status;
     },
+
     connectWalletResult(status, img) {
       if (status) {
         this.alertImgPath = img;
         this.dialogAlert = true;
       }
+    },
+
+    goToDashboard() {
+      this.$router.push({ path: '/hospital' });
     },
   },
 };
