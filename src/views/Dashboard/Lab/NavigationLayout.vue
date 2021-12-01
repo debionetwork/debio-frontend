@@ -141,8 +141,10 @@ export default {
     },
   },
   watch: {
-    lastEventData() {
-      if (this.lastEventData != null) {
+    lastEventData(val) {
+      if (val !== null) {
+        if (val.method === "LabRegistered") return
+
         this.$store.dispatch("substrate/addListNotification", {
           address: this.wallet.address,
           event: this.lastEventData,

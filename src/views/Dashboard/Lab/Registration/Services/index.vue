@@ -5,7 +5,7 @@
         <v-col cols="7">
           <v-card class="dg-card" elevation="0" outlined>
             <v-form ref="serviceForm">
-              <v-card-text class="px-8 pb-8 pt-10">              
+              <v-card-text class="px-8 pb-8 pt-10">
                 <div class="mt-5 mb-12 justify-space-evenly" align="center">
                     <v-avatar
                       size="125"
@@ -196,12 +196,13 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
 import { createService, updateService } from '@/lib/polkadotProvider/command/services'
 import { getCategories } from "@/lib/categories"
 import List from "./List"
 import Stepper from "../Stepper"
+import { queryLabsById } from "@/lib/polkadotProvider/query/labs"
 import DialogAlert from "@/components/Dialog/DialogAlert"
 import serviceHandler from "@/mixins/serviceHandler"
 
@@ -253,10 +254,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
-      isServicesExist: 'substrate/isServicesExist',
+    ...mapState({
+      api: (state) => state.substrate.api,
+      wallet: (state) => state.substrate.wallet,
+      isLabExist: state => state.substrate.isLabAccountExist,
+      isServicesExist: state => state.substrate.isServicesExist
     }),
 
     serviceCategoryRules() {
@@ -349,7 +351,22 @@ export default {
       this.$router.push({ name: 'lab-dashboard' })
     },
 
-    actionAlert() {
+    async actionAlert() {
+      const currentLab = await queryLabsById(this.api, this.wallet.address)
+
+      if (this.isLabExist && currentLab.verificationStatus === "Unverified") {
+        this.$store.dispatch("substrate/addAnyNotification", {
+          address: this.wallet.address,
+          dataAdd: {
+            message: "Your verification request has been submitted.",
+            data: currentLab,
+            route: null,
+            params: null
+          },
+          role: "lab",
+        })
+      }
+
       this.dialogAlert = true
     },
 
@@ -415,7 +432,7 @@ export default {
       await this.dispatch(
         createService,
         this.api,
-        this.pair,
+        this.wallet,
         {
           name: this.name,
           pricesByCurrency: [
@@ -463,7 +480,7 @@ export default {
       await this.dispatch(
         updateService,
         this.api,
-        this.pair,
+        this.wallet,
         this.serviceId,
         {
           name: this.name,
