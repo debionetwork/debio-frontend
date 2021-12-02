@@ -1,140 +1,134 @@
 <style scoped>
 .card-header{
-    font-size: 14pt;
+  font-size: 14pt;
 }
 </style>
 
 <template>
-   <div>
-      <v-container>
-        <v-row>
-            <v-col cols="10" md="3">
-                <v-card class="dg-card" elevation="0" outlined>
-                    <v-card-text class="px-8 mt-5">
-                        <div class="secondary--text mb-8 card-header">
-                            <b>Checklist</b>
-                        </div>
-                        <Stepper
-                            direction="vertical"
-                            :stepper-items="stepperItems"
-                            size="medium"
-                        />
-                    </v-card-text>
-                </v-card>
-            </v-col>
-            <v-col cols="10" md="7">
-                <v-card class="dg-card" elevation="0" outlined>
-                    <v-card-text class="px-8 mt-5">
-                        <div class="d-flex mb-8 justify-space-between">
-                            <b class="secondary--text card-header">Order Detail</b>
-                            <b class="secondary--text h6">{{ this.createdAt  | timestampToDate }}</b>
-                        </div>
-                        <div class="d-flex justify-space-between">
-                            <div class="d-flex align-center">
-                                <div>
-                                    <v-icon
-                                    v-if="_icon"
-                                    color="#BA8DBB"
-                                    :size="52"
-                                    >
-                                    {{ _icon }}
-                                    </v-icon>
-                                    <v-avatar v-else>
-                                    <img :src="getImageLink(serviceImage)" />
-                                    </v-avatar>
-                                </div>
-                                <div class="ml-5">
-                                    <div style="">
-                                      <b>{{ this.serviceName }}</b>
-                                    </div>
-                                    <div class="text-caption grey--text text--darken-1">
-                                      {{ this.serviceDescription.substring(0, 60) }}...
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-2 ml-5" style="max-width: 50%;">
-                                <div class="h6">
-                                    <b>Customer Account Number</b>
-                                </div>
-                                <div class="text-caption grey--text text--darken-1">
-                                    {{ this.customerEthAddress }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-6 d-flex justify-space-between">
-                            <div class="mt-2 ml-5" style="max-width: 50%;">
-                                <div class="h6">
-                                    <b>Specimen Number</b>
-                                </div>
-                                <div class="text-caption grey--text text--darken-1">
-                                    {{ this.specimenNumber }}
-                                </div>
-                            </div>
-                            <div class="mt-2 ml-5" style="max-width: 50%;">
-                                <div class="h6">
-                                    <b>Escrow Address</b>
-                                </div>
-                                <div class="text-caption grey--text text--darken-1">
-                                    {{ this.sellerEthAddress }}
-                                </div>
-                            </div>
-                        </div>
-                    </v-card-text>
-                </v-card>
-
-                <div
-                    v-if="showResultDialog">
-                    <v-alert 
-                        class = "mt-5"
-                        type="success"
+  <div>
+    <v-container>
+      <v-row>
+        <v-col cols="10" md="3">
+          <v-card class="dg-card" elevation="0" outlined>
+            <v-card-text class="px-8 mt-5">
+              <div class="secondary--text mb-8 card-header">
+                <b>Checklist</b>
+              </div>
+              <Stepper
+                direction="vertical"
+                :stepper-items="stepperItems"
+                size="medium"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="10" md="7">
+          <v-card class="dg-card" elevation="0" outlined>
+            <v-card-text class="px-8 mt-5">
+              <div class="d-flex mb-8 justify-space-between">
+                <b class="secondary--text card-header">Order Detail</b>
+                <b class="secondary--text h6">{{ this.createdAt  | timestampToDate }}</b>
+              </div>
+              <div class="d-flex justify-space-between">
+                <div class="d-flex align-center">
+                  <div>
+                    <v-icon
+                    v-if="_icon"
+                    color="#BA8DBB"
+                    :size="52"
                     >
-                        This order has been completed </v-alert>
+                      {{ _icon }}
+                    </v-icon>
+                    <v-avatar v-else>
+                      <img :src="getImageLink(serviceImage)" />
+                    </v-avatar>
+                  </div>
+                  <div class="ml-5">
+                    <div style="">
+                      <b>{{ this.serviceName }}</b>
+                    </div>
+                    <div class="text-caption grey--text text--darken-1">
+                      {{ this.serviceDescription.substring(0, 60) }}...
+                    </div>
+                  </div>
                 </div>
-                <div v-if="showRejectDialog">
-                    <v-alert 
-                        class = "mt-5"
-                        type="danger"
-                    >
-                        This specimen has been rejected </v-alert>
+                <div class="mt-2 ml-5" style="max-width: 50%;">
+                  <div class="h6">
+                    <b>Customer Account Number</b>
+                  </div>
+                  <div class="text-caption grey--text text--darken-1">
+                    {{ this.customerEthAddress }}
+                  </div>
                 </div>
-                <ReceiveSpecimen 
-                    v-if="showReceiveDialog" 
-                    :specimen-number="specimenNumber"
-                    :is-biological="isBiological"
-                    @specimenReceived="onSpecimenReceived" />
-                <QualityControlSpecimen
-                    v-if="showQualityControlDialog"
-                    :specimen-number="specimenNumber"
-                    :specimen-status="specimenStatus"
-                    @qualityControlPassed="onQcCompleted" />
-                <WetWorkSpecimen
-                    v-if="showWetWorkDialog"
-                    :specimen-number="specimenNumber"
-                    :specimen-status="specimenStatus"
-                    @wetWorkCompleted="onWetWorkCompleted" />
-                <ProcessSpecimen 
-                    v-if="showGenomeReportDialog || showResultDialog"
-                    :order-id="orderId"
-                    :specimen-number="specimenNumber"
-                    :specimen-status="specimenStatus"
-                    :public-key="publicKey"
-                    :is-submitted="isSubmitted"
-                    @resultUploaded="onResultUploaded"
-                    @resultReady="onResultReady" />
+              </div>
+              <div class="mt-6 d-flex justify-space-between">
+                <div class="mt-2 ml-5" style="max-width: 50%;">
+                  <div class="h6">
+                    <b>Specimen Number</b>
+                  </div>
+                  <div class="text-caption grey--text text--darken-1">
+                    {{ this.specimenNumber }}
+                  </div>
+                </div>
+                <div class="mt-2 ml-5" style="max-width: 50%;">
+                  <div class="h6">
+                    <b>Escrow Address</b>
+                  </div>
+                  <div class="text-caption grey--text text--darken-1">
+                    {{ this.sellerEthAddress }}
+                  </div>
+                </div>
+              </div>
+            </v-card-text>
+          </v-card>
 
-                <DialogAlert
-                    :show="cancelledOrderDialog"
-                    btnText="Back"
-                    textAlert="Order has been cancelled"
-                    imgPath="warning.png"
-                    imgWidth="50"
-                    @toggle="cancelledOrderDialog = $event"
-                    @close="$router.push('/lab/orders')"
-                ></DialogAlert>
-                </v-col>
-            </v-row>
-      </v-container>
-   </div>
+          <div v-if="showResultDialog">
+            <v-alert class = "mt-5" type="success">
+              This order has been completed
+            </v-alert>
+          </div>
+          <div v-if="showRejectDialog">
+            <v-alert class = "mt-5" type="danger">
+              This specimen has been rejected
+            </v-alert>
+          </div>
+          <ReceiveSpecimen 
+            v-if="showReceiveDialog" 
+            :specimen-number="specimenNumber"
+            :is-biological="isBiological"
+            @specimenReceived="onSpecimenReceived" />
+          <QualityControlSpecimen
+            v-if="showQualityControlDialog"
+            :specimen-number="specimenNumber"
+            :specimen-status="specimenStatus"
+            @qualityControlPassed="onQcCompleted" />
+          <WetWorkSpecimen
+            v-if="showWetWorkDialog"
+            :specimen-number="specimenNumber"
+            :specimen-status="specimenStatus"
+            @wetWorkCompleted="onWetWorkCompleted" />
+          <ProcessSpecimen 
+            v-if="showGenomeReportDialog || showResultDialog"
+            :order-id="orderId"
+            :specimen-number="specimenNumber"
+            :specimen-status="specimenStatus"
+            :public-key="publicKey"
+            :is-submitted="isSubmitted"
+            @resultUploaded="onResultUploaded"
+            @resultReady="onResultReady" />
+
+          <DialogAlert
+            :show="cancelledOrderDialog"
+            btnText="Back"
+            textAlert="Order has been cancelled"
+            imgPath="warning.png"
+            imgWidth="50"
+            @toggle="cancelledOrderDialog = $event"
+            @close="$router.push('/lab/orders')" />
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
 </template>
 
 <script>
@@ -193,7 +187,6 @@ export default {
       }
       const order = await getOrdersDetail(this.api, this.orderId)
       const serviceInfo = await queryServicesById(this.api, order.serviceId)
-
       this.dnaCollectionProcess = serviceInfo.info.dnaCollectionProcess
       if (this.dnaCollectionProcess.includes("Covid")) {
         this.isBiological = true
@@ -239,7 +232,9 @@ export default {
       }
 
       const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
-      if(testResult) this.setUploadFields(testResult)
+      if(testResult) {
+        this.setUploadFields(testResult)
+      }
 
       if(this.specimenStatus == "ResultReady") {
         this.isSubmitted = true

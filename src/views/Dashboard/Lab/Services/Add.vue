@@ -104,9 +104,12 @@
                           <v-text-field
                             dense
                             label="Price"
-                            placeholder="Price"
+                            placeholder="e.g. 20.005"
                             outlined
                             v-model.number="price"
+                            type="number"
+                            min="0"
+                            step=".001"
                             :rules="priceRules"
                           ></v-text-field>
                         </v-col>
@@ -126,9 +129,12 @@
                             :disabled="isBiomedical"
                             dense
                             label="QC Price"
-                            placeholder="QC Price"
+                            placeholder="e.g. 20.005"
                             outlined
                             v-model.number="qcPrice"
+                            type="number"
+                            min="0"
+                            step=".001"
                             :rules="qcPriceRules"
                           ></v-text-field>
                         </v-col>
@@ -150,8 +156,10 @@
                           dense
                           label="Expected Duration"
                           placeholder="Expected Duration"
+                          min="0"
                           max="30"
                           outlined
+                          type="number"
                           v-model="expectedDuration"
                           :rules="expectedDurationRules"
                         ></v-text-field>
@@ -237,8 +245,12 @@ export default {
     isUploading: false,
     currencyList: ['DAI', 'ETH'],
     currencyType: 'DAI',
-    listExpectedDuration: ['WorkingDays', 'Hours', 'Days'],
-    selectExpectedDuration: 'WorkingDays',
+    listExpectedDuration: [
+      {text: 'Working Days', value: 'WorkingDays'},
+      {text: 'Hours', value: 'Hours'},
+      {text: 'Days', value: 'Days'}
+    ],
+    selectExpectedDuration: {text: 'Working Days', value: 'WorkingDays'},
     expectedDuration: '',
     biologicalType: "",
     listBiologicalType: [
@@ -272,52 +284,52 @@ export default {
 
     serviceCategoryRules() {
       return [
-        val => !!val || 'Category is Required'
+        val => !!val || 'Category is required'
       ]
     },
 
     biologicalTypeRules() {
       return [
-        val => !!val || 'Biologocal type is Require'
+        val => !!val || 'Biological type is required'
       ]
     },
 
     serviceNameRules() {
       return [
-        val => !!val || 'Name is Required',
+        val => !!val || 'Name is required',
         val => (val && val.length <= 50) || 'Max 50 Character'
       ]
     },
 
     curencyTypeRules() {
       return [
-        val => !!val || 'Currency Type is Required'
+        val => !!val || 'Currency Type is required'
       ]
     },
 
     priceRules() {
       return [
-        val => !!val || 'Price is Required',
-        val => /^[0-9]+$/.test(val) || 'Price must be Number'
+        val => !!val || 'Price is required',
+        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'Max 3 decimal'
       ]
     },
 
     qcQurencyTypeRules() {
       return [
-        val => !!val || 'QC Currency Type is Required'
+        val => !!val || 'QC Currency Type is required'
       ]
     },
     
     qcPriceRules() {
       return [
-        val => !!val || this.isBiomedical || 'QC Price is Required',
-        val => /^[0-9]+$/.test(val) || this.isBiomedical || 'QC Price must be Number'
+        val => !!val || this.isBiomedical || 'QC Price is required',
+        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'Max 3 decimal'
       ]
     },
 
     descriptionRules() {
       return [
-        val => !!val || 'Description is Required',
+        val => !!val || 'Description is required',
         val => (val && val.length >= 50) || 'Min 50 Character',
         val => (val && val.length <= 255) || 'Max 255 Character'
       ]
@@ -325,7 +337,7 @@ export default {
 
     longDescriptionRules() {
       return [
-        val => !!val || 'Long Description is Required',
+        val => !!val || 'Long Description is required',
         val => (val && val.length >= 500) || 'Min 500 Character',
         val => (val && val.length <= 1000) || 'Max 1000 Character'
       ]
@@ -333,7 +345,7 @@ export default {
 
     expectedDurationRules() {
       return [
-        val => !!val || 'Expected duration is Required'
+        val => !!val || 'Expected duration is required',
       ]
     },
 
@@ -488,7 +500,7 @@ export default {
             ],
             expectedDuration: { 
               duration: this.expectedDuration, 
-              durationType: this.selectExpectedDuration
+              durationType: this.selectExpectedDuration.value
             },
             category: this.category,
             description: this.description,
@@ -499,8 +511,10 @@ export default {
           },
           this.serviceFlow
         )
+        this.$router.push({name: 'lab-dashboard-services'});
       } catch (error) {
         console.error(error)
+      } finally {
         this.isLoading = false
       }
     },

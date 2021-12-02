@@ -23,16 +23,23 @@
                 @input="handleSearch"
               />
             </template>
+
+            <template v-slot:[`item.status`]="{ item }">
+              <span> {{ getStatus(item._source.dna_sample_status)}} </span>
+            </template>
+
             <template v-slot:[`item.actions`]="{ item }">
               <v-container>
                 <v-btn
-                  v-if="item._source.status != 'Cancelled' && item._source.status != 'Rejected'"
+                  v-if="item._source.status != 'Cancelled'"
                   :class="buttonClass(item)"
                   dark
                   small
                   width="200"
                   @click="processOrder(item)"
-                >{{ actionButton(item._source.dna_sample_status ) }}</v-btn>
+                >
+                  {{ actionButton(item._source.dna_sample_status, item._source.testResult ) }}
+                </v-btn>
               </v-container>
             </template>
             <!-- Rows -->
@@ -47,7 +54,7 @@
 import { mapGetters } from 'vuex'
 import { getOrdersDetailByAddressPagination } from '@/lib/polkadotProvider/query/orders'
 import ServerSideDataTable from '@/components/DataTable/ServerSideDataTable'
-import { queryDnaSamples } from '@/lib/polkadotProvider/query/geneticTesting'
+import { queryDnaSamples, queryDnaTestResults } from '@/lib/polkadotProvider/query/geneticTesting'
 import SearchBar from '@/components/DataTable/SearchBar'
 import { getOrdersData } from '@/lib/orders'
 import serviceHandler from '@/lib/metamask/mixins/serviceHandler'
@@ -60,12 +67,13 @@ export default {
     ServerSideDataTable,
     SearchBar,
   },
+
   data: () => ({
     headers: [
       { text: 'Date', value: '_source.created_at' },
       { text: 'Product Name', value: '_source.service_info.name' },
       { text: 'Specimen Number', value: '_source.dna_sample_tracking_id' },
-      { text: 'Status', value: '_source.status' },
+      { text: 'Status', value: 'status' },
       { text: 'Actions', value: 'actions', sortable: false, align: 'center', width: '5%' },
     ],
     orders: [],
@@ -77,9 +85,11 @@ export default {
     search: '',
     isLoading: false,
   }),
+
   async created() {
     this.fetchDataOrders()
   },
+
   computed: {
     ...mapGetters({
       api: 'substrate/getAPI',
@@ -99,11 +109,13 @@ export default {
       const orders = await this.dispatch(getOrdersData, this.pair.address, this.page, this.pageSize, keyword)
       for (let order of orders.data) {
         const dna = await queryDnaSamples(this.api, order._source.dna_sample_tracking_id)
+        const dnaTestResult = await queryDnaTestResults(this.api, order._source.dna_sample_tracking_id)
         const data = {
           ...order,
           _source: {
             ...order._source,
             dna_sample_status: dna?.status,
+            testResult: dnaTestResult,
             created_at: (new Date(parseInt(order._source.created_at))).toLocaleDateString()
           }
         }
@@ -142,27 +154,46 @@ export default {
       }
       return "btn-sending"
     },
-    actionButton(status){
+    
+    getStatus(status, testResult){
       if (status === "Registered") {
-        return "Received"
+        return "Registered"
       }
 
       if (status === "Arrived") {
-        return "Quality Control"
+        return "Received"
       }
 
       if (status === "QualityControlled") {
-        return "Analyze"
+        return "Quality Controlled"
+      }
+
+      if (status === "WetWork" && testResult) {
+        return "Upload Result"
       }
 
       if (status === "WetWork") {
-        return "Upload Result"
+        return "Analyzed"
       }
 
       if (status === "ResultReady") {
         return "Result Ready"
       }
+
+      if (status === "QualityControlled") {
+        return "Quality Controlled"
+      }
+
+      return status
     },
+
+    actionButton(status){
+      if (status === "Rejected" || status === "ResultReady") {
+        return "Details"
+      }
+      return "Proceed"
+    },
+
     async handlePageChange(value){
       this.page = value
       await this.fetchDataOrders()
