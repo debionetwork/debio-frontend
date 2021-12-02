@@ -427,6 +427,8 @@ export default {
 
       this.statusLab = currentLab.verificationStatus
 
+      if (this.statusLab === "Verified") return
+
       const compute = !this.exist ? "NOT_EXIST" : currentLab.verificationStatus.toUpperCase()
 
       this.messageWarning = MESSAGE[compute]
@@ -445,26 +447,12 @@ export default {
 
       const {
         category,
-        qcValue,
-        currencyValue,
         currencyType,
-        descriptionShort,
-        descriptionLong,
-        durationType,
-        durationValue,
-        biologicalType,
         serviceFlow
       } = this.servicePayload
 
       this.category = category
-      this.price = currencyValue
-      this.qcPrice = qcValue
-      this.description = descriptionShort
-      this.longDescription = descriptionLong
       this.currencyType = currencyType
-      this.selectExpectedDuration = durationType
-      this.expectedDuration = durationValue
-      this.biologicalType = biologicalType
       this.serviceFlow = serviceFlow
     },
 
