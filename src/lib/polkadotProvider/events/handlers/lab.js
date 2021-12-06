@@ -46,6 +46,16 @@ const handler = {
 		const wording = "for (" + data[valueMessage].substr(0, 4) + "..." + data[valueMessage].substr(data[valueMessage].length - 4) + ")";
 		return { data, id, params, wording }
 	},
+	rewards: async (dataEvent, value, valueMessage) => {
+		const web3 = store.getters['metamask/getWeb3']
+		const data = dataEvent;
+		const id = data[value];
+		const params = null;
+		const finalText = await toFormatDebioCoin(data[valueMessage])
+		const coin = web3.utils.fromWei(finalText, 'ether')
+		const wording = `${coin} DBIO from wallet binding`;
+		return { data, id, params, wording }
+	},
 	geneticTesting: async (dataEvent, value, valueMessage) => {
 		const data = dataEvent[0];
 		const id = data[value];

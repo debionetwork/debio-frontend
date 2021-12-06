@@ -220,12 +220,12 @@
       },
       "rewards": {
         "RewardFunds": {
-          "message": "Congrats! You’ve got  from wallet binding ",
+          "message": "Congrats! You’ve got ",
           "value": 0,
           "value_message": 1,
           "route": "",
           "params": "",
-          "identity": 2
+          "identity": 0
         }
       }
     }
