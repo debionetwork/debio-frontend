@@ -160,7 +160,6 @@ import { mapState, mapMutations } from "vuex";
 import { startApp } from "@/lib/metamask";
 import { getBalanceETH } from "@/lib/metamask/wallet.js";
 import localStorage from "@/lib/local-storage"
-import { getEthFromFaucet, getDaicFromFaucet } from "@/lib/faucet";
 
 export default {
   name: "WalletBinding",
@@ -212,10 +211,7 @@ export default {
     ...mapMutations({
       setMetamaskAddress: "metamask/SET_WALLET_ADDRESS",
     }),
-    // async getMunnyFromFaucet(address) { TODO: Remove this function later
-    //   await getEthFromFaucet(address); TODO: Remove this function later
-    //   await getDaicFromFaucet(address); TODO: Remove this function later
-    // }, TODO: Remove this function later
+
     async setWalllet(walletName) {
       this.error = "";
       this.loading = true;
@@ -280,7 +276,6 @@ export default {
           status: true,
           img: "metamask-account-connected.png",
         });
-        // await this.getMunnyFromFaucet(this.selectAccount.address); TODO: Remove this function later
         this.isLoading = false;
         this.closeDialog();
       } catch (err) {
