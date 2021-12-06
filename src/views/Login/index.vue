@@ -38,11 +38,6 @@
                 </Button>
               </v-col>
             </v-row>
-            <v-row class="justify-center mt-10 align-center">
-              <v-col cols="12" align="center">
-                <DemoLabAccounts @lab-selected="({ mnemonic }) => showSetKeystorePasswordDialog(mnemonic)" />
-              </v-col>
-            </v-row>
             <v-row class="justify-center mt-2 align-center">
               <v-col cols="12" align="center">
                 <div style="max-width: 570px; color: white;">
@@ -152,7 +147,6 @@ import VerifyRecoveryPhraseDialog from "@/components/VerifyRecoveryPhraseDialog"
 import AccessAccountMnemonicDialog from "@/components/AccessAccountMnemonicDialog";
 import DialogAlert from "@/components/Dialog/DialogAlert";
 import LandingDemo from "@/views/Login/LandingDemo";
-import DemoLabAccounts from '@/views/Login/DemoLabAccounts';
 
 export default {
   name: "Home",
@@ -167,8 +161,7 @@ export default {
     VerifyRecoveryPhraseDialog,
     AccessAccountMnemonicDialog,
     DialogAlert,
-    LandingDemo,
-    DemoLabAccounts,
+    LandingDemo
   },
   computed: {
     isDevEnv() {
