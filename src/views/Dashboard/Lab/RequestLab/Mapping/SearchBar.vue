@@ -46,20 +46,21 @@ export default {
     withDropdown: Boolean,
     returnObject: Boolean,
   },
+
+  data: () => ({
+    active: true,
+    searchQuery: null,
+  }),
+
   computed: {
     showFilter() { // Show filter if filter-menu slot has content
       return !!this.$slots['filter-menu']
     },
 
     showResults() {
-      return this.withDropdown && this.filteredItems?.length && this.active
+      return this.withDropdown && this.filteredItems?.length && this.active && this.searchQuery
     }
   },
-
-  data: () => ({
-    active: true,
-    searchQuery: "",
-  }),
 
   methods: {
     onClickOutside() {
