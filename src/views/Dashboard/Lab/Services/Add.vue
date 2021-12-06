@@ -509,7 +509,6 @@ export default {
           },
           this.serviceFlow
         )
-        this.$router.push({name: 'lab-dashboard-services'});
       } catch (error) {
         console.error(error)
       } finally {
@@ -577,10 +576,10 @@ export default {
         if (Object.keys(this.servicePayload).length) {
           const dataRequestServices = await getProvideRequestService(this.servicePayload)
 
-          const request = []
+          const requests = []
 
           for (let i=0; i < dataRequestServices.length; i++) {
-            request.push(
+            requests.push(
               claimRequestService(this.api, this.wallet, {
                 id,
                 hash: dataRequestServices[i].request.hash,
@@ -590,15 +589,29 @@ export default {
             )
           }
 
-          await Promise.all(request)
-
-          this.$router.push('/lab/services')
-          this.$store.dispatch("lab/setProvideService", {})
-          this.isLoading = false
+          this.isUploading = true
+          this.isLoading = true
+          await this.handleProcessClaim(requests)
         }
       } catch (error) {
         console.error(error);
+        this.isUploading = false
         this.isLoading = false
+      }
+    },
+
+    async handleProcessClaim(requests) {
+      try {
+        await Promise.all(requests)
+        this.isUploading = false
+        this.isLoading = false
+
+        this.$router.push('/lab/services')
+        this.$store.dispatch("lab/setProvideService", {})
+      } catch (error) {
+        this.isUploading = false
+        this.isLoading = false
+        console.error(error)
       }
     },
 
@@ -650,9 +663,9 @@ export default {
     lastEventData(val) {
       if (val === null) return
       const dataEvent = JSON.parse(val.data.toString())
-      if (val.method !== "ServiceCreated") return
-
-      if (dataEvent[1] === this.wallet.address) this.handleClaimRequest(dataEvent[0].id)
+      if (val.method === "ServiceCreated") {
+        if (dataEvent[1] === this.wallet.address) this.handleClaimRequest(dataEvent[0].id)
+      }
     }
   }
 }

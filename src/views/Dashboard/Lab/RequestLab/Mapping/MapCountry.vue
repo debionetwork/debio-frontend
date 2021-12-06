@@ -17,16 +17,21 @@
               <div class="search-bar__result-title">{{ service.category }}</div>
               <div class="search-bar__result-content">
                 <v-row>
-                  <v-col>Total requests</v-col>
+                  <v-col>Total users</v-col>
                   <v-col>
                     <span>: {{ service.totalRequests }} Users</span>
                   </v-col>
                 </v-row>
                 <v-row>
-                  <v-col>Total value staked</v-col>
+                  <v-col>Value staked (DBIO)</v-col>
                   <v-col>
-                    <p class="mb-0">: {{ service.totalValue.dai }} DAI</p>
-                    <p class="ml-2 mb-0">{{ service.totalValue.usd }} USD</p>
+                    <p class="mb-0">: {{ service.totalValue.dbio.toFixed(3) }} DBIO</p>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col>Value staked (USD)</v-col>
+                  <v-col>
+                    <p class="mb-0">: {{ service.totalValue.usd.toFixed(3) }} USD</p>
                   </v-col>
                 </v-row>
                 <v-btn
@@ -327,19 +332,23 @@ export default {
       this.$emit("openList", false, country)
     },
 
-    createTooltip({country = '', totalRequests = '', totalValue = ''}) {
+    createTooltip({country = '', totalRequests = '', totalValue = { dbio: 0, usd: 0 }}) {
       return `
           <div class="header">
             <h3>${country}</h3>
           </div>
           <div class="content">
             <div style="display: flex; justify-content: space-between; width: 100%;">
-              <p>Total requests</p>
+              <p>Categories Requested</p>
               <p>${totalRequests} users</p>
             </div>
-            <div style="display: flex; justify-content: space-between; width: 100%;">
-              <div>Total value staked</div>
-              <div>${totalValue || 0} <b>DAI</b></div>
+            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+              <div>Value staked (DBIO)</div>
+              <b>${totalValue.dbio.toFixed(3) || 0}</b>
+            </div>
+            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+              <div>Value staked (USD)</div>
+              <b>${totalValue.usd.toFixed(3) || 0}</b>
             </div>
           </div>
         `
@@ -515,8 +524,8 @@ export default {
               })
               .on("mousemove", function(event){
                 return tooltip2
-                  .style("top", (event.pageY-120)+"px")
-                  .style("left",(event.pageX-330)+"px")
+                  .style("top", (event.pageY-110)+"px")
+                  .style("left",(event.pageX-360)+"px")
               })
               .on("mouseout", function(){
                 return tooltip2.style("visibility", "hidden");
