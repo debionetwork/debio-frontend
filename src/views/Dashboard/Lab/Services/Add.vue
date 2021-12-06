@@ -509,7 +509,6 @@ export default {
           },
           this.serviceFlow
         )
-        this.$router.push({name: 'lab-dashboard-services'});
       } catch (error) {
         console.error(error)
       } finally {
@@ -590,26 +589,29 @@ export default {
             )
           }
 
-          this.handleProcessClaim(requests)
+          this.isUploading = true
+          this.isLoading = true
+          await this.handleProcessClaim(requests)
         }
       } catch (error) {
         console.error(error);
+        this.isUploading = false
         this.isLoading = false
       }
     },
 
     async handleProcessClaim(requests) {
       try {
-        this.isLoading = true
-
         await Promise.all(requests)
+        this.isUploading = false
         this.isLoading = false
 
         this.$router.push('/lab/services')
         this.$store.dispatch("lab/setProvideService", {})
       } catch (error) {
-        console.error(error)
+        this.isUploading = false
         this.isLoading = false
+        console.error(error)
       }
     },
 
@@ -664,7 +666,6 @@ export default {
       if (val.method === "ServiceCreated") {
         if (dataEvent[1] === this.wallet.address) this.handleClaimRequest(dataEvent[0].id)
       }
-
     }
   }
 }
