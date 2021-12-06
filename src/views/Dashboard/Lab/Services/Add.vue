@@ -577,10 +577,10 @@ export default {
         if (Object.keys(this.servicePayload).length) {
           const dataRequestServices = await getProvideRequestService(this.servicePayload)
 
-          const request = []
+          const requests = []
 
           for (let i=0; i < dataRequestServices.length; i++) {
-            request.push(
+            requests.push(
               claimRequestService(this.api, this.wallet, {
                 id,
                 hash: dataRequestServices[i].request.hash,
@@ -590,14 +590,25 @@ export default {
             )
           }
 
-          await Promise.all(request)
-
-          this.$router.push('/lab/services')
-          this.$store.dispatch("lab/setProvideService", {})
-          this.isLoading = false
+          this.handleProcessClaim(requests)
         }
       } catch (error) {
         console.error(error);
+        this.isLoading = false
+      }
+    },
+
+    async handleProcessClaim(requests) {
+      try {
+        this.isLoading = true
+
+        await Promise.all(requests)
+        this.isLoading = false
+
+        this.$router.push('/lab/services')
+        this.$store.dispatch("lab/setProvideService", {})
+      } catch (error) {
+        console.error(error)
         this.isLoading = false
       }
     },
@@ -650,9 +661,10 @@ export default {
     lastEventData(val) {
       if (val === null) return
       const dataEvent = JSON.parse(val.data.toString())
-      if (val.method !== "ServiceCreated") return
+      if (val.method === "ServiceCreated") {
+        if (dataEvent[1] === this.wallet.address) this.handleClaimRequest(dataEvent[0].id)
+      }
 
-      if (dataEvent[1] === this.wallet.address) this.handleClaimRequest(dataEvent[0].id)
     }
   }
 }
