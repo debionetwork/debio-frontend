@@ -126,10 +126,7 @@
         @close="actionAlert()"
       ></DialogAlert>
 
-      <LandingDemo
-        :show="showLandingDemo"
-        @close="showLandingDemo=false"
-      ></LandingDemo>
+      
     </v-main>
   </v-app>
 </template>
@@ -146,7 +143,6 @@ import SetKeystorePasswordDialog from "@/components/SetKeystorePasswordDialog";
 import VerifyRecoveryPhraseDialog from "@/components/VerifyRecoveryPhraseDialog";
 import AccessAccountMnemonicDialog from "@/components/AccessAccountMnemonicDialog";
 import DialogAlert from "@/components/Dialog/DialogAlert";
-import LandingDemo from "@/views/Login/LandingDemo";
 
 export default {
   name: "Home",
@@ -161,7 +157,6 @@ export default {
     VerifyRecoveryPhraseDialog,
     AccessAccountMnemonicDialog,
     DialogAlert,
-    LandingDemo
   },
   computed: {
     isDevEnv() {
@@ -188,7 +183,6 @@ export default {
     imgWidth: "50",
     successLogin: false,
     typelogin: "",
-    showLandingDemo: true,
   }),
   methods: {
     ...mapActions({

@@ -159,7 +159,6 @@ export default {
       setIsLoading: "substrate/SET_LOADING_WALLET",
     }),
     async onVerifyRecaptcha(response) {
-      console.log(response)
       let recaptchaBackendUrl = ''
       if (process.env.NODE_ENV == 'demo') {
         recaptchaBackendUrl = `${process.env.VUE_APP_DEBIO_BACKEND_URL}/recaptcha`;
