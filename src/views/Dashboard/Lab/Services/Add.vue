@@ -664,7 +664,12 @@ export default {
       if (val === null) return
       const dataEvent = JSON.parse(val.data.toString())
       if (val.method === "ServiceCreated") {
-        if (dataEvent[1] === this.wallet.address) this.handleClaimRequest(dataEvent[0].id)
+        if (
+          dataEvent[1] === this.wallet.address &&
+          Object.keys(this.servicePayload).length
+        ) this.handleClaimRequest(dataEvent[0].id)
+
+        else this.$router.push('/lab/services')
       }
     }
   }
