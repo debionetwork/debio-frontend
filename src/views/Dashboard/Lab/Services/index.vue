@@ -171,14 +171,19 @@ export default {
       return imageName && (imageName.startsWith('mdi') || imageName.startsWith('$dgi'))
    },
    async deleteService(item) {
-      const isConfirmed = confirm("Are you sure you want to delete this service?")
-      if(isConfirmed)  {
-         this.isLoading = true
-         await deleteService(
-            this.api,
-            this.pair,
-            item.id
-         )
+      try {
+         const isConfirmed = confirm("Are you sure you want to delete this service?")
+         if(isConfirmed)  {
+            this.isLoading = true
+            await deleteService(
+               this.api,
+               this.pair,
+               item.id
+            )
+         }
+      } catch (error) {
+         console.error(error.message)
+         this.isLoading = false
       }
     },
   }
