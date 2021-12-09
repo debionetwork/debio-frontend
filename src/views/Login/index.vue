@@ -1,10 +1,10 @@
 <template>
   <v-app>
-    <!-- <v-app-bar app flat color="transparent" dense>
+    <v-app-bar app flat color="transparent" dense>
       <v-spacer></v-spacer>
       <SettingsMenu />
-      <DevMenu v-if="isDevEnv" />
-    </v-app-bar> -->
+      <DevMenu />
+    </v-app-bar>
     <v-main class="login-main">
       <v-container fill-height>
         <v-row align="center">
@@ -133,8 +133,8 @@
 
 <script>
 import { mapMutations, mapActions } from "vuex";
-//import DevMenu from "@/components/DevMenu";
-//import SettingsMenu from "@/components/SettingsMenu";
+import DevMenu from "@/components/DevMenu";
+import SettingsMenu from "@/components/SettingsMenu";
 import Button from "@/components/Button";
 import DialogSelectUserLogin from "@/components/DialogSelectUserLogin";
 import GenerateAccountDialog from "@/components/GenerateAccountDialog";
@@ -143,14 +143,13 @@ import SetKeystorePasswordDialog from "@/components/SetKeystorePasswordDialog";
 import VerifyRecoveryPhraseDialog from "@/components/VerifyRecoveryPhraseDialog";
 import AccessAccountMnemonicDialog from "@/components/AccessAccountMnemonicDialog";
 import DialogAlert from "@/components/Dialog/DialogAlert";
-// import LandingDemo from "@/views/Login/LandingDemo";
 
 export default {
   name: "Home",
   components: {
     Button,
-    //DevMenu,
-    //SettingsMenu,
+    DevMenu,
+    SettingsMenu,
     DialogSelectUserLogin,
     GenerateAccountDialog,
     SecretBackupPhraseDialog,
@@ -158,7 +157,6 @@ export default {
     VerifyRecoveryPhraseDialog,
     AccessAccountMnemonicDialog,
     DialogAlert,
-    // LandingDemo
   },
   computed: {
     isDevEnv() {
@@ -185,7 +183,6 @@ export default {
     imgWidth: "50",
     successLogin: false,
     typelogin: "",
-    // showLandingDemo: true,
   }),
   methods: {
     ...mapActions({
