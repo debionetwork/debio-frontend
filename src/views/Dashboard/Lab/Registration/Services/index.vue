@@ -472,13 +472,13 @@ export default {
               currency: this.currencyType,
               priceComponents: [
                 {
-                  component: "component_1",
+                  component: "testing_price",
                   value: this.price
                 }
               ],
               additionalPrices: [
                 {
-                  component: "qc_component",
+                  component: "qc_price",
                   value: this.qcPrice
                 }
               ],
@@ -522,13 +522,13 @@ export default {
               currency: this.currencyType,
               priceComponents: [
                 {
-                  component: "component_1",
+                  component: "testing_price",
                   value: this.price
                 }
               ],
               additionalPrices: [
                 {
-                  component: "qc_component",
+                  component: "qc_price",
                   value: this.qcPrice
                 }
               ],
