@@ -25,7 +25,7 @@
             </template>
 
             <template v-slot:[`item.status`]="{ item }">
-              <span> {{ getStatus(item._source.dna_sample_status)}} </span>
+              <span> {{ getStatus(item._source.dna_sample_status, item._source.testResult) }} </span>
             </template>
 
             <template v-slot:[`item.actions`]="{ item }">
@@ -38,7 +38,7 @@
                   width="200"
                   @click="processOrder(item)"
                 >
-                  {{ actionButton(item._source.dna_sample_status, item._source.testResult ) }}
+                  {{ actionButton(item._source.dna_sample_status ) }}
                 </v-btn>
               </v-container>
             </template>
