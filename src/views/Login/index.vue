@@ -1,10 +1,10 @@
 <template>
   <v-app>
-    <v-app-bar app flat color="transparent" dense>
+    <!-- <v-app-bar app flat color="transparent" dense>
       <v-spacer></v-spacer>
       <SettingsMenu />
-      <DevMenu />
-    </v-app-bar>
+      <DevMenu v-if="isDevEnv" />
+    </v-app-bar> -->
     <v-main class="login-main">
       <v-container fill-height>
         <v-row align="center">
@@ -133,8 +133,8 @@
 
 <script>
 import { mapMutations, mapActions } from "vuex";
-import DevMenu from "@/components/DevMenu";
-import SettingsMenu from "@/components/SettingsMenu";
+//import DevMenu from "@/components/DevMenu";
+//import SettingsMenu from "@/components/SettingsMenu";
 import Button from "@/components/Button";
 import DialogSelectUserLogin from "@/components/DialogSelectUserLogin";
 import GenerateAccountDialog from "@/components/GenerateAccountDialog";
@@ -148,8 +148,8 @@ export default {
   name: "Home",
   components: {
     Button,
-    DevMenu,
-    SettingsMenu,
+    //DevMenu,
+    //SettingsMenu,
     DialogSelectUserLogin,
     GenerateAccountDialog,
     SecretBackupPhraseDialog,
