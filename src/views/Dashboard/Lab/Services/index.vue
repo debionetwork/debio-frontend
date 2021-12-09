@@ -22,7 +22,7 @@
                 </v-container>
                <DataTable
                   :headers="headers"
-                  :items="labAccount.services"
+                  :items="labAccount ? labAccount.services : []"
                   :search="search"
                   :sort-by="['timestamp']"
                   :sort-desc="[true]"
@@ -99,7 +99,7 @@
 import DataTable from '@/components/DataTable'
 import SearchBar from '@/components/DataTable/SearchBar'
 import { deleteService } from '@/lib/polkadotProvider/command/services'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 export default {
   name: 'LabServices',
@@ -125,13 +125,27 @@ export default {
       labAccount: 'substrate/labAccount',
       web3: 'metamask/getWeb3'
    }),
+
+   ...mapState({
+      lastEventData: (state) => state.substrate.lastEventData
+   })
   },
+
+  watch: {
+    lastEventData(val) {
+        if (val === null) return
+        if (val.method === "ServiceDeleted") {
+        this.isLoading = false
+        this.$store.dispatch("substrate/getLabAccount")
+      }
+    }
+  },
+
   methods:{
    onSearchInput(val) {
       this.search = val
    },
    gotoDetails(item){
-      
       this.$router.push({ name: 'lab-dashboard-services-detail', params: { item: item }})
    },
    getImageLink(val){
@@ -155,14 +169,10 @@ export default {
          await deleteService(
             this.api,
             this.pair,
-            item.id,
-            () => {
-            this.$router.push('/lab/services')
-            this.isLoading = false
-            })
-         }
-         return
-      },
+            item.id
+         )
+      }
+    },
   }
 }
 
