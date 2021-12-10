@@ -378,13 +378,13 @@ export default {
               currency: this.currencyType,
               priceComponents: [
                 {
-                  component: "component_1",
+                  component: "testing_price",
                   value: this.web3.utils.toWei(String(this.price), 'ether')
                 }
               ],
               additionalPrices: [
                 {
-                  component: "qc_component",
+                  component: "qc_price",
                   value: this.web3.utils.toWei(String(this.qcPrice), 'ether')
                 }
               ],
