@@ -45,42 +45,26 @@ jobs:
         uses: google-github-actions/get-secretmanager-secrets@main
         with:
           secrets: |-
-            VUE_APP_DEBIO_BACKEND_URL:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DEBIO_BACKEND_URL
             VUE_APP_RECAPTCHA_SITE_KEY:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_RECAPTCHA_SITE_KEY
             VUE_APP_ROLE:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_ROLE
             VUE_APP_DEBIO_USE_TOKEN_NAME:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DEBIO_USE_TOKEN_NAME
             VUE_APP_DEBIO_ESCROW_ETH_ADDRESS:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DEBIO_ESCROW_ETH_ADDRESS
             VUE_APP_DEBIO_SUBSTRATE_WS:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DEBIO_SUBSTRATE_WS
-            VUE_APP_URL_FAUCET:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_URL_FAUCET
             VUE_APP_WEB3_RPC:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_WEB3_RPC
-            VUE_APP_DEV_DEBIO_BACKEND_URL:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DEV_DEBIO_BACKEND_URL
-            VUE_APP_DEV_DEBIO_USE_TOKEN_NAME:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DEV_DEBIO_USE_TOKEN_NAME
-            VUE_APP_DEV_DEBIO_ESCROW_ETH_ADDRESS:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DEV_DEBIO_ESCROW_ETH_ADDRESS
-            VUE_APP_DEV_DEBIO_SUBSTRATE_WS:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DEV_DEBIO_SUBSTRATE_WS
-            VUE_APP_DEV_URL_FAUCET:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DEV_URL_FAUCET
-            VUE_APP_DEV_WEB3_RPC:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DEV_WEB3_RPC
-            VUE_APP_DAI_CONTRACT_ADDRESS:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DAI_CONTRACT_ADDRESS
+            VUE_APP_BACKEND_API:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_BACKEND_API
             VUE_APP_DEBIO_API_KEY:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DEBIO_API_KEY
             LABS_JS:${{ secrets.PROD_GCP_PROJECT_ID }}/LABS_JS
       - name: Create .env & gcp sa
         shell: bash
         run: |
           tee -a .env <<EOF
-          VUE_APP_DEBIO_BACKEND_URL=${{ steps.secrets.outputs.VUE_APP_DEBIO_BACKEND_URL }}
           VUE_APP_RECAPTCHA_SITE_KEY=${{ steps.secrets.outputs.VUE_APP_RECAPTCHA_SITE_KEY }}
           VUE_APP_ROLE=${{ steps.secrets.outputs.VUE_APP_ROLE }}
           VUE_APP_DEBIO_USE_TOKEN_NAME=${{ steps.secrets.outputs.VUE_APP_DEBIO_USE_TOKEN_NAME }}
           VUE_APP_DEBIO_ESCROW_ETH_ADDRESS=${{ steps.secrets.outputs.VUE_APP_DEBIO_ESCROW_ETH_ADDRESS }}
           VUE_APP_DEBIO_SUBSTRATE_WS=${{ steps.secrets.outputs.VUE_APP_DEBIO_SUBSTRATE_WS }}
-          VUE_APP_URL_FAUCET=${{ steps.secrets.outputs.VUE_APP_URL_FAUCET }}
           VUE_APP_WEB3_RPC=${{ steps.secrets.outputs.VUE_APP_WEB3_RPC }}
-          VUE_APP_DEV_DEBIO_BACKEND_URL=${{ steps.secrets.outputs.VUE_APP_DEV_DEBIO_BACKEND_URL }}
-          VUE_APP_DEV_DEBIO_USE_TOKEN_NAME=${{ steps.secrets.outputs.VUE_APP_DEV_DEBIO_USE_TOKEN_NAME }}
-          VUE_APP_DEV_DEBIO_ESCROW_ETH_ADDRESS=${{ steps.secrets.outputs.VUE_APP_DEV_DEBIO_ESCROW_ETH_ADDRESS }}
-          VUE_APP_DEV_DEBIO_SUBSTRATE_WS=${{ steps.secrets.outputs.VUE_APP_DEV_DEBIO_SUBSTRATE_WS }}
-          VUE_APP_DEV_URL_FAUCET=${{ steps.secrets.outputs.VUE_APP_DEV_URL_FAUCET }}
-          VUE_APP_DEV_WEB3_RPC=${{ steps.secrets.outputs.VUE_APP_DEV_WEB3_RPC }}
-          VUE_APP_DAI_CONTRACT_ADDRESS=${{ steps.secrets.outputs.VUE_APP_DAI_CONTRACT_ADDRESS }}
+          VUE_APP_BACKEND_API=${{ steps.secrets.outputs.VUE_APP_BACKEND_API }}
           VUE_APP_DEBIO_API_KEY=${{ steps.secrets.outputs.VUE_APP_DEBIO_API_KEY }}
           EOF
 
