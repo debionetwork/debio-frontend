@@ -267,7 +267,7 @@ export default {
           }
         }
 
-        return { success: true }
+        return { success: true, labAccount }
       } catch (err) {
         console.log(err)
         return { success: false, error: err.message }

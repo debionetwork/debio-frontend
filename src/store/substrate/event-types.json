@@ -227,6 +227,16 @@
           "params": "",
           "identity": 0
         }
+      },
+      "services": {
+        "ServiceCreated": {
+          "message": "",
+          "value": "id",
+          "value_message": "Congrats! You have successfully added your new service",
+          "route": "lab-dashboard-services-detail",
+          "params": "id",
+          "identity": "ownerId"
+        }
       }
     }
   }

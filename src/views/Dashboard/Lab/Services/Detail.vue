@@ -190,6 +190,8 @@
 import { mapGetters, mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
 import { getCategories } from "@/lib/categories"
+import { queryServicesById } from "@/lib/polkadotProvider/query/services";
+import { fromEther } from "@/lib/balance-format"
 import { updateService } from '@/lib/polkadotProvider/command/services'
 
 export default {
@@ -228,11 +230,11 @@ export default {
 
   async mounted(){
     await this.getServiceCategory()
-    const item = this.$route.params.item
+    const item = await this.getService(this.$route.params.id)
     this.id = item.id
     this.name = item.info.name
-    this.price = item.info.pricesByCurrency[0].priceComponents[0].value
-    this.qcPrice = item.info.pricesByCurrency[0].additionalPrices[0].value
+    this.price = Number(await fromEther(item.info.pricesByCurrency[0].priceComponents[0].value.replaceAll(",", "")))
+    this.qcPrice = Number(await fromEther(item.info.pricesByCurrency[0].additionalPrices[0].value.replaceAll(",", "")))
     this.currencyType = item.info.pricesByCurrency[0].currency.toUpperCase()
     this.description = item.info.description
     this.longDescription = item.info.longDescription
@@ -346,6 +348,13 @@ export default {
   },
 
   methods: {
+    async getService(id) {
+      const detailService = await queryServicesById(
+        this.api,
+        id
+      )
+      return detailService
+    },
 
     async getServiceCategory() {
       const { data : data } = await getCategories()

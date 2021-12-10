@@ -22,7 +22,7 @@
                 </v-container>
                <DataTable
                   :headers="headers"
-                  :items="labAccount ? labAccount.services : []"
+                  :items="services"
                   :search="search"
                   :sort-by="['timestamp']"
                   :sort-desc="[true]"
@@ -116,13 +116,13 @@ export default {
         { text: 'Action', value: 'actions', sortable: false, align: 'center', width: '10%' },
     ],
     search: '',
+    services: [],
     isLoading: false,
   }),
   computed:{
    ...mapGetters({
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
-      labAccount: 'substrate/labAccount',
       web3: 'metamask/getWeb3'
    }),
 
@@ -136,17 +136,25 @@ export default {
         if (val === null) return
         if (val.method === "ServiceDeleted") {
         this.isLoading = false
-        this.$store.dispatch("substrate/getLabAccount")
+        this.getServices()
       }
     }
   },
 
+   async created() {
+      await this.getServices()
+   },
+
   methods:{
+   async getServices() {
+      const { labAccount: { services } } = await this.$store.dispatch("substrate/getLabAccount")
+      this.services = services
+   },
    onSearchInput(val) {
       this.search = val
    },
-   gotoDetails(item){
-      this.$router.push({ name: 'lab-dashboard-services-detail', params: { item: item }})
+   gotoDetails({ id }){
+      this.$router.push({ name: 'lab-dashboard-services-detail', params: { id: id }})
    },
    getImageLink(val){
       if(val && val != ""){
@@ -163,14 +171,19 @@ export default {
       return imageName && (imageName.startsWith('mdi') || imageName.startsWith('$dgi'))
    },
    async deleteService(item) {
-      const isConfirmed = confirm("Are you sure you want to delete this service?")
-      if(isConfirmed)  {
-         this.isLoading = true
-         await deleteService(
-            this.api,
-            this.pair,
-            item.id
-         )
+      try {
+         const isConfirmed = confirm("Are you sure you want to delete this service?")
+         if(isConfirmed)  {
+            this.isLoading = true
+            await deleteService(
+               this.api,
+               this.pair,
+               item.id
+            )
+         }
+      } catch (error) {
+         console.error(error.message)
+         this.isLoading = false
       }
     },
   }

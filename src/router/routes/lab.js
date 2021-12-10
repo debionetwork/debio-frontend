@@ -166,7 +166,7 @@ const labRoutes = [
               component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Services/Add')
             },
             {
-              path: '/lab/services/detail',
+              path: '/lab/services/detail/:id',
               name: 'lab-dashboard-services-detail',
               meta: {
                 pageHeader: 'Services Detail',
