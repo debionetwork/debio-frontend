@@ -161,9 +161,9 @@ export default {
     async onVerifyRecaptcha(response) {
       let recaptchaBackendUrl = ''
       if (process.env.NODE_ENV == 'demo') {
-        recaptchaBackendUrl = `${process.env.VUE_APP_DEBIO_BACKEND_URL}/recaptcha`;
+        recaptchaBackendUrl = `${process.env.VUE_APP_BACKEND_API}/recaptcha`;
       } else {
-        recaptchaBackendUrl = `${process.env.VUE_APP_DEV_DEBIO_BACKEND_URL}/recaptcha`;
+        recaptchaBackendUrl = `${process.env.VUE_APP_BACKEND_API}/recaptcha`;
       }
       const result = await axios.post(recaptchaBackendUrl, { response });
 
