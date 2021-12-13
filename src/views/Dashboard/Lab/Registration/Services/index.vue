@@ -300,6 +300,12 @@ export default {
       ]
     },
 
+    biologicalTypeRules() {
+      return [
+        val => !!val || 'Biological type is required'
+      ]
+    },
+
     serviceNameRules() {
       return [
         val => !!val || 'Name is required',
