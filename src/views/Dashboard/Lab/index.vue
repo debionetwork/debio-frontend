@@ -24,8 +24,8 @@
 </style>
 
 <template>
-  <v-container :class="!isServicesExist ? 'center-all' : ''">
-    <v-container v-if="!isServicesExist">
+  <v-container :class="!labAccount ? 'center-all' : ''">
+    <v-container v-if="!labAccount">
       <h1 class="title-text-color">You don't have a lab account yet</h1>
       <v-btn color="primary" to="/lab/registration">
         Register Now!
