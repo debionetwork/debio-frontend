@@ -73,8 +73,8 @@
                 {{ item.number_request > 1000 ? "1000+" : item.number_request }}
               </template>
 
-              <template v-slot:[`item.total_amount_dai`]="{ item }">
-                {{ item.totalValue.dai.toFixed(3) }}
+              <template v-slot:[`item.total_amount_dbio`]="{ item }">
+                {{ item.totalValue.dbio.toFixed(3) }}
               </template>
 
               <template v-slot:[`item.total_amount_usd`]="{ item }">
@@ -95,8 +95,8 @@
 					{{ item.number_request > 1000 ? "1000+" : item.number_request }}
 				</template>
 
-				<template v-slot:[`item.total_amount_dai`]="{ item }">
-					{{ item.total_amount_dai.toFixed(3) }}
+				<template v-slot:[`item.total_amount_dbio`]="{ item }">
+					{{ item.total_amount_dbio.toFixed(3) }}
 				</template>
 
 				<template v-slot:[`item.total_amount_usd`]="{ item }">
@@ -149,7 +149,7 @@ export default {
 			},
       {
 				text: 'Total Amount (in DBIO)',
-				value: 'total_amount_dai',
+				value: 'total_amount_dbio',
 				sortable: false,
 				align: 'center',
 				width: '200px'
@@ -227,7 +227,7 @@ export default {
 			this.regions = this.countries.map(region => ({
         ...region,
         number_request: counter(region.services, "totalRequests"),
-        total_amount_dai: counter(region.services, "totalValue", "dai"),
+        total_amount_dbio: counter(region.services, "totalValue", "dbio"),
         total_amount_usd: counter(region.services, "totalValue", "usd"),
         isExpanded: false
       })).sort((a, b) => {
