@@ -1,14 +1,14 @@
 <style scoped>
 .title-text-color{
-    color: #FDC0FF;
+  color: #FDC0FF;
 }
 .center-all{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
 }
 .lab-verified-box {
   display: flex;
@@ -17,6 +17,9 @@
 .lab-verified-box > * {
   display: block;
   margin-right: 10px;
+}
+.pr20 {
+  padding-right: 20px;
 }
 </style>
 
@@ -28,8 +31,8 @@
         Register Now!
       </v-btn>
     </v-container>
-    <v-row v-else>
-      <v-col cols="12" md="12">
+    <v-row v-else justify="center" class="pr20">
+      <v-col cols="12" md="10">
         <v-card class="dg-card" elevation="0" outlined>
           <div class="secondary--text mt-5 ml-8 mb-5 lab-verified-box">
             <v-icon 
@@ -49,7 +52,7 @@
           </div>
         </v-card>
       </v-col>
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="5">
         <MenuCard
           :height="120"
           class="mb-2"
@@ -75,11 +78,8 @@
           @click="$router.push({ name: 'lab-dashboard-order-history' })"
         />
       </v-col>
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="5">
         <LabOrders />
-      </v-col>
-      <v-col cols="12" md="4">
-        <TestResults />
       </v-col>
     </v-row>
   </v-container>
@@ -89,14 +89,12 @@
 import { mapState } from 'vuex'
 import MenuCard from '@/components/MenuCard'
 import LabOrders from "./LabOrders";
-import TestResults from "./TestResults";
 
 export default {
   name: 'Lab',
   components: {
     MenuCard,
     LabOrders,
-    TestResults,
   },
   computed: {
     ...mapState({
