@@ -32,7 +32,10 @@
             with-dropdown
             @itemSelected="handleSelectedItem"
 					>
-            <h1>Requested Services</h1>
+            <div>
+              <h1>Requested Services</h1>
+              <p>List of all services ordered by customers</p>
+            </div>
 					</SearchBar>
 				</template>
 
@@ -56,10 +59,9 @@
 										class="btn-sending"
 										dark
 										small
-										width="200"
 										@click="provideService(subItem, index)"
 									>
-										Provide this service
+										Provide service
 									</v-btn>
 								</v-container>
 
@@ -73,8 +75,8 @@
                 {{ item.number_request > 1000 ? "1000+" : item.number_request }}
               </template>
 
-              <template v-slot:[`item.total_amount_dai`]="{ item }">
-                {{ item.totalValue.dai.toFixed(3) }}
+              <template v-slot:[`item.total_amount_dbio`]="{ item }">
+                {{ item.totalValue.dbio.toFixed(3) }}
               </template>
 
               <template v-slot:[`item.total_amount_usd`]="{ item }">
@@ -95,8 +97,8 @@
 					{{ item.number_request > 1000 ? "1000+" : item.number_request }}
 				</template>
 
-				<template v-slot:[`item.total_amount_dai`]="{ item }">
-					{{ item.total_amount_dai.toFixed(3) }}
+				<template v-slot:[`item.total_amount_dbio`]="{ item }">
+					{{ item.total_amount_dbio.toFixed(3) }}
 				</template>
 
 				<template v-slot:[`item.total_amount_usd`]="{ item }">
@@ -139,7 +141,7 @@ export default {
 				value: 'totalRequests',
 				sortable: false,
 				align: 'center',
-				width: '100px'
+				width: 160
 			},
       {
 				text: 'Service',
@@ -149,7 +151,7 @@ export default {
 			},
       {
 				text: 'Total Amount (in DBIO)',
-				value: 'total_amount_dai',
+				value: 'total_amount_dbio',
 				sortable: false,
 				align: 'center',
 				width: '200px'
@@ -166,7 +168,6 @@ export default {
 				value: 'actions',
 				sortable: false,
 				align: 'center',
-				width: '270px'
 			}
     ],
     regions: [],
@@ -227,7 +228,7 @@ export default {
 			this.regions = this.countries.map(region => ({
         ...region,
         number_request: counter(region.services, "totalRequests"),
-        total_amount_dai: counter(region.services, "totalValue", "dai"),
+        total_amount_dbio: counter(region.services, "totalValue", "dbio"),
         total_amount_usd: counter(region.services, "totalValue", "usd"),
         isExpanded: false
       })).sort((a, b) => {
@@ -251,6 +252,13 @@ export default {
           return index === 0 ? word.toLowerCase() : word.toUpperCase()
         }).replace(/\s+/g, '')
       }
+
+      item.services = item.services.sort(function (a, b) {
+        if (a.city < b.city) return -1
+        if (b.city > a.city) return 1
+
+        return 0
+      })
 
       const keystore = localStorage.getAddress()
       const isLoggedIn = !!keystore
@@ -337,6 +345,13 @@ th:not(.expanded th):first-child {
 
 td:not(.v-data-table__expanded__content td):first-child {
 	display: none;
+}
+
+.degenics-data-table thead {
+  background: #F5F7F9 !important;
+}
+.degenics-data-table thead th * {
+  color: #363636 !important;
 }
 
 tr {
