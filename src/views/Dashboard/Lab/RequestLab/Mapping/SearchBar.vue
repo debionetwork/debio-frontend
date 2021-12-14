@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex justify-space-between">
+  <div class="d-flex justify-space-between align-center">
     <slot></slot>
     <div class="search-bar">
       <v-text-field
