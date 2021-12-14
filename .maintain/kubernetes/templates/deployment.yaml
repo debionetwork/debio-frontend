@@ -1,0 +1,166 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "debio-frontend.fullname" . }}
+  labels:
+    {{- include "debio-frontend.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "debio-frontend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "debio-frontend.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "debio-frontend.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- if .Values.config.debioBackendURL }}
+            - name: VUE_APP_DEBIO_BACKEND_URL
+              value: "{{ .Values.config.debioBackendURL }}"
+            {{- end }}
+            {{- if .Values.config.recaptchaSiteKeyy }}
+            - name: VUE_APP_RECAPTCHA_SITE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "debio-frontend.recaptchaSiteKeySecretName" . }}
+                  key: recaptchaSiteKey
+            {{- end }}
+            {{- if .Values.config.appRole }}
+            - name: VUE_APP_ROLE
+              value: "{{ .Values.config.appRole }}"
+            {{- end }}
+            {{- if .Values.config.debioUseTokenName }}
+            - name: VUE_APP_DEBIO_USE_TOKEN_NAME
+              value: "{{ .Values.config.debioUseTokenName }}"
+            {{- end }}
+            {{- if .Values.config.debioEscrowETHAddress }}
+            - name: VUE_APP_DEBIO_ESCROW_ETH_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "debio-frontend.debioEscrowETHAddressSecretName" . }}
+                  key: debioEscrowETHAddress
+            {{- end }}
+            {{- if .Values.config.debioSubstrateWs }}
+            - name: VUE_APP_DEBIO_SUBSTRATE_WS
+              value: "{{ .Values.config.debioSubstrateWs }}"
+            {{- end }}
+            {{- if .Values.config.urlFaucet }}
+            - name: VUE_APP_URL_FAUCET
+              value: "{{ .Values.config.urlFaucet }}"
+            {{- end }}
+            {{- if .Values.config.web3Rpc }}
+            - name: VUE_APP_WEB3_RPC
+              value: "{{ .Values.config.web3Rpc }}"
+            {{- end }}
+            {{- if .Values.config.devDebioBackendUrl }}
+            - name: VUE_APP_DEV_DEBIO_BACKEND_URL
+              value: "{{ .Values.config.devDebioBackendUrl }}"
+            {{- end }}
+            {{- if .Values.config.devDebioUseTokenName }}
+            - name: VUE_APP_DEV_DEBIO_USE_TOKEN_NAME
+              value: "{{ .Values.config.devDebioUseTokenName }}"
+            {{- end }}
+            {{- if .Values.config.devDebioEscrowETHAddress }}
+            - name: VUE_APP_DEV_DEBIO_ESCROW_ETH_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "debio-frontend.devDebioEscrowETHAddressSecretName" . }}
+                  key: devDebioEscrowETHAddress
+            {{- end }}
+            {{- if .Values.config.devDebioSubstrateWs }}
+            - name: VUE_APP_DEV_DEBIO_SUBSTRATE_WS
+              value: "{{ .Values.config.devDebioSubstrateWs }}"
+            {{- end }}
+            {{- if .Values.config.devUrlFaucet }}
+            - name: VUE_APP_DEV_URL_FAUCET
+              value: "{{ .Values.config.devUrlFaucet }}"
+            {{- end }}
+            {{- if .Values.config.devWeb3Rpc }}
+            - name: VUE_APP_DEV_WEB3_RPC
+              value: "{{ .Values.config.devWeb3Rpc }}"
+            {{- end }}
+            {{- if .Values.config.daiContractAddress }}
+            - name: VUE_APP_DAI_CONTRACT_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "debio-frontend.daiContractAddressSecretName" . }}
+                  key: daiContractAddress
+            {{- end }}
+            {{- if .Values.config.debioApiKey }}
+            - name: VUE_APP_DEBIO_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "debio-frontend.debioApiKeySecretName" . }}
+                  key: debioApiKey
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          {{- if .Values.config.startupProbe.path }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.config.startupProbe.path }}
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+            successThreshold: 1
+          {{- end }}
+          {{- if .Values.config.livenessProbe.path }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.config.livenessProbe.path }}
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+            successThreshold: 1
+          {{- end }}
+          {{- if .Values.config.readinessProbe.path }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.config.readinessProbe.path }}
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+            successThreshold: 1
+          {{- end }}
