@@ -113,7 +113,6 @@ export default {
       svg.attr("height", 739)
       const svgWidth = +svg.attr("width")
       const svgHeight = +svg.attr("height")
-      console.log(svgWidth, svgHeight);
       const projection = d3.geoNaturalEarth1()
         .scale(300)
         .center([0, 10])
@@ -130,7 +129,6 @@ export default {
         .transition()
         .duration(200)
         .style("opacity", .5)
-        .style("stroke", "transparent")
         svg
           .transition()
           .duration(500)
@@ -146,7 +144,7 @@ export default {
         g.attr('transform', `translate(${event.transform.x}, ${event.transform.y}) scale(${event.transform.k})`)
       }
 
-      function boxZoom(box, centroid, paddingPerc) {
+      function boxZoom(box, centroid, paddingPerc, name) {
         let minXY = box[0];
         let maxXY = box[1];
 
@@ -172,6 +170,11 @@ export default {
         dleft = Math.max(document.querySelector("svg").getBoundingClientRect().width - svgWidth * zoomScale, dleft) + 220;
         dtop = Math.max(document.querySelector("svg").getBoundingClientRect().height - svgHeight * zoomScale, dtop);
 
+        // Custom coordinate translate for Australia
+        zoomScale = name ? 4 : zoomScale
+        dleft = name ? -4348 : dleft
+        dtop = name ? -1884 : dtop
+
         svg
           .transition()
           .duration(500)
@@ -189,11 +192,11 @@ export default {
         .transition()
         .duration(200)
         .style("opacity", 1)
-        .style("stroke", "black")
 
       const country = d3.select(`#${convertSLug(val.name)}`)?._groups[0][0]?.__data__
+      const isAustralia = country.properties.name === "Australia"
       if (!country) return
-      boxZoom(path.bounds(country), path.centroid(country), 70)
+      boxZoom(path.bounds(country), path.centroid(country), 70, isAustralia)
     }
   },
 
@@ -269,7 +272,7 @@ export default {
         }
       })
 
-      function boxZoom(box, centroid, paddingPerc) {
+      function boxZoom(box, centroid, paddingPerc, name) {
         let minXY = box[0];
         let maxXY = box[1];
 
@@ -293,7 +296,12 @@ export default {
         let dtop = Math.min(0, document.querySelector("svg").getBoundingClientRect().height / 2 - offsetY);
 
         dleft = Math.max(document.querySelector("svg").getBoundingClientRect().width - svgWidth * zoomScale, dleft) + 220;
-        dtop = Math.max(document.querySelector("svg").getBoundingClientRect().height - svgHeight * zoomScale, dtop);
+        dtop = Math.max(document.querySelector("svg").getBoundingClientRect().height - svgHeight * zoomScale, dtop)
+
+        // Custom coordinate translate for Australia
+        zoomScale = name ? 4 : zoomScale
+        dleft = name ? -4348 : dleft
+        dtop = name ? -1884 : dtop
 
         svg
           .transition()
@@ -373,14 +381,10 @@ export default {
                 .transition()
                 .duration(200)
                 .style("opacity", .5)
-                .style("stroke-width", ".2px")
-                .style("stroke", "transparent")
               d3.select(this)
                 .transition()
                 .duration(200)
                 .style("opacity", 1)
-                .style("stroke-width", ".2px")
-                .style("stroke", "black")
 
               const country = e.target.__data__.properties.name
               if (serviceRequestByCountry[country] != undefined) {
@@ -404,15 +408,23 @@ export default {
               d3.select(this)
                 .transition()
                 .duration(200)
-                .style("stroke", "transparent")
               return tooltip
                 .style("visibility", "hidden")
                 .style("opacity", "0")
             })
             .on('click', function(e) {
               const country = e.target.__data__
+              const isAustralia = country.properties.name === "Australia"
+                ? country.properties.name
+                : null
+
               context.searchQuery = country.properties.name
-              boxZoom(pathGenerator.bounds(country), pathGenerator.centroid(country), 70)
+              boxZoom(
+                pathGenerator.bounds(country),
+                pathGenerator.centroid(country),
+                70,
+                isAustralia
+              )
             })
       });
     }
