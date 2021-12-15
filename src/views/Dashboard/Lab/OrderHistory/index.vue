@@ -5,7 +5,7 @@
         <v-col>
           <ServerSideDataTable
             :headers="headers"
-            :items="filterResultReady"
+            :items="orders"
             :search="search"
             :sort-by="['createdAt']"
             :sort-desc="[true]"
@@ -108,7 +108,11 @@ export default {
             ...order._source,
             dna_sample_status: dna?.status,
             testResult: dnaTestResult,
-            created_at: (new Date(parseInt(order._source.created_at))).toLocaleDateString()
+            created_at: new Date(+order._source.created_at.replaceAll(",", "")).toLocaleDateString("id", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric"
+            })
           }
         }
 
