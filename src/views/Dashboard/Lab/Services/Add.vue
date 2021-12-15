@@ -279,7 +279,7 @@ export default {
     }),
 
     hasServicePayload() {
-      return Object.keys(this.servicePayload).length
+      return Boolean(Object.keys(this.servicePayload).length)
     },
 
     serviceCategoryRules() {
