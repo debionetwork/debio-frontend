@@ -5,7 +5,7 @@
         <v-col>
           <ServerSideDataTable
             :headers="headers"
-            :items="filterResultReady"
+            :items="orders"
             :search="search"
             :sort-by="['createdAt']"
             :sort-desc="[true]"
