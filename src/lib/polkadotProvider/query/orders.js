@@ -3,7 +3,7 @@ import { queryLabsById } from './labs'
 import { queryDnaSamples } from './geneticTesting'
 import { ethAddressByAccountId } from './userProfile'
 import localStorage from '@/lib/local-storage'
-import axios from 'axios'
+import apiClientRequest from "@/lib/api"
 
 export async function getOrdersDetail(api, orderId){
   let orderDetail = await getOrdersData(api, orderId)
@@ -103,7 +103,7 @@ export async function lastOrderByCustomer(api, address) {
 }
 
 export async function searchOrder(searchQuery) {
-  const { data: { data } } = await axios.get(`${process.env.VUE_APP_BACKEND_API}/orders/${localStorage.getAddress()}`, {
+  const { data: { data } } = await apiClientRequest.get(`/orders/${localStorage.getAddress()}`, {
     params: { size: 1000, page: 1, keyword: searchQuery || "" }
   })
 
