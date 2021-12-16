@@ -4,7 +4,7 @@ import globalFunctions from "@/lib/functions"
 const labRoutes = [ 
     {
         path: '/lab',
-        component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/NavigationLayout'),
+        component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/NavigationLayout'),
         beforeEnter: globalFunctions.checkIsLoggedIn,
         children: [
             {
@@ -13,7 +13,7 @@ const labRoutes = [
               meta: {
                   pageHeader: 'Lab Dashboard',
               },
-              component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab'),
+              component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab'),
               beforeEnter: (to, from, next) => {
                 // Set drawer buttons here to make it dynamic :)
                 if(!store.state.substrate.isServicesExist){
@@ -54,7 +54,7 @@ const labRoutes = [
                   { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
-              component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Account'),
+              component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Account'),
             },
             {
                 path: '/lab/registration',
@@ -73,7 +73,7 @@ const labRoutes = [
                       { text: "Customer Care", href: "https://docs.debio.network/" },
                     ]
                 },
-                component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Registration'),
+                component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Registration'),
                 beforeEnter: (to, from, next) => {
                   if(store.state.substrate.isLabAccountExist) next('/lab/registration/services')
                   else if(store.state.substrate.isServicesExist) next('/lab')
@@ -97,7 +97,7 @@ const labRoutes = [
                       { text: "Customer Care", href: "https://docs.debio.network/" },
                     ]
                 },
-                component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Registration/Services'),
+                component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Registration/Services'),
                 beforeEnter: (to, from, next) => {
                   if(!store.state.substrate.isLabAccountExist) next('/lab/registration')
                   else if(store.state.substrate.isServicesExist) next('/lab')
@@ -124,7 +124,7 @@ const labRoutes = [
             //           { text: "Order" },
             //         ]
             //     },
-            //     component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Registration/Verification')
+            //     component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Registration/Verification')
             // },
             {
               path: '/lab/services',
@@ -143,7 +143,7 @@ const labRoutes = [
                     { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
-              component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Services')
+              component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Services')
             },
             {
               path: '/lab/services/add',
@@ -163,7 +163,7 @@ const labRoutes = [
                     { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
-              component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Services/Add')
+              component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Services/Add')
             },
             {
               path: '/lab/services/detail/:id',
@@ -183,7 +183,7 @@ const labRoutes = [
                     { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
-              component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/Services/Detail')
+              component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Services/Detail')
             },
             {
               path: '/lab/orders',
@@ -202,7 +202,7 @@ const labRoutes = [
                     { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
-              component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/OrderHistory')
+              component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/OrderHistory')
             },
             {
               path: '/lab/orders/:orderId/process',
@@ -222,7 +222,7 @@ const labRoutes = [
                     { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
-              component: () => import(/* webpackChunkName */ '../../views/Dashboard/Lab/OrderHistory/ProcessOrder')
+              component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/OrderHistory/ProcessOrder')
             },
         ]
     },
