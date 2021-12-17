@@ -4,7 +4,7 @@ import globalFunctions from "@/lib/functions"
 const hospitalRoutes = [ 
     {
         path: '/hospital',
-        component: () => import(/* webpackChunkName */ '../../views/Dashboard/Hospital/NavigationLayout'),
+        component: () => import(/* webpackChunkName */ '@/views/Dashboard/Hospital/NavigationLayout'),
         beforeEnter: globalFunctions.checkIsLoggedIn,
         children: [
             {
@@ -13,7 +13,7 @@ const hospitalRoutes = [
               meta: {
                 pageHeader: 'Hospital Dashboard',
               },
-              component: () => import(/* webpackChunkName */ '../../views/Dashboard/Hospital'),
+              component: () => import(/* webpackChunkName */ '@/views/Dashboard/Hospital'),
               beforeEnter: (to, from, next) => {
                 if(!store.state.substrate.isHospitalAccountExist){
                   to.meta.drawerButtons = [
@@ -47,7 +47,7 @@ const hospitalRoutes = [
                   { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
-              component: () => import(/* webpackChunkName */ '../../views/Dashboard/Hospital/Account'),
+              component: () => import(/* webpackChunkName */ '@/views/Dashboard/Hospital/Account'),
             },
             // {
             //   path: '/hospital/account/verification',
@@ -66,7 +66,7 @@ const hospitalRoutes = [
             //       { text: "Order", disabled: false, route: { name: "hospital-dashboard-order-history" } },
             //     ]
             //   },
-            //   component: () => import(/* webpackChunkName */ '../../views/Dashboard/Hospital/Account/Verification')
+            //   component: () => import(/* webpackChunkName */ '@/views/Dashboard/Hospital/Account/Verification')
             // },
             {
                 path: '/hospital/registration',
@@ -83,7 +83,7 @@ const hospitalRoutes = [
                       { text: "Customer Care", href: "https://docs.debio.network/" },
                     ]
                 },
-                component: () => import(/* webpackChunkName */ '../../views/Dashboard/Hospital/Registration'),
+                component: () => import(/* webpackChunkName */ '@/views/Dashboard/Hospital/Registration'),
                 beforeEnter: (to, from, next) => {
                   if(store.state.substrate.isHospitalAccountExist) next('/hospital')
                   else next()
@@ -109,7 +109,7 @@ const hospitalRoutes = [
             //           { text: "Order" },
             //         ]
             //     },
-            //     component: () => import(/* webpackChunkName */ '../../views/Dashboard/Hospital/Registration/Verification')
+            //     component: () => import(/* webpackChunkName */ '@/views/Dashboard/Hospital/Registration/Verification')
             // },
         ]
     },
