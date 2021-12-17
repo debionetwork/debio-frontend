@@ -7,7 +7,7 @@ const indexRoutes = [{
       meta: {
         pageHeader: 'SelectRoleGroup',
       },
-    component: () => import(/* webpackChunkName */ '../../views/SelectRole'),
+    component: () => import(/* webpackChunkName */ '@/views/SelectRole'),
   },
 ]
   

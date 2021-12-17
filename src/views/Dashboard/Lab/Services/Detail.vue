@@ -87,7 +87,10 @@
                             label="Price"
                             placeholder="Price"
                             outlined
-                            v-model="price"
+                            type="number"
+                            min="0"
+                            step=".001"
+                            v-model.number="price"
                             :rules="priceRules"
                           ></v-text-field>
                         </v-col>
@@ -109,7 +112,10 @@
                             label="QC Price"
                             placeholder="QC Price"
                             outlined
-                            v-model="qcPrice"
+                            type="number"
+                            min="0"
+                            step=".001"
+                            v-model.number="qcPrice"
                             :rules="cqPriceRules"
                           ></v-text-field>
                         </v-col>
@@ -189,7 +195,7 @@
 <script>
 import { mapGetters, mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
-import { getCategories } from "@/lib/categories"
+import { getCategories } from "@/lib/api"
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { fromEther } from "@/lib/balance-format"
 import { updateService } from '@/lib/polkadotProvider/command/services'
@@ -299,8 +305,8 @@ export default {
 
     priceRules() {
       return [
-        val => !!val || 'Price is Required',
-        val => /^[0-9]+$/.test(val) || 'Price must be Number'
+        val => !!val || this.isBiomedical || 'Price is required',
+        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'Max 3 decimal'
       ]
     },
 
@@ -312,8 +318,8 @@ export default {
     
     cqPriceRules() {
       return [
-        val => !!val || 'QC Price is Required',
-        val => /^[0-9]+$/.test(val) || 'QC Price must be Number'
+        val => !!val || this.isBiomedical || 'QC Price is required',
+        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'Max 3 decimal'
       ]
     },
 

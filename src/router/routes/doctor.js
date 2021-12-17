@@ -4,7 +4,7 @@ import globalFunctions from "@/lib/functions"
 const doctorRoutes = [ 
     {
         path: '/doctor',
-        component: () => import(/* webpackChunkName */ '../../views/Dashboard/Doctor/NavigationLayout'),
+        component: () => import(/* webpackChunkName */ '@/views/Dashboard/Doctor/NavigationLayout'),
         beforeEnter: globalFunctions.checkIsLoggedIn,
         children: [
             {
@@ -13,7 +13,7 @@ const doctorRoutes = [
               meta: {
                 pageHeader: 'Doctor Dashboard',
               },
-              component: () => import(/* webpackChunkName */ '../../views/Dashboard/Doctor'),
+              component: () => import(/* webpackChunkName */ '@/views/Dashboard/Doctor'),
               beforeEnter: (to, from, next) => {
                 // Set drawer buttons here to make it dynamic :)
                 if(!store.state.substrate.isDoctorAccountExist){
@@ -48,7 +48,7 @@ const doctorRoutes = [
                   { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
-              component: () => import(/* webpackChunkName */ '../../views/Dashboard/Doctor/Account'),
+              component: () => import(/* webpackChunkName */ '@/views/Dashboard/Doctor/Account'),
             },
             // {
             //   path: '/doctor/account/verification',
@@ -67,7 +67,7 @@ const doctorRoutes = [
             //       { text: "Order", disabled: false, route: { name: "doctor-dashboard-order-history" } },
             //     ]
             //   },
-            //   component: () => import(/* webpackChunkName */ '../../views/Dashboard/Doctor/Account/Verification')
+            //   component: () => import(/* webpackChunkName */ '@/views/Dashboard/Doctor/Account/Verification')
             // },
             {
                 path: '/doctor/registration',
@@ -84,7 +84,7 @@ const doctorRoutes = [
                       { text: "Customer Care", href: "https://docs.debio.network/" },
                     ]
                 },
-                component: () => import(/* webpackChunkName */ '../../views/Dashboard/Doctor/Registration'),
+                component: () => import(/* webpackChunkName */ '@/views/Dashboard/Doctor/Registration'),
                 beforeEnter: (to, from, next) => {
                   if(store.state.substrate.isDoctorAccountExist) next('/doctor')
                   else next()
@@ -110,7 +110,7 @@ const doctorRoutes = [
             //           { text: "Order" },
             //         ]
             //     },
-            //     component: () => import(/* webpackChunkName */ '../../views/Dashboard/Doctor/Registration/Verification')
+            //     component: () => import(/* webpackChunkName */ '@/views/Dashboard/Doctor/Registration/Verification')
             // },
         ]
     },

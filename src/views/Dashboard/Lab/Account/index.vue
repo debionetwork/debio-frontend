@@ -150,7 +150,7 @@
 <script>
 import { mapState, mapGetters } from "vuex"
 import { updateLab } from "@/lib/polkadotProvider/command/labs"
-import { getLocations, getStates, getCities } from "@/lib/location"
+import { getLocations, getStates, getCities } from "@/lib/api"
 import Kilt from "@kiltprotocol/sdk-js"
 import { u8aToHex } from "@polkadot/util"
 import Certification from "./Certification"

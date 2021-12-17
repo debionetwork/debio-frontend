@@ -1,42 +1,57 @@
 <template>
   <v-card width="100%" min-height="739" id="map-container">
-    <h1 class="map-title">Requested Services</h1>
-
     <svg id="map"></svg>
 
     <div class="search-bar__wrapper">
-      <SearchBar
-        label="Search"
-        @input="searchQuery = $event"
-      ></SearchBar>
+      <div class="search-bar__box">
+        <h4 class="mb-5">Requested Services</h4>
+        <v-text-field
+          class="search-bar__input"
+          v-model="searchQuery"
+          prepend-icon="mdi-magnify"
+          append-icon="mdi-close-circle-outline"
+          @click:append="searchQuery = ''"
+        ></v-text-field>
+      </div>
       <div class="search-bar__content rounded" v-if="!!filteredResults">
-        <span class="search-bar__content-title">{{ filteredResults.name }}</span>
+        <span class="search-bar__content-title">
+          <b>{{ filteredResults.services ? filteredResults.services.length : 0 }} Results</b>
+          on {{ filteredResults.name }}
+        </span>
         <div class="search-bar__result-lists">
           <template v-if="filteredResults.services">
             <div class="search-bar__result-item rounded" v-for="(service, idx) in filteredResults.services" :key="idx">
               <div class="search-bar__result-title">{{ service.category }}</div>
               <div class="search-bar__result-content">
                 <v-row>
-                  <v-col>Total users</v-col>
                   <v-col>
-                    <span>: {{ service.totalRequests }} Users</span>
+                    <v-row>
+                      <v-col class="text-caption text-center pre-white-space">Total users</v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col class="text-center font-weight-bold pre-white-space">{{ service.totalRequests }} Users</v-col>
+                    </v-row>
                   </v-col>
-                </v-row>
-                <v-row>
-                  <v-col>Value staked (DBIO)</v-col>
                   <v-col>
-                    <p class="mb-0">: {{ service.totalValue.dbio.toFixed(3) }} DBIO</p>
+                    <v-row>
+                      <v-col class="text-caption text-center pre-white-space">Value(DBIO)</v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col class="text-center font-weight-bold pre-white-space">{{ service.totalValue.dbio.toFixed(3) }} DBIO</v-col>
+                    </v-row>
                   </v-col>
-                </v-row>
-                <v-row>
-                  <v-col>Value staked (USD)</v-col>
                   <v-col>
-                    <p class="mb-0">: {{ service.totalValue.usd.toFixed(3) }} USD</p>
+                    <v-row>
+                      <v-col class="text-caption text-center pre-white-space">Value(USD)</v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col class="text-center font-weight-bold pre-white-space">{{ service.totalValue.usd.toFixed(3) }} USD</v-col>
+                    </v-row>
                   </v-col>
                 </v-row>
                 <v-btn
                   outlined
-                  color="primary"
+                  color="new_blue"
                   width="100%"
                   class="search-bar__result-action"
                   @click="handleSeeDetails(filteredResults.name)"
@@ -50,95 +65,16 @@
         </div>
       </div>
     </div>
-
-    <!-- <v-menu
-      transition="slide-y-transition"
-      max-height="397"
-      :close-on-content-click="false"
-      ref="selectContinent"
-      bottom
-    >
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          class="filter-continent d-flex justify-space-between py-3 px-4"
-          min-width="223"
-          v-bind="attrs"
-          v-on="on"
-        >
-          <span>{{ selectedContinent }}</span>
-          <v-icon class="ml-4">mdi-chevron-up</v-icon>
-        </v-btn>
-      </template>
-      <v-list>
-        <template v-for="(continent, i) in continents">
-          <v-list-item
-            :key="i"
-            v-if="!continent.subItems"
-            link
-            @click="onSelectContinent($event, continent)"
-          >
-            <v-list-item-content>
-              <v-list-item-title>{{ continent.name }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-group
-            v-else
-            :key="i"
-            expand
-            no-action
-          >
-            <template v-slot:activator>
-              <div class="d-flex flex-column">
-                <v-divider class="mb-3"></v-divider>
-                <v-list-item-content>
-                  <v-list-item-title class="font-weight-bold">{{ continent.name }}</v-list-item-title>
-                </v-list-item-content>
-              </div>
-            </template>
-            <v-list-item
-              v-for="(subItem, subIndex) in continent.subItems"
-              :key="subIndex"
-              link
-              class="pl-8"
-              @click="onSelectContinent($event, subItem)"
-            >
-              <v-list-item-content>
-                <v-list-item-title>{{ subItem.name }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list-group>
-        </template>
-      </v-list>
-    </v-menu> -->
-
-    <div class="controls">
-      <!-- <v-btn class="controls-item" @click="getCurrentLocation()">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M11 7C12.0609 7 13.0783 7.42143 13.8284 8.17157C14.5786 8.92172 15 9.93913 15 11C15 12.0609 14.5786 13.0783 13.8284 13.8284C13.0783 14.5786 12.0609 15 11 15C9.93913 15 8.92172 14.5786 8.17157 13.8284C7.42143 13.0783 7 12.0609 7 11C7 9.93913 7.42143 8.92172 8.17157 8.17157C8.92172 7.42143 9.93913 7 11 7ZM2.05 12H0V10H2.05C2.5 5.83 5.83 2.5 10 2.05V0H12V2.05C16.17 2.5 19.5 5.83 19.95 10H22V12H19.95C19.5 16.17 16.17 19.5 12 19.95V22H10V19.95C5.83 19.5 2.5 16.17 2.05 12ZM11 4C9.14348 4 7.36301 4.7375 6.05025 6.05025C4.7375 7.36301 4 9.14348 4 11C4 12.8565 4.7375 14.637 6.05025 15.9497C7.36301 17.2625 9.14348 18 11 18C12.8565 18 14.637 17.2625 15.9497 15.9497C17.2625 14.637 18 12.8565 18 11C18 9.14348 17.2625 7.36301 15.9497 6.05025C14.637 4.7375 12.8565 4 11 4Z" fill="#FE008A"/>
-        </svg>
-      </v-btn> -->
-      <v-btn class="controls-item" id="zoom_in">
-        <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M26.1667 18.8333H18.8333V26.1667H15.1667V18.8333H7.83333V15.1667H15.1667V7.83333H18.8333V15.1667H26.1667V18.8333ZM29.8333 0.5H4.16667C2.13167 0.5 0.5 2.13167 0.5 4.16667V29.8333C0.5 30.8058 0.886308 31.7384 1.57394 32.4261C2.26157 33.1137 3.19421 33.5 4.16667 33.5H29.8333C30.8058 33.5 31.7384 33.1137 32.4261 32.4261C33.1137 31.7384 33.5 30.8058 33.5 29.8333V4.16667C33.5 2.13167 31.85 0.5 29.8333 0.5Z" fill="#FE008A"/>
-        </svg>
-      </v-btn>
-      <v-btn class="controls-item" id="zoom_out">
-        <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M26.1667 18.8333H7.83333V15.1667H26.1667V18.8333ZM29.8333 0.5H4.16667C2.13167 0.5 0.5 2.13167 0.5 4.16667V29.8333C0.5 30.8058 0.886308 31.7384 1.57394 32.4261C2.26157 33.1137 3.19421 33.5 4.16667 33.5H29.8333C30.8058 33.5 31.7384 33.1137 32.4261 32.4261C33.1137 31.7384 33.5 30.8058 33.5 29.8333V4.16667C33.5 2.13167 31.85 0.5 29.8333 0.5Z" fill="#FE008A"/>
-        </svg>
-      </v-btn>
-    </div>
   </v-card>
 </template>
 
 <script>
 import * as d3 from "d3"
-import SearchBar from "./SearchBar"
+import * as topojson from "topojson"
 import { convertSLug } from "@/utils/convertSlug"
 
 export default {
   name: "MapCountry",
-  components: { SearchBar },
   props: {
     serviceRequestByCountry: Object,
   },
@@ -156,31 +92,6 @@ export default {
     tooltipCountry: '',
     active: false,
     countries: [],
-    continents: [
-      { name: 'World' },
-      { name: 'Africa'  },
-      { name: 'America' },
-      { name: 'Asia'  },
-      { name: 'Europe'  },
-      { name: 'Oceania' },
-      {
-        name: 'American Sub-continent',
-        subItems: [
-          { name: "Northern America" },
-          { name: "Southern America" },
-          { name: "Southern America Latin America" }
-        ],
-        active: true
-      },
-      {
-        name: 'Asian Sub-continent',
-        subItems: [
-          { name: "Indonesia" },
-          { name: "Singapore" }
-        ],
-        active: false
-      },
-    ],
   }),
 
   computed: {
@@ -202,9 +113,9 @@ export default {
       svg.attr("height", 739)
       const svgWidth = +svg.attr("width")
       const svgHeight = +svg.attr("height")
-      const projection = d3.geoMercator()
-        .scale(150)
-        .center([0, 40])
+      const projection = d3.geoNaturalEarth1()
+        .scale(300)
+        .center([0, 10])
         .translate([svgWidth / 2, svgHeight / 2])
       const path = d3
         .geoPath()
@@ -214,11 +125,10 @@ export default {
         .on("zoom", zoomed);
 
       if (!val?.name) {
-        d3.selectAll(".Country")
+        d3.selectAll(".country")
         .transition()
         .duration(200)
         .style("opacity", .5)
-        .style("stroke", "transparent")
         svg
           .transition()
           .duration(500)
@@ -233,7 +143,8 @@ export default {
         const g = d3.select("g")
         g.attr('transform', `translate(${event.transform.x}, ${event.transform.y}) scale(${event.transform.k})`)
       }
-      function boxZoom(box, centroid, paddingPerc) {
+
+      function boxZoom(box, centroid, paddingPerc, name) {
         let minXY = box[0];
         let maxXY = box[1];
 
@@ -259,6 +170,11 @@ export default {
         dleft = Math.max(document.querySelector("svg").getBoundingClientRect().width - svgWidth * zoomScale, dleft) + 220;
         dtop = Math.max(document.querySelector("svg").getBoundingClientRect().height - svgHeight * zoomScale, dtop);
 
+        // Custom coordinate translate for Australia
+        zoomScale = name ? 4 : zoomScale
+        dleft = name ? -4348 : dleft
+        dtop = name ? -1884 : dtop
+
         svg
           .transition()
           .duration(500)
@@ -268,7 +184,7 @@ export default {
           );
       }
 
-      d3.selectAll(".Country")
+      d3.selectAll(".country")
         .transition()
         .duration(200)
         .style("opacity", .5)
@@ -276,10 +192,11 @@ export default {
         .transition()
         .duration(200)
         .style("opacity", 1)
-        .style("stroke", "black")
-        const country = d3.select(`#${convertSLug(val.name)}`)?._groups[0][0]?.__data__
-        if (!country) return
-        boxZoom(path.bounds(country), path.centroid(country), 70)
+
+      const country = d3.select(`#${convertSLug(val.name)}`)?._groups[0][0]?.__data__
+      const isAustralia = country.properties.name === "Australia"
+      if (!country) return
+      boxZoom(path.bounds(country), path.centroid(country), 70, isAustralia)
     }
   },
 
@@ -288,89 +205,45 @@ export default {
   },
 
   methods: {
-    onSelectContinent(e, { name }) {
-      this.selectedContinent = name
-    },
-
-    selectProvince(province) {
-      this.province = province
-    },
-
-    openInfo(province) {
-      this.currentProvince = province
-    },
-
-    closeInfo() {
-      this.currentProvince = undefined
-    },
-
-    zoomInMap(zoom, svg, zoomLevel) {
-      return svg.transition()
-        .delay(100)
-        .duration(700)
-        .call(zoom.scaleBy, zoomLevel)
-    },
-
-    zoomOutMap(zoom, svg, zoomLevel) {
-      return svg.transition()
-        .delay(100)
-        .duration(700)
-        .call(zoom.scaleBy, zoomLevel)
-    },
-
-    getCurrentLocation() {
-      const showPosition = (position) => {
-        console.log("showPosition ==> ", position)
-      }
-
-      if (navigator.geolocation) navigator.geolocation.watchPosition(showPosition)
-      else console.log("Geolocation is not supported by this browser.")
-
-    },
-
     handleSeeDetails(country) {
       this.$emit("openList", false, country)
     },
 
-    createTooltip({country = '', totalRequests = '', totalValue = { dbio: 0, usd: 0 }}) {
+    createTooltip({ country, totalValue = { dbio: 0 }, totalRequests }) {
       return `
-          <div class="header">
-            <h3>${country}</h3>
+        <h3 class="tooltip__header">${country}</h3>
+        <div class="tooltip__content">
+          <div class="tooltip__field d-flex justify-between">
+            <p class="tooltip__field-title mb-0 mr-8">Categories Requested</p>
+            <b class="tooltip__field-desc mb-0">${totalRequests}</b>
           </div>
-          <div class="content">
-            <div style="display: flex; justify-content: space-between; width: 100%;">
-              <p>Categories Requested</p>
-              <p>${totalRequests} users</p>
-            </div>
-            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-              <div>Value staked (DBIO)</div>
-              <b>${totalValue.dbio.toFixed(3) || 0}</b>
-            </div>
-            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-              <div>Value staked (USD)</div>
-              <b>${totalValue.usd.toFixed(3) || 0}</b>
-            </div>
+          <div class="tooltip__field d-flex justify-between">
+            <p class="tooltip__field-title mb-0 mr-8">Value staked</p>
+            <b class="tooltip__field-desc mb-0">${totalValue.dbio.toFixed(3)}</b>
           </div>
-        `
+        </div>
+      `
     },
 
     renderD3() {
-      const self = this;
+      const context = this
       const serviceRequestByCountry = {...this.serviceRequestByCountry}
-      const svg = d3.select("svg")
+
+      const svg = d3.select('svg');
+
       svg.attr("width", Math.round(document.querySelector(".v-card").getBoundingClientRect().width))
       svg.attr("height", Math.round(document.querySelector(".v-card").getBoundingClientRect().height))
+
       const svgWidth = +svg.attr("width")
       const svgHeight = +svg.attr("height")
-      const data = new Map()
-      const projection = d3.geoMercator()
-        .scale(150)
-        .center([0, 40])
-        .translate([svgWidth / 2, svgHeight / 2])
 
-      const path = d3
-        .geoPath()
-        .projection(projection)
+      const projection = d3.geoNaturalEarth1()
+        .scale(300)
+        .center([0, 10])
+        .translate([svgWidth / 2, svgHeight / 2])
+      const pathGenerator = d3.geoPath().projection(projection);
+
+      const g = svg.append('g');
 
       var zoom = d3.zoom()
         .scaleExtent([1/2, 4])
@@ -390,7 +263,16 @@ export default {
           .call(zoom.scaleBy, zoomLevel);
       }
 
-      function boxZoom(box, centroid, paddingPerc) {
+      d3.selectAll('button').on('click', function() {
+        if (this.id === 'zoom_in') {
+          transition(2)
+        }
+        if (this.id === 'zoom_out') {
+          transition(-2)
+        }
+      })
+
+      function boxZoom(box, centroid, paddingPerc, name) {
         let minXY = box[0];
         let maxXY = box[1];
 
@@ -414,7 +296,12 @@ export default {
         let dtop = Math.min(0, document.querySelector("svg").getBoundingClientRect().height / 2 - offsetY);
 
         dleft = Math.max(document.querySelector("svg").getBoundingClientRect().width - svgWidth * zoomScale, dleft) + 220;
-        dtop = Math.max(document.querySelector("svg").getBoundingClientRect().height - svgHeight * zoomScale, dtop);
+        dtop = Math.max(document.querySelector("svg").getBoundingClientRect().height - svgHeight * zoomScale, dtop)
+
+        // Custom coordinate translate for Australia
+        zoomScale = name ? 4 : zoomScale
+        dleft = name ? -4348 : dleft
+        dtop = name ? -1884 : dtop
 
         svg
           .transition()
@@ -425,32 +312,45 @@ export default {
           );
       }
 
-      d3.selectAll('button').on('click', function() {
-        if (this.id === 'zoom_in') {
-          transition(2)
-        }
-        if (this.id === 'zoom_out') {
-          transition(-2)
-        }
-      })
+      const countryColorScale = val => {
+        const country = val.properties.name
+        let colorIndex = 0
+        const colors = ["#FFFFFF", "#ACDFE3", "#5DC9CC", "#079DAB", "#FDD07D", "#F7C192", "#D9442C"]
 
-      var tooltip2 = d3.select("#map-container")
-        .append("div")
-          .attr("class", "debio-map-tooltip")
-          .style("position", "absolute")
-          .style("visibility", "hidden")
-          .style("background-color", "white")
-          .style("min-width", "250px")
-          .html(self.createTooltip({}))
-      
+        if (serviceRequestByCountry[country] === undefined) colors[colorIndex]
 
-      Promise.all([
-        d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson"),
-        d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world_population.csv", function(d) {
-          data.set(d.code, +d.pop)
-        })]).then(function(loadData){
-          let topo = loadData[0].features.filter(map => map.properties.name !== "Antarctica")
-          self.countries = topo.map(map => {
+        const request = serviceRequestByCountry[country]?.totalRequests
+
+        if (request <= 5) colorIndex = 1
+        if (request > 5) colorIndex = 2
+        if (request > 10) colorIndex = 3
+        if (request > 20) colorIndex = 4
+        if (request > 25) colorIndex = 5
+        if (request > 30) colorIndex = 6
+
+        return colors[colorIndex];
+      }
+
+      const loadAndProcessData = () =>
+
+        Promise.all([
+          d3.tsv('https://unpkg.com/world-atlas@1.1.4/world/50m.tsv'),
+          d3.json('https://unpkg.com/world-atlas@1.1.4/world/50m.json')
+        ])
+
+        .then(([tsvData, topoJSONdata]) => {
+          const rowById = tsvData.reduce((accumulator, d) => {
+            accumulator[d.iso_n3] = d;
+            return accumulator;
+          }, {});
+
+          const countries = topojson.feature(topoJSONdata, topoJSONdata.objects.countries);
+
+          countries.features.forEach(d =>{
+            Object.assign(d.properties, rowById[d.id])
+          });
+
+          context.countries = countries.features.map(map => {
             const country = { name: map.properties.name }
             const service = serviceRequestByCountry[map.properties.name]
 
@@ -459,78 +359,74 @@ export default {
             return country
           })
 
-          svg.append("g")
-            .selectAll("path")
-            .data(topo)
-            .enter()
-            .append("path")
-              .attr("id", (d) => convertSLug(d.properties.name))
-              .attr("d", d3.geoPath()
-                .projection(projection)
+          return countries;
+        });
+
+      loadAndProcessData().then(countries => {
+        var tooltip = d3.select("#map-container")
+          .append("div")
+            .attr("class", "tooltip")
+            .style("visibility", "hidden")
+            .style("min-width", "250px")
+            .html(context.createTooltip({}))
+
+        g.selectAll('path').data(countries.features)
+          .enter().append('path')
+            .attr('class', 'country')
+            .attr('d', pathGenerator)
+            .attr('fill', d => countryColorScale(d))
+            .attr("id", (d) => convertSLug(d.properties.name))
+            .on('mouseenter', function(e) {
+              d3.selectAll(".country")
+                .transition()
+                .duration(200)
+                .style("opacity", .5)
+              d3.select(this)
+                .transition()
+                .duration(200)
+                .style("opacity", 1)
+
+              const country = e.target.__data__.properties.name
+              if (serviceRequestByCountry[country] != undefined) {
+                const { totalRequests, totalValue } = serviceRequestByCountry[country]
+                return tooltip
+                  .html(context.createTooltip({ country, totalValue, totalRequests }))
+                  .style("opacity", "1")
+                  .style("visibility", "visible");
+              }
+            })
+            .on('mousemove', function(e) {
+              return tooltip
+                .style("top", (e.pageY-70)+"px")
+                .style("left",(e.pageX-330)+"px")
+            })
+            .on('mouseout', function() {
+              d3.selectAll(".country")
+                .transition()
+                .duration(200)
+                .style("opacity", 1)
+              d3.select(this)
+                .transition()
+                .duration(200)
+              return tooltip
+                .style("visibility", "hidden")
+                .style("opacity", "0")
+            })
+            .on('click', function(e) {
+              const country = e.target.__data__
+              const isAustralia = country.properties.name === "Australia"
+                ? country.properties.name
+                : null
+
+              context.searchQuery = country.properties.name
+              boxZoom(
+                pathGenerator.bounds(country),
+                pathGenerator.centroid(country),
+                70,
+                isAustralia
               )
-              .attr("fill", function (d) {
-                const country = d.properties.name
-                let colorIndex = 0
-                const colors = ["#E8E8E8", "#ACDFE3", "#5DC9CC", "#079DAB", "#FDD07D", "#F7C192", "#D9442C"]
-
-                if (serviceRequestByCountry[country] === undefined) colors[colorIndex]
-
-                const request = serviceRequestByCountry[country]?.totalRequests
-
-                if (request <= 5) colorIndex = 1
-                if (request > 5) colorIndex = 2
-                if (request > 10) colorIndex = 3
-                if (request > 20) colorIndex = 4
-                if (request > 25) colorIndex = 5
-                if (request > 30) colorIndex = 6
-
-                return colors[colorIndex];
-              })
-              .style("stroke", "transparent")
-              .attr("class", function(){ return "Country" } )
-              .style("opacity", .8)
-              .on("click", function(d){
-                d3.selectAll(".Country")
-                  .transition()
-                  .duration(200)
-                  .style("opacity", .5)
-                d3.select(this)
-                  .transition()
-                  .duration(200)
-                  .style("opacity", 1)
-                  .style("stroke", "black")
-                const country = d.target.__data__
-                self.searchQuery = country.properties.name
-                boxZoom(path.bounds(country), path.centroid(country), 70)
-              })
-              .on("mouseenter", function(d){
-                d3.selectAll(".Country")
-                  .transition()
-                  .duration(200)
-                  .style("opacity", .5)
-                  .style("stroke", "transparent")
-                d3.select(this)
-                  .transition()
-                  .duration(200)
-                  .style("opacity", 1)
-                  .style("stroke", "black")
-                const country = d.target.__data__.properties.name
-                if (serviceRequestByCountry[country] != undefined) {
-                  const { totalRequests, totalValue } = serviceRequestByCountry[country]
-                  return tooltip2
-                    .html(self.createTooltip({ country, totalRequests, totalValue }))
-                    .style("visibility", "visible");
-                }
-              })
-              .on("mousemove", function(event){
-                return tooltip2
-                  .style("top", (event.pageY-110)+"px")
-                  .style("left",(event.pageX-360)+"px")
-              })
-              .on("mouseout", function(){
-                return tooltip2.style("visibility", "hidden");
-              });
-      })
+            })
+      });
     }
   }
 }
@@ -540,22 +436,54 @@ export default {
   .search-bar {
     &__wrapper {
       position: absolute;
-      top: 150px;
-      left: 52px;
+      top: 45px;
+      left: 35px;
+    }
+
+    &__box {
+      background: #FFFFFF;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+
+    &__input {
+      border: 1px solid #6F4CEC;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.12);
+      border-radius: 4px;
+      padding: 8px 12px;
+
+      .v-text-field__details {
+        display: none;
+      }
+
+      .v-input__slot {
+        margin: 0;
+
+        &::before, &::after {
+          display: none;
+        }
+      }
+
+      .v-input__icon .v-input__icon--prepend .v-icon {
+        color: red !important;
+      }
     }
 
     &__content {
       width: 100%;
       min-height: 100px;
       border: 2px solid #F5F5F5;
-      padding: 13px 14px;
-      margin-top: 11px;
+      padding: 25px 20px;
+      display: flex;
+      flex-direction: column;
+      margin-top: 1rem;
       background: #FFFFFF;
 
       &-title {
-        font-size: 25px;
-        margin-left: 12px;
-        font-weight: bold;
+        font-size: 14px;
+        padding-bottom: 25px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #E7EEF4;
       }
     }
     &__result-lists {
@@ -567,6 +495,7 @@ export default {
       flex-direction: column;
       gap: 14px 0;
       overflow-y: scroll;
+      padding-right: 1rem;
 
       &::-webkit-scrollbar-track {
         -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
@@ -587,9 +516,9 @@ export default {
     }
 
     &__result-item {
-      width: 100%;
       padding: 21px 16px;
       border: 2px solid #F5F5F5;
+      box-shadow: 5px 10px 20px rgba(0, 133, 255, 0.1);
     }
 
     &__result-content {
@@ -601,7 +530,7 @@ export default {
     }
 
     &__result-title {
-      font-size: 18px;
+      font-size: 1rem;
       font-weight: 600;
       line-height: 27px;
       margin-bottom: 14px;
@@ -609,40 +538,6 @@ export default {
 
     &__result-action {
       margin-top: 18px;
-    }
-  }
-
-  .controls {
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-    position: absolute;
-    bottom: 36px;
-    right: 36px;
-
-    &-item {
-      background: unset !important;
-      box-shadow: unset;
-
-      &:focus {
-        background: unset !important;
-        box-shadow: unset;
-      }
-    }
-  }
-
-  .filter-continent {
-    height: 47px !important;
-    position: absolute;
-    top: 150px;
-    right: 52px;
-    border: 1px solid #7D4180;
-    border-radius: 4px;
-    background: #FFF !important;
-    padding: 0 !important;
-
-    &:focus {
-      background: #FFF !important;
     }
   }
 
@@ -677,27 +572,53 @@ export default {
     display: none !important;
   }
 
-  .debio-map-tooltip {
-    border-radius: 4px;
-    font-family: "Roboto", sans-serif !important;
-    border: 1px solid #edf0ee;
-    padding: 14px;
-    z-index: 99;
-
-    .header {
-      padding-bottom: 5px;
-    }
-    .content {
-      font-size: 14px;
-      div {
-        margin-top: 2px;
-      }
-    }
+  #map-container {
+    background: rgb(208,228,255);
+    background: linear-gradient(180deg, rgba(208,228,255,1) 0%, rgba(224,232,244,1) 70%, rgba(231,236,243,1) 100%);
   }
 
-  .map-title {
+  svg {
+    position: relative
+  }
+
+  .tooltip {
+    padding: 1rem;
     position: absolute;
-    top: 70px;
-    left: 52px;
+    background: #FFFFFF;
+    border-radius: 8px;
+    z-index: 100;
+    transition: opacity .3s ease-in-out;
+    opacity: 0;
+    box-shadow:
+      0.2px 2.3px 3.6px rgba(0, 0, 0, 0.03),
+      0.6px 6.4px 10px rgba(0, 0, 0, 0.03),
+      1.5px 15.4px 24.1px rgba(0, 0, 0, 0.035),
+      5px 51px 80px rgba(0, 0, 0, 0.13)
+    ;
+
+    &__header {
+      margin-bottom: 1rem;
+    }
+
+    &__content {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    &__field {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
   }
+
+  .pre-white-space {
+    white-space: pre;
+  }
+
+  .country {
+    transition: all .5s ease-in-out;
+  }
+
 </style>

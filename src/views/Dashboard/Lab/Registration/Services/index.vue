@@ -80,7 +80,7 @@
                           min="0"
                           step=".001"
                           outlined
-                          v-model="price"
+                          v-model.number="price"
                           :rules="priceRules"
                         ></v-text-field>
                       </v-col>
@@ -103,7 +103,7 @@
                           min="0"
                           step=".001"
                           outlined
-                          v-model="qcPrice"
+                          v-model.number="qcPrice"
                           :rules="cqPriceRules"
                         ></v-text-field>
                       </v-col>
@@ -219,13 +219,13 @@
 import { mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
 import { createService, updateService } from '@/lib/polkadotProvider/command/services'
-import { getCategories } from "@/lib/categories"
+import { getCategories } from "@/lib/api"
 import List from "./List"
 import Stepper from "../Stepper"
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs"
 import DialogAlert from "@/components/Dialog/DialogAlert"
 import serviceHandler from "@/mixins/serviceHandler"
-
+import { toEther } from "@/lib/balance-format"
 
 export default {
   name: 'LabRegistrationServices',
@@ -321,8 +321,8 @@ export default {
 
     priceRules() {
       return [
-        val => !!val || 'Price is required',
-        val => /^\d*(\.\d{0,3})?$/.test(val) || 'Max 3 decimal'
+        val => !!val || this.isBiomedical || 'QC Price is required',
+        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'Max 3 decimal'
       ]
     },
 
@@ -334,8 +334,8 @@ export default {
     
     cqPriceRules() {
       return [
-        val => !!val || 'QC Price is required',
-        val => /^\d*(\.\d{0,3})?$/.test(val) || 'Max 3 decimal'
+        val => !!val || this.isBiomedical || 'QC Price is required',
+        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'Max 3 decimal'
       ]
     },
 
@@ -476,16 +476,17 @@ export default {
           pricesByCurrency: [
             {
               currency: this.currencyType,
+              totalPrice: await toEther(this.price + this.qcPrice),
               priceComponents: [
                 {
                   component: "testing_price",
-                  value: this.price
+                  value: await toEther(this.price)
                 }
               ],
               additionalPrices: [
                 {
                   component: "qc_price",
-                  value: this.qcPrice
+                  value: await toEther(this.qcPrice)
                 }
               ],
             },

@@ -5,7 +5,7 @@
         <v-col>
           <ServerSideDataTable
             :headers="headers"
-            :items="filterResultReady"
+            :items="orders"
             :search="search"
             :sort-by="['createdAt']"
             :sort-desc="[true]"
@@ -55,7 +55,7 @@ import { mapGetters } from 'vuex'
 import ServerSideDataTable from '@/components/DataTable/ServerSideDataTable'
 import { queryDnaSamples, queryDnaTestResults } from '@/lib/polkadotProvider/query/geneticTesting'
 import SearchBar from '@/components/DataTable/SearchBar'
-import { getOrdersData } from '@/lib/orders'
+import { getOrdersData } from '@/lib/api'
 import serviceHandler from '@/lib/metamask/mixins/serviceHandler'
 
 export default {
@@ -108,7 +108,11 @@ export default {
             ...order._source,
             dna_sample_status: dna?.status,
             testResult: dnaTestResult,
-            created_at: (new Date(parseInt(order._source.created_at))).toLocaleDateString()
+            created_at: new Date(+order._source.created_at.replaceAll(",", "")).toLocaleDateString("id", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric"
+            })
           }
         }
 
