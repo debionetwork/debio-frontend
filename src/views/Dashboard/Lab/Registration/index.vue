@@ -155,7 +155,7 @@ import { getWalletAddress } from "@/lib/metamask/wallet"
 import { upload } from "@/lib/ipfs"
 import Certification from "./Certification"
 import Stepper from "./Stepper"
-import { getLocations, getStates, getCities } from "@/lib/location"
+import { getLocations, getStates, getCities } from "@/lib/api"
 import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
 
 

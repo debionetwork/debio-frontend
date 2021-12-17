@@ -1,4 +1,4 @@
-import axios from "axios";
+import apiClientRequest from "@/lib/api";
 
 const defaultState = {
   labs: [],
@@ -41,9 +41,8 @@ export default {
     },
     async getLabByCategory({ commit, state }, category) {
       commit("SET_CATEGORY", category);
-      const baseUrl = process.env.VUE_APP_BACKEND_API;
-      const labs = await axios.get(
-        `${baseUrl}/labs/${state.country}/${state.city}/${category}`
+      const labs = await apiClientRequest.get(
+        `/labs/${state.country}/${state.city}/${category}`
       );
       commit("SET_LABS", labs.data.body.hits.hits);
     },

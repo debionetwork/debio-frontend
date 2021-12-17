@@ -1,5 +1,4 @@
-import axios from 'axios'
-const baseUrl = process.env.VUE_APP_BACKEND_API
+import apiClientRequest from "@/lib/api"
 
 const defaultState = {
   feedback: {
@@ -21,6 +20,7 @@ export default {
   actions: {
     async sendFeedback({commit}, feedback) {
       commit('SET_FEEDBACK', feedback)
+
       const data = {
         "labId": feedback.labId,
         "serviceId": feedback.serviceId,
@@ -28,11 +28,14 @@ export default {
         "rating_by": feedback.customerId,
         "rating": feedback.rate,
         "created": feedback.createdAt
-    }
-      const result = await axios.post(`${baseUrl}/rating`, data)
-      if (result) {
-        console.log(result)
       }
+
+      await apiClientRequest.post("/rating", data, {
+        auth: {
+          username: process.env.VUE_APP_USERNAME,
+          password: process.env.VUE_APP_PASSWORD
+        }
+      })
     }
   },
   getters: {
