@@ -13,7 +13,7 @@
 import ServiceTable from "./ServiceTable"
 import MapCountry from "./Mapping/MapCountry"
 import serviceHandler from "@/mixins/serviceHandler"
-import { getServiceRequestCountries } from '@/api/service-request'
+import { getServiceRequestCountries } from "@/lib/api"
 
 export default {
   name: "RequestLab",

@@ -217,9 +217,8 @@
 import { mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
 import { createService, claimRequestService } from '@/lib/polkadotProvider/command/services'
-import { getCategories } from "@/lib/categories"
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
-import { getProvideRequestService } from "@/lib/services";
+import { getProvideRequestService, getCategories } from "@/lib/api";
 import { toEther } from "@/lib/balance-format"
 
 export default {

@@ -89,7 +89,7 @@
 <script>
 import { mapActions, mapState, mapMutations } from "vuex";
 import VueRecaptcha from "vue-recaptcha";
-import axios from "axios";
+import apiClientRequest from "@/lib/api";
 
 export default {
   name: "SetKeystorePasswordDialog",
@@ -159,17 +159,14 @@ export default {
       setIsLoading: "substrate/SET_LOADING_WALLET",
     }),
     async onVerifyRecaptcha(response) {
-      let recaptchaBackendUrl = ''
-      if (process.env.NODE_ENV == 'demo') {
-        recaptchaBackendUrl = `${process.env.VUE_APP_BACKEND_API}/recaptcha`;
-      } else {
-        recaptchaBackendUrl = `${process.env.VUE_APP_BACKEND_API}/recaptcha`;
-      }
-      const result = await axios.post(recaptchaBackendUrl, { response });
+      const result = await apiClientRequest.post("/recaptcha", { response }, {
+        auth: {
+          username: process.env.VUE_APP_USERNAME,
+          password: process.env.VUE_APP_PASSWORD
+        }
+      })
 
-      if (result.data.success) {
-        this.recaptchaVerified = true;
-      }
+      if (result.data.success) this.recaptchaVerified = true
     },
     async onPasswordSet() {
       try {

@@ -330,7 +330,7 @@ import _ from "lodash";
 import { mapState, mapMutations } from "vuex";
 import SelectableMenuCard from "@/components/SelectableMenuCard";
 import DnaCollectionRequirements from "./DnaCollectionRequirements";
-import { getLocations, getStates, getCities } from "@/lib/location"
+import { getLocations, getStates, getCities } from "@/lib/api"
 import DialogAlert from '@/components/Dialog/DialogAlert'
 import {
   queryLabsByCountryRegionCity,
