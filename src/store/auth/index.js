@@ -30,30 +30,16 @@ export default {
       const roleApp = process.env.NODE_ENV;
       console.log('roleApp', roleApp)
 
-      let configApp;
-      if (roleApp == "demo") {
-        const tokenName = process.env.VUE_APP_DEBIO_USE_TOKEN_NAME;
-        const escrowETHAddress = process.env.VUE_APP_DEBIO_ESCROW_ETH_ADDRESS;
-        const substrateWs = process.env.VUE_APP_DEBIO_SUBSTRATE_WS;
-        const web3Rpc = process.env.VUE_APP_WEB3_RPC;
-        configApp = {
-          tokenName,
-          escrowETHAddress,
-          substrateWs,
-          web3Rpc
-        };
-      } else {
-        const tokenName = process.env.VUE_APP_DEV_DEBIO_USE_TOKEN_NAME;
-        const escrowETHAddress = process.env.VUE_APP_DEV_DEBIO_ESCROW_ETH_ADDRESS;
-        const substrateWs = process.env.VUE_APP_DEV_DEBIO_SUBSTRATE_WS;
-        const web3Rpc = process.env.VUE_APP_DEV_WEB3_RPC;
-        configApp = {
-          tokenName,
-          escrowETHAddress,
-          substrateWs,
-          web3Rpc
-        };
-      }
+      const tokenName = process.env.VUE_APP_DEBIO_USE_TOKEN_NAME
+      const escrowETHAddress = process.env.VUE_APP_DEBIO_ESCROW_ETH_ADDRESS
+      const substrateWs = process.env.VUE_APP_DEBIO_SUBSTRATE_WS
+      const web3Rpc = process.env.VUE_APP_WEB3_RPC
+      const configApp = {
+        tokenName,
+        escrowETHAddress,
+        substrateWs,
+        web3Rpc
+      };
       commit('SET_CONFIG', configApp)
     },
     async getRole({ commit, rootGetters }) {
@@ -63,9 +49,7 @@ export default {
         const accountContract = rootGetters['ethereum/contracts/getAccountContract']
         let role = await accountContract.methods.myRole().call({ from: keystore.address })
         console.log('In Get Role: ', role)
-        if (role == '') {
-          role = 'customer'
-        }
+        if (role == '') role = 'customer'
         commit('SET_ROLE', role)
 
       } catch (err) {

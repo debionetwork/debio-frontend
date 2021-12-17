@@ -16,7 +16,7 @@ export default {
     async walletBinding({commit}, payload) {
       try {
         const debioApiKey = process.env.VUE_APP_DEBIO_API_KEY
-        const baseUrl = process.env.VUE_APP_DEV_DEBIO_BACKEND_URL
+        const baseUrl = process.env.VUE_APP_BACKEND_API
         const { data } = await axios.post(`${baseUrl}/substrate/wallet-binding`, payload , {
           headers: {
             "debio-api-key" : debioApiKey

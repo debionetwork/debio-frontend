@@ -41,7 +41,7 @@ export default {
     },
     async getLabByCategory({ commit, state }, category) {
       commit("SET_CATEGORY", category);
-      const baseUrl = process.env.VUE_APP_DEV_DEBIO_BACKEND_URL;
+      const baseUrl = process.env.VUE_APP_BACKEND_API;
       const labs = await axios.get(
         `${baseUrl}/labs/${state.country}/${state.city}/${category}`
       );

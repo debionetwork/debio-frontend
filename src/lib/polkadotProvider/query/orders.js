@@ -103,7 +103,7 @@ export async function lastOrderByCustomer(api, address) {
 }
 
 export async function searchOrder(searchQuery) {
-  const { data: { data } } = await axios.get(`${process.env.VUE_APP_DEV_DEBIO_BACKEND_URL}/orders/${localStorage.getAddress()}`, {
+  const { data: { data } } = await axios.get(`${process.env.VUE_APP_BACKEND_API}/orders/${localStorage.getAddress()}`, {
     params: { size: 1000, page: 1, keyword: searchQuery || "" }
   })
 
@@ -144,45 +144,6 @@ export async function fetchOrderHistory(api, address) {
     orders.push(orderDetail)
   }
 
-  return {
-    orders: orders.slice(0,3),
-    totalOrders: orderIds.length
-  }
-}
-
-export async function getTestResultHistory(api, address) {
-  let orders = []
-  let orderIds = await ordersBySeller(api, address)
-  orderIds.reverse()
-
-  if(orderIds == null){
-    return {
-      orders: [],
-      totalOrders: 0
-    }
-  }
-  
-  for(let i = 0; i < orderIds.length; i++){
-    let orderDetail = await getOrdersData(api, orderIds[i])
-    if(orderDetail['status'] !== "Fulfilled") continue
-
-    const dna = await queryDnaSamples(api, orderDetail.dnaSampleTrackingId)
-    if (dna) orderDetail['dna_sample_status'] = dna.status
-
-    const service = await queryServicesById(api, orderDetail.serviceId)
-    orderDetail['createdAt'] = parseInt(orderDetail.createdAt.replace(/,/g, ""))
-    
-    let lab = null
-    if (service) {
-      orderDetail['service_name'] = service.info.name
-      orderDetail['service_image'] = service.info.image
-      lab = await queryLabsById(api, service.ownerId)
-    }
-    if (lab) orderDetail['lab_name'] = lab.info.name
-
-    orders.push(orderDetail)
-  }
-  
   return {
     orders: orders.slice(0,3),
     totalOrders: orderIds.length

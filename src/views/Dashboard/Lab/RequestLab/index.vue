@@ -1,9 +1,9 @@
 <template>
-  <v-app>
-    <v-main class="request-service">
-      <v-container v-if="!isLoading" fill-height fluid>
-        <MapCountry @openList="handleOpenList" v-if="map" :service-request-by-country="serviceRequestByCountry" />
-        <ServiceTable :country-expand="country" :countries="countries" @closeMap="map = $event" v-if="!map" />
+  <v-app v-if="!isLoading">
+    <MapCountry @openList="handleOpenList" v-if="map" :service-request-by-country="serviceRequestByCountry" />
+    <v-main class="request-service" v-else>
+      <v-container fill-height fluid>
+        <ServiceTable :country-expand="country" :countries="countries" @closeMap="map = $event" />
       </v-container>
     </v-main>
   </v-app>
@@ -68,13 +68,7 @@ export default {
 <style>
 .request-service {
   padding: 1rem 3rem !important;
-  background: rgba(0, 0, 0, 0.5);
-  background: linear-gradient(
-    25deg,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(63, 32, 64, 1) 24%,
-    rgba(253, 192, 255, 1) 74%,
-    rgba(255, 255, 255, 1) 96%
-  );
+  background: rgb(208,228,255);
+    background: linear-gradient(180deg, rgba(208,228,255,1) 0%, rgba(224,232,244,1) 70%, rgba(231,236,243,1) 100%);
 }
 </style>

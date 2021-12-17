@@ -5,7 +5,7 @@
         <v-col>
           <ServerSideDataTable
             :headers="headers"
-            :items="filterResultReady"
+            :items="orders"
             :search="search"
             :sort-by="['createdAt']"
             :sort-desc="[true]"
@@ -52,7 +52,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getOrdersDetailByAddressPagination } from '@/lib/polkadotProvider/query/orders'
 import ServerSideDataTable from '@/components/DataTable/ServerSideDataTable'
 import { queryDnaSamples, queryDnaTestResults } from '@/lib/polkadotProvider/query/geneticTesting'
 import SearchBar from '@/components/DataTable/SearchBar'
@@ -95,13 +94,6 @@ export default {
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
     }),
-
-    filterResultReady() {
-      if (this.$route.params.testResult == true) {
-        return this.orders.filter(order => order.status == 'Fulfilled')
-      }
-      return this.orders
-    }
   },
   methods: {
     async fetchDataOrders(keyword) {
@@ -116,27 +108,17 @@ export default {
             ...order._source,
             dna_sample_status: dna?.status,
             testResult: dnaTestResult,
-            created_at: (new Date(parseInt(order._source.created_at))).toLocaleDateString()
+            created_at: new Date(+order._source.created_at.replaceAll(",", "")).toLocaleDateString("id", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric"
+            })
           }
         }
 
         this.orders.push(data)
       }
       this.totalOrders = orders.info.count
-    },
-
-    async loadData(){
-      this.isLoading = true
-      this.orders = []
-      let { orders, totalOrders } = await getOrdersDetailByAddressPagination(this.api, this.pair.address, this.page, this.pageSize)
-      
-      for(let i = 0; i < orders.length; i++){
-        const order = orders[i]
-        order.createdAt = (new Date(order.createdAt)).toLocaleDateString()
-        this.orders.push(order)
-      }
-      this.totalOrders = totalOrders
-      this.isLoading = false
     },
 
     async handleSearch(val) {

@@ -279,7 +279,7 @@ export default {
     }),
 
     hasServicePayload() {
-      return Object.keys(this.servicePayload).length
+      return Boolean(Object.keys(this.servicePayload).length)
     },
 
     serviceCategoryRules() {
@@ -402,9 +402,9 @@ export default {
         },
         CITY_NOT_MATCH: {
           type: "CITY_NOT_MATCH",
-          actionTitle: "Select another",
-          title: "Oh no! Your lab's location is not match with the requested service you pick.",
-          subtitle: "Please select another one"
+          actionTitle: "Close",
+          title: "Add service failed",
+          subtitle: "Your location is not match with the requested service!"
         },
         UNEXPECTED: {
           type: "UNEXPECTED",

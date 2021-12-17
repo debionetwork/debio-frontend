@@ -1,5 +1,5 @@
 import axios from 'axios'
-const baseUrl = process.env.VUE_APP_DEV_DEBIO_BACKEND_URL
+const baseUrl = process.env.VUE_APP_BACKEND_API
 
 const defaultState = {
   result: null
