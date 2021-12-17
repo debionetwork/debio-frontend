@@ -116,12 +116,14 @@ export default {
             ...order._source,
             dna_sample_status: dna?.status,
             testResult: dnaTestResult,
-            created_at: (new Date(parseInt(order._source.created_at))).toLocaleDateString()
+            created_at: (new Date(parseInt(order._source.created_at.replaceAll(",", "")))).toLocaleDateString()
           }
         }
 
         this.orders.push(data)
       }
+
+      console.log("ORDERS ==> ", this.orders )
       this.totalOrders = orders.info.count
     },
 
