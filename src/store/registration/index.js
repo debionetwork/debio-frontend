@@ -16,7 +16,12 @@ export default {
   },
   actions: {
     async registration({commit}, payload) {
-      const { data } = await apiClientRequest.post("/substrate/get-dbio-pre-register", payload)
+      const { data } = await apiClientRequest.post("/substrate/get-dbio-pre-register", payload, {
+        auth: {
+          username: process.env.VUE_APP_USERNAME,
+          password: process.env.VUE_APP_PASSWORD
+        }
+      })
 
       commit('SET_RESULT', data)
     }

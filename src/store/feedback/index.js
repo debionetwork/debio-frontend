@@ -30,7 +30,12 @@ export default {
         "created": feedback.createdAt
       }
 
-      await apiClientRequest.post("/rating", data)
+      await apiClientRequest.post("/rating", data, {
+        auth: {
+          username: process.env.VUE_APP_USERNAME,
+          password: process.env.VUE_APP_PASSWORD
+        }
+      })
     }
   },
   getters: {
