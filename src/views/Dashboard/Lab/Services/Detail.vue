@@ -326,7 +326,6 @@ export default {
     descriptionRules() {
       return [
         val => !!val || 'Description is Required',
-        val => (val && val.length >= 50) || 'Min 50 Character',
         val => (val && val.length <= 255) || 'Max 255 Character'
       ]
     },
@@ -334,7 +333,6 @@ export default {
     longDescriptionRules() {
       return [
         val => !!val || 'Long Description is Required',
-        val => (val && val.length >= 500) || 'Max 500 Character',
         val => (val && val.length <= 1000) || 'Max 1000 Character'
       ]
     },

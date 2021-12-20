@@ -20,6 +20,27 @@
                         Add Service
                     </v-btn>
                 </v-container>
+               
+               <Dialog :show="showDialog" @close="showDialog = false" :width='400'>
+                  <template v-slot:title>
+                     <div></div>
+                  </template>
+                  <template v-slot:body>
+                     <div class="d-flex justify-center pb-1 pt-1">
+                        <v-img v-bind:src="require('@/assets/alert-circle.png')" max-width="75" />
+                     </div>
+                     <div align="center" class="pb-1">Are you sure you want delete this service?</div>
+                  </template>
+                  <template v-slot:actions>
+                     <v-col col="12" md="6">
+                        <Button @click="showDialog = false" elevation="2" color="purple" dark>No</Button>
+                     </v-col>
+                     <v-col col="12" md="6">
+                        <Button @click="deleteService" elevation="2"  dark>Yes</Button>
+                     </v-col>
+                  </template>
+               </Dialog>
+
                <DataTable
                   :headers="headers"
                   :items="services"
@@ -78,7 +99,7 @@
                         <v-btn
                            elevation="0"
                            color="transparent"
-                           @click="deleteService(item)"
+                           @click="confirmDeleteService(item)"
                         >
                            <v-icon dark>
                               mdi-delete
@@ -100,12 +121,16 @@ import DataTable from '@/components/DataTable'
 import SearchBar from '@/components/DataTable/SearchBar'
 import { deleteService } from '@/lib/polkadotProvider/command/services'
 import { mapGetters, mapState } from 'vuex'
+import Dialog from "@/components/Dialog"
+import Button from '@/components/Button'
 
 export default {
   name: 'LabServices',
   components: {
     DataTable,
     SearchBar,
+    Dialog,
+    Button
   },
   data: () => ({
     headers: [
@@ -118,6 +143,9 @@ export default {
     search: '',
     services: [],
     isLoading: false,
+    showDialog: false,
+    showAlert: false,
+    idItemDeleted: ""
   }),
   computed:{
    ...mapGetters({
@@ -170,22 +198,29 @@ export default {
    isIcon(imageName) {
       return imageName && (imageName.startsWith('mdi') || imageName.startsWith('$dgi'))
    },
-   async deleteService(item) {
+   async deleteService() {
       try {
-         const isConfirmed = confirm("Are you sure you want to delete this service?")
-         if(isConfirmed)  {
             this.isLoading = true
+            
             await deleteService(
                this.api,
                this.pair,
-               item.id
+               this.idItemDeleted,
+               () => {
+                  this.isLoading = false
+                  this.showDialog = false
+               }
             )
-         }
       } catch (error) {
          console.error(error.message)
          this.isLoading = false
       }
     },
+
+    confirmDeleteService(item) {
+       this.idItemDeleted = item.id
+       this.showDialog = true
+    }
   }
 }
 
