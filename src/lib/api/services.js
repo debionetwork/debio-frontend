@@ -1,7 +1,7 @@
-import axios from "axios"
+import apiClientRequest from "@/lib/api"
 
 export const getProvideRequestService = async (service) => {
-  const { data } =  await axios.get(`${process.env.VUE_APP_BACKEND_API}/service-requests/provideRequestService`, {
+  const { data } = await apiClientRequest.get("/service-requests/provideRequestService", {
     params: {
       category: service.category,
       city: service.cityName,

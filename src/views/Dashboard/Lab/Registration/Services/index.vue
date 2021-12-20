@@ -219,7 +219,7 @@
 import { mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
 import { createService, updateService } from '@/lib/polkadotProvider/command/services'
-import { getCategories } from "@/lib/categories"
+import { getCategories } from "@/lib/api"
 import List from "./List"
 import Stepper from "../Stepper"
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs"

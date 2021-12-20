@@ -37,23 +37,25 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@master
         with:
-          project_id: ${{ secrets.PROD_GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.PROD_GCP_SA_KEY }}
+          project_id: ${{ secrets.MAINNET_GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.MAINNET_GCP_SA_KEY }}
           export_default_credentials: true
       - name: Get secrets
         id: secrets
         uses: google-github-actions/get-secretmanager-secrets@main
         with:
           secrets: |-
-            VUE_APP_RECAPTCHA_SITE_KEY:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_RECAPTCHA_SITE_KEY
-            VUE_APP_ROLE:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_ROLE
-            VUE_APP_DEBIO_USE_TOKEN_NAME:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DEBIO_USE_TOKEN_NAME
-            VUE_APP_DEBIO_ESCROW_ETH_ADDRESS:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DEBIO_ESCROW_ETH_ADDRESS
-            VUE_APP_DEBIO_SUBSTRATE_WS:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DEBIO_SUBSTRATE_WS
-            VUE_APP_WEB3_RPC:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_WEB3_RPC
-            VUE_APP_BACKEND_API:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_BACKEND_API
-            VUE_APP_DEBIO_API_KEY:${{ secrets.PROD_GCP_PROJECT_ID }}/VUE_APP_DEBIO_API_KEY
-            LABS_JS:${{ secrets.PROD_GCP_PROJECT_ID }}/LABS_JS
+            VUE_APP_RECAPTCHA_SITE_KEY:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_RECAPTCHA_SITE_KEY
+            VUE_APP_ROLE:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_ROLE
+            VUE_APP_DEBIO_USE_TOKEN_NAME:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_DEBIO_USE_TOKEN_NAME
+            VUE_APP_DEBIO_ESCROW_ETH_ADDRESS:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_DEBIO_ESCROW_ETH_ADDRESS
+            VUE_APP_DEBIO_SUBSTRATE_WS:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_DEBIO_SUBSTRATE_WS
+            VUE_APP_WEB3_RPC:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_WEB3_RPC
+            VUE_APP_BACKEND_API:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_BACKEND_API
+            VUE_APP_DEBIO_API_KEY:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_DEBIO_API_KEY
+            VUE_APP_USERNAME:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_USERNAME
+            VUE_APP_PASSWORD:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_PASSWORD
+            LABS_JS:${{ secrets.MAINNET_GCP_PROJECT_ID }}/LABS_JS
       - name: Create .env & gcp sa
         shell: bash
         run: |
@@ -66,6 +68,8 @@ jobs:
           VUE_APP_WEB3_RPC=${{ steps.secrets.outputs.VUE_APP_WEB3_RPC }}
           VUE_APP_BACKEND_API=${{ steps.secrets.outputs.VUE_APP_BACKEND_API }}
           VUE_APP_DEBIO_API_KEY=${{ steps.secrets.outputs.VUE_APP_DEBIO_API_KEY }}
+          VUE_APP_USERNAME=${{ steps.secrets.outputs.VUE_APP_USERNAME }}
+          VUE_APP_PASSWORD=${{ steps.secrets.outputs.VUE_APP_PASSWORD }}
           EOF
 
           tee -a ./src/views/Login/DemoLabAccounts/labs.js <<EOF
@@ -88,6 +92,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v2
+        id: docker_build
         with:
           context: .
           push: true
@@ -111,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [compute-build-info, build-and-publish-docker-image]
     env:
-      DEPLOY: ${{ secrets.DEV_DEPLOY }}
+      DEPLOY: ${{ secrets.MAINNET_DEPLOY }}
     if: "github.event.release.prerelease && !contains(needs.compute-build-info.outputs.latest_tag, 'alpha') && !contains(needs.compute-build-info.outputs.latest_tag, 'beta')"
     steps:
       - name: Checkout code
@@ -123,8 +128,8 @@ jobs:
         if: "${{ env.DEPLOY == 'true' }}"
         uses: google-github-actions/setup-gcloud@master
         with:
-          project_id: ${{ secrets.PROD_GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.PROD_GCP_SA_KEY }}
+          project_id: ${{ secrets.MAINNET_GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.MAINNET_GCP_SA_KEY }}
           export_default_credentials: true
       - name: Get secrets
         if: "${{ env.DEPLOY == 'true' }}"
@@ -132,10 +137,10 @@ jobs:
         uses: google-github-actions/get-secretmanager-secrets@main
         with:
           secrets: |-
-            SSH_HOST:${{ secrets.PROD_GCP_PROJECT_ID }}/SSH_HOST
-            SSH_USERNAME:${{ secrets.PROD_GCP_PROJECT_ID }}/SSH_USERNAME
-            SSH_KEY:${{ secrets.PROD_GCP_PROJECT_ID }}/SSH_KEY
-            SSH_PORT:${{ secrets.PROD_GCP_PROJECT_ID }}/SSH_PORT
+            SSH_HOST:${{ secrets.MAINNET_GCP_PROJECT_ID }}/SSH_HOST
+            SSH_USERNAME:${{ secrets.MAINNET_GCP_PROJECT_ID }}/SSH_USERNAME
+            SSH_KEY:${{ secrets.MAINNET_GCP_PROJECT_ID }}/SSH_KEY
+            SSH_PORT:${{ secrets.MAINNET_GCP_PROJECT_ID }}/SSH_PORT
       - name: Deploy
         if: "${{ env.DEPLOY == 'true' }}"
         uses: appleboy/ssh-action@master
@@ -168,7 +173,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [compute-build-info, build-and-publish-docker-image]
     env:
-      DEPLOY: ${{ secrets.DEV_DEPLOY }}
+      DEPLOY: ${{ secrets.MAINNET_DEPLOY }}
     steps:
       - name: Checkout code
         if: "${{ env.DEPLOY == 'true' }}"
@@ -179,8 +184,8 @@ jobs:
         if: "${{ env.DEPLOY == 'true' }}"
         uses: google-github-actions/setup-gcloud@master
         with:
-          project_id: ${{ secrets.PROD_GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.PROD_GCP_SA_KEY }}
+          project_id: ${{ secrets.MAINNET_GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.MAINNET_GCP_SA_KEY }}
           export_default_credentials: true
       - name: Get secrets
         if: "${{ env.DEPLOY == 'true' }}"
@@ -188,10 +193,10 @@ jobs:
         uses: google-github-actions/get-secretmanager-secrets@main
         with:
           secrets: |-
-            SSH_HOST:${{ secrets.PROD_GCP_PROJECT_ID }}/SSH_HOST
-            SSH_USERNAME:${{ secrets.PROD_GCP_PROJECT_ID }}/SSH_USERNAME
-            SSH_KEY:${{ secrets.PROD_GCP_PROJECT_ID }}/SSH_KEY
-            SSH_PORT:${{ secrets.PROD_GCP_PROJECT_ID }}/SSH_PORT
+            SSH_HOST:${{ secrets.MAINNET_GCP_PROJECT_ID }}/SSH_HOST
+            SSH_USERNAME:${{ secrets.MAINNET_GCP_PROJECT_ID }}/SSH_USERNAME
+            SSH_KEY:${{ secrets.MAINNET_GCP_PROJECT_ID }}/SSH_KEY
+            SSH_PORT:${{ secrets.MAINNET_GCP_PROJECT_ID }}/SSH_PORT
       - name: Deploy
         if: "${{ env.DEPLOY == 'true' }}"
         uses: appleboy/ssh-action@master

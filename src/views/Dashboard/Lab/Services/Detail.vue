@@ -195,7 +195,7 @@
 <script>
 import { mapGetters, mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
-import { getCategories } from "@/lib/categories"
+import { getCategories } from "@/lib/api"
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { fromEther } from "@/lib/balance-format"
 import { updateService } from '@/lib/polkadotProvider/command/services'

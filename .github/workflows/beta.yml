@@ -53,6 +53,8 @@ jobs:
             VUE_APP_WEB3_RPC:${{ secrets.TESTNET_GCP_PROJECT_ID }}/VUE_APP_WEB3_RPC
             VUE_APP_BACKEND_API:${{ secrets.TESTNET_GCP_PROJECT_ID }}/VUE_APP_BACKEND_API
             VUE_APP_DEBIO_API_KEY:${{ secrets.TESTNET_GCP_PROJECT_ID }}/VUE_APP_DEBIO_API_KEY
+            VUE_APP_USERNAME:${{ secrets.TESTNET_GCP_PROJECT_ID }}/VUE_APP_USERNAME
+            VUE_APP_PASSWORD:${{ secrets.TESTNET_GCP_PROJECT_ID }}/VUE_APP_PASSWORD
             LABS_JS:${{ secrets.TESTNET_GCP_PROJECT_ID }}/LABS_JS
       - name: Create .env & gcp sa
         shell: bash
@@ -66,6 +68,8 @@ jobs:
           VUE_APP_WEB3_RPC=${{ steps.secrets.outputs.VUE_APP_WEB3_RPC }}
           VUE_APP_BACKEND_API=${{ steps.secrets.outputs.VUE_APP_BACKEND_API }}
           VUE_APP_DEBIO_API_KEY=${{ steps.secrets.outputs.VUE_APP_DEBIO_API_KEY }}
+          VUE_APP_USERNAME=${{ steps.secrets.outputs.VUE_APP_USERNAME }}
+          VUE_APP_PASSWORD=${{ steps.secrets.outputs.VUE_APP_PASSWORD }}
           EOF
 
           tee -a ./src/views/Login/DemoLabAccounts/labs.js <<EOF
@@ -88,6 +92,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v2
+        id: docker_build
         with:
           context: .
           push: true
