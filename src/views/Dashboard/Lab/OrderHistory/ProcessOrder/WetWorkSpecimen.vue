@@ -4,7 +4,7 @@
             color="primary"
             block
             @click="wetWorkDialog = true"
-        >Complete Analyze process</v-btn>
+        >Complete Analysis Process</v-btn>
 
         <Dialog :show="wetWorkDialog" @close="wetWorkDialog = false">
             <template v-slot:title>
@@ -14,7 +14,7 @@
                 <div class="d-flex justify-center pb-5 pt-5">
                     <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
                 </div>
-                <div align="center" class="pb-5">Are you sure you want to complete the Analyze process?</div>
+                <div align="center" class="pb-5">Are you sure you want to complete the Analysis process?</div>
             </template>
             <template v-slot:actions>
                 <v-col col="12" md="6">
@@ -29,7 +29,7 @@
         <DialogAlert
             :show="wetWorkAlertDialog"
             btnText="Continue"
-            textAlert="Wet Work has been completed."
+            textAlert="Analysis process has been completed."
             imgPath="success.png"
             imgWidth="50"
             @toggle="wetWorkAlertDialog = $event"

@@ -180,6 +180,7 @@ export default {
     ],
     dnaCollectionProcess: "",
     isBiological: false,
+    testResult: null,
   }),
   async mounted() {
     try {
@@ -189,6 +190,8 @@ export default {
       }
       const order = await getOrdersDetail(this.api, this.orderId);
       const serviceInfo = await queryServicesById(this.api, order.serviceId);
+      const testResult = await queryDnaTestResults(this.api, this.specimenNumber);
+
       this.dnaCollectionProcess = serviceInfo.info.dnaCollectionProcess;
       if (this.dnaCollectionProcess.includes("Covid")) {
         this.isBiological = true;
@@ -208,7 +211,9 @@ export default {
       this.sellerEthAddress = order.seller_eth_address;
       this.specimenNumber = order.dnaSampleTrackingId;
       this.specimenStatus = order.dna_sample_status;
+      if (testResult) this.testResult = testResult;
       this.setCheckboxByDnaStatus();
+      
     } catch (err) {
       console.log(err);
     }
@@ -230,19 +235,15 @@ export default {
       if (this.specimenStatus == "QualityControlled") {
         this.onQcCompleted();
       }
+      
+      if (this.testResult) {
+        this.setUploadFields(this.testResult);
+      }
 
       if (this.specimenStatus == "WetWork") {
         this.onWetWorkCompleted();
       }
 
-      const testResult = await queryDnaTestResults(
-        this.api,
-        this.specimenNumber
-      );
-      
-      if (testResult) {
-        this.setUploadFields(testResult);
-      }
 
       if (this.specimenStatus == "ResultReady") {
         this.isSubmitted = true;
