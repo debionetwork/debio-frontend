@@ -223,44 +223,45 @@ export default {
 
     emailRules() {
       return [
-        val => !!val || 'E-mail is required',
-        val => /.+@.+\..+/.test(val) || 'E-mail must be valid',
+        val => !!val || 'This field is required',
+        val => /.+@.+\..+/.test(val) || 'Email is invalid. It should contain @ followed by a domain',
       ]
     },
 
     nameRules() {
       return [
-        val => !!val || 'Name is Required',
-        val => (val && val.length >= 8) || 'Min 8 Character'
+        val => !!val || 'This field is required',
+        val => (val && val.length <= 255) || 'This field only allows 255 characters'
       ]
     },
 
     addressRules() {
       return [
-        val => !!val || 'Address is Required',
-        val => (val && val.length <= 180) || 'Max 180 Characters'
+        val => !!val || 'This field is required',
+        val => (val && val.length <= 255) || 'This field only allows 255 characters'
       ]
     },
 
-    phoneNumberRules() {
+    phoneNumberRules() {// validasi di exel belom ada
       return [
-        val => !!val || 'Phone Number is Required',
-        val => /^\+?([0-9]{10,15})$/.test(val) || 'Phone Number must be valid',
-        val => (val && val.length <= 15) || 'Max 15 Digits'
+        val => !!val || 'This field is required',
+        val => /^\+?([0-9]{10,15})$/.test(val) || 'This field can only contain number',
+        val => (val && val.length <= 13) || 'This field only allows 13 characters'
       ]
     },
 
-    websiteRules() {
+    websiteRules() { //validasi masih bingung
       return [
-        val => !!val || 'Website URL is Required',
-        val => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(val) || 'Website URL must be valid', //eslint-disable-line
-        val => (val && val.length <= 2048) || 'Max 2048 Characters'
+        val => !!val || 'This field is required',
+        val => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(val) || 'Website is invalid. It should contain protocol (https://) followed by a domain', //eslint-disable-line
+        val => (val && val.length <= 255) || 'This field only allows 255 characters'
       ]
     },
 
     fileInputRules() {
       return [
-        value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
+        value => value.size <= 2000000 || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
+        value => !value || 'This field is required'
       ]
     },
 
