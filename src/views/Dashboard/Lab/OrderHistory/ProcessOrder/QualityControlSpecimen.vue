@@ -78,13 +78,13 @@
                         placeholder="Title"
                         outlined
                         v-model="rejectionTitle"
-                        :rules="[val => !!val || 'Title is required']"
+                        :rules="[val => !!val || 'This field is required']"
                         ></v-text-field>
                     <v-textarea
                         outlined
                         label="Description"
                         v-model="rejectionDescription"
-                        :rules="[val => !!val || 'Description is required', val => (val && val.length <= 500) || 'Max 500 Character']"
+                        :rules="[val => !!val || 'This field is required', val => (val && val.length <= 500) || 'This field only allows 500 characters']"
                     ></v-textarea>
                 </v-form>
             </template>

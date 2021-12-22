@@ -200,24 +200,24 @@ export default {
     
     rules(){
       return [
-        file => !file || file.size <= 3_097_152 || 'Document size should be less than 3 MB!',
+        file => !file || file.size <= 3_097_152 || 'The total file size uploaded exceeds the maximum file size allowed (3MB)',
         file => !file || file.type == 'image/jpg' || file.type == 'image/jpeg' || 'Document type should be image/jpg',
       ]
     },
 
     phoneNumberRules() {
       return [
-        val => !!val || 'Phone Number is Required',
-        val => /^\+?([0-9]{2})\)?[-. ]?([0-9]{4})[-. ]?([0-9]{4})$/.test(val) || 'Phone Number must be valid',
-        val => (val && val.length <= 15) || 'Max 15 Digits'
+        val => !!val || 'This field is required',
+        val => /^\+?([0-9]{2})\)?[-. ]?([0-9]{4})[-. ]?([0-9]{4})$/.test(val) || 'This field can only contain number',
+        val => (val && val.length <= 13) || 'This field only allows 13 characters'
       ]
     },
 
     websiteRules() {
       return [
-        val => !!val || 'Website URL is Required',
-        val => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(val) || 'Website URL must be valid', //eslint-disable-line
-        val => (val && val.length <= 2048) || 'Max 2048 Characters'
+        val => !!val || 'This field is required',
+        val => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(val) || 'Website is invalid. It should contain protocol (https://) followed by a domain', //eslint-disable-line
+        val => (val && val.length <= 255) || 'This field only allows 255 characters'
       ]
     },
 

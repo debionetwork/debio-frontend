@@ -160,25 +160,25 @@ export default {
     },
     emailRules() {
       return [
-        val => !!val || 'E-mail is required',
+        val => !!val || 'This field is required',
         val => /.+@.+\..+/.test(val) || 'E-mail must be valid',
       ]
     },
     nameRules() {
       return [
-        val => !!val || 'Name is Required',
+        val => !!val || 'This field is required',
         val => (val && val.length >= 8) || 'Min 8 Character'
       ]
     },
     addressRules() {
       return [
-        val => !!val || 'Address is Required',
-        val => (val && val.length <= 180) || 'Max 180 Character'
+        val => !!val || 'This field is required',
+        val => (val && val.length <= 180) || 'This field only allows 180 characters'
       ]
     },
     fileInputRules() {
       return [
-        value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
+        value => !value || value.size < 2000000 || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
       ]
     },
   },

@@ -280,72 +280,72 @@ export default {
 
     serviceCategoryRules() {
       return [
-        val => !!val || 'Category is Required'
+        val => !!val || 'This field is required'
       ]
     },
 
     biologicalTypeRules() {
       return [
-        val => !!val || 'Biologocal type is Require'
+        val => !!val || 'This field is required'
       ]
     },
 
     serviceNameRules() {
       return [
-        val => !!val || 'Name is Required',
+        val => !!val || 'This field is required',
         val => (val && val.length <= 50) || 'Max 50 Character'
       ]
     },
 
     curencyTypeRules() {
       return [
-        val => !!val || 'Currency Type is Required'
+        val => !!val || 'This field is required'
       ]
     },
 
     priceRules() {
       return [
-        val => !!val || this.isBiomedical || 'Price is required',
+        val => !!val || this.isBiomedical || 'This field is required',
         val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'Max 3 decimal'
       ]
     },
 
     qcQurencyTypeRules() {
       return [
-        val => !!val || 'QC Currency Type is Required'
+        val => !!val || 'This field is required'
       ]
     },
     
     cqPriceRules() {
       return [
-        val => !!val || this.isBiomedical || 'QC Price is required',
+        val => !!val || this.isBiomedical || 'This field is required',
         val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'Max 3 decimal'
       ]
     },
 
     descriptionRules() {
       return [
-        val => !!val || 'Description is Required',
+        val => !!val || 'This field is required',
         val => (val && val.length <= 255) || 'Max 255 Character'
       ]
     },
 
     longDescriptionRules() {
       return [
-        val => !!val || 'Long Description is Required',
+        val => !!val || 'This field is required',
         val => (val && val.length <= 1000) || 'Max 1000 Character'
       ]
     },
 
     expectedDurationRules() {
       return [
-        val => !!val || 'Expected duration is Required'
+        val => !!val || 'This field is required'
       ]
     },
 
     fileInputRules() {
       return [
-        value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
+        value => !value || value.size < 2000000 || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
       ]
     },
 

@@ -169,34 +169,34 @@ export default {
     supportingDocumentsRules(){
       return [
         file => !file || file.type == 'application/pdf' || 'Document type should be application/pdf',
-        file => !file || file.size <= 2_000_000 || 'Document size should be less than 2 MB!',
+        file => !file || file.size <= 2_000_000 || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
       ]
     },
     titleRules() {
       return [
-        val => !!val || 'Title is required',
+        val => !!val || 'This field is required',
         val => (val && val.length <= 50) || 'Max 50 Character'
       ]
     },
     issuerRules() {
       return [
-        val => !!val || 'Issuer is required',
+        val => !!val || 'This field is required',
         val => (val && val.length <= 100) || 'Max 100 Character']
     },
     monthRules() {
       return [
-        val => !!val || 'Month is required'
+        val => !!val || 'This field is required'
       ]
     },
     yearRules() {
       return [
-        val => !!val || 'Year is required'
+        val => !!val || 'This field is required'
       ]
     },
     descriptionRules() {
       return [
-        val => !!val || 'Description is required',
-        val => (val && val.length <= 255) || 'Max 255 Character'
+        val => !!val || 'This field is required',
+        val => (val && val.length <= 255) || 'This field only allows 255 characters'
       ]
     },
   },
