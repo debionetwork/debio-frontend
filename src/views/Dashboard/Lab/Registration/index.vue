@@ -150,8 +150,6 @@
 <script>
 import { mapState, mapGetters } from "vuex"
 import { registerLab } from "@/lib/polkadotProvider/command/labs"
-import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile"
-import { getWalletAddress } from "@/lib/metamask/wallet"
 import { upload } from "@/lib/ipfs"
 import Certification from "./Certification"
 import Stepper from "./Stepper"
@@ -352,7 +350,6 @@ export default {
       }
       try{
         this.isLoading = true
-        const ethAddress = await getWalletAddress()
         const boxPublicKey = this.mnemonicData.publicKey
 
         await registerLab(
@@ -371,13 +368,8 @@ export default {
             profileImage: this.imageUrl
           },
           async () => {
-            await setEthAddress(
-              this.api,
-              this.pair,
-              ethAddress,
-              () => {
-                this.isLoading = false
-                const labAccount = {
+            this.isLoading = false
+            const labAccount = {
                   accountId: this.pair.address,
                   services: [],
                   certifications: [],
@@ -391,13 +383,11 @@ export default {
                     profileImage: this.imageUrl,
                   }
                 }
-                this.setLabAccount(labAccount)
-                this.stepperItems = [
-                  { name: "Lab Information", selected: true},
-                  { name: "Lab Services", selected: false},
-                ]
-              }
-            )
+            this.setLabAccount(labAccount)
+            this.stepperItems = [
+              { name: "Lab Information", selected: true},
+              { name: "Lab Services", selected: false},
+            ]
           }
         )
       }
