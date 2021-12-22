@@ -226,6 +226,7 @@ import { queryLabsById } from "@/lib/polkadotProvider/query/labs"
 import DialogAlert from "@/components/Dialog/DialogAlert"
 import serviceHandler from "@/mixins/serviceHandler"
 import { toEther } from "@/lib/balance-format"
+import { sendEmailRegisteredLab } from "@/lib/api/lab"
 
 export default {
   name: 'LabRegistrationServices',
@@ -404,6 +405,7 @@ export default {
         })
       }
 
+      await sendEmailRegisteredLab(this.wallet.address)
       this.dialogAlert = true
     },
 
