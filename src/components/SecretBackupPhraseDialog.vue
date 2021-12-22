@@ -42,6 +42,7 @@
 
 <script>
 import MnemonicKeypad from './MnemonicKeypad.vue'
+import localStorage from "@/lib/local-storage"
 const { /*cryptoWaitReady,*/ mnemonicGenerate  } = require('@polkadot/util-crypto')
 
 export default {
@@ -87,6 +88,10 @@ export default {
     closeDialog() {
       this._show = false
       this.mnemonic = ''
+
+      const hasAddress = localStorage.getLocalStorageByName("mnemonic_data")
+
+      if (!hasAddress) localStorage.removeLocalStorageByName("TERMS")
     }
   }
 }
