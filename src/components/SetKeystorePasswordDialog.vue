@@ -159,12 +159,7 @@ export default {
       setIsLoading: "substrate/SET_LOADING_WALLET",
     }),
     async onVerifyRecaptcha(response) {
-      const result = await apiClientRequest.post("/recaptcha", { response }, {
-        auth: {
-          username: process.env.VUE_APP_USERNAME,
-          password: process.env.VUE_APP_PASSWORD
-        }
-      })
+      const result = await apiClientRequest.post("/recaptcha", { response })
 
       if (result.data.success) this.recaptchaVerified = true
     },
