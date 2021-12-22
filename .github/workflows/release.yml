@@ -95,8 +95,12 @@ jobs:
           registry: gcr.io
           username: _json_key
           password: ${{ secrets.MAINNET_GCP_SA_KEY }}
+<<<<<<< HEAD
       - name: Build and push pre-release
         if: "!contains(needs.compute-build-info.outputs.latest_tag, 'alpha') && !contains(needs.compute-build-info.outputs.latest_tag, 'beta')"
+=======
+      - name: Build and push
+>>>>>>> ba28fae (ci: use gcr private repository)
         uses: docker/build-push-action@v2
         with:
           context: .
@@ -104,7 +108,11 @@ jobs:
           file: .maintain/docker/Dockerfile
           tags: |
             gcr.io/${{ secrets.MAINNET_GCP_PROJECT_ID }}/${{ github.repository }}:${{ needs.compute-build-info.outputs.latest_tag }}
+<<<<<<< HEAD
             gcr.io/${{ secrets.MAINNET_GCP_PROJECT_ID }}/${{ github.repository }}:latest-rc
+=======
+            gcr.io/${{ secrets.MAINNET_GCP_PROJECT_ID }}/${{ github.repository }}:latest-beta
+>>>>>>> ba28fae (ci: use gcr private repository)
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
       - name: Build and push release
