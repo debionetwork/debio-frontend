@@ -19,21 +19,31 @@
       </v-app-bar>
       <v-card-text class="pb-0 text-subtitle-1">
         <p>
-        We will give you 12 words that allow you to recover your account.
+          We will give you 12 words that allows you to recover an account
         </p>
 
         <p>
-          <b>You need to carefully save those words. Copy-paste it, screenshot it, write it down, and keep it safe -if you lose it, we won't be able to help you recover it.</b>
+          <b>
+            You need to carefully save the words. Copy-paste it, screenshot it, 
+            write it down, and keep it safe. If you lose it, 
+            we won't be able to help you recover it.
+          </b>
         </p>
 
-        <v-checkbox
-          v-model="agreeTerms"
-          label="I understand that if I lose my recovery words, I will not be able to access my account"
-        ></v-checkbox>
+        <v-checkbox v-model="agreeTerms">
+          <template v-slot:label>
+            <div id="checkbox">
+              I understand with DeBio
+              <a target="_blank" rel="noreferrer noopener" href="https://docs.debio.network/legal/privacy-policy" @click.stop> Privacy Policy</a>
+              <span> and</span>
+              <a target="_blank" rel="noreferrer noopener" href="https://docs.debio.network/legal/terms-and-condition" @click.stop> terms and condition</a>
+            </div>
+          </template>
+        </v-checkbox>
       </v-card-text>
       <v-card-actions class="px-6 pb-4">
         <v-btn
-          :disabled="agreeTerms == false"
+          :disabled="!agreeTerms"
           depressed
           color="primary"
           large
@@ -48,16 +58,20 @@
 </template>
 
 <script>
+import localStorage from "@/lib/local-storage"
 
 export default {
   name: 'GenerateAccountDialog',
+
   props: {
     show: Boolean,
     role: String,
   },
+
   data: () => ({
     agreeTerms: false,
   }),
+
   computed: {
     _show: {
       get() {
@@ -68,12 +82,27 @@ export default {
       }
     },
   },
+
+  created() {
+    const hasTerms = localStorage.getLocalStorageByName("TERMS")
+
+    if (hasTerms) this.agreeTerms = hasTerms
+  },
+
   methods: {
     onAgreeTerms() {
       this._show = false
       this.$emit('terms-agreed')
-      this.agreeTerms = false
+
+      localStorage.setLocalStorageByName("TERMS", this.agreeTerms)
+      const hasAddress = localStorage.getLocalStorageByName("mnemonic_data")
+
+      if (!hasAddress) {
+        localStorage.removeLocalStorageByName("TERMS")
+        this.agreeTerms = false
+      }
     },
+
     closeDialog() {
       this._show = false
       this.agreeTerms = false
