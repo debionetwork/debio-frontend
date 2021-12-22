@@ -98,7 +98,6 @@ export default {
     imgWidth: "270",
   }),
   async mounted() {
-    console.log("Is pair locked lab?", this.pair.isLocked);
     this.show = this.pair.isLocked;
 
     const balance = await queryBalance(this.api, this.wallet.address);
