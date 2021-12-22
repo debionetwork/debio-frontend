@@ -101,7 +101,7 @@ jobs:
           file: .maintain/docker/Dockerfile
           tags: |
             gcr.io/${{ secrets.STG_GCP_PROJECT_ID }}/${{ github.repository }}:${{ needs.compute-build-info.outputs.latest_tag }}
-            gcr.io/${{ secrets.STG_GCP_PROJECT_ID }}/${{ github.repository }}:latest-beta
+            gcr.io/${{ secrets.STG_GCP_PROJECT_ID }}/${{ github.repository }}:latest-alpha
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
       # Temp fix
