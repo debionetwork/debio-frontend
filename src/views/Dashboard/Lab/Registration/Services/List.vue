@@ -37,7 +37,9 @@
                     </div>
                     <div>
                       <span>
-                        Price     : {{ service.info.pricesByCurrency[0].totalPrice }} {{ service.info.pricesByCurrency[0].currency }}
+                        Price     : 
+                        {{ web3.utils.fromWei(String(service.info.pricesByCurrency[0].totalPrice.replaceAll(",", "")), "ether") }} 
+                        {{ service.info.pricesByCurrency[0].currency }}
                       </span>
                     </div>
                     <div>
@@ -60,7 +62,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex"
+import { mapGetters, mapState } from "vuex"
 import serviceHandler from "@/mixins/serviceHandler"
 import { deleteService } from "@/lib/polkadotProvider/command/services"
 
@@ -76,6 +78,10 @@ export default {
       labAccount: 'substrate/labAccount',
       isLabAccountExist: 'substrate/isLabAccountExist',
     }),
+
+    ...mapState({
+      web3: state => state.metamask.web3
+    })
   },
 
   methods: {

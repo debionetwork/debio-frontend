@@ -161,10 +161,11 @@ export default {
 
   watch: {
     lastEventData(val) {
-        if (val === null) return
-        if (val.method === "ServiceDeleted") {
-        this.isLoading = false
-        this.getServices()
+      if (val === null) return
+      if (val.method === "ServiceDeleted") {
+         this.isLoading = false
+         this.showDialog = false
+         this.getServices()
       }
     }
   },
@@ -176,7 +177,12 @@ export default {
   methods:{
    async getServices() {
       const { labAccount: { services } } = await this.$store.dispatch("substrate/getLabAccount")
-      this.services = services
+
+      this.services = services.reduce((filtered, service) => {
+         if (!filtered.find(v => v.id === service.id)) filtered.push(service)
+
+         return filtered
+      }, [])
    },
    onSearchInput(val) {
       this.search = val
@@ -191,7 +197,7 @@ export default {
       return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
    },
    formatPrice(price) {
-      const priceAndCurrency = price.replace(/,/g, "").split(" ")
+      const priceAndCurrency = price.replaceAll(",", "").split(" ")
       const formatedPrice = this.web3.utils.fromWei(String(priceAndCurrency[0], 'ether'))
       return `${formatedPrice} ${priceAndCurrency[1]}`
    },
@@ -200,17 +206,12 @@ export default {
    },
    async deleteService() {
       try {
-            this.isLoading = true
-            
-            await deleteService(
-               this.api,
-               this.pair,
-               this.idItemDeleted,
-               () => {
-                  this.isLoading = false
-                  this.showDialog = false
-               }
-            )
+         this.isLoading = true
+         await deleteService(
+            this.api,
+            this.pair,
+            this.idItemDeleted
+         )
       } catch (error) {
          console.error(error.message)
          this.isLoading = false
