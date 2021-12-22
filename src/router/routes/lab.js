@@ -1,4 +1,4 @@
-import store from '../../store'
+import store from '@/store'
 import globalFunctions from "@/lib/functions"
 
 const labRoutes = [ 
@@ -16,7 +16,7 @@ const labRoutes = [
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab'),
               beforeEnter: (to, from, next) => {
                 // Set drawer buttons here to make it dynamic :)
-                if(!store.state.substrate.isServicesExist){
+                if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified"){
                   to.meta.drawerButtons = [
                     { text: "Dashboard", active: true, disabled: false, route: { name: "lab-dashboard" } },
                     { text: "Account" },
@@ -53,6 +53,11 @@ const labRoutes = [
                   { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
                   { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
+              },
+              beforeEnter: (to, from, next) => {
+                if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
+                  next("/lab")
+                } else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Account'),
             },
@@ -143,6 +148,11 @@ const labRoutes = [
                     { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
+              beforeEnter: (to, from, next) => {
+                if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
+                  next("/lab")
+                } else next()
+              },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Services')
             },
             {
@@ -162,6 +172,11 @@ const labRoutes = [
                     { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
                     { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
+              },
+              beforeEnter: (to, from, next) => {
+                if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
+                  next("/lab")
+                } else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Services/Add')
             },
@@ -183,6 +198,11 @@ const labRoutes = [
                     { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
+              beforeEnter: (to, from, next) => {
+                if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
+                  next("/lab")
+                } else next()
+              },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Services/Detail')
             },
             {
@@ -201,6 +221,11 @@ const labRoutes = [
                     { text: "Order", active: true, disabled: false, route: { name: "lab-dashboard-order-history" } },
                     { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
+              },
+              beforeEnter: (to, from, next) => {
+                if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
+                  next("/lab")
+                } else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/OrderHistory')
             },
@@ -221,6 +246,11 @@ const labRoutes = [
                     { text: "Order", active: true, disabled: false, route: { name: "lab-dashboard-order-history" } },
                     { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
+              },
+              beforeEnter: (to, from, next) => {
+                if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
+                  next("/lab")
+                } else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/OrderHistory/ProcessOrder')
             },
