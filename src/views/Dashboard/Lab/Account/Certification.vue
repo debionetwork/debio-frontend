@@ -128,7 +128,7 @@
                 ></v-textarea>
                 <v-file-input
                     dense
-                    label="Supporting Documentsss"
+                    label="Supporting Documents"
                     placeholder="Supporting Document"
                     prepend-icon="mdi-file-document"
                     outlined
@@ -136,7 +136,7 @@
                     :rules="supportingDocumentsRules"
                     show-size
                     v-model="files"
-                    accept="application/pdf"
+                    accept="application/pdf, image/png, image/jpeg,"
                 ></v-file-input>
                 </v-form>
             </template>

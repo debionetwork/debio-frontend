@@ -263,7 +263,8 @@ export default {
       {text: 'Hours', value: 'Hours'},
       {text: 'Days', value: 'Days'}
     ],
-    selectExpectedDuration: {text: 'Working Days', value: 'WorkingDays'},
+    // selectExpectedDuration: {text: 'Working Days', value: 'WorkingDays'},
+    selectExpectedDuration: 'Working Day',
     expectedDuration: '',
     isEdit: false,
     stepperItems: [
@@ -321,6 +322,7 @@ export default {
 
     priceRules() {
       return [
+        val => (val && val != 0) || 'Value on this field cannot 0',
         val => !!val || this.isBiomedical || 'This field is required',
         val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'Max 3 decimal'
       ]
@@ -355,7 +357,8 @@ export default {
 
     expectedDurationRules() {
       return [
-        val => !!val || 'This field is required'
+        val => !!val || 'This field is required',
+        val => (val && val != 0) || 'Value on this field cannot 0'
       ]
     },
 
@@ -467,6 +470,9 @@ export default {
     },
 
     async createService() {
+      console.log(this.expectedDuration, "expected duration")
+      console.log(this.selectExpectedDuration, "selected expected duration")
+
       await this.dispatch(
         createService,
         this.api,
@@ -493,7 +499,7 @@ export default {
           ],
           expectedDuration: { 
             duration: this.expectedDuration, 
-            durationType: this.selectExpectedDuration.value
+            durationType: this.selectExpectedDuration
           },
           category: this.category,
           description: this.description,
