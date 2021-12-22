@@ -128,7 +128,7 @@
                 ></v-textarea>
                 <v-file-input
                     dense
-                    label="Supporting Documents"
+                    label="Supporting Document"
                     placeholder="Supporting Document"
                     prepend-icon="mdi-file-document"
                     outlined
