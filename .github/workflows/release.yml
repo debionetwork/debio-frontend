@@ -55,7 +55,7 @@ jobs:
             VUE_APP_DEBIO_API_KEY:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_DEBIO_API_KEY
             VUE_APP_USERNAME:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_USERNAME
             VUE_APP_PASSWORD:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_PASSWORD
-            CONTRACT_JSON:${{ secrets.MAINNET_GCP_PROJECT_ID }}//CONTRACT_JSON
+            CONTRACT_JSON:${{ secrets.MAINNET_GCP_PROJECT_ID }}/CONTRACT_JSON
       - name: Create .env & gcp sa
         shell: bash
         run: |
