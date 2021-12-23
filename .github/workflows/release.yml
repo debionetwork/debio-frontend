@@ -85,23 +85,36 @@ jobs:
           key: ${{ runner.os }}-buildx-main
           restore-keys: |
             ${{ runner.os }}-buildx-
-      - name: Login to DockerHub
+      - name: Login to GCR
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
+          registry: gcr.io
+          username: _json_key
+          password: ${{ secrets.MAINNET_GCP_SA_KEY }}
+      - name: Build and push pre-release
+        if: "!contains(needs.compute-build-info.outputs.latest_tag, 'alpha') && !contains(needs.compute-build-info.outputs.latest_tag, 'beta')"
         uses: docker/build-push-action@v2
-        id: docker_build
         with:
           context: .
           push: true
           file: .maintain/docker/Dockerfile
           tags: |
-            ${{ github.repository }}:${{ needs.compute-build-info.outputs.latest_tag }}
-            ${{ github.repository }}:latest
+            gcr.io/${{ secrets.MAINNET_GCP_PROJECT_ID }}/${{ github.repository }}:${{ needs.compute-build-info.outputs.latest_tag }}
+            gcr.io/${{ secrets.MAINNET_GCP_PROJECT_ID }}/${{ github.repository }}:latest-rc
           cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+      - name: Build and push release
+        if: "!github.event.release.prerelease"
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          file: .maintain/docker/Dockerfile
+          tags: |
+            gcr.io/${{ secrets.MAINNET_GCP_PROJECT_ID }}/${{ github.repository }}:${{ needs.compute-build-info.outputs.latest_tag }}
+            gcr.io/${{ secrets.MAINNET_GCP_PROJECT_ID }}/${{ github.repository }}:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
       # Temp fix
       # https://github.com/docker/build-push-action/issues/252
       # https://github.com/moby/buildkit/issues/1896
@@ -155,7 +168,9 @@ jobs:
             helm repo update
             helm upgrade debio-frontend debio/debio-frontend \
               --install \
+              --set-string image.repository=gcr.io/${{ secrets.MAINNET_GCP_PROJECT_ID }}/${{ github.repository }} \
               --set-string image.tag=${{ needs.compute-build-info.outputs.latest_tag }} \
+              --set-string imagePullSecrets[0].name=gcr-auth \
               --set ingress.enabled=true \
               --set-string ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
               --set-string ingress.annotations."cert-manager\.io/cluster-issuer"=letsencrypt \
@@ -211,7 +226,9 @@ jobs:
             helm repo update
             helm upgrade debio-frontend debio/debio-frontend \
               --install \
+              --set-string image.repository=gcr.io/${{ secrets.MAINNET_GCP_PROJECT_ID }}/${{ github.repository }} \
               --set-string image.tag=${{ needs.compute-build-info.outputs.latest_tag }} \
+              --set-string imagePullSecrets[0].name=gcr-auth \
               --set ingress.enabled=true \
               --set-string ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
               --set-string ingress.annotations."cert-manager\.io/cluster-issuer"=letsencrypt \
