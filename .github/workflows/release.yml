@@ -73,11 +73,10 @@ jobs:
           EOF
 
           rm ./src/store/metamask/contracts/contract.json
-          touch ./src/store/metamask/contracts/contract.json
 
-          cat <<EOT  | ./src/store/metamask/contracts/contract.json
+          tee -a ./src/store/metamask/contracts/contract.json <<EOF
           ${{ steps.secrets.outputs.CONTRACT_JSON }}
-          EOT
+          EOF
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
