@@ -42,7 +42,7 @@
                     </div>
                     <div>
                       <span>
-                        Duration  :{{ service.info.expectedDuration.duration }} {{ service.info.expectedDuration.durationType }}
+                        Duration  : {{ service.info.expectedDuration.duration }} {{ service.info.expectedDuration.durationType }}
                       </span>
                     </div>
                     <div class="mt-3 mb-3">{{ service.info.description }}</div>
@@ -101,6 +101,7 @@ export default {
             this.$emit('delete-service', false)
           }
         })
+        this.$emit('delete-service', false)
       }
     },
   }

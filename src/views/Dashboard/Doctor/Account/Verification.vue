@@ -48,7 +48,7 @@ export default {
   computed: {
     fileInputRules() {
       return [
-        value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
+        value => !value || value.size < 2000000 || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
       ]
     }
   },

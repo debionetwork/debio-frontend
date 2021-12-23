@@ -50,7 +50,7 @@
                   placeholder="Email"
                   outlined
                   v-model="email"
-                  :rules="[val => !!val || 'Email is Required']"
+                  :rules="[val => !!val || 'This field is required']"
                 ></v-text-field>
                 
                 <v-text-field
@@ -59,7 +59,7 @@
                   placeholder="Hospital Name"
                   outlined
                   v-model="hospitalName"
-                  :rules="[val => !!val || 'Name is Required']"
+                  :rules="[val => !!val || 'This field is required']"
                 ></v-text-field>
 
                 <v-autocomplete
@@ -71,7 +71,7 @@
                   label="Select Country"
                   v-model="country"
                   outlined
-                  :rules="[val => !!val || 'Country is Required']"
+                  :rules="[val => !!val || 'This field is required']"
                 ></v-autocomplete>
 
                 <v-autocomplete
@@ -84,7 +84,7 @@
                   :disabled="!country"
                   v-model="region"
                   outlined
-                  :rules="[val => !!val || 'Region is Required']"
+                  :rules="[val => !!val || 'This field is required']"
                 ></v-autocomplete>
 
                 <v-autocomplete
@@ -97,7 +97,7 @@
                   :disabled="!region"
                   v-model="city"
                   outlined
-                  :rules="[val => !!val || 'City is Required']"
+                  :rules="[val => !!val || 'This field is required']"
                 ></v-autocomplete>
                 
                 <v-text-field
@@ -106,7 +106,7 @@
                   placeholder="Address"
                   outlined
                   v-model="address"
-                  :rules="[val => !!val || 'Address is Required']"
+                  :rules="[val => !!val || 'This field is required']"
                 ></v-text-field>
 
                 <v-btn
@@ -185,9 +185,9 @@ export default {
 
     rules(){
       return [
-        file => !!file || 'Image is Required',
+        file => !!file || 'This field is required',
         file => !file || file.type == 'image/jpg' || file.type == 'image/jpeg' || 'Document type should be image/jpg',
-        file => !file || file.size <= 3_097_152 || 'Document size should be less than 3 MB!',
+        file => !file || file.size <= 3_097_152 || 'The total file size uploaded exceeds the maximum file size allowed (3MB)',
       ]
     },
   },

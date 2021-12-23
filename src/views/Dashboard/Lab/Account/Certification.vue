@@ -208,28 +208,28 @@ export default {
     titleRules() {
       return [
         val => !!val || 'Title is required',
-        val => (val && val.length <= 50) || 'Max 50 Character'
+        val => (val && val.length <= 50) || 'This field only allows 50 characters'
       ]
     },
     issuerRules() {
       return [
         val => !!val || 'Issuer is required',
-        val => (val && val.length <= 100) || 'Max 100 Character']
+        val => (val && val.length <= 100) || 'This field only allows 100 characters']
     },
     monthRules() {
       return [
-        val => !!val || 'Month is required'
+        val => !!val || 'This field is required'
       ]
     },
     yearRules() {
       return [
-        val => !!val || 'Year is required'
+        val => !!val || 'This field is required'
       ]
     },
     descriptionRules() {
       return [
-        val => !!val || 'Description is required',
-        val => (val && val.length <= 255) || 'Max 255 Character'
+        val => !!val || 'This field is required',
+        val => (val && val.length <= 255) || 'This field only allows 255 characters'
       ]
     },
   },
@@ -302,6 +302,7 @@ export default {
 
     async deleteCertification(cert) {
       await this.dispatch(deleteCertification, this.api, this.pair, cert.id)
+      this.showDeletePrompt = false
     },
     fileUploadEventListener(file) {
       this.certSupportingDocumentsUrl = ""

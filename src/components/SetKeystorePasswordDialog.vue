@@ -130,13 +130,13 @@ export default {
     }),
     nameRules() {
       return [
-        val => !!val || 'Name is Required',
+        val => !!val || 'This field is required',
         val => (val && val.length >= 8) || 'Min 8 Character'
       ]
     },
     passwordRules() {
       return [
-        val => !!val || "Password is required",
+        val => !!val || "This field is required",
         val => (val && val.length >= 8) || 'Password Min 8 Character',
         val => /^[a-zA-Z0-9-_]+$/.test(val) || 'Password must a-z, A-Z, '
       ]
