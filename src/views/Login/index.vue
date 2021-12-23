@@ -38,13 +38,6 @@
                 </Button>
               </v-col>
             </v-row>
-            <v-row class="justify-center mt-2 align-center">
-              <v-col cols="12" align="center">
-                <div style="max-width: 570px; color: white;">
-                  Login as a lab to process your order using these preexisting accounts or create a new lab account and customize your own services
-                </div>
-              </v-col>
-            </v-row>
           </v-col>
         </v-row>
       </v-container>
