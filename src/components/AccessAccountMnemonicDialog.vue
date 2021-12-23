@@ -21,7 +21,7 @@
             outlined
             auto-grow
             label="Type in your mnemonic phrase."
-            :rules="[mnemonicRules]"
+            :rules="mnemonicRules"
             v-model="mnemonic"
           ></v-textarea>
         </v-form>
@@ -67,11 +67,11 @@ export default {
     },
 
     mnemonicRules() {
-      if(!this.mnemonic) return "Mnemonic cannot be empty."
-      if (!(this.mnemonic.trim().split(/\s+/g).length >= 12)) return "Number of words must be 12 or more"
-      if(!mnemonicValidate(this.mnemonic)) return "Mnemonic invalid."
-
-      return true
+      return [
+        val => !!val || "Mnemonic cannot be empty.",
+        val => (val && mnemonicValidate(val)) || "Mnemonic invalid.",
+        val => (val && val.trim().split(/\s+/g).length >= 12) || "Number of words must be 12 or more"
+      ]
     },
   },
   methods: {
