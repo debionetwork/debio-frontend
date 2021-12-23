@@ -201,7 +201,7 @@ export default {
     rules(){
       return [
         file => !file || file.size <= 3_097_152 || 'The total file size uploaded exceeds the maximum file size allowed (3MB)',
-        file => !file || file.type == 'image/jpg' || file.type == 'image/jpeg' || 'Document type should be image/jpg',
+        file => !file || file.type == 'image/jpg' || file.type == 'image/jpeg' || 'Document type should be image/jpg/jpeg',
       ]
     },
 

@@ -327,7 +327,7 @@ export default {
     titleRules() {
       return [
         val => !!val || 'This field is required',
-        val => (val && val.length <= 50) || 'This field only allows 255 characters'
+        val => (val && val.length <= 50) || 'This field only allows 50 characters'
       ]
     },
     descriptionRules() {

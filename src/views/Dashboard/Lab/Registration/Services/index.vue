@@ -263,8 +263,7 @@ export default {
       {text: 'Hours', value: 'Hours'},
       {text: 'Days', value: 'Days'}
     ],
-    // selectExpectedDuration: {text: 'Working Days', value: 'WorkingDays'},
-    selectExpectedDuration: 'Working Day',
+    selectExpectedDuration: {text: 'Working Days', value: 'WorkingDays'},
     expectedDuration: '',
     isEdit: false,
     stepperItems: [
@@ -470,9 +469,6 @@ export default {
     },
 
     async createService() {
-      console.log(this.expectedDuration, "expected duration")
-      console.log(this.selectExpectedDuration, "selected expected duration")
-
       await this.dispatch(
         createService,
         this.api,

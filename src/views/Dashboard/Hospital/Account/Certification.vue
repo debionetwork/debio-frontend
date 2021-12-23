@@ -175,13 +175,13 @@ export default {
     titleRules() {
       return [
         val => !!val || 'This field is required',
-        val => (val && val.length <= 50) || 'Max 50 Character'
+        val => (val && val.length <= 50) || 'This field only allows 50 characters'
       ]
     },
     issuerRules() {
       return [
         val => !!val || 'This field is required',
-        val => (val && val.length <= 100) || 'Max 100 Character']
+        val => (val && val.length <= 100) || 'This field only allows 100 characters']
     },
     monthRules() {
       return [

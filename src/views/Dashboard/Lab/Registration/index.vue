@@ -242,7 +242,7 @@ export default {
       ]
     },
 
-    phoneNumberRules() {// validasi di exel belom ada
+    phoneNumberRules() {
       return [
         val => !!val || 'This field is required',
         val => /^\+?([0-9]{10,15})$/.test(val) || 'This field can only contain number',
@@ -250,7 +250,7 @@ export default {
       ]
     },
 
-    websiteRules() { //validasi masih bingung
+    websiteRules() { 
       return [
         val => !!val || 'This field is required',
         val => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(val) || 'Website is invalid. It should contain protocol (https://) followed by a domain', //eslint-disable-line

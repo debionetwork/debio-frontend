@@ -161,13 +161,12 @@ export default {
     emailRules() {
       return [
         val => !!val || 'This field is required',
-        val => /.+@.+\..+/.test(val) || 'E-mail must be valid',
+        val => /.+@.+\..+/.test(val) || 'Email is invalid. It should contain @ followed by a domain',
       ]
     },
     nameRules() {
       return [
         val => !!val || 'This field is required',
-        val => (val && val.length >= 8) || 'Min 8 Character'
       ]
     },
     addressRules() {
