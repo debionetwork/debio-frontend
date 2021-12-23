@@ -226,6 +226,7 @@ import { queryLabsById } from "@/lib/polkadotProvider/query/labs"
 import DialogAlert from "@/components/Dialog/DialogAlert"
 import serviceHandler from "@/mixins/serviceHandler"
 import { toEther } from "@/lib/balance-format"
+import { sendEmailRegisteredLab } from "@/lib/api/lab"
 
 export default {
   name: 'LabRegistrationServices',
@@ -296,20 +297,20 @@ export default {
 
     serviceCategoryRules() {
       return [
-        val => !!val || 'Category is required'
+        val => !!val || 'This field is required'
       ]
     },
 
     biologicalTypeRules() {
       return [
-        val => !!val || 'Biological type is required'
+        val => !!val || 'This field is required'
       ]
     },
 
     serviceNameRules() {
       return [
-        val => !!val || 'Name is required',
-        val => (val && val.length <= 50) || 'Max 50 Character'
+        val => !!val || 'This field is required',
+        val => (val && val.length <= 50) || 'This field only allows 50 characters'
       ]
     },
 
@@ -321,7 +322,8 @@ export default {
 
     priceRules() {
       return [
-        val => !!val || this.isBiomedical || 'QC Price is required',
+        val => (val && val != 0) || 'Value on this field cannot 0',
+        val => !!val || this.isBiomedical || 'This field is required',
         val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'Max 3 decimal'
       ]
     },
@@ -341,27 +343,28 @@ export default {
 
     descriptionRules() {
       return [
-        val => !!val || 'Description is required',
-        val => (val && val.length <= 255) || 'Max 255 Character'
+        val => !!val || 'This field is required',
+        val => (val && val.length <= 255) || 'This field only allows 255 characters'
       ]
     },
 
     longDescriptionRules() {
       return [
-        val => !!val || 'Long Description is required',
-        val => (val && val.length <= 1000) || 'Max 1000 Character'
+        val => !!val || 'This field is required',
+        val => (val && val.length <= 1000) || 'This field only allows 1000 characters'
       ]
     },
 
     expectedDurationRules() {
       return [
-        val => !!val || 'Expected duration is required'
+        val => !!val || 'This field is required',
+        val => (val && val != 0) || 'Value on this field cannot 0'
       ]
     },
 
     fileInputRules() {
       return [
-        value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
+        value => !value || value.size < 2000000 || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
       ]
     },
 
@@ -404,6 +407,7 @@ export default {
         })
       }
 
+      await sendEmailRegisteredLab(this.wallet.address)
       this.dialogAlert = true
     },
 
@@ -493,7 +497,7 @@ export default {
           ],
           expectedDuration: { 
             duration: this.expectedDuration, 
-            durationType: this.selectExpectedDuration.value
+            durationType: this.selectExpectedDuration
           },
           category: this.category,
           description: this.description,

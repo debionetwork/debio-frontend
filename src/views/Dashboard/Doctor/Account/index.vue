@@ -60,7 +60,7 @@
                   placeholder="Doctor Name"
                   outlined
                   v-model="doctorName"
-                  :rules="[val => !!val || 'Name is Required']"
+                  :rules="[val => !!val || 'This field is required']"
                 ></v-text-field>
 
                 <v-autocomplete
@@ -107,7 +107,7 @@
                   placeholder="Address"
                   outlined
                   v-model="address"
-                  :rules="[val => !!val || 'Address is Required']"
+                  :rules="[val => !!val || 'This field is required']"
                 ></v-text-field>
 
                 <v-btn
@@ -186,16 +186,16 @@ export default {
 
     rules(){
       return [
-        file => !!file || 'Image is Required',
+        file => !!file || 'This field is required',
         file => !file || file.type == 'image/jpg' || file.type == 'image/jpeg' || 'Document type should be image/jpg',
-        file => !file || file.size <= 3_097_152 || 'Document size should be less than 3 MB!',
+        file => !file || file.size <= 3_097_152 || 'The total file size uploaded exceeds the maximum file size allowed (3MB)',
       ]
     },
 
     emailRules(){
       return [
-        v => !!v || 'E-mail is required',
-        v => /.+@.+/.test(v) || 'E-mail must be valid',
+        v => !!v || 'This field is required',
+        v => /.+@.+/.test(v) || 'Email is invalid. It should contain @ followed by a domain',
       ]
     }
   },
