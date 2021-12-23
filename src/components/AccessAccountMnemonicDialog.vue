@@ -43,6 +43,8 @@
 </template>
 
 <script>
+import { mnemonicValidate } from "@polkadot/util-crypto"
+
 export default {
   name: "AccessAccountMnemonicDialog",
   props: {
@@ -52,15 +54,7 @@ export default {
   },
   data: () => ({
     formValid: true,
-    mnemonic: "",
-    mnemonicRules: [
-      (val) => {
-        return (
-          (val && val.trim().split(/\s+/g).length >= 12) ||
-          "Number of words must be 12 or more"
-        );
-      },
-    ],
+    mnemonic: ""
   }),
   computed: {
     _show: {
@@ -70,6 +64,14 @@ export default {
       set(val) {
         this.$emit("toggle", val);
       },
+    },
+
+    mnemonicRules() {
+      return [
+        val => !!val || "Mnemonic cannot be empty.",
+        val => (val && mnemonicValidate(val)) || "Mnemonic invalid.",
+        val => (val && val.trim().split(/\s+/g).length >= 12) || "Number of words must be 12 or more"
+      ]
     },
   },
   methods: {
