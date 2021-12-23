@@ -21,7 +21,7 @@
             outlined
             auto-grow
             label="Type in your mnemonic phrase."
-            :rules="mnemonicRules"
+            :rules="[mnemonicRules]"
             v-model="mnemonic"
           ></v-textarea>
         </v-form>
@@ -43,6 +43,8 @@
 </template>
 
 <script>
+import { mnemonicValidate } from "@polkadot/util-crypto"
+
 export default {
   name: "AccessAccountMnemonicDialog",
   props: {
@@ -52,15 +54,7 @@ export default {
   },
   data: () => ({
     formValid: true,
-    mnemonic: "",
-    mnemonicRules: [
-      (val) => {
-        return (
-          (val && val.trim().split(/\s+/g).length >= 12) ||
-          "Number of words must be 12 or more"
-        );
-      },
-    ],
+    mnemonic: ""
   }),
   computed: {
     _show: {
@@ -70,6 +64,14 @@ export default {
       set(val) {
         this.$emit("toggle", val);
       },
+    },
+
+    mnemonicRules() {
+      if(!this.mnemonic) return "Mnemonic cannot be empty."
+      if (!(this.mnemonic.trim().split(/\s+/g).length >= 12)) return "Number of words must be 12 or more"
+      if(!mnemonicValidate(this.mnemonic)) return "Mnemonic invalid."
+
+      return true
     },
   },
   methods: {
