@@ -264,7 +264,7 @@ export default {
       {text: 'Hours', value: 'Hours'},
       {text: 'Days', value: 'Days'}
     ],
-    selectExpectedDuration: {text: 'Working Days', value: 'WorkingDays'},
+    selectExpectedDuration: 'WorkingDays',
     expectedDuration: '',
     isEdit: false,
     stepperItems: [
