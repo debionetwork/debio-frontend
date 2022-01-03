@@ -5,8 +5,15 @@ import App from './App.vue'
 import vuetify from './plugins/vuetify';
 import { fmtSpecimenNumber } from './lib/string-format'
 import { format, fromUnixTime } from 'date-fns'
-// import localStorage from './lib/local-storage'
+import VueGtag from "vue-gtag"
 
+var pjson = require('./package.json')
+
+Vue.use(VueGtag, {
+  config: { id: process.env.VUE_APP_GTAG },
+  appName: pjson.name,
+  pageTrackerScreenviewEnabled: true
+}, router)
 
 Vue.config.productionTip = false
 
