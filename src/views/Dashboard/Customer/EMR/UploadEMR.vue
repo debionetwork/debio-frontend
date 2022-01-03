@@ -326,14 +326,14 @@ export default {
     },
     titleRules() {
       return [
-        val => !!val || 'Title is Required',
-        val => (val && val.length <= 50) || 'Max 50 Character'
+        val => !!val || 'This field is required',
+        val => (val && val.length <= 50) || 'This field only allows 50 characters'
       ]
     },
     descriptionRules() {
       return [
-        val => !!val || 'Description is Required',
-        val => (val && val.length <= 255) || 'Max 255 Character'
+        val => !!val || 'This field is required',
+        val => (val && val.length <= 255) || 'This field only allows 255 characters'
       ]
     }
   },
