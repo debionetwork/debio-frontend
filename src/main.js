@@ -5,17 +5,13 @@ import App from "./App.vue"
 import vuetify from "./plugins/vuetify";
 import { fmtSpecimenNumber } from "./lib/string-format"
 import { format, fromUnixTime } from "date-fns"
-import VueGtag from "vue-gtag"
 import * as Sentry from "@sentry/vue"
 import { Integrations } from "@sentry/tracing"
+import VueMixpanel from "vue-mixpanel"
 
-var pjson = require("../package.json")
-
-Vue.use(VueGtag, {
-  config: { id: process.env.VUE_APP_GTAG },
-  appName: pjson.name,
-  pageTrackerScreenviewEnabled: true
-}, router)
+Vue.use(VueMixpanel, {
+  token: process.env.VUE_APP_MIXPANEL_TOKEN
+})
 
 const SENTRY_DSN = process.env.VUE_APP_SENTRY_DSN
 
