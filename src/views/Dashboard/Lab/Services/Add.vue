@@ -202,7 +202,7 @@
                       large
                       :disabled="isUploading"
                       :loading="isLoading"
-                      @click="createService"
+                      @click="handleCreateService"
                     >Submit</v-btn>
                 </v-card-text>
               </v-form>
@@ -216,7 +216,7 @@
 <script>
 import { mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
-import { createService, claimRequestService } from '@/lib/polkadotProvider/command/services'
+import { createLabService, claimRequestService } from '@/lib/polkadotProvider/command/services'
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { getProvideRequestService, getCategories } from "@/lib/api";
 import { toEther } from "@/lib/balance-format"
@@ -465,14 +465,14 @@ export default {
       this.serviceFlow = serviceFlow
     },
 
-    async createService() {
+    async handleCreateService() {
       if(this.isLoading) return // If function already running return.
       if (!this.$refs.addServiceForm.validate()) {
         return
       }
       try {
         this.isLoading = true
-        await createService(
+        await createLabService(
           this.api,
           this.wallet,
           {

@@ -218,7 +218,7 @@
 <script>
 import { mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
-import { createService, updateService } from '@/lib/polkadotProvider/command/services'
+import { createLabService, updateService } from '@/lib/polkadotProvider/command/services'
 import { getCategories } from "@/lib/api"
 import List from "./List"
 import Stepper from "../Stepper"
@@ -291,6 +291,7 @@ export default {
     ...mapState({
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      web3: (state) => state.metamask.web3,
       isLabExist: state => state.substrate.isLabAccountExist,
       isServicesExist: state => state.substrate.isServicesExist
     }),
@@ -434,14 +435,24 @@ export default {
     },
 
     async prefillServicesForm(service) {
+      window.scrollTo({
+        top: 100,
+        behavior: "smooth"
+      })
+
+      const formatPrice = price => {
+        return this.web3.utils.fromWei(String(price.replaceAll(",", ""), "ether"))
+      }
+
       this.serviceId = service.id
       this.name = service.info.name
       this.currencyType = service.info.pricesByCurrency[0].currency.toUpperCase()
-      this.price = service.info.pricesByCurrency[0].priceComponents[0].value
-      this.qcPrice = service.info.pricesByCurrency[0].additionalPrices[0].value
+      this.price = formatPrice(service.info.pricesByCurrency[0].priceComponents[0].value)
+      this.qcPrice = formatPrice(service.info.pricesByCurrency[0].additionalPrices[0].value)
       this.expectedDuration = service.info.expectedDuration.duration
       this.selectExpectedDuration = service.info.expectedDuration.durationType
       this.category = service.info.category
+      this.biologicalType = service.info.dnaCollectionProcess
       this.description = service.info.description
       this.testResultSampleUrl = service.info.testResultSample
       this.longDescription = service.info.longDescription
@@ -468,12 +479,12 @@ export default {
         return
       }
 
-      await this.createService()
+      await this.handleCreateService()
     },
 
-    async createService() {
+    async handleCreateService() {
       await this.dispatch(
-        createService,
+        createLabService,
         this.api,
         this.wallet,
         {
@@ -535,13 +546,13 @@ export default {
               priceComponents: [
                 {
                   component: "testing_price",
-                  value: this.price
+                  value: await toEther(this.price)
                 }
               ],
               additionalPrices: [
                 {
                   component: "qc_price",
-                  value: this.qcPrice
+                  value: await toEther(this.qcPrice)
                 }
               ],
             },
