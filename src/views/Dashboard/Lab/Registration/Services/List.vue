@@ -37,7 +37,9 @@
                     </div>
                     <div>
                       <span>
-                        Price     : {{ web3.utils.fromWei(String((service.info.pricesByCurrency[0].totalPrice).replaceAll(",", "")), 'ether') }} {{ service.info.pricesByCurrency[0].currency }}
+                        Price     : 
+                        {{ web3.utils.fromWei(String(service.info.pricesByCurrency[0].totalPrice.replaceAll(",", "")), "ether") }} 
+                        {{ service.info.pricesByCurrency[0].currency }}
                       </span>
                     </div>
                     <div>
@@ -78,8 +80,8 @@ export default {
     }),
 
     ...mapState({
-      web3: (state) => state.metamask.web3
-    }),
+      web3: state => state.metamask.web3
+    })
   },
 
   methods: {
