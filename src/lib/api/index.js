@@ -1,4 +1,5 @@
 import axios from "axios"
+import * as Sentry from "@sentry/vue"
 
 // EXPORT API COLLECTIONS HERE
 export * from "./categories"
@@ -17,5 +18,16 @@ const apiClientRequest = axios.create({
         password: process.env.VUE_APP_PASSWORD
     }
 })
+
+apiClientRequest.interceptors.response.use(
+  response => {
+    return response;
+  },
+  error => {
+    Sentry.captureException(error);
+
+    return Promise.reject(error);
+  },
+)
 
 export default apiClientRequest
