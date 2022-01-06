@@ -180,6 +180,14 @@
           "route": "lab-process",
           "params": "number",
           "identity": "lab_id"
+        },
+        "DnaSampleQualityControlled": {
+          "message": "You’ve got ",
+          "value": "tracking_id",
+          "value_message": "tracking_id",
+          "route": "",
+          "params": "",
+          "identity": "labId"
         }
       },
       "rewards": {
