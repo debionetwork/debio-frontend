@@ -30,68 +30,15 @@ export async function changeChain() {
   });
 }
 
-export async function addTokenUsdt() {
-  try {
-    const wasAdded = await window.ethereum.request({
-      method: 'wallet_watchAsset',
-      params: {
-        type: 'ERC20', // Initially only supports ERC20, but eventually more!
-        options: {
-          address: '0xaf622dd428F0e35f6CC48A0756A93E32441060a8', // The address that the token is at.
-          symbol: 'USDT', // A ticker symbol or shorthand, up to 5 chars.
-          decimals: 8, // The number of decimals in the token
-          image: 'https://s2.coinmarketcap.com/static/img/coins/200x200/825.png', // A string url of the token logo
-        },
-      },
-    });
-    if (!wasAdded) {
-      console.log('Failed to add USDT token!');
-      return false;
-    } else {
-      return true;
-    }
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-}
-
-export async function addTokenDAIC() {
-  try {
-    const contractInfo = require('@/store/metamask/contracts/contract.json');
-    const wasAdded = await window.ethereum.request({
-      method: 'wallet_watchAsset',
-      params: {
-        type: 'ERC20', // Initially only supports ERC20, but eventually more!
-        options: {
-          address: contractInfo.DAICToken.address, // The address that the token is at.
-          symbol: 'DAIC', // A ticker symbol or shorthand, up to 5 chars.
-          decimals: 18, // The number of decimals in the token
-          image: 'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png', // A string url of the token logo
-        },
-      },
-    });
-    if (!wasAdded) {
-      console.log('Failed to add DAIC token!');
-      return false;
-    } else {
-      return true;
-    }
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-}
 
 export async function addTokenDAI() {
-  const contractInfo = require('@/store/metamask/contracts/contract.json');
   try {
     const wasAdded = await window.ethereum.request({
       method: 'wallet_watchAsset',
       params: {
         type: 'ERC20', // Initially only supports ERC20, but eventually more!
         options: {
-          address: contractInfo.DAIToken.address, // The address that the token is at.
+          address: process.env.VUE_APP_DEBIO_DAI_TOKEN_ADDRESS, // The address that the token is at.
           symbol: 'DAI', // A ticker symbol or shorthand, up to 5 chars.
           decimals: 18, // The number of decimals in the token
           image: 'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png', // A string url of the token logo
@@ -181,80 +128,22 @@ export async function sendTransaction(to, data, from) {
 }
 
 export async function transfer(data) {
-  const contractInfo = require('@/store/metamask/contracts/contract.json')
   const contractERC20Interface = store.getters['metamask/contracts/getERC20InterfaceContract'];
 
   let raw = contractERC20Interface.methods.transfer(data.seller, data.amount).encodeABI()
 
   let receipt;
-  let contractAddress = "";
-  const coinName = store.getters['auth/getConfig'].tokenName;
-  switch (coinName) {
-    case "DAIC":
-      contractAddress = contractInfo.DAICToken.address;
-      break;
-    case "USDT":
-      contractAddress = contractInfo.USDTTokenAddress.address;
-      break;
-    case "DAI":
-      contractAddress = contractInfo.DAIToken.address;
-      break;
-    default:
-      contractAddress = contractInfo.USDTTokenAddress.address;
-      break;
-  }
+  let contractAddress;
+  contractAddress = process.env.VUE_APP_DEBIO_DAI_TOKEN_ADDRESS;
   receipt = await sendTransaction(contractAddress, raw, data.from);
 
   return { data, receipt }
 
 }
 
-export async function listenEventEscrow() {
-  const contractSingleEscrow = store.getters['metamask/contracts/getSingleEscrowContract'];
-  const singleEscrowAbi = store.getters['metamask/contracts/getSingleEscrowAbi'];
-  for (let p of singleEscrowAbi) {
-    // jika type property adalah event maka buat listener
-    if (p.type == 'event' && typeof contractSingleEscrow.events[p.name] == 'function') {
-      contractSingleEscrow.events[p.name]({}).on('data', (event) => {
-        console.log('handler', event)
-        /********************************************************************************* 
-         * contoh data event deposit
-         * 
-            {
-            logIndex: 0,
-            removed: false,
-            blockNumber: 4348746,
-            blockHash: '0x42c67d7516dac205575d3df47c7560d22987ffb3f963e9ba3d3daf34ca1129dc',
-            transactionHash: '0x741737ece9652c7b30d3f425f629ed17bc16c154242769c4837c8ea9a48af095',
-            transactionIndex: 0,
-            address: '0x8858E40ab8eFd7694610b0B65bA3BAe3AdaCAB06',
-            id: 'log_5cc4153a',
-            returnValues: Result {
-                '0': '0xD123aF6C439D546DD322c4e445F4B7c3C49C80f3',
-                payer: '0xD123aF6C439D546DD322c4e445F4B7c3C49C80f3'
-            },
-            event: 'Deposit',
-            signature: '0x8ce0bd46ec50cf39f0d0ea8686a686eb226af5796dcda4231b26fb84b5ef1234',
-            raw: {
-                data: '0x000000000000000000000000d123af6c439d546dd322c4e445f4b7c3c49c80f3',
-                topics: [
-                '0x8ce0bd46ec50cf39f0d0ea8686a686eb226af5796dcda4231b26fb84b5ef1234'
-                ]
-            }
-        */
-      })
-    }
-  }
-}
 
 export async function addToken(coinName) {
   switch (coinName) {
-    case "DAIC":
-      await addTokenDAIC();
-      break;
-    case "USDT":
-      await addTokenUsdt();
-      break;
     case "Dai":
       await addTokenDAI();
       break;
