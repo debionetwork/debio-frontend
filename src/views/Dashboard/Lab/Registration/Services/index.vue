@@ -218,7 +218,7 @@
 <script>
 import { mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
-import { createLabService, updateService } from '@/lib/polkadotProvider/command/services'
+import { createService, updateService } from '@/lib/polkadotProvider/command/services'
 import { getCategories } from "@/lib/api"
 import List from "./List"
 import Stepper from "../Stepper"
@@ -483,7 +483,7 @@ export default {
 
     async handleCreateService() {
       await this.dispatch(
-        createLabService,
+        createService,
         this.api,
         this.wallet,
         {
