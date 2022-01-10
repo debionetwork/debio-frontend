@@ -1,4 +1,3 @@
-const contractInfo = require('./contract.json')
 const ERC20Interface = require('./abi/ERC20Interface.json')
 
 const defaultState = {
