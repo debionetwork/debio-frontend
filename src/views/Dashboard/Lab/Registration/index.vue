@@ -38,7 +38,7 @@
                 outlined
                 v-model="country"
                 :disabled="isLabAccountExist"
-                :rules="[val => !!val || 'Country is Required']"
+                :rules="[val => !!val || 'This field is required']"
               ></v-autocomplete>
 
               <v-autocomplete
@@ -51,7 +51,7 @@
                 :disabled="!country || isLabAccountExist"
                 outlined
                 v-model="state"
-                :rules="[val => !!val || 'Region is Required']"
+                :rules="[val => !!val || 'This field is required']"
               ></v-autocomplete>
 
               <v-autocomplete
@@ -65,7 +65,7 @@
                 :disabled="!state || isLabAccountExist"
                 outlined
                 v-model="city"
-                :rules="[val => !!val || 'City is Required']"
+                :rules="[val => !!val || 'This field is required']"
               ></v-autocomplete>
 
               <v-text-field
@@ -266,11 +266,11 @@ export default {
     },
 
     computeCountryLabel() {
-      return !this.country && this.isLoading ? this.loadingPlaceholder : "Select Region"
+      return !this.country && this.isLoading ? this.loadingPlaceholder : "Select Country"
     },
 
     computeStateLabel() {
-      return !this.state && this.isLoading ? this.loadingPlaceholder : "Select State"
+      return !this.state && this.isLoading ? this.loadingPlaceholder : "Select State/Province"
     },
 
     computeCityLabel() {
