@@ -45,8 +45,8 @@
                   :headers="headers"
                   :items="services"
                   :search="search"
-                  :sort-by="['timestamp']"
-                  :sort-desc="[true]"
+                  :sort-by="'info.name'"
+                  :sort-desc="[false]"
                   :loading="isLoading"
                   additional-class="laporan-table"
                >
@@ -134,7 +134,7 @@ export default {
   },
   data: () => ({
     headers: [
-        { text: 'Image', value: 'info.image' },
+        { text: 'Image', value: 'info.image', sortable: false },
         { text: 'Name', value: 'info.name' },
         { text: 'Description', value: 'info.description' },
         { text: 'Price', value: 'info.price' },
