@@ -151,7 +151,6 @@ const labRoutes = [
                 ]
               },
               beforeEach: (to, from, next) => {
-                console.log(store.state.substrate.labAccount);
                 if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
                   next("/lab")
                 }
