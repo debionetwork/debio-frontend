@@ -260,8 +260,8 @@ export default {
 
     fileInputRules() {
       return [
-        value => value.size <= 2000000 || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
-        value => !value || 'This field is required'
+        value => !!value.size || 'This field is required',
+        value => value.size < 2000000 || 'The total file size uploaded exceeds the maximum file size allowed (2MB)'
       ]
     },
 
