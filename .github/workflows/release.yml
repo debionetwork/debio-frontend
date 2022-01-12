@@ -173,7 +173,6 @@ jobs:
               --install \
               --set-string image.repository=gcr.io/${{ secrets.MAINNET_GCP_PROJECT_ID }}/${{ github.repository }} \
               --set-string image.tag=${{ needs.compute-build-info.outputs.latest_tag }} \
-              --set-string image.pullPolicy=Always \
               --set-string imagePullSecrets[0].name=gcr-auth \
               --set ingress.enabled=true \
               --set-string ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
@@ -184,13 +183,13 @@ jobs:
               --set-string ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
               --set-string ingress.tls[0].secretName=debio-frontend-tls \
               --set-string ingress.tls[0].hosts[0]=lab.debio.network \
-              --set-string resources.requests.cpu=300m \
-              --set-string resources.requests.memory=512Mi \
-              --set-string resources.limits.cpu=500m \
-              --set-string resources.limits.memory=1024Mi \
-              --set replicaCount=3 \
+              --set-string resources.requests.cpu=100m \
+              --set-string resources.requests.memory=256Mi \
+              --set-string resources.limits.cpu=300m \
+              --set-string resources.limits.memory=512Mi \
+              --set replicaCount=2 \
               --set autoscaling.enabled=true \
-              --set autoscaling.minReplicas=3 \
+              --set autoscaling.minReplicas=2 \
               --set autoscaling.maxReplicas=11
             kubectl rollout status deployment/debio-frontend
 
@@ -239,6 +238,7 @@ jobs:
               --install \
               --set-string image.repository=gcr.io/${{ secrets.MAINNET_GCP_PROJECT_ID }}/${{ github.repository }} \
               --set-string image.tag=${{ needs.compute-build-info.outputs.latest_tag }} \
+              --set-string image.pullPolicy=Always \
               --set-string imagePullSecrets[0].name=gcr-auth \
               --set ingress.enabled=true \
               --set-string ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
@@ -249,12 +249,12 @@ jobs:
               --set-string ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
               --set-string ingress.tls[0].secretName=debio-frontend-tls \
               --set-string ingress.tls[0].hosts[0]=lab.debio.network \
-              --set-string resources.requests.cpu=300m \
-              --set-string resources.requests.memory=512Mi \
-              --set-string resources.limits.cpu=500m \
-              --set-string resources.limits.memory=1024Mi \
-              --set replicaCount=3 \
+              --set-string resources.requests.cpu=100m \
+              --set-string resources.requests.memory=256Mi \
+              --set-string resources.limits.cpu=300m \
+              --set-string resources.limits.memory=512Mi \
+              --set replicaCount=2 \
               --set autoscaling.enabled=true \
-              --set autoscaling.minReplicas=3 \
+              --set autoscaling.minReplicas=2 \
               --set autoscaling.maxReplicas=11
             kubectl rollout status deployment/debio-frontend
