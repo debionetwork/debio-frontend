@@ -142,7 +142,7 @@ export default {
 
         this.$store.dispatch("substrate/addListNotification", {
           address: this.wallet.address,
-          event: this.lastEventData,
+          event: val,
           role: "lab",
         });
       }

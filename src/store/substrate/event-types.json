@@ -124,28 +124,12 @@
       },
       "orders": {
         "OrderPaid": {
-          "message": "New order in.",
+          "message": "",
           "value": "id",
-          "value_message": "dna_sample_tracking_id",
-          "route": "lab-dashboard-order-history",
-          "params": "number",
-          "identity": "seller_id"
-        },
-        "OrderSuccess": {
-          "message": "Order completed",
-          "value": "id",
-          "value_message": "dna_sample_tracking_id",
-          "route": "lab-dashboard-order-history",
-          "params": "number",
-          "identity": "seller_id"
-        },
-        "OrderRefunded": {
-          "message": "Order rejected or returned",
-          "value": "id",
-          "value_message": "dna_sample_tracking_id",
-          "route": "lab-dashboard-order-history",
-          "params": "number",
-          "identity": "seller_id"
+          "value_message": "You have new order awaiting to procceed",
+          "route": "lab-dashboard-process-order",
+          "params": "orderId",
+          "identity": "sellerId"
         }
       },
       "geneticTesting": {
@@ -196,6 +180,14 @@
           "route": "lab-process",
           "params": "number",
           "identity": "lab_id"
+        },
+        "DnaSampleQualityControlled": {
+          "message": "You’ve got ",
+          "value": "tracking_id",
+          "value_message": "tracking_id",
+          "route": "",
+          "params": "",
+          "identity": "labId"
         }
       },
       "rewards": {
