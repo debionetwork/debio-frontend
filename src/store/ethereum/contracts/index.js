@@ -20,10 +20,10 @@ export default {
     ...defaultState,
   },
   mutations: {
-    SET_CONTRACT_DEGENICS(state, contractDegenics){
+    SET_CONTRACT_DEBIO(state, contractDegenics){
       state.contractDegenics = contractDegenics
     },
-    SET_CONTRACT_DEGENICS_LOG(state, contractDegenicsLog) {
+    SET_CONTRACT_DEBIO_LOG(state, contractDegenicsLog) {
       state.contractDegenicsLog = contractDegenicsLog
     },
     SET_CONTRACT_LOCATION(state, contractLocation){
@@ -50,8 +50,8 @@ export default {
       const specimenContract =  new web3.eth.Contract(Specimen, process.env.VUE_APP_DEBIO_ETH_SPECIMEN_ADDRESS) // TO REMOVE ?
 
 
-      commit('SET_CONTRACT_DEGENICS', degenicsContract)
-      commit('SET_CONTRACT_DEGENICS_LOG', degenicsLogContract)
+      commit('SET_CONTRACT_DEBIO', degenicsContract)
+      commit('SET_CONTRACT_DEBIO_LOG', degenicsLogContract)
       commit('SET_CONTRACT_LOCATION', locationContract)
       commit('SET_CONTRACT_LAB', labContract)
       commit('SET_CONTRACT_ACCOUNT', accountContract)

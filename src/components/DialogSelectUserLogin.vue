@@ -2,7 +2,7 @@
   <v-dialog :value="_show" max-width="500" persistent>
     <v-card>
       <v-app-bar flat dense color="white">
-        <v-toolbar-title class="title"> Sign In </v-toolbar-title>
+        <v-toolbar-title class="title"> Sign In</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn icon @click="closeDialog">
           <v-icon>mdi-close</v-icon>
@@ -187,10 +187,12 @@ export default {
 
     async getKeyStoreLocal() {
       try {
-        this.loading = true;
         this.dataAccountJson = localStorage.getKeystore();
         this.dataAccount = JSON.parse(this.dataAccountJson);
-        const balance = await queryBalance(this.api, this.dataAccount.address)
+        if (!this.dataAccount) return
+
+        this.loading = true;
+        const balance = await queryBalance(this.api, this.dataAccount?.address)
         this.balance = Number(await fromEther(balance)).toFixed(3)
         this.loading = false;
       } catch (err) {
@@ -260,6 +262,8 @@ export default {
         if (result.success) {
           this._show = false;
           this.clearInput();
+          const account = Object.keys(window.localStorage).find(v => /account:/.test(v))
+          localStorage.setKeystore(localStorage.getLocalStorageByName(account))
           this.$emit("key-store-set");
           return;
         } else {

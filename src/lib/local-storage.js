@@ -2,49 +2,49 @@ const localStorage = {
   /**
    * Keys
    */
-  DEGENICS_KS: 'DEGENICS_KS',
-  DEGENICS_RPC_URL: 'DEGENICS_RPC_URL',
-  DEGENICS_CONFIG: 'DEGENICS_CONFIG',
-  DEGENICS_ADDRESS_LOGIN: 'DEGENICS_ADDRESS_LOGIN',
+  DEBIO_KS: 'DEBIO_KS',
+  DEBIO_RPC_URL: 'DEBIO_RPC_URL',
+  DEBIO_CONFIG: 'DEBIO_CONFIG',
+  DEBIO_ADDRESS_LOGIN: 'DEBIO_ADDRESS_LOGIN',
   /**
    * getter setters
    */
   setKeystore(keystore) {
-    window.localStorage.setItem(this.DEGENICS_KS, keystore)
+    window.localStorage.setItem(this.DEBIO_KS, keystore)
   },
   getKeystore() {
-    return window.localStorage.getItem(this.DEGENICS_KS)
+    return window.localStorage.getItem(this.DEBIO_KS)
   },
   removeKeystore() {
-    window.localStorage.removeItem(this.DEGENICS_KS)
+    window.localStorage.removeItem(this.DEBIO_KS)
   },
   setRpcUrl(url) {
-    window.localStorage.setItem(this.DEGENICS_RPC_URL, url)
+    window.localStorage.setItem(this.DEBIO_RPC_URL, url)
   },
   getRpcUrl() {
-    return window.localStorage.getItem(this.DEGENICS_RPC_URL)
+    return window.localStorage.getItem(this.DEBIO_RPC_URL)
   },
   setAppConfig(jsonConfig) {
-    window.localStorage.setItem(this.DEGENICS_CONFIG, jsonConfig)
+    window.localStorage.setItem(this.DEBIO_CONFIG, jsonConfig)
   },
   getAppConfig() {
-    return window.localStorage.getItem(this.DEGENICS_CONFIG)
+    return window.localStorage.getItem(this.DEBIO_CONFIG)
   },
   clear() {
-    //window.localStorage.removeItem(this.DEGENICS_KS)
-    window.localStorage.removeItem(this.DEGENICS_ADDRESS_LOGIN)
-    window.localStorage.removeItem(this.DEGENICS_RPC_URL)
-    window.localStorage.removeItem(this.DEGENICS_CONFIG)
+    // window.localStorage.removeItem(this.DEBIO_KS)
+    window.localStorage.removeItem(this.DEBIO_ADDRESS_LOGIN)
+    window.localStorage.removeItem(this.DEBIO_RPC_URL)
+    window.localStorage.removeItem(this.DEBIO_CONFIG)
    // window.localStorage.removeItem("mnemonic_data")
   },
   setAddress(address) {
-    window.localStorage.setItem(this.DEGENICS_ADDRESS_LOGIN, address)
+    window.localStorage.setItem(this.DEBIO_ADDRESS_LOGIN, address)
   },
   getAddress() {
-    return window.localStorage.getItem(this.DEGENICS_ADDRESS_LOGIN)
+    return window.localStorage.getItem(this.DEBIO_ADDRESS_LOGIN)
   },
   removeAddress() {
-    window.localStorage.removeItem(this.DEGENICS_ADDRESS_LOGIN)
+    window.localStorage.removeItem(this.DEBIO_ADDRESS_LOGIN)
   },
   setLocalStorageByName(name, data) {
     window.localStorage.setItem(name, data)

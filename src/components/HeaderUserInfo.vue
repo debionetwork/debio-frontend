@@ -21,14 +21,6 @@
     <div class="mt-11">
       <v-card>
         <v-list>
-          <v-list-item two-line @click="downloadKeystore">
-            <v-list-item-action>
-              <v-icon>mdi-file-key</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title>Download Keystore File</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
           <v-list-item two-line @click="openWalletBinding">
             <v-list-item-action>
               <v-icon>mdi-wallet</v-icon>
@@ -115,45 +107,6 @@ export default {
       this.$store.dispatch("lab/setProvideService", {})
       this.$store.commit("substrate/SET_IS_SERVICES_EXIST", false)
       this.$router.push("/login");
-    },
-    downloadKeystore() {
-      let dataDownload = [];
-      const keystoreJson = localStorage.getKeystore();
-      if (keystoreJson != null && keystoreJson != "") {
-        dataDownload.push(JSON.parse(keystoreJson));
-      }
-      const dataMnemonicJson =
-        localStorage.getLocalStorageByName("mnemonic_data");
-      if (dataMnemonicJson != null && dataMnemonicJson != "") {
-        dataDownload.push(JSON.parse(dataMnemonicJson));
-      }
-
-      if (dataDownload.length > 0) {
-        const blob = new Blob([JSON.stringify(dataDownload)], { type: "text/plain" });
-        const e = document.createEvent("MouseEvents");
-        const a = document.createElement("a");
-        a.download = "keystore.json";
-        a.href = window.URL.createObjectURL(blob);
-        a.dataset.downloadurl = ["text/json", a.download, a.href].join(":");
-        e.initEvent(
-          "click",
-          true,
-          false,
-          window,
-          0,
-          0,
-          0,
-          0,
-          0,
-          false,
-          false,
-          false,
-          false,
-          0,
-          null
-        );
-        a.dispatchEvent(e);
-      }
     },
     openWalletBinding() {
       this.$emit("showWalletBinding", true);
