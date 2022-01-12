@@ -216,7 +216,7 @@
 <script>
 import { mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
-import { createLabService, claimRequestService } from '@/lib/polkadotProvider/command/services'
+import { createService, claimRequestService } from '@/lib/polkadotProvider/command/services'
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { getProvideRequestService, getCategories } from "@/lib/api";
 import { toEther } from "@/lib/balance-format"
@@ -472,7 +472,7 @@ export default {
       }
       try {
         this.isLoading = true
-        await createLabService(
+        await createService(
           this.api,
           this.wallet,
           {

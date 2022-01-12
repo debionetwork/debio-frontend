@@ -218,7 +218,7 @@
 <script>
 import { mapState } from 'vuex'
 import { upload } from "@/lib/ipfs"
-import { createLabService, updateService } from '@/lib/polkadotProvider/command/services'
+import { createService, updateService } from '@/lib/polkadotProvider/command/services'
 import { getCategories } from "@/lib/api"
 import List from "./List"
 import Stepper from "../Stepper"
@@ -396,20 +396,21 @@ export default {
       const currentLab = await queryLabsById(this.api, this.wallet.address)
 
       if (this.isLabExist && currentLab.verificationStatus === "Unverified") {
+        await sendEmailRegisteredLab(this.wallet.address)
+
         this.$store.dispatch("substrate/addAnyNotification", {
           address: this.wallet.address,
           dataAdd: {
-            message: "Your verification request has been submitted.",
+            message: "Congrats! You have been submitted your account verification.",
             data: currentLab,
             route: null,
             params: null
           },
           role: "lab",
         })
-      }
 
-      await sendEmailRegisteredLab(this.wallet.address)
-      this.dialogAlert = true
+        this.dialogAlert = true
+      }
     },
 
     setServices() {
@@ -483,7 +484,7 @@ export default {
 
     async handleCreateService() {
       await this.dispatch(
-        createLabService,
+        createService,
         this.api,
         this.wallet,
         {
