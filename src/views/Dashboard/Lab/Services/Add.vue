@@ -186,7 +186,7 @@
 
                     <v-file-input
                       :rules="fileInputRules"
-                      accept=".pdf, .doc, .docx"
+                      accept=".pdf"
                       dense
                       label="Test Result Sample"
                       placeholder="Test Result Sample"
@@ -350,7 +350,7 @@ export default {
       return [
         value => !!value || 'Test Result Sample is required.',
         value => (!!value && value.size < 2000000) || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
-        value => (!!value && (value.type === "" || value.type === "application/pdf" || value.type === "application/msword" || value.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document")) || 'The files uploaded are not in the supported file formats.',
+        value => (!!value && value.type === "application/pdf") || 'The files uploaded are not in the supported file formats.',
       ]
     },
 
