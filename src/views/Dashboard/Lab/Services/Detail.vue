@@ -280,72 +280,72 @@ export default {
 
     serviceCategoryRules() {
       return [
-        val => !!val || 'This field is required.'
+        val => !!val || 'Service Category is required.'
       ]
     },
 
     biologicalTypeRules() {
       return [
-        val => !!val || 'This field is required.'
+        val => !!val || 'Type of Biological Sample is required.'
       ]
     },
 
     serviceNameRules() {
       return [
-        val => !!val || 'This field is required.',
-        val => (val && val.length <= 50) || 'This field only allows 50 characters.'
+        val => !!val || 'Service Name is required.',
+        val => (val && val.length <= 50) || 'Service Name only allows 50 characters.'
       ]
     },
 
     curencyTypeRules() {
       return [
-        val => !!val || 'This field is required.'
+        val => !!val || 'Currency is required.'
       ]
     },
 
     priceRules() {
       return [
-        val => !!val || 'This field is required.',
-        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'This field only allows 3 decimal characters.'
+        val => !!val || 'Price is required.',
+        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'Price only allows 3 decimal characters.'
       ]
     },
 
     qcQurencyTypeRules() {
       return [
-        val => !!val || 'This field is required.'
+        val => !!val || 'QC Currency Type is required.'
       ]
     },
     
     cqPriceRules() {
       return [
-        val => !!val || this.isBiomedical || 'This field is required.',
-        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'This field only allows 3 decimal characters.'
+        val => !!val || this.isBiomedical || 'QC Price is required.',
+        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'QC Price only allows 3 decimal characters.'
       ]
     },
 
     descriptionRules() {
       return [
-        val => !!val || 'This field is required.',
-        val => (val && val.length <= 255) || 'This field only allows 255 characters.'
+        val => !!val || 'Description is required.',
+        val => (val && val.length <= 255) || 'Description only allows 100 characters.'
       ]
     },
 
     longDescriptionRules() {
       return [
-        val => !!val || 'This field is required.',
-        val => (val && val.length <= 1000) || 'This field only allows 1000 characters.'
+        val => !!val || 'Long Description is required.',
+        val => (val && val.length <= 1000) || 'Long Description only allows 255 characters.'
       ]
     },
 
     expectedDurationRules() {
       return [
-        val => !!val || 'This field is required.'
+        val => !!val || '​Expected Duration is required.'
       ]
     },
 
     fileInputRules() {
       return [
-        value => !!value || 'This field is required.',
+        value => !!value || 'Test Result Sample is required.',
         value => (!!value && value.size < 2000000) || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
         value => (!!value && (value.type === "" || value.type === "application/pdf" || value.type === "application/msword" || value.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document")) || 'The files uploaded are not in the supported file formats.',
       ]
