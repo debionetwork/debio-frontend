@@ -54,12 +54,12 @@ const labRoutes = [
                   { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
-              beforeEach: (to, from, next) => {
+              beforeEnter: (to, from, next) => {
                 if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
                   next("/lab")
                 }
 
-                next()
+                else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Account'),
             },
@@ -150,12 +150,12 @@ const labRoutes = [
                     { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
-              beforeEach: (to, from, next) => {
+              beforeEnter: (to, from, next) => {
                 if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
                   next("/lab")
                 }
 
-                next()
+                else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Services')
             },
@@ -177,12 +177,12 @@ const labRoutes = [
                     { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
-              beforeEach: (to, from, next) => {
+              beforeEnter: (to, from, next) => {
                 if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
                   next("/lab")
                 }
 
-                next()
+                else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Services/Add')
             },
@@ -204,12 +204,12 @@ const labRoutes = [
                     { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
-              beforeEach: (to, from, next) => {
+              beforeEnter: (to, from, next) => {
                 if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
                   next("/lab")
                 }
 
-                next()
+                else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Services/Detail')
             },
@@ -230,12 +230,12 @@ const labRoutes = [
                     { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
-              beforeEach: (to, from, next) => {
+              beforeEnter: (to, from, next) => {
                 if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
                   next("/lab")
                 }
 
-                next()
+                else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/OrderHistory')
             },
@@ -257,12 +257,12 @@ const labRoutes = [
                     { text: "Customer Care", href: "https://docs.debio.network/" },
                 ]
               },
-              beforeEach: (to, from, next) => {
+              beforeEnter: (to, from, next) => {
                 if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
                   next("/lab")
                 }
 
-                next()
+                else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/OrderHistory/ProcessOrder')
             },

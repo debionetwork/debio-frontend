@@ -59,7 +59,7 @@
           icon="mdi-microscope"
           title="Account"
           sub-title="Account page"
-          @click="$router.push({ name: 'lab-dashboard-account' })"
+          :to="{ name: 'lab-dashboard-account' }"
         />
         <MenuCard
           :height="120"
@@ -67,7 +67,7 @@
           icon="mdi-hand-heart"
           title="Services"
           sub-title="Services list"
-          @click="$router.push({ name: 'lab-dashboard-services' })"
+          :to="{ name: 'lab-dashboard-services' }"
         />
         <MenuCard
           :height="120"
@@ -75,7 +75,7 @@
           icon="mdi-clipboard-plus"
           title="Orders"
           sub-title="Payment History"
-          @click="$router.push({ name: 'lab-dashboard-order-history' })"
+          :to="{ name: 'lab-dashboard-order-history' }"
         />
       </v-col>
       <v-col cols="12" md="5">
