@@ -108,7 +108,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from "vuex"
+import { mapGetters } from "vuex"
 import { registerDoctor } from "@/lib/polkadotProvider/command/doctors"
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile"
 import { getWalletAddress } from "@/lib/metamask/wallet"
@@ -142,10 +142,6 @@ export default {
       pair: "substrate/wallet",
       doctorAccount: "substrate/doctorAccount",
       isDoctorAccountExist: "substrate/isDoctorAccountExist",
-    }),
-    ...mapState({
-      locationContract: state => state.ethereum.contracts.contractLocation,
-      degenicsContract: state => state.ethereum.contracts.contractDegenics,
     }),
     citiesSelection() {
       return this.cities

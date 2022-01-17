@@ -203,8 +203,6 @@ export default {
     }),
 
     ...mapState({
-      locationContract: state => state.ethereum.contracts.contractLocation,
-      degenicsContract: state => state.ethereum.contracts.contractDegenics,
       mnemonicData: state => state.substrate.mnemonicData
     }),
 
