@@ -460,7 +460,7 @@ export default {
 
       const res = await fetch(service.info.testResultSample)
       const blob = await res.blob() // Gets the response and returns it as a blob
-      const file = new File([blob], service.info.testResultSample.substring(21), {type: "application/pdf"})
+      const file = new File([blob], `${service.info.name} Test result sample`, {type: "application/pdf"})
       this.testResultSampleFile = file
 
       this.isEdit = true

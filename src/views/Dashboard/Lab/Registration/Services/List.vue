@@ -51,7 +51,7 @@
                     <div v-if="service.info.testResultSample" class="mt-3 mb-3">
                       <a :href="service.info.testResultSample" class="support-url" target="_blank">
                         <v-icon class="mx-1" small>mdi-file-document</v-icon>
-                        Test Result Sample
+                        {{ service.info.name }} Test result sample
                       </a>
                     </div>
                   </div>
