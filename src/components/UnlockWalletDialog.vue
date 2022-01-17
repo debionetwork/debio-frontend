@@ -23,9 +23,12 @@
       ></v-progress-linear>
     </template>
     <template v-slot:actions>
-      <Button @click="decryptWallet" color="primary" dark>
-        Unlock
-      </Button>
+      <div class="button-wrapper d-flex justify-space-between align-center px-2">
+        <router-link :to="{ name: 'login', query: { forgot: 1 } }" class="forgot-btn">FORGOT PASSWORD</router-link>
+        <Button class="unlock-btn" @click="decryptWallet" color="primary" dark>
+          Unlock
+        </Button>
+      </div>
     </template>
   </Dialog>
 </template>
@@ -89,6 +92,15 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+  .button-wrapper {
+    width: 100%;
+  }
 
+  .forgot-btn {
+    font-size: 14px;
+  }
+  .unlock-btn {
+    width: 50% !important;
+  }
 </style>
