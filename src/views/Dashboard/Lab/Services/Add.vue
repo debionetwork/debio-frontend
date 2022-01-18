@@ -626,10 +626,10 @@ export default {
           name: "lab-dashboard"
         },
         NOT_EXIST: {
-          name: "lab-registration-services"
+          name: "lab-registration"
         },
         CITY_NOT_MATCH: {
-          name: "request-lab"
+          name: "lab-dashboard-services"
         }
       })
 
