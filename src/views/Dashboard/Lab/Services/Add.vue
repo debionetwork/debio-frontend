@@ -368,7 +368,7 @@ export default {
       const MESSAGE = Object.freeze({
         UNVERIFIED: {
           type: "UNVERIFIED",
-          actionTitle: "Go to dashboard",
+          actionTitle: "Close",
           title: "Your verification process is still under review",
           subtitle: `
             We're sorry to say that you cannot provide a service until you are verified. 
@@ -377,7 +377,7 @@ export default {
         },
         REJECTED: {
           type: "REJECTED",
-          actionTitle: "Go to dashboard",
+          actionTitle: "Close",
           title: "Your verification process is rejected",
           subtitle: `
             We're sorry to say that you cannot provide a service because your verification status is rejected
@@ -386,7 +386,7 @@ export default {
         },
         REVOKED: {
           type: "REVOKED",
-          actionTitle: "Go to dashboard",
+          actionTitle: "Close",
           title: "Your verification process is revoked",
           subtitle: `
             We're sorry to say that you cannot provide a service because your verification status is revoked
@@ -395,9 +395,9 @@ export default {
         },
         NOT_EXIST: {
           type: "NOT_EXIST",
-          actionTitle: "Complete register",
+          actionTitle: "Proceed",
           title: "You are not registered yet",
-          subtitle: "Please complete registration process and fill in your lab's service"
+          subtitle: "Complete your registration process first before continue"
         },
         CITY_NOT_MATCH: {
           type: "CITY_NOT_MATCH",
