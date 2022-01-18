@@ -56,6 +56,8 @@ jobs:
             VUE_APP_USERNAME:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_USERNAME
             VUE_APP_PASSWORD:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_PASSWORD
             CONTRACT_JSON:${{ secrets.MAINNET_GCP_PROJECT_ID }}/CONTRACT_JSON
+            VUE_APP_MIXPANEL_TOKEN:${{ secrets.MAINNET_GCP_PROJECT_ID }}/VUE_APP_MIXPANEL_TOKEN
+            VUE_APP_SENTRY_DSN:${{ secrets.MAINNET_GCP_PROJECT_ID }}/LAB_SENTRY_DSN
       - name: Create .env & gcp sa
         shell: bash
         run: |
@@ -70,6 +72,8 @@ jobs:
           VUE_APP_DEBIO_API_KEY=${{ steps.secrets.outputs.VUE_APP_DEBIO_API_KEY }}
           VUE_APP_USERNAME=${{ steps.secrets.outputs.VUE_APP_USERNAME }}
           VUE_APP_PASSWORD=${{ steps.secrets.outputs.VUE_APP_PASSWORD }}
+          VUE_APP_MIXPANEL_TOKEN=${{ steps.secrets.outputs.VUE_APP_MIXPANEL_TOKEN }}
+          VUE_APP_SENTRY_DSN=${{ steps.secrets.outputs.VUE_APP_SENTRY_DSN }}
           EOF
 
           rm ./src/store/metamask/contracts/contract.json

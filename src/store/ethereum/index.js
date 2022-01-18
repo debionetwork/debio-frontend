@@ -1,6 +1,5 @@
 import Web3 from 'web3'
 import localStorage from '../../lib/local-storage'
-import contracts from './contracts'
 import Wallet from '../../lib/dgnx-wallet'
 // import getWalletBalance from '../../lib/get-wallet-balance'
 
@@ -17,9 +16,6 @@ const defaultState = {
 
 export default {
   namespaced: true,
-  modules: {
-    contracts,
-  },
   state: {
     ...defaultState,
   },

@@ -55,6 +55,8 @@ jobs:
             VUE_APP_DEBIO_API_KEY:${{ secrets.DEV_GCP_PROJECT_ID }}/VUE_APP_DEBIO_API_KEY
             VUE_APP_USERNAME:${{ secrets.DEV_GCP_PROJECT_ID }}/VUE_APP_USERNAME
             VUE_APP_PASSWORD:${{ secrets.DEV_GCP_PROJECT_ID }}/VUE_APP_PASSWORD
+            VUE_APP_MIXPANEL_TOKEN:${{ secrets.DEV_GCP_PROJECT_ID }}/VUE_APP_MIXPANEL_TOKEN
+            VUE_APP_SENTRY_DSN:${{ secrets.DEV_GCP_PROJECT_ID }}/LAB_SENTRY_DSN
       - name: Create .env & gcp sa
         shell: bash
         run: |
@@ -69,6 +71,8 @@ jobs:
           VUE_APP_DEBIO_API_KEY=${{ steps.secrets.outputs.VUE_APP_DEBIO_API_KEY }}
           VUE_APP_USERNAME=${{ steps.secrets.outputs.VUE_APP_USERNAME }}
           VUE_APP_PASSWORD=${{ steps.secrets.outputs.VUE_APP_PASSWORD }}
+          VUE_APP_MIXPANEL_TOKEN=${{ steps.secrets.outputs.VUE_APP_MIXPANEL_TOKEN }}
+          VUE_APP_SENTRY_DSN=${{ steps.secrets.outputs.VUE_APP_SENTRY_DSN }}
           EOF
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
