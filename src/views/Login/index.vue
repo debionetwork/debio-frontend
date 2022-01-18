@@ -177,6 +177,13 @@ export default {
     successLogin: false,
     typelogin: "",
   }),
+
+  created() {
+    if (this.$route.query.forgot) {
+      this.accessAccountMnemonicDialog = true
+    }
+  },
+
   methods: {
     ...mapActions({
       checkMnemonicSomeAddress: "substrate/checkMnemonicSomeAddress",

@@ -12,7 +12,7 @@
       <hr />
       <div v-if="!loading">
         <template v-if="keystore">
-          <v-card-text class="mt-4 pb-0 text-subtitle-1">
+          <v-card-text class="mt-4 px-6 pb-0 text-subtitle-1">
             <v-form ref="form">
               <div style="font-size: 12px">Please enter your password</div>
               <v-text-field
@@ -106,16 +106,6 @@
                 @click="showMnemonicForm"
               >
                 Input Mnemonic
-              </v-btn>
-              <div class="py-2" align="center">OR</div>
-              <v-btn
-                depressed
-                color="primary"
-                medium
-                width="100%"
-                @click="onSelectKeystoreFile"
-              >
-                Import Keystore File
               </v-btn>
             </div>
           </v-card-text>
@@ -217,10 +207,6 @@ export default {
         };
         fr.readAsText(file);
       });
-    },
-    onSelectKeystoreFile() {
-      this.setKeystoreFileInputListener();
-      this.$refs.keystoreFileInput.click();
     },
     saveKeystoreToLocalStorage(keystore) {
       localStorage.setKeystore(keystore);

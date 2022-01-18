@@ -17,7 +17,7 @@ const globalFunctions = {
     const keystore = localStorage.getAddress()
     const isLoggedIn = !!keystore;
     if (to.path == '/login') {
-      if (isLoggedIn) {
+      if (isLoggedIn && !to.query.forgot) {
         if (wallet == null) {
           if (address != "") {
             await store.dispatch('substrate/getAllAccounts', {

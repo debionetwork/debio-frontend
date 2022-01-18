@@ -1,5 +1,5 @@
 <template>
-   <component v-bind:is="cardComponent" @click="onClick" :height="height">
+   <component v-bind:is="cardComponent" @click.native="onClick" :to="to" :height="height">
       <v-progress-linear
          v-if="loading"
          indeterminate
@@ -78,6 +78,7 @@ export default {
     icon: String,
     title: String,
     subTitle: String,
+    to: { type: [String, Object], default: "" },
     hoverText: String,
     disabled: Boolean,
     loading: Boolean,
