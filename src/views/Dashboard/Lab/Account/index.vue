@@ -52,7 +52,7 @@
                   placeholder="Lab Name"
                   autocomplete="off"
                   outlined
-                  :disabled="!isEditable || !isVerify"
+                  :disabled="!isEditable || isVerify"
                   v-model="labName"
                 ></v-text-field>
 
@@ -65,7 +65,7 @@
                   :label="computeCountryLabel"
                   autocomplete="off"
                   v-model="country"
-                  :disabled="!isEditable || !isVerify"
+                  :disabled="!isEditable || isVerify"
                   outlined
                 ></v-autocomplete>
 
@@ -76,7 +76,7 @@
                   item-value="state_code"
                   @change="onStateChange"
                   :label="computeStateLabel"
-                  :disabled="(!country || !isEditable || !isVerify)"
+                  :disabled="(!country || !isEditable || isVerify)"
                   autocomplete="off"
                   v-model="state"
                   outlined
@@ -90,7 +90,7 @@
                   return-object
                   @change="onCityChange"
                   :label="computeCityLabel"
-                  :disabled="(!state || !isEditable || !isVerify)"
+                  :disabled="(!state || !isEditable || isVerify)"
                   autocomplete="off"
                   v-model="city"
                   outlined
@@ -103,7 +103,7 @@
                   autocomplete="off"
                   outlined
                   v-model="address"
-                  :disabled="!isEditable || !isVerify"
+                  :disabled="!isEditable || isVerify"
                 ></v-text-field>
 
                 <v-text-field
@@ -245,6 +245,7 @@ export default {
     this.website = labInfo.website
     this.imageUrl = labInfo.profileImage
     this.verificationStatus = this.labAccount.verificationStatus
+    this.checkVerify()
 
     await this.getCountries()
     await this.onCountryChange(labInfo.country)
@@ -365,15 +366,9 @@ export default {
       }
     },
 
-    editInfo() {
-      if (this.isEditable) {
-        this.isEditable = true
-      } else {
-        return this.isEditable = false
-      }
-
+    checkVerify() {
       if (this.verificationStatus == "Verified") {
-        this.isVerify = true
+        return this.isVerify = true
       }
     }
   }
