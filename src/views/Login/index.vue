@@ -180,7 +180,7 @@ export default {
 
   created() {
     if (this.$route.query.forgot) {
-      this.accessAccountMnemonicDialog = true
+      this.loginUsingMnemonicDialog = true
     }
   },
 
