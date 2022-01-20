@@ -52,7 +52,7 @@
                   placeholder="Lab Name"
                   autocomplete="off"
                   outlined
-                  :disabled="!isEditable"
+                  :disabled="!isEditable || isVerify"
                   v-model="labName"
                 ></v-text-field>
 
@@ -65,7 +65,7 @@
                   :label="computeCountryLabel"
                   autocomplete="off"
                   v-model="country"
-                  :disabled="!isEditable"
+                  :disabled="!isEditable || isVerify"
                   outlined
                 ></v-autocomplete>
 
@@ -76,7 +76,7 @@
                   item-value="state_code"
                   @change="onStateChange"
                   :label="computeStateLabel"
-                  :disabled="(!country || !isEditable)"
+                  :disabled="(!country || !isEditable || isVerify)"
                   autocomplete="off"
                   v-model="state"
                   outlined
@@ -90,7 +90,7 @@
                   return-object
                   @change="onCityChange"
                   :label="computeCityLabel"
-                  :disabled="(!state || !isEditable)"
+                  :disabled="(!state || !isEditable || isVerify)"
                   autocomplete="off"
                   v-model="city"
                   outlined
@@ -103,7 +103,7 @@
                   autocomplete="off"
                   outlined
                   v-model="address"
-                  :disabled="!isEditable"
+                  :disabled="!isEditable || isVerify"
                 ></v-text-field>
 
                 <v-text-field
@@ -178,7 +178,9 @@ export default {
     cities: [],
     files: [],
     isEditable: false,
-    isUploading: false
+    isUploading: false,
+    verificationStatus: "",
+    isVerify: false
   }),
 
   computed: {
@@ -242,6 +244,8 @@ export default {
     this.phoneNumber = labInfo.phoneNumber
     this.website = labInfo.website
     this.imageUrl = labInfo.profileImage
+    this.verificationStatus = this.labAccount.verificationStatus
+    this.checkVerify()
 
     await this.getCountries()
     await this.onCountryChange(labInfo.country)
@@ -361,6 +365,12 @@ export default {
         this.imageUrl = ""
       }
     },
+
+    checkVerify() {
+      if (this.verificationStatus == "Verified") {
+        return this.isVerify = true
+      }
+    }
   }
 }
 </script>
