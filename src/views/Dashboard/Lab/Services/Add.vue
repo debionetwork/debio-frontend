@@ -296,7 +296,8 @@ export default {
     serviceNameRules() {
       return [
         val => !!val || 'Service Name is required.',
-        val => (val && val.length <= 50) || 'Service Name only allows 50 characters.'
+        val => (val && val.length <= 50) || 'Service Name only allows 50 characters.',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
       ]
     },
 
@@ -329,14 +330,16 @@ export default {
     descriptionRules() {
       return [
         val => !!val || 'Description is required.',
-        val => (val && val.length <= 255) || 'Description only allows 100 characters.'
+        val => (val && val.length <= 100) || 'Description only allows 100 characters.',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
       ]
     },
 
     longDescriptionRules() {
       return [
         val => !!val || 'Long Description is required.',
-        val => (val && val.length <= 1000) || 'Long Description only allows 255 characters.'
+        val => (val && val.length <= 255) || 'Long Description only allows 255 characters.',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
       ]
     },
 
