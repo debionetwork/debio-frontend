@@ -245,11 +245,10 @@ export default {
     currencyList: ['DAI', 'ETH'],
     currencyType: 'DAI',
     listExpectedDuration: [
-      {text: 'Working Days', value: 'WorkingDays'},
       {text: 'Hours', value: 'Hours'},
       {text: 'Days', value: 'Days'}
     ],
-    selectExpectedDuration: {text: 'Working Days', value: 'WorkingDays'},
+    selectExpectedDuration: {text: 'Days', value: 'Days'},
     expectedDuration: '',
     biologicalType: "",
     listBiologicalType: [

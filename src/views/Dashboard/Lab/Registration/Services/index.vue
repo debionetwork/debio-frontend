@@ -260,11 +260,10 @@ export default {
     currencyList: ['DAI', 'Ethereum'],
     currencyType: 'DAI',
     listExpectedDuration: [
-      {text: 'Working Days', value: 'WorkingDays'},
       {text: 'Hours', value: 'Hours'},
       {text: 'Days', value: 'Days'}
     ],
-    selectExpectedDuration: 'WorkingDays',
+    selectExpectedDuration: 'Days',
     expectedDuration: '',
     isEdit: false,
     stepperItems: [
