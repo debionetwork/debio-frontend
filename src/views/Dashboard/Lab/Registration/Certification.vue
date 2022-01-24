@@ -184,14 +184,17 @@ export default {
     titleRules() {
       return [
         val => !!val || 'This field is required',
-        val => (val && val.length <= 50) || 'This field only allows 50 characters'
+        val => (val && val.length <= 50) || 'This field only allows 50 characters',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
       ]
     },
 
     issuerRules() {
       return [
         val => !!val || 'This field is required',
-        val => (val && val.length <= 100) || 'This field only allows 100 characters']
+        val => (val && val.length <= 100) || 'This field only allows 100 characters',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
+      ]
     },
 
     monthRules() {
@@ -209,7 +212,8 @@ export default {
     descriptionRules() {
       return [
         val => !!val || 'This field is required',
-        val => (val && val.length <= 255) || 'This field only allows 255 characters'
+        val => (val && val.length <= 255) || 'This field only allows 255 characters',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
       ]
     },
 

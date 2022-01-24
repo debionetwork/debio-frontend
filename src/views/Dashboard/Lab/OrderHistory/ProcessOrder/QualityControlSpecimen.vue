@@ -78,7 +78,7 @@
                         placeholder="Title"
                         outlined
                         v-model="rejectionTitle"
-                        :rules="[val => !!val || 'This field is required']"
+                        :rules="rejectionTitleRules"
                         ></v-text-field>
                     <v-textarea
                         outlined
@@ -196,6 +196,24 @@ export default {
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
     }),
+
+    rejectionTitleRules() {
+      return[
+        val => !!val || "Title is required",
+        val => (val && val.length <= 100) || 'This field only allows 100 characters',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
+      ]
+    },
+
+    rejectionDescRules () {
+      return[
+        val => !!val || "Description is required",
+        val => (val && val.length <= 255) || 'This field only allows 255 characters',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
+      ]
+    }
+
+
   },
   async mounted() {
     try {
