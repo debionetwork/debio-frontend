@@ -260,11 +260,10 @@ export default {
     currencyList: ['DAI', 'Ethereum'],
     currencyType: 'DAI',
     listExpectedDuration: [
-      {text: 'Working Days', value: 'WorkingDays'},
       {text: 'Hours', value: 'Hours'},
       {text: 'Days', value: 'Days'}
     ],
-    selectExpectedDuration: 'WorkingDays',
+    selectExpectedDuration: 'Days',
     expectedDuration: '',
     isEdit: false,
     stepperItems: [
@@ -310,9 +309,9 @@ export default {
 
     serviceNameRules() {
       return [
-        val => !!val || 'This field is required.',
+        val => !!val || 'This field is required',
         val => (val && val.length <= 50) || 'This field only allows 50 characters',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val) || "This field can only contain English alphabet")
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
       ]
     },
 
@@ -345,17 +344,17 @@ export default {
 
     descriptionRules() {
       return [
-        val => !!val || 'This field is required.',
-        val => (val && val.length <= 100) || 'This field only allows 100 characters.',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val) || "This field can only contain English alphabet")
+        val => !!val || 'This field is required',
+        val => (val && val.length <= 100) || 'This field only allows 100 characters',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
       ]
     },
 
     longDescriptionRules() {
       return [
-        val => !!val || 'This field is required.',
-        val => (val && val.length <= 255) || 'This field only allows 255 characters.',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val) || "This field can only contain English alphabet")
+        val => !!val || 'This field is required',
+        val => (val && val.length <= 255) || 'This field only allows 255 characters',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
       ]
     },
 
