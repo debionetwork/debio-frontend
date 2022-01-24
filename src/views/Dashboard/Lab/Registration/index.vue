@@ -227,7 +227,7 @@ export default {
 
     emailRules() {
       return [
-        val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || 'Email is invalid. It should contain @ followed by a domain'
+        val => /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(val) || 'Email is invalid. It should contain @ followed by a domain'
       ]
     },
 
