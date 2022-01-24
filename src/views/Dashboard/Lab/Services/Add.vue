@@ -83,7 +83,7 @@
                       placeholder="Service Name"
                       outlined
                       v-model="name"
-                      :rules="[serviceNameRules, fieldRequiredRule]"
+                      :rules="[serviceNameRules, fieldEnglishRules, fieldRequiredRule]"
                     ></v-text-field>
 
                     <div class="d-flex">
@@ -110,7 +110,7 @@
                             type="number"
                             min="0"
                             step=".001"
-                            :rules="[priceRules, fieldRequiredRule]"
+                            :rules="[decimalRule, fieldRequiredRule]"
                           ></v-text-field>
                         </v-col>
                         <v-col>
@@ -135,7 +135,7 @@
                             type="number"
                             min="0"
                             step=".001"
-                            :rules="[qcPriceRules, fieldRequiredRule]"
+                            :rules="[decimalRule, fieldRequiredRule]"
                           ></v-text-field>
                         </v-col>
                       </v-row>
@@ -147,7 +147,7 @@
                       placeholder="Short Description"
                       outlined
                       v-model="description"
-                      :rules="[descriptionRules, fieldRequiredRule]"
+                      :rules="[descriptionRules, fieldEnglishRules, fieldRequiredRule]"
                     ></v-text-field>
                     
                     <v-row >
@@ -181,7 +181,7 @@
                       placeholder="Long Description"
                       outlined
                       v-model="longDescription"
-                      :rules="[longDescriptionRules, fieldRequiredRule]"
+                      :rules="[longDescriptionRules, fieldEnglishRules, fieldRequiredRule]"
                     ></v-textarea>
 
                     <v-file-input
@@ -289,34 +289,31 @@ export default {
 
     serviceNameRules() {
       return [
-        val => (val && val.length <= 50) || 'This field only allows 50 characters.',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val) || "This field can only contain English alphabet")
+        val => (val && val.length <= 50) || 'This field only allows 50 characters.'
       ]
     },
 
-    priceRules() {
+    decimalRule() {
       return [
         val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'This field only allows 3 decimal characters.'
       ]
     },
-    
-    qcPriceRules() {
+
+    fieldEnglishRules() {
       return [
-        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'This field only allows 3 decimal characters.'
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val) || "This field can only contain English alphabet")
       ]
     },
 
     descriptionRules() {
       return [
-        val => (val && val.length <= 100) || 'This field only allows 100 characters.',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val) || "This field can only contain English alphabet")
+        val => (val && val.length <= 100) || 'This field only allows 100 characters.'
       ]
     },
 
     longDescriptionRules() {
       return [
-        val => (val && val.length <= 255) || 'This field only allows 255 characters.',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val) || "This field can only contain English alphabet")
+        val => (val && val.length <= 255) || 'This field only allows 255 characters.'
       ]
     },
 

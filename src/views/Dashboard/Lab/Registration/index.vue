@@ -25,7 +25,7 @@
                 outlined
                 v-model="labName"
                 :disabled="isLabAccountExist"
-                :rules="[nameRules, fieldRequiredRule]"
+                :rules="[field225Chars, fieldRequiredRule]"
                 ></v-text-field>
 
               <v-autocomplete
@@ -74,7 +74,7 @@
                 placeholder="Address"
                 outlined
                 v-model="address"
-                :rules="[addressRules, fieldRequiredRule]"
+                :rules="[field225Chars, fieldRequiredRule]"
                 :disabled="isLabAccountExist"
               ></v-text-field>
 
@@ -94,7 +94,7 @@
                 placeholder="Website"
                 outlined
                 v-model="website"
-                :rules="[websiteRules, fieldRequiredRule]"
+                :rules="[websiteRules, field225Chars, fieldRequiredRule]"
                 :disabled="isLabAccountExist"
               ></v-text-field>
 
@@ -225,21 +225,15 @@ export default {
       ]
     },
 
+    field225Chars() {
+      return [
+        val => (val && val.length <= 255) || 'This field only allows 255 characters'
+      ]
+    },
+
     emailRules() {
       return [
         val => /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(val) || 'Email is invalid. It should contain @ followed by a domain'
-      ]
-    },
-
-    nameRules() {
-      return [
-        val => (val && val.length <= 255) || 'This field only allows 255 characters'
-      ]
-    },
-
-    addressRules() {
-      return [
-        val => (val && val.length <= 255) || 'This field only allows 255 characters'
       ]
     },
 
@@ -252,8 +246,7 @@ export default {
 
     websiteRules() { 
       return [
-        val => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(val) || 'Website is invalid. It should contain protocol (https://) followed by a domain', //eslint-disable-line
-        val => (val && val.length <= 255) || 'This field only allows 255 characters'
+        val => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(val) || 'Website is invalid. It should contain protocol (https://) followed by a domain'
       ]
     },
 
