@@ -62,7 +62,7 @@
                     :disabled="hasServicePayload"
                     item-text="service_categories"
                     item-value="service_categories"
-                    :rules="serviceCategoryRules"
+                    :rules="fieldRequiredRule"
                     ></v-select>
                     
                     <v-select
@@ -74,7 +74,7 @@
                     :items="listBiologicalType"
                     item-text="dnaCollectionProcess"
                     item-value="dnaCollectionProcess"
-                    :rules="biologicalTypeRules"
+                    :rules="fieldRequiredRule"
                     ></v-select>
 
                     <v-text-field
@@ -83,7 +83,7 @@
                       placeholder="Service Name"
                       outlined
                       v-model="name"
-                      :rules="serviceNameRules"
+                      :rules="[serviceNameRules, fieldRequiredRule]"
                     ></v-text-field>
 
                     <div class="d-flex">
@@ -96,7 +96,7 @@
                           max="30"
                           v-model="currencyType"
                           :items="currencyList"
-                          :rules="curencyTypeRules"
+                          :rules="fieldRequiredRule"
                           :disabled="hasServicePayload"
                           ></v-select>
                         </v-col>
@@ -110,7 +110,7 @@
                             type="number"
                             min="0"
                             step=".001"
-                            :rules="priceRules"
+                            :rules="[priceRules, fieldRequiredRule]"
                           ></v-text-field>
                         </v-col>
                         <v-col>
@@ -121,7 +121,7 @@
                           dense
                           v-model="currencyType"
                           :items="currencyList"
-                          :rules="qcQurencyTypeRules"
+                          :rules="fieldRequiredRule"
                           ></v-select>
                         </v-col>
                         <v-col>
@@ -135,7 +135,7 @@
                             type="number"
                             min="0"
                             step=".001"
-                            :rules="qcPriceRules"
+                            :rules="[qcPriceRules, fieldRequiredRule]"
                           ></v-text-field>
                         </v-col>
                       </v-row>
@@ -147,7 +147,7 @@
                       placeholder="Short Description"
                       outlined
                       v-model="description"
-                      :rules="descriptionRules"
+                      :rules="[descriptionRules, fieldRequiredRule]"
                     ></v-text-field>
                     
                     <v-row >
@@ -161,7 +161,7 @@
                           outlined
                           type="number"
                           v-model="expectedDuration"
-                          :rules="expectedDurationRules"
+                          :rules="fieldRequiredRule"
                         ></v-text-field>
                       </v-col>
                       <v-col cols="4">
@@ -170,7 +170,7 @@
                           dense
                           v-model="selectExpectedDuration"
                           :items="listExpectedDuration"
-                          :rules="expectedDurationRules"
+                          :rules="fieldRequiredRule"
                         ></v-select>
                       </v-col>
                     </v-row>
@@ -181,11 +181,11 @@
                       placeholder="Long Description"
                       outlined
                       v-model="longDescription"
-                      :rules="longDescriptionRules"
+                      :rules="[longDescriptionRules, fieldRequiredRule]"
                     ></v-textarea>
 
                     <v-file-input
-                      :rules="fileInputRules"
+                      :rules="[fileInputRules, fieldRequiredRule]"
                       accept=".pdf"
                       dense
                       label="Test Result Sample"
@@ -245,10 +245,11 @@ export default {
     currencyList: ['DAI', 'ETH'],
     currencyType: 'DAI',
     listExpectedDuration: [
+      {text: 'Working Days', value: 'WorkingDays'},
       {text: 'Hours', value: 'Hours'},
       {text: 'Days', value: 'Days'}
     ],
-    selectExpectedDuration: {text: 'Days', value: 'Days'},
+    selectExpectedDuration: {text: 'Working Days', value: 'WorkingDays'},
     expectedDuration: '',
     biologicalType: "",
     listBiologicalType: [
@@ -280,79 +281,49 @@ export default {
       return Boolean(Object.keys(this.servicePayload).length)
     },
 
-    serviceCategoryRules() {
+    fieldRequiredRule() {
       return [
-        val => !!val || 'This field is required.'
-      ]
-    },
-
-    biologicalTypeRules() {
-      return [
-        val => !!val || 'This field is required.'
+        val => !!val || 'This field is required'
       ]
     },
 
     serviceNameRules() {
       return [
-        val => !!val || 'Service Name is required.',
-        val => (val && val.length <= 50) || 'Service Name only allows 50 characters.',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
-      ]
-    },
-
-    curencyTypeRules() {
-      return [
-        val => !!val || 'This field is required.'
+        val => (val && val.length <= 50) || 'This field only allows 50 characters.',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val) || "This field can only contain English alphabet")
       ]
     },
 
     priceRules() {
       return [
-        val => !!val || 'This field is required.',
         val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'This field only allows 3 decimal characters.'
-      ]
-    },
-
-    qcQurencyTypeRules() {
-      return [
-        val => !!val || 'This field is required.'
       ]
     },
     
     qcPriceRules() {
       return [
-        val => !!val || this.isBiomedical || 'This field is required.',
         val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'This field only allows 3 decimal characters.'
       ]
     },
 
     descriptionRules() {
       return [
-        val => !!val || 'Description is required.',
-        val => (val && val.length <= 100) || 'Description only allows 100 characters.',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
+        val => (val && val.length <= 100) || 'This field only allows 100 characters.',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val) || "This field can only contain English alphabet")
       ]
     },
 
     longDescriptionRules() {
       return [
-        val => !!val || 'Long Description is required.',
-        val => (val && val.length <= 255) || 'Long Description only allows 255 characters.',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
-      ]
-    },
-
-    expectedDurationRules() {
-      return [
-        val => !!val || 'This field is required.'
+        val => (val && val.length <= 255) || 'This field only allows 255 characters.',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val) || "This field can only contain English alphabet")
       ]
     },
 
     fileInputRules() {
       return [
-        value => !!value || 'This field is required.',
         value => (!!value && value.size < 2000000) || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
-        value => (!!value && value.type === "application/pdf") || 'The files uploaded are not in the supported file formats.',
+        value => (!!value && value.type === "application/pdf") || 'The files uploaded are not in the supported file formats.'
       ]
     },
 
