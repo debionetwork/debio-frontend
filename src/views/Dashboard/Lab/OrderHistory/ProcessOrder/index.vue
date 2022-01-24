@@ -73,7 +73,7 @@
                     <b>Escrow Address</b>
                   </div>
                   <div class="text-caption grey--text text--darken-1">
-                    {{ this.sellerEthAddress }}
+                    {{ this.configApp.escrowETHAddress }}
                   </div>
                 </div>
               </div>
@@ -326,6 +326,7 @@ export default {
     ...mapState({
       genome: (state) => state.testResult.genome,
       report: (state) => state.testResult.report,
+      configApp: (state) => state.auth.configApp
     }),
 
     ...mapGetters({
