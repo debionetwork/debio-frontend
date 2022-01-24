@@ -59,8 +59,8 @@ const handler = {
 	geneticTesting: async (dataEvent, value, valueMessage) => {
 		const data = dataEvent[0];
 		const id = data[value];
-		const params = { number: id };
-		const wording = "for (" + data[valueMessage].substr(0, 4) + "..." + data[valueMessage].substr(data[valueMessage].length - 4) + ")";
+		const params = { orderId: id };
+		const wording = `${valueMessage} DBIO from the quality control fee.`;
 		return { data, id, params, wording }
 	},
 	services: async (dataEvent, value, valueMessage) => {

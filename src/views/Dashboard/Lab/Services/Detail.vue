@@ -44,7 +44,7 @@
                     :items="listCategories"
                     item-text="service_categories"
                     item-value="service_categories"
-                    :rules="serviceCategoryRules"
+                    :rules="fieldRequiredRule"
                     ></v-select>
 
                     <v-select
@@ -56,7 +56,7 @@
                     :items="listBiologicalType"
                     item-text="dnaCollectionProcess"
                     item-value="dnaCollectionProcess"
-                    :rules="biologicalTypeRules"
+                    :rules="fieldRequiredRule"
                     ></v-select>
 
                     <v-text-field
@@ -65,7 +65,7 @@
                       placeholder="Service Name"
                       outlined
                       v-model="name"
-                      :rules="serviceNameRules"
+                      :rules="[serviceNameRules, fieldEnglishRules, fieldRequiredRule]"
                     ></v-text-field>
 
                     <div class="d-flex">
@@ -78,7 +78,7 @@
                           max="30"
                           v-model="currencyType"
                           :items="currencyList"
-                          :rules="curencyTypeRules"
+                          :rules="fieldRequiredRule"
                           ></v-select>
                         </v-col>
                         <v-col>
@@ -91,7 +91,7 @@
                             min="0"
                             step=".001"
                             v-model.number="price"
-                            :rules="priceRules"
+                            :rules="[decimalRule, fieldRequiredRule]"
                           ></v-text-field>
                         </v-col>
                         <v-col>
@@ -102,7 +102,7 @@
                           dense
                           v-model="currencyType"
                           :items="currencyList"
-                          :rules="qcQurencyTypeRules"
+                          :rules="fieldRequiredRule"
                           ></v-select>
                         </v-col>
                         <v-col>
@@ -116,7 +116,7 @@
                             min="0"
                             step=".001"
                             v-model.number="qcPrice"
-                            :rules="cqPriceRules"
+                            :rules="[decimalRule, fieldRequiredRule]"
                           ></v-text-field>
                         </v-col>
                       </v-row>
@@ -128,7 +128,7 @@
                       placeholder="Short Description"
                       outlined
                       v-model="description"
-                      :rules="descriptionRules"
+                      :rules="[descriptionRules, fieldEnglishRules, fieldRequiredRule]"
                     ></v-text-field>
                     
                     <v-row >
@@ -140,7 +140,7 @@
                           max="30"
                           outlined
                           v-model="expectedDuration"
-                          :rules="expectedDurationRules"
+                          :rules="fieldRequiredRule"
                         ></v-text-field>
                       </v-col>
                       <v-col cols="4">
@@ -149,7 +149,7 @@
                           dense
                           v-model="selectExpectedDuration"
                           :items="listExpectedDuration"
-                          :rules="expectedDurationRules"
+                          :rules="fieldRequiredRule"
                         ></v-select>
                       </v-col>
                     </v-row>
@@ -160,11 +160,11 @@
                       placeholder="Long Description"
                       outlined
                       v-model="longDescription"
-                      :rules="longDescriptionRules"
+                      :rules="[longDescriptionRules, fieldEnglishRules, fieldRequiredRule]"
                     ></v-textarea>
 
                     <v-file-input
-                      :rules="fileInputRules"
+                      :rules="[fileInputRules, fieldRequiredRule]"
                       accept=".pdf"
                       dense
                       label="Test Result Sample"
@@ -263,7 +263,7 @@ export default {
       fetch(this.testResultSampleUrl)
         .then(res => res.blob()) // Gets the response and returns it as a blob
         .then(blob => {
-          this.testResultSampleFile = new File([blob], this.testResultSampleUrl.substring(21))
+          this.testResultSampleFile = new File([blob], `${item.info.name} Test result sample`)
       });
     }
   },
@@ -278,74 +278,45 @@ export default {
       pair: 'substrate/wallet',
     }),
 
-    serviceCategoryRules() {
+    fieldRequiredRule() {
       return [
-        val => !!val || 'Service Category is required.'
+        val => !!val || 'This field is required'
       ]
     },
 
-    biologicalTypeRules() {
+    fieldEnglishRules() {
       return [
-        val => !!val || 'Type of Biological Sample is required.'
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val) || "This field can only contain English alphabet")
       ]
     },
 
     serviceNameRules() {
       return [
-        val => !!val || 'Service Name is required.',
-        val => (val && val.length <= 50) || 'Service Name only allows 50 characters.'
+        val => (val && val.length <= 50) || 'This field only allows 50 characters.'
       ]
     },
 
-    curencyTypeRules() {
+    decimalRule() {
       return [
-        val => !!val || 'Currency is required.'
-      ]
-    },
-
-    priceRules() {
-      return [
-        val => !!val || 'Price is required.',
-        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'Price only allows 3 decimal characters.'
-      ]
-    },
-
-    qcQurencyTypeRules() {
-      return [
-        val => !!val || 'QC Currency Type is required.'
-      ]
-    },
-    
-    cqPriceRules() {
-      return [
-        val => !!val || this.isBiomedical || 'QC Price is required.',
-        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'QC Price only allows 3 decimal characters.'
+        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'This field only allows 3 decimal characters.'
       ]
     },
 
     descriptionRules() {
       return [
-        val => !!val || 'Description is required.',
-        val => (val && val.length <= 255) || 'Description only allows 100 characters.'
+        val => (val && val.length <= 100) || 'This field only allows 100 characters.'
       ]
     },
 
     longDescriptionRules() {
       return [
-        val => !!val || 'Long Description is required.',
-        val => (val && val.length <= 1000) || 'Long Description only allows 255 characters.'
-      ]
-    },
-
-    expectedDurationRules() {
-      return [
-        val => !!val || '​Expected Duration is required.'
+        val => (val && val.length <= 255) || 'This field only allows 255 characters.',
       ]
     },
 
     fileInputRules() {
       return [
-        value => !!value || 'Test Result Sample is required.',
+        value => !!value || 'This field is required.',
         value => (!!value && value.size < 2000000) || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
         value => (!!value && (value.type === "" || value.type === "application/pdf")) || 'The files uploaded are not in the supported file formats.',
       ]
