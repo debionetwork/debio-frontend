@@ -1,16 +1,17 @@
 <template>
   <div id="app">
-    <div v-if="isLoadingSubstrateApi">Loading..</div>
-    <router-view v-else />
+    <LoadingScreen v-show="isLoadingSubstrateApi">Loading..</LoadingScreen>
+    <router-view v-show="!isLoadingSubstrateApi" />
   </div>
 </template>
 
 <script>
+import LoadingScreen from "@/views/LoadingScreen"
 import { mapState, mapActions } from "vuex";
 
 export default {
   name: "App",
-  components: {},
+  components: { LoadingScreen },
   computed: {
     ...mapState({
       substrateApi: (state) => state.substrate.api,
