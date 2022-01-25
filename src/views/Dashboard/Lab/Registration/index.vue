@@ -222,7 +222,7 @@ export default {
     emailRules() {
       return [
         val => !!val || 'This field is required',
-        val => /.+@.+\..+/.test(val) || 'Email is invalid. It should contain @ followed by a domain',
+        val => /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(val) || 'Email is invalid. It should contain @ followed by a domain',
         val => (val && val.length <= 255) || 'This field only allows 255 characters',
         val => (val && /^[A-Za-z? ]?[A-Za-z0-9@.? ]+$/.test(val)) || "This field only allows Alphabetic characters."
       ]
