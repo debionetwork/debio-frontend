@@ -43,6 +43,7 @@
                   autocomplete="off"
                   outlined
                   :disabled="!isEditable"
+                  :rules="emailRules"
                   v-model="email"
                 ></v-text-field>
                 
@@ -53,6 +54,7 @@
                   autocomplete="off"
                   outlined
                   :disabled="!isEditable || isVerify"
+                  :rules="labNameRules"
                   v-model="labName"
                 ></v-text-field>
 
@@ -66,6 +68,7 @@
                   autocomplete="off"
                   v-model="country"
                   :disabled="!isEditable || isVerify"
+                  :rules="isRequired"
                   outlined
                 ></v-autocomplete>
 
@@ -77,6 +80,7 @@
                   @change="onStateChange"
                   :label="computeStateLabel"
                   :disabled="(!country || !isEditable || isVerify)"
+                  :rules="isRequired"
                   autocomplete="off"
                   v-model="state"
                   outlined
@@ -91,6 +95,7 @@
                   @change="onCityChange"
                   :label="computeCityLabel"
                   :disabled="(!state || !isEditable || isVerify)"
+                  :rules="isRequired"
                   autocomplete="off"
                   v-model="city"
                   outlined
@@ -104,6 +109,7 @@
                   outlined
                   v-model="address"
                   :disabled="!isEditable || isVerify"
+                  :rules="addressRules"
                 ></v-text-field>
 
                 <v-text-field
@@ -207,18 +213,51 @@ export default {
       ]
     },
 
+    isRequired () {
+      return [
+        val => !!val || 'This field is required'
+      ]
+    },
+
+    emailRules() {
+      return [
+        val => !!val || 'This field is required',
+        val => /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(val) || 'Email is invalid. It should contain @ followed by a domain',
+        val => (val && val.length <= 255) || 'This field only allows 255 characters',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9@.? ]+$/.test(val)) || "This field only allows Alphabetic characters."
+      ]
+    },
+
+    nameRules() {
+      return [
+        val => !!val || 'This field is required',
+        val => (val && val.length <= 100) || 'This field only allows 100 characters',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
+      ]
+    },
+
+    addressRules() {
+      return [
+        val => !!val || 'This field is required',
+        val => (val && val.length <= 255) || 'This field only allows 255 characters',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters.",
+      ]
+    },
+
+
     phoneNumberRules() {
       return [
         val => !!val || 'This field is required',
+        val => (val && /^[A-Za-z? ]?[A-Za-z0-9./:? ]+$/.test(val)) || "This field only allows Alphabetic characters.",
         val => /^\+?([0-9]{2})\)?[-. ]?([0-9]{4})[-. ]?([0-9]{4})$/.test(val) || 'This field can only contain number',
-        val => (val && val.length <= 13) || 'This field only allows 13 characters'
+        val => (val && val.length <= 12) || 'This field only allows 12 characters'
       ]
     },
 
     websiteRules() {
       return [
         val => !!val || 'This field is required',
-        val => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(val) || 'Website is invalid. It should contain protocol (https://) followed by a domain', //eslint-disable-line
+        val => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&/=]*)/.test(val) || 'Website is invalid. It should contain protocol (https://) followed by a domain',
         val => (val && val.length <= 255) || 'This field only allows 255 characters'
       ]
     },
