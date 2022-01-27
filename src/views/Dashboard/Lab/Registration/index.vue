@@ -34,6 +34,7 @@
                 item-text="name"
                 item-value="iso2"
                 @change="onCountryChange"
+                return-object
                 :label="computeCountryLabel"
                 outlined
                 v-model="country"
@@ -77,16 +78,34 @@
                 :rules="addressRules"
                 :disabled="isLabAccountExist"
               ></v-text-field>
-
-              <v-text-field
-                dense
-                label="Phone Number"
-                placeholder="Phone Number"
-                outlined
-                v-model="phoneNumber"
-                :rules="phoneNumberRules"
-                :disabled="isLabAccountExist"
-              ></v-text-field>
+              <v-row>
+                <v-col md="3" class="pr-0">
+                  <v-autocomplete
+                    dense
+                    @change="onPhoneCodeChange"
+                    return-object
+                    :items="countries"
+                    item-text="phone_code"
+                    item-value="phone_code"
+                    label="Phone code"
+                    outlined
+                    v-model="phoneCode"
+                    :disabled="isLabAccountExist"
+                    :rules="[val => !!val || 'Phone code is Required']"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col>
+                  <v-text-field
+                    dense
+                    label="Phone Number"
+                    placeholder="Phone Number"
+                    outlined
+                    v-model="phoneNumber"
+                    :rules="phoneNumberRules"
+                    :disabled="isLabAccountExist"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
 
               <v-text-field
                 dense
@@ -183,6 +202,7 @@ export default {
     email: "",
     labName: "",
     address: "",
+    phoneCode: "",
     phoneNumber: "",
     website: "",
     imageUrl: "",
@@ -328,10 +348,15 @@ export default {
 
       const { data:
         { data }
-      } = await this.dispatch(getStates, selectedCountry)
+      } = await this.dispatch(getStates, selectedCountry?.iso2 ?? selectedCountry)
 
       this.states = data;
-      this.country = selectedCountry;
+      this.country = selectedCountry?.iso2 ?? selectedCountry;
+      this.phoneCode = selectedCountry?.phone_code ?? null;
+    },
+
+    async onPhoneCodeChange(selectedCountry) {
+      await this.onCountryChange(selectedCountry)
     },
 
     async onStateChange(selectedState) {
