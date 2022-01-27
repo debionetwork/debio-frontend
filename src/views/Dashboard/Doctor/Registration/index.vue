@@ -37,7 +37,7 @@
                   autocomplete="new-password"
                   label="Select Country"
                   outlined
-                  :rules="[val => !!val || 'Country is Required']"
+                  :rules="[val => !!val || 'This field is required']"
                 ></v-autocomplete>
 
                 <v-autocomplete
@@ -47,10 +47,10 @@
                   item-value="0"
                   @change="onRegionChange"
                   autocomplete="new-password"
-                  label="Select Region"
+                  label="Select State/Province"
                   :disabled="!country"
                   outlined
-                  :rules="[val => !!val || 'Region is Required']"
+                  :rules="[val => !!val || 'This field is required']"
                 ></v-autocomplete>
 
                 <v-autocomplete
@@ -63,7 +63,7 @@
                   label="Select City"
                   :disabled="!region"
                   outlined
-                  :rules="[val => !!val || 'City is Required']"
+                  :rules="[val => !!val || 'This field is required']"
                 ></v-autocomplete>
 
                 <v-text-field
@@ -108,7 +108,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from "vuex"
+import { mapGetters } from "vuex"
 import { registerDoctor } from "@/lib/polkadotProvider/command/doctors"
 import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile"
 import { getWalletAddress } from "@/lib/metamask/wallet"
@@ -142,10 +142,6 @@ export default {
       pair: "substrate/wallet",
       doctorAccount: "substrate/doctorAccount",
       isDoctorAccountExist: "substrate/isDoctorAccountExist",
-    }),
-    ...mapState({
-      locationContract: state => state.ethereum.contracts.contractLocation,
-      degenicsContract: state => state.ethereum.contracts.contractDegenics,
     }),
     citiesSelection() {
       return this.cities

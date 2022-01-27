@@ -2,7 +2,7 @@
   <v-dialog :value="_show" max-width="500" persistent>
     <v-card>
       <v-app-bar flat dense color="white">
-        <v-toolbar-title class="title"> Sign In </v-toolbar-title>
+        <v-toolbar-title class="title"> Sign In</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn icon @click="closeDialog">
           <v-icon>mdi-close</v-icon>
@@ -12,7 +12,7 @@
       <hr />
       <div v-if="!loading">
         <template v-if="keystore">
-          <v-card-text class="mt-4 pb-0 text-subtitle-1">
+          <v-card-text class="mt-4 px-6 pb-0 text-subtitle-1">
             <v-form ref="form">
               <div style="font-size: 12px">Please enter your password</div>
               <v-text-field
@@ -107,16 +107,6 @@
               >
                 Input Mnemonic
               </v-btn>
-              <div class="py-2" align="center">OR</div>
-              <v-btn
-                depressed
-                color="primary"
-                medium
-                width="100%"
-                @click="onSelectKeystoreFile"
-              >
-                Import Keystore File
-              </v-btn>
             </div>
           </v-card-text>
           <v-card-actions class="px-6 pb-4"> </v-card-actions>
@@ -187,10 +177,12 @@ export default {
 
     async getKeyStoreLocal() {
       try {
-        this.loading = true;
         this.dataAccountJson = localStorage.getKeystore();
         this.dataAccount = JSON.parse(this.dataAccountJson);
-        const balance = await queryBalance(this.api, this.dataAccount.address)
+        if (!this.dataAccount) return
+
+        this.loading = true;
+        const balance = await queryBalance(this.api, this.dataAccount?.address)
         this.balance = Number(await fromEther(balance)).toFixed(3)
         this.loading = false;
       } catch (err) {
@@ -215,10 +207,6 @@ export default {
         };
         fr.readAsText(file);
       });
-    },
-    onSelectKeystoreFile() {
-      this.setKeystoreFileInputListener();
-      this.$refs.keystoreFileInput.click();
     },
     saveKeystoreToLocalStorage(keystore) {
       localStorage.setKeystore(keystore);
@@ -260,6 +248,8 @@ export default {
         if (result.success) {
           this._show = false;
           this.clearInput();
+          const account = Object.keys(window.localStorage).find(v => /account:/.test(v))
+          localStorage.setKeystore(localStorage.getLocalStorageByName(account))
           this.$emit("key-store-set");
           return;
         } else {

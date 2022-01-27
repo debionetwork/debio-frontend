@@ -13,7 +13,7 @@
         label="Type in your password"
         :disabled="isLoading"
         :error-messages="errorMessages"
-        @keyup.enter="onPasswordInput"
+        @keyup.enter="decryptWallet"
       >
       </v-text-field>
       <v-progress-linear
@@ -23,21 +23,12 @@
       ></v-progress-linear>
     </template>
     <template v-slot:actions>
-      <div v-if="cancellable" class="d-flex justify-space-between" style="width: 100%;">
-        <div class="pr-1" style="flex: 1">
-          <Button @click="onCancel" color="grey" dark>
-            Cancel
-          </Button>
-        </div>
-        <div class="pr-1" style="flex: 1">
-          <Button @click="decryptWallet" color="primary" dark>
-            Unlock
-          </Button>
-        </div>
+      <div class="button-wrapper d-flex justify-space-between align-center px-2">
+        <router-link :to="{ name: 'login', query: { forgot: 1 } }" class="forgot-btn">FORGOT PASSWORD</router-link>
+        <Button class="unlock-btn" @click="decryptWallet" color="primary" dark>
+          Unlock
+        </Button>
       </div>
-      <Button v-else @click="decryptWallet" color="primary" dark>
-        Unlock
-      </Button>
     </template>
   </Dialog>
 </template>
@@ -50,35 +41,29 @@ import store from '@/store/index'
 
 export default {
   name: 'UnlockWalletDialog',
+
   components: {
     Dialog,
     Button,
   },
-  props: {
-    show: Boolean,
-    cancellable: {
-      type: Boolean,
-      default: function() {
-        return true
-      }
-    }
-  },
+
+  props: { show: Boolean },
+
   data: () => ({
     showPassword: false,
     password: '',
     isLoading: false,
     errorMessages: [],
   }),
+
   computed: {
     ...mapGetters({
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
     }),
   },
+
   methods: {
-    onCancel() {
-      this.$emit('toggle')
-    },
     async decryptWallet() {
       this.isLoading = true
 
@@ -107,6 +92,15 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+  .button-wrapper {
+    width: 100%;
+  }
 
+  .forgot-btn {
+    font-size: 14px;
+  }
+  .unlock-btn {
+    width: 50% !important;
+  }
 </style>

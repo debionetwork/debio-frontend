@@ -118,7 +118,7 @@ export default {
 
         this.orders.push(data)
       }
-      this.totalOrders = orders.info.count
+      this.totalOrders = orders.info.count.body.count
     },
 
     async handleSearch(val) {

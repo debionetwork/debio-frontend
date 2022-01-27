@@ -57,7 +57,9 @@ const labRoutes = [
               beforeEnter: (to, from, next) => {
                 if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
                   next("/lab")
-                } else next()
+                }
+
+                else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Account'),
             },
@@ -151,7 +153,9 @@ const labRoutes = [
               beforeEnter: (to, from, next) => {
                 if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
                   next("/lab")
-                } else next()
+                }
+
+                else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Services')
             },
@@ -176,7 +180,9 @@ const labRoutes = [
               beforeEnter: (to, from, next) => {
                 if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
                   next("/lab")
-                } else next()
+                }
+
+                else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Services/Add')
             },
@@ -201,7 +207,9 @@ const labRoutes = [
               beforeEnter: (to, from, next) => {
                 if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
                   next("/lab")
-                } else next()
+                }
+
+                else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Services/Detail')
             },
@@ -225,7 +233,9 @@ const labRoutes = [
               beforeEnter: (to, from, next) => {
                 if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
                   next("/lab")
-                } else next()
+                }
+
+                else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/OrderHistory')
             },
@@ -250,7 +260,9 @@ const labRoutes = [
               beforeEnter: (to, from, next) => {
                 if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
                   next("/lab")
-                } else next()
+                }
+
+                else next()
               },
               component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/OrderHistory/ProcessOrder')
             },

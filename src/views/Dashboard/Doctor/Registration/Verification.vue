@@ -43,70 +43,9 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
 
 export default {
   name: 'Doctor Registration',
-  async mounted() {
-    await this.getCountries()
-    await this.getCities()
-  },
-  computed: {
-    ...mapState({
-      locationContract: state => state.ethereum.contracts.contractLocation,
-      degenicsContract: state => state.ethereum.contracts.contractDegenics,
-    }),
-    citiesSelection() {
-      return this.cities
-        .filter(c => c.country == this.country)
-        .map(c => ({ value: c.city, text: c.city, country: c.country }))
-    }
-  },
-  data: () => ({
-    country: '',
-    city: '',
-    countries: [],
-    cities: [],
-  }),
-  methods: {
-    async getCountries() {
-      const countryCount = await this.locationContract.methods.countCountry().call()
-
-      const getCountryPromises = []
-      for (let i = 1; i <= countryCount; i++) {
-        getCountryPromises.push(
-          this.locationContract.methods.countryByIndex(i).call()
-        )
-      }
-      const countries = await Promise.all(getCountryPromises)
-
-      this.countries = countries
-    },
-    async getCities() {
-      if (!this.countries) { return }
-
-      const getCitiesPromises = []
-      for (let country of this.countries) {
-        const cityCount = await this.locationContract.methods.countCity(country).call()
-        for(let i = 1; i <= cityCount; i++) {
-          const promise = this.locationContract.methods
-            .cityByIndex(country, i).call()
-            .then(city => ({ country, city }))
-
-          getCitiesPromises.push(promise)
-        }
-      }
-      const cities = await Promise.all(getCitiesPromises)
-
-      this.cities = cities
-    },
-    onCountryChange(selectedCountry) {
-      this.country = selectedCountry
-    },
-    onCityChange(selectedCity) {
-      this.city = selectedCity
-    }
-  }
 }
 </script>
 

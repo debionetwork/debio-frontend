@@ -45,8 +45,8 @@
                   :headers="headers"
                   :items="services"
                   :search="search"
-                  :sort-by="['timestamp']"
-                  :sort-desc="[true]"
+                  :sort-by="'info.name'"
+                  :sort-desc="[false]"
                   :loading="isLoading"
                   additional-class="laporan-table"
                >
@@ -86,25 +86,20 @@
                    
 
                   <template v-slot:[`item.actions`]="{ item }">
-                     <v-container class="d-flex">
-                        <v-btn
-                           elevation="0"
-                           color="transparent"  
+                     <v-container class="d-flex" justify-space-between>                        
+                        <v-icon 
                            @click="gotoDetails(item)"
+                           color="black"
                         >
-                           <v-icon dark>
-                              mdi-pencil
+                           mdi-pencil
                            </v-icon>
-                        </v-btn>
-                        <v-btn
-                           elevation="0"
-                           color="transparent"
+                        <v-icon 
                            @click="confirmDeleteService(item)"
+                           color="black"
                         >
-                           <v-icon dark>
-                              mdi-delete
-                           </v-icon>
-                        </v-btn>
+                           mdi-delete
+                        </v-icon>
+
                      </v-container>
                   </template>
 
@@ -134,7 +129,7 @@ export default {
   },
   data: () => ({
     headers: [
-        { text: 'Image', value: 'info.image' },
+        { text: 'Image', value: 'info.image', sortable: false },
         { text: 'Name', value: 'info.name' },
         { text: 'Description', value: 'info.description' },
         { text: 'Price', value: 'info.price' },

@@ -72,7 +72,7 @@
                   label="Select Country"
                   v-model="country"
                   outlined
-                  :rules="[val => !!val || 'Country is Required']"
+                  :rules="[val => !!val || 'This field is required']"
                 ></v-autocomplete>
 
                 <v-autocomplete
@@ -85,7 +85,7 @@
                   :disabled="!country"
                   v-model="region"
                   outlined
-                  :rules="[val => !!val || 'Region is Required']"
+                  :rules="[val => !!val || 'This field is required']"
                 ></v-autocomplete>
 
                 <v-autocomplete
@@ -98,7 +98,7 @@
                   :disabled="!region"
                   v-model="city"
                   outlined
-                  :rules="[val => !!val || 'City is Required']"
+                  :rules="[val => !!val || 'This field is required']"
                 ></v-autocomplete>
                 
                 <v-text-field

@@ -108,7 +108,7 @@ export default {
 
   watch: {
     filteredResults(val) {
-      const svg = d3.select("svg")
+      const svg = d3.select("#map")
       svg.attr("width", Math.round(document.querySelector(".v-card").getBoundingClientRect().width))
       svg.attr("height", 739)
       const svgWidth = +svg.attr("width")
@@ -157,18 +157,18 @@ export default {
         zoomWidth = zoomWidth * (1 + paddingPerc / 100);
         zoomHeight = zoomHeight * (1 + paddingPerc / 100);
 
-        let maxXscale = document.querySelector("svg").getBoundingClientRect().width / zoomWidth;
-        let maxYscale = document.querySelector("svg").getBoundingClientRect().height / zoomHeight;
+        let maxXscale = document.querySelector("#map").getBoundingClientRect().width / zoomWidth;
+        let maxYscale = document.querySelector("#map").getBoundingClientRect().height / zoomHeight;
         let zoomScale = Math.min(maxXscale, maxYscale);
 
         let offsetX = zoomScale * zoomMidX;
         let offsetY = zoomScale * zoomMidY;
 
-        let dleft = Math.min(0, document.querySelector("svg").getBoundingClientRect().width / 2 - offsetX);
-        let dtop = Math.min(0, document.querySelector("svg").getBoundingClientRect().height / 2 - offsetY);
+        let dleft = Math.min(0, document.querySelector("#map").getBoundingClientRect().width / 2 - offsetX);
+        let dtop = Math.min(0, document.querySelector("#map").getBoundingClientRect().height / 2 - offsetY);
 
-        dleft = Math.max(document.querySelector("svg").getBoundingClientRect().width - svgWidth * zoomScale, dleft) + 220;
-        dtop = Math.max(document.querySelector("svg").getBoundingClientRect().height - svgHeight * zoomScale, dtop);
+        dleft = Math.max(document.querySelector("#map").getBoundingClientRect().width - svgWidth * zoomScale, dleft) + 220;
+        dtop = Math.max(document.querySelector("#map").getBoundingClientRect().height - svgHeight * zoomScale, dtop);
 
         // Custom coordinate translate for Australia
         zoomScale = name ? 4 : zoomScale
@@ -229,7 +229,7 @@ export default {
       const context = this
       const serviceRequestByCountry = {...this.serviceRequestByCountry}
 
-      const svg = d3.select('svg');
+      const svg = d3.select("#map");
 
       svg.attr("width", Math.round(document.querySelector(".v-card").getBoundingClientRect().width))
       svg.attr("height", Math.round(document.querySelector(".v-card").getBoundingClientRect().height))
@@ -285,18 +285,18 @@ export default {
         zoomWidth = zoomWidth * (1 + paddingPerc / 100);
         zoomHeight = zoomHeight * (1 + paddingPerc / 100);
 
-        let maxXscale = document.querySelector("svg").getBoundingClientRect().width / zoomWidth;
-        let maxYscale = document.querySelector("svg").getBoundingClientRect().height / zoomHeight;
+        let maxXscale = document.querySelector("#map").getBoundingClientRect().width / zoomWidth;
+        let maxYscale = document.querySelector("#map").getBoundingClientRect().height / zoomHeight;
         let zoomScale = Math.min(maxXscale, maxYscale);
 
         let offsetX = zoomScale * zoomMidX;
         let offsetY = zoomScale * zoomMidY;
 
-        let dleft = Math.min(0, document.querySelector("svg").getBoundingClientRect().width / 2 - offsetX);
-        let dtop = Math.min(0, document.querySelector("svg").getBoundingClientRect().height / 2 - offsetY);
+        let dleft = Math.min(0, document.querySelector("#map").getBoundingClientRect().width / 2 - offsetX);
+        let dtop = Math.min(0, document.querySelector("#map").getBoundingClientRect().height / 2 - offsetY);
 
-        dleft = Math.max(document.querySelector("svg").getBoundingClientRect().width - svgWidth * zoomScale, dleft) + 220;
-        dtop = Math.max(document.querySelector("svg").getBoundingClientRect().height - svgHeight * zoomScale, dtop)
+        dleft = Math.max(document.querySelector("#map").getBoundingClientRect().width - svgWidth * zoomScale, dleft) + 220;
+        dtop = Math.max(document.querySelector("#map").getBoundingClientRect().height - svgHeight * zoomScale, dtop)
 
         // Custom coordinate translate for Australia
         zoomScale = name ? 4 : zoomScale

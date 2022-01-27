@@ -1,6 +1,6 @@
 import { toFormatDebioCoin } from "@/lib/polkadotProvider/index"
+import localStorage from "@/lib/local-storage"
 import store from "@/store"
-
 
 const defaultHandler = {
 	get: function (target, name) {
@@ -42,8 +42,8 @@ const handler = {
 	orders: async (dataEvent, value, valueMessage) => {
 		const data = dataEvent[0];
 		const id = data[value];
-		const params = data;
-		const wording = "for (" + data[valueMessage].substr(0, 4) + "..." + data[valueMessage].substr(data[valueMessage].length - 4) + ")";
+		const params = { orderId: id }
+		const wording = valueMessage
 		return { data, id, params, wording }
 	},
 	rewards: async (dataEvent, value, valueMessage) => {
@@ -59,8 +59,8 @@ const handler = {
 	geneticTesting: async (dataEvent, value, valueMessage) => {
 		const data = dataEvent[0];
 		const id = data[value];
-		const params = { number: id };
-		const wording = "for (" + data[valueMessage].substr(0, 4) + "..." + data[valueMessage].substr(data[valueMessage].length - 4) + ")";
+		const params = { orderId: id };
+		const wording = `${valueMessage} DBIO from the quality control fee.`;
 		return { data, id, params, wording }
 	},
 	services: async (dataEvent, value, valueMessage) => {
@@ -68,6 +68,13 @@ const handler = {
 		const id = data[value];
 		const params = { id: id };
 		const wording = valueMessage;
+		const notifications = JSON.parse(localStorage.getLocalStorageByName(
+			`LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_lab`
+		))
+		const isExist = notifications?.find(notif => notif.params.id === id)
+
+		if (isExist) return
+
 		return { data, id, params, wording }
 	},
 }

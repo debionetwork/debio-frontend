@@ -73,7 +73,7 @@
                     <b>Escrow Address</b>
                   </div>
                   <div class="text-caption grey--text text--darken-1">
-                    {{ this.sellerEthAddress }}
+                    {{ this.configApp.escrowETHAddress }}
                   </div>
                 </div>
               </div>
@@ -182,43 +182,55 @@ export default {
     isBiological: false,
     testResult: null,
   }),
-  async mounted() {
-    try {
-      // If no order id redirect to Payment History list
-      if (!this.orderId) {
-        this.$router.push({ name: "lab-dashboard-order-history" });
-      }
-      const order = await getOrdersDetail(this.api, this.orderId);
-      const serviceInfo = await queryServicesById(this.api, order.serviceId);
-      const testResult = await queryDnaTestResults(this.api, this.specimenNumber);
 
-      this.dnaCollectionProcess = serviceInfo.info.dnaCollectionProcess;
-      if (this.dnaCollectionProcess.includes("Covid")) {
-        this.isBiological = true;
-      }
-
-      if (order.status == "Cancelled") {
-        this.cancelledOrderDialog = true;
-      }
-      this.serviceName = order.service_name;
-      this.serviceDescription = order.service_description;
-      this.serviceImage = order.service_image;
-      this.publicKey = order.customerBoxPublicKey;
-      this.createdAt = order.createdAt;
-      this.customerEthAddress = order.customer_eth_address
-        ? order.customer_eth_address
-        : "Address not set";
-      this.sellerEthAddress = order.seller_eth_address;
-      this.specimenNumber = order.dnaSampleTrackingId;
-      this.specimenStatus = order.dna_sample_status;
-      if (testResult) this.testResult = testResult;
-      this.setCheckboxByDnaStatus();
-      
-    } catch (err) {
-      console.log(err);
+  watch: {
+    orderId(val) {
+      if (val) this.prefillOrder()
     }
   },
+
+  async mounted() {
+    await this.prefillOrder()
+  },
+
   methods: {
+    async prefillOrder() {
+      try {
+        // If no order id redirect to Payment History list
+        if (!this.orderId) {
+          this.$router.push({ name: "lab-dashboard-order-history" });
+        }
+        const order = await getOrdersDetail(this.api, this.orderId);
+        const serviceInfo = await queryServicesById(this.api, order.serviceId);
+        const testResult = await queryDnaTestResults(this.api, this.specimenNumber);
+
+        this.dnaCollectionProcess = serviceInfo.info.dnaCollectionProcess;
+        if (this.dnaCollectionProcess.includes("Covid")) {
+          this.isBiological = true;
+        }
+
+        if (order.status == "Cancelled") {
+          this.cancelledOrderDialog = true;
+        }
+        this.serviceName = order.service_name;
+        this.serviceDescription = order.service_description;
+        this.serviceImage = order.service_image;
+        this.publicKey = order.customerBoxPublicKey;
+        this.createdAt = order.createdAt;
+        this.customerEthAddress = order.customer_eth_address
+          ? order.customer_eth_address
+          : "Address not set";
+        this.sellerEthAddress = order.seller_eth_address;
+        this.specimenNumber = order.dnaSampleTrackingId;
+        this.specimenStatus = order.dna_sample_status;
+        if (testResult) this.testResult = testResult;
+        this.setCheckboxByDnaStatus();
+
+      } catch (err) {
+        console.error(err);
+      }
+    },
+
     async setCheckboxByDnaStatus() {
       if (this.specimenStatus == "Arrived") {
         this.onSpecimenReceived();
@@ -314,6 +326,7 @@ export default {
     ...mapState({
       genome: (state) => state.testResult.genome,
       report: (state) => state.testResult.report,
+      configApp: (state) => state.auth.configApp
     }),
 
     ...mapGetters({

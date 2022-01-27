@@ -1,7 +1,7 @@
 import apiClientRequest from "@/lib/api"
 
 export const getProvideRequestService = async (service) => {
-  const { data } = await apiClientRequest.get("/service-requests/provideRequestService", {
+  const { data } = await apiClientRequest.get("/substrate/provideRequestService", {
     params: {
       category: service.category,
       city: service.cityName,

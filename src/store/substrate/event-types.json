@@ -124,78 +124,40 @@
       },
       "orders": {
         "OrderPaid": {
-          "message": "New order in.",
+          "message": "",
           "value": "id",
-          "value_message": "dna_sample_tracking_id",
-          "route": "lab-dashboard-order-history",
-          "params": "number",
-          "identity": "seller_id"
-        },
-        "OrderSuccess": {
-          "message": "Order completed",
-          "value": "id",
-          "value_message": "dna_sample_tracking_id",
-          "route": "lab-dashboard-order-history",
-          "params": "number",
-          "identity": "seller_id"
-        },
-        "OrderRefunded": {
-          "message": "Order rejected or returned",
-          "value": "id",
-          "value_message": "dna_sample_tracking_id",
-          "route": "lab-dashboard-order-history",
-          "params": "number",
-          "identity": "seller_id"
+          "value_message": "You have new order awaiting to procceed",
+          "route": "lab-dashboard-process-order",
+          "params": "orderId",
+          "identity": "sellerId"
+        }
+      },
+      "serviceRequest": {
+        "ServiceRequestClaimed": {
+          "message": "Congrats! Your requested service is available now. See your stake service.",
+          "value": "serviceId",
+          "value_message": "",
+          "route": "my-test",
+          "params": "1",
+          "identity": 0
         }
       },
       "geneticTesting": {
-        "DnaSampleProcessed": {
-          "message": "Dna Sample Processed",
-          "value": "tracking_id",
-          "value_message": "tracking_id",
-          "route": "lab-process",
-          "params": "number",
-          "identity": "lab_id"
-        },
-        "DnaSampleReceived": {
-          "message": "Dna Sample Received",
-          "value": "tracking_id",
-          "value_message": "tracking_id",
-          "route": "lab-process",
-          "params": "number",
-          "identity": "lab_id"
-        },
-        "DnaSampleProcessing": {
-          "message": "Dna Sample Processing",
-          "value": "tracking_id",
-          "value_message": "tracking_id",
-          "route": "lab-process",
-          "params": "number",
-          "identity": "lab_id"
-        },
-        "DnaSampleCreated": {
-          "message": "Dna Sample Created",
-          "value": "tracking_id",
-          "value_message": "tracking_id",
-          "route": "lab-process",
-          "params": "number",
-          "identity": "lab_id"
-        },
         "DnaSampleRejected": {
-          "message": "Dna Sample Rejected",
-          "value": "tracking_id",
-          "value_message": "tracking_id",
-          "route": "lab-process",
-          "params": "number",
-          "identity": "lab_id"
+          "message": "",
+          "value": "orderId",
+          "value_message": "You’ve got ",
+          "route": "lab-dashboard-process-order",
+          "params": "orderId",
+          "identity": "labId"
         },
-        "DnaTestResultSubmitted": {
-          "message": "Dna Test Result Submitted",
-          "value": "tracking_id",
-          "value_message": "tracking_id",
-          "route": "lab-process",
-          "params": "number",
-          "identity": "lab_id"
+        "DnaSampleResultReady": {
+          "message": "",
+          "value": "orderId",
+          "value_message": "You’ve got ",
+          "route": "lab-dashboard-process-order",
+          "params": "orderId",
+          "identity": "labId"
         }
       },
       "rewards": {

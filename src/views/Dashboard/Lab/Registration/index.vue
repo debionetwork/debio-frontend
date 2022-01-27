@@ -39,7 +39,7 @@
                 outlined
                 v-model="country"
                 :disabled="isLabAccountExist"
-                :rules="[val => !!val || 'Country is Required']"
+                :rules="[val => !!val || 'This field is required']"
               ></v-autocomplete>
 
               <v-autocomplete
@@ -52,7 +52,7 @@
                 :disabled="!country || isLabAccountExist"
                 outlined
                 v-model="state"
-                :rules="[val => !!val || 'Region is Required']"
+                :rules="[val => !!val || 'This field is required']"
               ></v-autocomplete>
 
               <v-autocomplete
@@ -66,7 +66,7 @@
                 :disabled="!state || isLabAccountExist"
                 outlined
                 v-model="city"
-                :rules="[val => !!val || 'City is Required']"
+                :rules="[val => !!val || 'This field is required']"
               ></v-autocomplete>
 
               <v-text-field
@@ -175,6 +175,7 @@ import Stepper from "./Stepper"
 import { getLocations, getStates, getCities } from "@/lib/api"
 import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
 
+const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
 export default {
   name: 'LabRegistration',
@@ -223,8 +224,6 @@ export default {
     }),
 
     ...mapState({
-      locationContract: state => state.ethereum.contracts.contractLocation,
-      degenicsContract: state => state.ethereum.contracts.contractDegenics,
       mnemonicData: state => state.substrate.mnemonicData
     }),
 
@@ -244,21 +243,25 @@ export default {
     emailRules() {
       return [
         val => !!val || 'This field is required',
-        val => /.+@.+\..+/.test(val) || 'Email is invalid. It should contain @ followed by a domain',
+        val => /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(val) || 'Email is invalid. It should contain @ followed by a domain',
+        val => (val && val.length <= 255) || 'This field only allows 255 characters',
+        val => (val && /^[A-Za-z0-9 ]?[A-Za-z0-9@. ]+$/.test(val)) || "This field only allows Alphabetic characters."
       ]
     },
 
     nameRules() {
       return [
         val => !!val || 'This field is required',
-        val => (val && val.length <= 255) || 'This field only allows 255 characters'
+        val => (val && val.length <= 100) || 'This field only allows 100 characters',
+        englishAlphabet
       ]
     },
 
     addressRules() {
       return [
         val => !!val || 'This field is required',
-        val => (val && val.length <= 255) || 'This field only allows 255 characters'
+        val => (val && val.length <= 255) || 'This field only allows 255 characters',
+        englishAlphabet
       ]
     },
 
@@ -266,31 +269,32 @@ export default {
       return [
         val => !!val || 'This field is required',
         val => /^\+?([0-9]{10,15})$/.test(val) || 'This field can only contain number',
-        val => (val && val.length <= 13) || 'This field only allows 13 characters'
+        val => (val && val.length <= 12) || 'This field only allows 12 characters'
       ]
     },
 
     websiteRules() { 
       return [
         val => !!val || 'This field is required',
-        val => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(val) || 'Website is invalid. It should contain protocol (https://) followed by a domain', //eslint-disable-line
-        val => (val && val.length <= 255) || 'This field only allows 255 characters'
+        englishAlphabet,
+        val => (val && val.length <= 255) || 'This field only allows 255 characters',
+        val => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&/=]*)/.test(val) || 'Website is invalid. It should contain protocol (https://) followed by a domain'
       ]
     },
 
     fileInputRules() {
       return [
-        value => value.size <= 2000000 || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
-        value => !value || 'This field is required'
+        value => !!value.size || 'This field is required',
+        value => value.size < 2000000 || 'The total file size uploaded exceeds the maximum file size allowed (2MB)'
       ]
     },
 
     computeCountryLabel() {
-      return !this.country && this.isLoading ? this.loadingPlaceholder : "Select Region"
+      return !this.country && this.isLoading ? this.loadingPlaceholder : "Select Country"
     },
 
     computeStateLabel() {
-      return !this.state && this.isLoading ? this.loadingPlaceholder : "Select State"
+      return !this.state && this.isLoading ? this.loadingPlaceholder : "Select State/Province"
     },
 
     computeCityLabel() {

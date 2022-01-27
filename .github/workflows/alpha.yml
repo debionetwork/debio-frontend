@@ -48,6 +48,7 @@ jobs:
             VUE_APP_RECAPTCHA_SITE_KEY:${{ secrets.STG_GCP_PROJECT_ID }}/VUE_APP_RECAPTCHA_SITE_KEY
             VUE_APP_ROLE:${{ secrets.STG_GCP_PROJECT_ID }}/VUE_APP_ROLE
             VUE_APP_DEBIO_USE_TOKEN_NAME:${{ secrets.STG_GCP_PROJECT_ID }}/VUE_APP_DEBIO_USE_TOKEN_NAME
+            VUE_APP_DEBIO_DAI_TOKEN_ADDRESS:${{ secrets.STG_GCP_PROJECT_ID }}/VUE_APP_DEBIO_DAI_TOKEN_ADDRESS
             VUE_APP_DEBIO_ESCROW_ETH_ADDRESS:${{ secrets.STG_GCP_PROJECT_ID }}/VUE_APP_DEBIO_ESCROW_ETH_ADDRESS
             VUE_APP_DEBIO_SUBSTRATE_WS:${{ secrets.STG_GCP_PROJECT_ID }}/VUE_APP_DEBIO_SUBSTRATE_WS
             VUE_APP_WEB3_RPC:${{ secrets.STG_GCP_PROJECT_ID }}/VUE_APP_WEB3_RPC
@@ -55,6 +56,8 @@ jobs:
             VUE_APP_DEBIO_API_KEY:${{ secrets.STG_GCP_PROJECT_ID }}/VUE_APP_DEBIO_API_KEY
             VUE_APP_USERNAME:${{ secrets.STG_GCP_PROJECT_ID }}/VUE_APP_USERNAME
             VUE_APP_PASSWORD:${{ secrets.STG_GCP_PROJECT_ID }}/VUE_APP_PASSWORD
+            VUE_APP_MIXPANEL_TOKEN:${{ secrets.STG_GCP_PROJECT_ID }}/VUE_APP_MIXPANEL_TOKEN
+            VUE_APP_SENTRY_DSN:${{ secrets.STG_GCP_PROJECT_ID }}/LAB_SENTRY_DSN
       - name: Create .env & gcp sa
         shell: bash
         run: |
@@ -62,6 +65,7 @@ jobs:
           VUE_APP_RECAPTCHA_SITE_KEY=${{ steps.secrets.outputs.VUE_APP_RECAPTCHA_SITE_KEY }}
           VUE_APP_ROLE=${{ steps.secrets.outputs.VUE_APP_ROLE }}
           VUE_APP_DEBIO_USE_TOKEN_NAME=${{ steps.secrets.outputs.VUE_APP_DEBIO_USE_TOKEN_NAME }}
+          VUE_APP_DEBIO_DAI_TOKEN_ADDRESS=${{ steps.secrets.outputs.VUE_APP_DEBIO_DAI_TOKEN_ADDRESS }}
           VUE_APP_DEBIO_ESCROW_ETH_ADDRESS=${{ steps.secrets.outputs.VUE_APP_DEBIO_ESCROW_ETH_ADDRESS }}
           VUE_APP_DEBIO_SUBSTRATE_WS=${{ steps.secrets.outputs.VUE_APP_DEBIO_SUBSTRATE_WS }}
           VUE_APP_WEB3_RPC=${{ steps.secrets.outputs.VUE_APP_WEB3_RPC }}
@@ -69,6 +73,8 @@ jobs:
           VUE_APP_DEBIO_API_KEY=${{ steps.secrets.outputs.VUE_APP_DEBIO_API_KEY }}
           VUE_APP_USERNAME=${{ steps.secrets.outputs.VUE_APP_USERNAME }}
           VUE_APP_PASSWORD=${{ steps.secrets.outputs.VUE_APP_PASSWORD }}
+          VUE_APP_MIXPANEL_TOKEN=${{ steps.secrets.outputs.VUE_APP_MIXPANEL_TOKEN }}
+          VUE_APP_SENTRY_DSN=${{ steps.secrets.outputs.VUE_APP_SENTRY_DSN }}
           EOF
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -185,12 +191,12 @@ jobs:
               --set-string ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
               --set-string ingress.tls[0].secretName=debio-frontend-tls \
               --set-string ingress.tls[0].hosts[0]=lab.stg.debio.network \
-              --set-string resources.requests.cpu=300m \
-              --set-string resources.requests.memory=512Mi \
-              --set-string resources.limits.cpu=500m \
-              --set-string resources.limits.memory=1024Mi \
-              --set replicaCount=3 \
+              --set-string resources.requests.cpu=100m \
+              --set-string resources.requests.memory=256Mi \
+              --set-string resources.limits.cpu=300m \
+              --set-string resources.limits.memory=512Mi \
+              --set replicaCount=1 \
               --set autoscaling.enabled=true \
-              --set autoscaling.minReplicas=3 \
+              --set autoscaling.minReplicas=1 \
               --set autoscaling.maxReplicas=11
             kubectl rollout status deployment/debio-frontend

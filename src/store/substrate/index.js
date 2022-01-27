@@ -118,7 +118,7 @@ export default {
         api.query.system.events((events) => {
           events.forEach((record) => {
             const { event } = record;
-            if (event.section == "rewards" || event.section == "serviceRequest" || event.section == "services" || event.section == "labs" || event.section == "orders" || event.section == "geneticTesting" || event.section == "balances" || event.section == "electronicMedicalRecord") {
+            if (event.section === "rewards" || event.section === "serviceRequest" || event.section === "services" || event.section === "labs" || event.section === "orders" || event.section === "geneticTesting" || event.section === "electronicMedicalRecord") {
               if (event.method === "OrderPaid") localStorage.removeLocalStorageByName("lastOrderStatus")
               commit('SET_LAST_EVENT', event);
             }
@@ -167,9 +167,8 @@ export default {
           localStorage.setAddress(pair.address)
           commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
           commit('SET_WALLET', pair)
-
-          localStorage.setLocalStorageByName("mnemonic_data", JSON.stringify(file[1]));
-          commit('SET_MNEMONIC_DATA', file[1])
+          const encryptedMnemonic = localStorage.getLocalStorageByName("mnemonic_data");
+          commit('SET_MNEMONIC_DATA', encryptedMnemonic)
           commit('SET_LOADING_WALLET', false)
 
           return { success: true }
