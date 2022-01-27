@@ -157,6 +157,8 @@ import Dialog from '@/components/Dialog'
 import Button from '@/components/Button'
 import { upload } from "@/lib/ipfs"
 
+const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
+
 export default {
   name: 'Certification',
 
@@ -209,14 +211,14 @@ export default {
       return [
         val => !!val || 'Title is required',
         val => (val && val.length <= 50) || 'This field only allows 50 characters',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
+        englishAlphabet
       ]
     },
     issuerRules() {
       return [
         val => !!val || 'Issuer is required',
         val => (val && val.length <= 100) || 'This field only allows 100 characters',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
+        englishAlphabet
       ]
     },
     monthRules() {
@@ -233,7 +235,7 @@ export default {
       return [
         val => !!val || 'This field is required',
         val => (val && val.length <= 255) || 'This field only allows 255 characters',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
+        englishAlphabet
       ]
     },
   },

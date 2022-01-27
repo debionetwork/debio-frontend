@@ -156,6 +156,7 @@ import Stepper from "./Stepper"
 import { getLocations, getStates, getCities } from "@/lib/api"
 import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
 
+const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
 export default {
   name: 'LabRegistration',
@@ -224,7 +225,7 @@ export default {
         val => !!val || 'This field is required',
         val => /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(val) || 'Email is invalid. It should contain @ followed by a domain',
         val => (val && val.length <= 255) || 'This field only allows 255 characters',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9@.? ]+$/.test(val)) || "This field only allows Alphabetic characters."
+        val => (val && /^[A-Za-z0-9 ]?[A-Za-z0-9@. ]+$/.test(val)) || "This field only allows Alphabetic characters."
       ]
     },
 
@@ -232,7 +233,7 @@ export default {
       return [
         val => !!val || 'This field is required',
         val => (val && val.length <= 100) || 'This field only allows 100 characters',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
+        englishAlphabet
       ]
     },
 
@@ -240,7 +241,7 @@ export default {
       return [
         val => !!val || 'This field is required',
         val => (val && val.length <= 255) || 'This field only allows 255 characters',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters.",
+        englishAlphabet
       ]
     },
 
@@ -255,7 +256,7 @@ export default {
     websiteRules() { 
       return [
         val => !!val || 'This field is required',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9:./? ]+$/.test(val)) || "This field only allows Alphabetic characters.",
+        englishAlphabet,
         val => (val && val.length <= 255) || 'This field only allows 255 characters',
         val => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&/=]*)/.test(val) || 'Website is invalid. It should contain protocol (https://) followed by a domain'
       ]

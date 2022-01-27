@@ -200,6 +200,8 @@ import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { fromEther } from "@/lib/balance-format"
 import { updateService } from '@/lib/polkadotProvider/command/services'
 
+const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
+
 export default {
   name: 'EditLabServices',
 
@@ -285,9 +287,7 @@ export default {
     },
 
     fieldEnglishRules() {
-      return [
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val) || "This field can only contain English alphabet")
-      ]
+      return [ englishAlphabet ]
     },
 
     serviceNameRules() {

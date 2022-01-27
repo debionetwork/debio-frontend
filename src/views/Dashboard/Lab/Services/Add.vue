@@ -221,6 +221,8 @@ import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { getProvideRequestService, getCategories } from "@/lib/api";
 import { toEther } from "@/lib/balance-format"
 
+const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
+
 export default {
   name: 'AddLabServices',
   data: () => ({
@@ -300,9 +302,7 @@ export default {
     },
 
     fieldEnglishRules() {
-      return [
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val) || "This field can only contain English alphabet")
-      ]
+      return [ englishAlphabet ]
     },
 
     descriptionRules() {

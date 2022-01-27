@@ -228,6 +228,8 @@ import serviceHandler from "@/mixins/serviceHandler"
 import { toEther } from "@/lib/balance-format"
 import { sendEmailRegisteredLab } from "@/lib/api/lab"
 
+const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
+
 export default {
   name: 'LabRegistrationServices',
 
@@ -304,7 +306,7 @@ export default {
     serviceNameRules() {
       return [
         val => (val && val.length <= 50) || 'This field only allows 50 characters',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
+        englishAlphabet
       ]
     },
 
@@ -324,14 +326,14 @@ export default {
     descriptionRules() {
       return [
         val => (val && val.length <= 100) || 'This field only allows 100 characters',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
+        englishAlphabet
       ]
     },
 
     longDescriptionRules() {
       return [
         val => (val && val.length <= 255) || 'This field only allows 255 characters',
-        val => (val && /^[A-Za-z? ]?[A-Za-z0-9? ]+$/.test(val)) || "This field only allows Alphabetic characters."
+        englishAlphabet
       ]
     },
 
