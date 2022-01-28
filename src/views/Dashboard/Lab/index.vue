@@ -39,7 +39,7 @@
               inline
               color="primary"
               :size="20"
-              v-if="labAccount.verificationStatus == 'Verified'"
+              v-if="labAccount && labAccount.verificationStatus == 'Verified'"
             >mdi-check-decagram</v-icon>
             <v-icon 
               inline
@@ -47,8 +47,8 @@
               :size="20"
               v-else
             >mdi-information</v-icon>
-            <b v-if="labAccount.verificationStatus == 'Verified'">Your account has been verified</b>
-            <b v-else>Your account has not been verified</b>
+            <b v-if="labAccount && labAccount.verificationStatus == 'Unverified'">Your verification submission is being reviewed by Daogenic</b>
+            <b v-else>Your account has been {{ labAccount.verificationStatus }}</b>
           </div>
         </v-card>
       </v-col>
