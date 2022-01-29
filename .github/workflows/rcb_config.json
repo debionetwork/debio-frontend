@@ -9,6 +9,10 @@
         "labels": ["improvement"]
       },
       {
+        "title": "## 👌 Refactor",
+        "labels": ["refactor"]
+      },
+      {
         "title": "## 🐛 Fixes",
         "labels": ["fix"]
       },
@@ -18,7 +22,7 @@
       },
       {
         "title": "## 📖 Documents",
-        "labels": ["document"]
+        "labels": ["documentation"]
       }
     ],
     "ignore_labels": [
