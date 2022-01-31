@@ -333,7 +333,9 @@ export default {
             fileType: file.type,
             fileName: file.name,
           })
-          context.certSupportingDocumentsUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server...
+          const computeLink = `${uploaded.ipfsPath[0].data.ipfsFilePath}/${uploaded.fileName}`
+
+          context.certSupportingDocumentsUrl = `https://ipfs.io/ipfs/${computeLink}` // this is an image file that can be sent to server...
           context.isUploading = false
           context.isLoading = false
         })

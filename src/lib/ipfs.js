@@ -4,17 +4,16 @@ import store from '@/store/index'
 export function upload({ fileChunk, fileName, fileType }) {
   const chunkSize = 10 * 1024 * 1024 // 10 MB
   let offset = 0
-  const blob = new Blob([ fileChunk ], { type: fileType })
+  const blob = new Blob([fileChunk], { type: fileType })
+  const newBlobData = new File([blob], fileName)
 
   return new Promise((resolve, reject) => {
       try {
-      const fileSize = blob.size
+      const fileSize = newBlobData.size
       do {
-          let chunk = blob.slice(offset, chunkSize + offset);
-          ipfsWorker.workerUpload.postMessage({
-          seed: chunk.seed, file: blob
-          })
-          offset += chunkSize
+        let chunk = newBlobData.slice(offset, chunkSize + offset);
+        ipfsWorker.workerUpload.postMessage({ seed: chunk.seed, file: newBlobData })
+        offset += chunkSize
       } while((chunkSize + offset) < fileSize)
       
       let uploadSize = 0
