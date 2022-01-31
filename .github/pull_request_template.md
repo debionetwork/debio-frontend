@@ -1,7 +1,11 @@
-### JIRA Link
-URL to your task/ticket number in JIRA (if applicable)
-If there's no JIRA ticket number, describe why in description below.
+### JIRA LINK 🟦
+- https://blocksphere2020.atlassian.net/browse/DBIO-ISSUE_NUMBER
+- N/A
 
-### Changelog / Description
-The description of your task or what is changed.
-e.g: Update substrate config, new feature / bugfix, etc.
+### Changelog/Description 🗒️
+- 
+
+### WARNING ⚠️
+- 
+
+### Screenshoot/Video (Optional) 🖼️
