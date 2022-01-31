@@ -48,7 +48,7 @@
               v-else
             >mdi-information</v-icon>
             <b v-if="labAccount && labAccount.verificationStatus == 'Unverified'">Your verification submission is being reviewed by Daogenic</b>
-            <b v-else>Your account has been {{ labAccount.verificationStatus }}</b>
+            <b v-else>{{ computeVerificationStatus }}</b>
           </div>
         </v-card>
       </v-col>
@@ -92,15 +92,23 @@ import LabOrders from "./LabOrders";
 
 export default {
   name: 'Lab',
+
   components: {
     MenuCard,
     LabOrders,
   },
+
   computed: {
     ...mapState({
       labAccount: (state) => state.substrate.labAccount,
       isServicesExist: (state) => state.substrate.isServicesExist,
     }),
-  },
+
+    computeVerificationStatus() {
+      return this.labAccount?.verificationStatus
+        ? `Your account has been ${this.labAccount?.verificationStatus}`
+        : "Loading verification..."
+    }
+  }
 }
 </script>
