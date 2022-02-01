@@ -168,12 +168,15 @@
 
 <script>
 import { mapState, mapGetters } from "vuex"
-import { registerLab } from "@/lib/polkadotProvider/command/labs"
+// import { registerLab } from "@/lib/polkadotProvider/command/labs"
 import { upload } from "@/lib/ipfs"
 import Certification from "./Certification"
 import Stepper from "./Stepper"
 import { getLocations, getStates, getCities } from "@/lib/api"
 import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
+import Kilt from "@kiltprotocol/sdk-js"
+import CryptoJS from "crypto-js"
+import { u8aToHex } from "@polkadot/util"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
@@ -188,9 +191,17 @@ export default {
   },
 
   async mounted() {
+    const cred = Kilt.Identity.buildFromMnemonic(this.mnemonicData.toString(CryptoJS.enc.Utf8))
+    console.log(cred, "creeeeeed")
+    const publicKey = u8aToHex(cred.boxKeyPair.publicKey)
+    const secretKey = u8aToHex(cred.boxKeyPair.secretKey)
+
+    console.log(publicKey, "public")
+    console.log(secretKey, "secret")
     await this.getCountries();
     await this.setData();
-  },
+},
+
 
   data: () => ({
     country: "",
@@ -379,47 +390,55 @@ export default {
         return
       }
       try{
+        console.log("masuk ke regis index regis func")
         this.isLoading = true
-        const boxPublicKey = this.mnemonicData.publicKey
+        const cred = Kilt.Identity.buildFromMnemonic(this.mnemonicData.toString(CryptoJS.enc.Utf8))
+        console.log(cred, "creeeeeed")
+        const publicKey = u8aToHex(cred.boxKeyPair.publicKey)
+        const secretKey = u8aToHex(cred.boxKeyPair.secretKey)
 
-        await registerLab(
-          this.api,
-          this.pair,
-          {
-            boxPublicKey,
-            name: this.labName,
-            email: this.email,
-            address: this.address,
-            phoneNumber: this.phoneNumber,
-            website: this.website,
-            country: this.country,
-            region: this.state,
-            city: this.city,
-            profileImage: this.imageUrl
-          },
-          async () => {
-            this.isLoading = false
-            const labAccount = {
-                  accountId: this.pair.address,
-                  services: [],
-                  certifications: [],
-                  info: {
-                    boxPublicKey,
-                    name: this.labName,
-                    email: this.email,
-                    address: this.address,
-                    country: this.country,
-                    city: this.city,
-                    profileImage: this.imageUrl,
-                  }
-                }
-            this.setLabAccount(labAccount)
-            this.stepperItems = [
-              { name: "Lab Information", selected: true},
-              { name: "Lab Services", selected: false},
-            ]
-          }
-        )
+        console.log(publicKey, "public")
+        console.log(secretKey, "secret")
+        // const boxPublicKey = this.mnemonicData.publicKey
+
+        // await registerLab(
+        //   this.api,
+        //   this.pair,
+        //   {
+        //     boxPublicKey,
+        //     name: this.labName,
+        //     email: this.email,
+        //     address: this.address,
+        //     phoneNumber: this.phoneNumber,
+        //     website: this.website,
+        //     country: this.country,
+        //     region: this.state,
+        //     city: this.city,
+        //     profileImage: this.imageUrl
+        //   },
+        //   async () => {
+        //     this.isLoading = false
+        //     const labAccount = {
+        //           accountId: this.pair.address,
+        //           services: [],
+        //           certifications: [],
+        //           info: {
+        //             boxPublicKey,
+        //             name: this.labName,
+        //             email: this.email,
+        //             address: this.address,
+        //             country: this.country,
+        //             city: this.city,
+        //             profileImage: this.imageUrl,
+        //           }
+        //         }
+        //     this.setLabAccount(labAccount)
+        //     this.stepperItems = [
+        //       { name: "Lab Information", selected: true},
+        //       { name: "Lab Services", selected: false},
+        //     ]
+        //   }
+        // )
       }
       catch(e){
         console.error(e)
