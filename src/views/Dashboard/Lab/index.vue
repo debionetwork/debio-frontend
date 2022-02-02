@@ -47,7 +47,7 @@
               :size="20"
               v-else
             >mdi-information</v-icon>
-            <b v-if="labAccount && labAccount.verificationStatus == 'Unverified'">Your verification submission is being reviewed by Daogenic</b>
+            <b v-if="labAccount && labAccount.verificationStatus == 'Unverified'">Your verification submission is being reviewed by DAOGenics</b>
             <b v-else>{{ computeVerificationStatus }}</b>
           </div>
         </v-card>
