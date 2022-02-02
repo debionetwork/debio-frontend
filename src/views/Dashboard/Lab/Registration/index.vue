@@ -168,7 +168,7 @@
 
 <script>
 import { mapState, mapGetters } from "vuex"
-// import { registerLab } from "@/lib/polkadotProvider/command/labs"
+import { registerLab } from "@/lib/polkadotProvider/command/labs"
 import { upload } from "@/lib/ipfs"
 import Certification from "./Certification"
 import Stepper from "./Stepper"
@@ -390,55 +390,48 @@ export default {
         return
       }
       try{
-        console.log("masuk ke regis index regis func")
         this.isLoading = true
         const cred = Kilt.Identity.buildFromMnemonic(this.mnemonicData.toString(CryptoJS.enc.Utf8))
-        console.log(cred, "creeeeeed")
-        const publicKey = u8aToHex(cred.boxKeyPair.publicKey)
-        const secretKey = u8aToHex(cred.boxKeyPair.secretKey)
+        const boxPublicKey = u8aToHex(cred.boxKeyPair.publicKey)
 
-        console.log(publicKey, "public")
-        console.log(secretKey, "secret")
-        // const boxPublicKey = this.mnemonicData.publicKey
-
-        // await registerLab(
-        //   this.api,
-        //   this.pair,
-        //   {
-        //     boxPublicKey,
-        //     name: this.labName,
-        //     email: this.email,
-        //     address: this.address,
-        //     phoneNumber: this.phoneNumber,
-        //     website: this.website,
-        //     country: this.country,
-        //     region: this.state,
-        //     city: this.city,
-        //     profileImage: this.imageUrl
-        //   },
-        //   async () => {
-        //     this.isLoading = false
-        //     const labAccount = {
-        //           accountId: this.pair.address,
-        //           services: [],
-        //           certifications: [],
-        //           info: {
-        //             boxPublicKey,
-        //             name: this.labName,
-        //             email: this.email,
-        //             address: this.address,
-        //             country: this.country,
-        //             city: this.city,
-        //             profileImage: this.imageUrl,
-        //           }
-        //         }
-        //     this.setLabAccount(labAccount)
-        //     this.stepperItems = [
-        //       { name: "Lab Information", selected: true},
-        //       { name: "Lab Services", selected: false},
-        //     ]
-        //   }
-        // )
+        await registerLab(
+          this.api,
+          this.pair,
+          {
+            boxPublicKey,
+            name: this.labName,
+            email: this.email,
+            address: this.address,
+            phoneNumber: this.phoneNumber,
+            website: this.website,
+            country: this.country,
+            region: this.state,
+            city: this.city,
+            profileImage: this.imageUrl
+          },
+          async () => {
+            this.isLoading = false
+            const labAccount = {
+                  accountId: this.pair.address,
+                  services: [],
+                  certifications: [],
+                  info: {
+                    boxPublicKey,
+                    name: this.labName,
+                    email: this.email,
+                    address: this.address,
+                    country: this.country,
+                    city: this.city,
+                    profileImage: this.imageUrl,
+                  }
+                }
+            this.setLabAccount(labAccount)
+            this.stepperItems = [
+              { name: "Lab Information", selected: true},
+              { name: "Lab Services", selected: false},
+            ]
+          }
+        )
       }
       catch(e){
         console.error(e)
