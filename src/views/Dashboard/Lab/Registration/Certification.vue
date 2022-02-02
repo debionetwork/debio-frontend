@@ -176,9 +176,8 @@ export default {
     isUploading: false,
     isEditCertificationDialog: false,
     files: [],
-    sertifDialog: false,
     confirmDeleteDialog: false,
-    certifData: null
+    certificationData: null
   }),
 
   computed: {
@@ -318,7 +317,7 @@ export default {
 
     deleteCertification(cert) {
       this.confirmDeleteDialog = true
-      this.certifData = cert
+      this.certificationData = cert
     },
 
     async confirmDelete(cert) {
