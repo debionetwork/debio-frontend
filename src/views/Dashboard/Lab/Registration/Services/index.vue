@@ -55,7 +55,7 @@
                     placeholder="Service Name"
                     outlined
                     v-model="name"
-                    :rules="[serviceNameRules, fieldRequiredRule]"
+                    :rules="serviceNameRules"
                   ></v-text-field>
 
                   <div class="d-flex">
@@ -81,7 +81,7 @@
                           step=".001"
                           outlined
                           v-model.number="price"
-                          :rules="[priceRules, fieldRequiredRule]"
+                          :rules="priceRules"
                         ></v-text-field>
                       </v-col>
                       <v-col>
@@ -104,7 +104,7 @@
                           step=".001"
                           outlined
                           v-model.number="qcPrice"
-                          :rules="[cqPriceRules, fieldRequiredRule]"
+                          :rules="cqPriceRules"
                         ></v-text-field>
                       </v-col>
                     </v-row>
@@ -116,7 +116,7 @@
                     placeholder="Short Description"
                     outlined
                     v-model="description"
-                    :rules="[descriptionRules, fieldRequiredRule]"
+                    :rules="descriptionRules"
                   ></v-text-field>
                   
                   <v-row >
@@ -130,7 +130,7 @@
                         outlined
                         type="number"
                         v-model="expectedDuration"
-                        :rules="[expectedDurationRules, fieldRequiredRule]"
+                        :rules="expectedDurationRules"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="4">
@@ -139,7 +139,7 @@
                         dense
                         v-model="selectExpectedDuration"
                         :items="listExpectedDuration"
-                        :rules="[expectedDurationRules, fieldRequiredRule]"
+                        :rules="fieldRequiredRule"
                       ></v-select>
                     </v-col>
                   </v-row>
@@ -150,7 +150,7 @@
                     placeholder="Long Description"
                     outlined
                     v-model="longDescription"
-                    :rules="[longDescriptionRules, fieldRequiredRule]"
+                    :rules="longDescriptionRules"
                   ></v-textarea>
 
                   <v-file-input
@@ -228,7 +228,6 @@ import serviceHandler from "@/mixins/serviceHandler"
 import { toEther } from "@/lib/balance-format"
 import { sendEmailRegisteredLab } from "@/lib/api/lab"
 
-const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
 export default {
   name: 'LabRegistrationServices',
@@ -299,19 +298,29 @@ export default {
 
     fieldRequiredRule() {
       return [
-        val => !!val || 'This field is required'
+        this.fieldRequired
       ]
+    },
+
+    fieldRequired() {
+      return val => !!val || 'This field is required'
+    },
+
+    englishAlphabet() {
+      return val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
     },
 
     serviceNameRules() {
       return [
+        this.fieldRequired,
+        this.englishAlphabet,
         val => (val && val.length <= 50) || 'This field only allows 50 characters',
-        englishAlphabet
       ]
     },
 
     priceRules() {
       return [
+        this.fieldRequired,
         val => (val && val != 0) || 'Value on this field cannot 0',
         val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'This field only allows 3 decimal characters.'
       ]
@@ -319,26 +328,29 @@ export default {
     
     cqPriceRules() {
       return [
+        this.fieldRequired,
         val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'This field only allows 3 decimal characters.'
       ]
     },
 
     descriptionRules() {
       return [
-        val => (val && val.length <= 100) || 'This field only allows 100 characters',
-        englishAlphabet
+        this.fieldRequired,
+        this.englishAlphabet,
+        val => (val && val.length <= 100) || 'This field only allows 100 characters'
       ]
     },
 
     longDescriptionRules() {
       return [
+        this.englishAlphabet,
         val => (val && val.length <= 255) || 'This field only allows 255 characters',
-        englishAlphabet
       ]
     },
 
     expectedDurationRules() {
       return [
+        this.fieldRequired,
         val => (val && val != 0) || 'Value on this field cannot 0'
       ]
     },
