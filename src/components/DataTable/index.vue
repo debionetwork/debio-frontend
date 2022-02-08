@@ -74,7 +74,11 @@ export default {
     search: String,
     additionalClass: String,
     customFilter: Function,
+<<<<<<< HEAD
     sortBy: [Array, String, Number],
+=======
+    sortBy: [Array, String],
+>>>>>>> a003edf (Chore: After Lab verified, can delete all services)
     sortDesc: Array,
     loading: Boolean,
     loadingText: String,

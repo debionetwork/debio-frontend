@@ -510,6 +510,7 @@ export default {
           context.imageUrl = `https://ipfs.io/ipfs/${computeLink}`
           context.isUploading = false
           context.isLoading = false
+          context.isUploading = false
         })
       }
     },
@@ -540,6 +541,7 @@ export default {
           context.testResultSampleUrl = `https://ipfs.io/ipfs/${computeLink}`
           context.isUploading = false
           context.isLoading = false
+          context.isUploading = false
         })
       }
     },
