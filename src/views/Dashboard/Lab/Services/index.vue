@@ -92,13 +92,22 @@
                            color="black"
                         >
                            mdi-pencil
-                           </v-icon>
-                        <v-icon 
-                           @click="confirmDeleteService(item)"
-                           color="black"
-                        >
-                           mdi-delete
                         </v-icon>
+
+                        <v-tooltip bottom :disabled="activeButton">
+                           <template v-slot:activator="{ on, attrs }">
+                              <div v-bind="attrs" v-on="on">
+                                 <v-icon 
+                                    @click="confirmDeleteService(item)"
+                                    color="black"
+                                    :disabled="!activeButton"
+                                 >
+                                    mdi-delete
+                                 </v-icon>
+                              </div>
+                           </template>
+                           <span>You need to have at least 1 service</span>
+                        </v-tooltip>
 
                      </v-container>
                   </template>
@@ -118,6 +127,7 @@ import { deleteService } from '@/lib/polkadotProvider/command/services'
 import { mapGetters, mapState } from 'vuex'
 import Dialog from "@/components/Dialog"
 import Button from '@/components/Button'
+import { queryServicesCountByOwnerId } from "@/lib/polkadotProvider/query/services"
 
 export default {
   name: 'LabServices',
@@ -140,7 +150,9 @@ export default {
     isLoading: false,
     showDialog: false,
     showAlert: false,
-    idItemDeleted: ""
+    idItemDeleted: "",
+    activeButton: true,
+    serviceCount: 0
   }),
   computed:{
    ...mapGetters({
@@ -161,12 +173,14 @@ export default {
          this.isLoading = false
          this.showDialog = false
          this.getServices()
+         this.checkServiceCount()
       }
     }
   },
 
    async created() {
       await this.getServices()
+      await this.checkServiceCount()
    },
 
   methods:{
@@ -216,6 +230,14 @@ export default {
     confirmDeleteService(item) {
        this.idItemDeleted = item.id
        this.showDialog = true
+    }, 
+
+    async checkServiceCount() {
+       const res = await queryServicesCountByOwnerId(this.api, this.pair.address)
+       this.serviceCount = Number(res.toHuman())
+       if (this.serviceCount <= 1) {
+          this.activeButton = false
+       }
     }
   }
 }
