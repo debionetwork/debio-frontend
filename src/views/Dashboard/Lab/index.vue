@@ -106,7 +106,7 @@ export default {
 
     computeVerificationStatus() {
       return this.labAccount?.verificationStatus
-        ? `Your account has been ${this.labAccount?.verificationStatus}`
+        ? `Your lab account's verification status is: ${this.labAccount?.verificationStatus}`
         : "Loading verification..."
     }
   }
