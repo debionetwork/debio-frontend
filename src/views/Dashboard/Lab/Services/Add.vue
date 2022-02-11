@@ -200,7 +200,7 @@
                       color="primary"
                       block
                       large
-                      :disabled="isUploading"
+                      :disabled="isLoading"
                       :loading="isLoading"
                       @click="handleCreateService"
                     >Submit</v-btn>
@@ -243,7 +243,6 @@ export default {
     sampleFiles:[],
     isLoading: false,
     showModalAlert: false,
-    isUploading: false,
     currencyList: ['DAI', 'ETH'],
     currencyType: 'DAI',
     listExpectedDuration: [
@@ -482,14 +481,12 @@ export default {
           this.serviceFlow
         )
       } catch (error) {
-        console.error(error)
-      } finally {
         this.isLoading = false
+        console.error(error)
       }
     },
 
     imageUploadEventListener(file) {
-      this.isUploading = true
       this.isLoading = true
       this.imageUrl = ""
       if (file) {
@@ -519,7 +516,6 @@ export default {
       if (!file || file.size >= 2000000) {
         return
       }
-      this.isUploading = true
       this.isLoading = true
       this.testResultSampleUrl = ""
       if (file) {
@@ -563,13 +559,11 @@ export default {
             )
           }
 
-          this.isUploading = true
           this.isLoading = true
           await this.handleProcessClaim(requests)
         }
       } catch (error) {
         console.error(error);
-        this.isUploading = false
         this.isLoading = false
       }
     },
@@ -577,13 +571,11 @@ export default {
     async handleProcessClaim(requests) {
       try {
         await Promise.all(requests)
-        this.isUploading = false
         this.isLoading = false
 
         this.$router.push('/lab/services')
         this.$store.dispatch("lab/setProvideService", {})
       } catch (error) {
-        this.isUploading = false
         this.isLoading = false
         console.error(error)
       }
