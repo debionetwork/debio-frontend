@@ -265,7 +265,8 @@ export default {
       fetch(this.testResultSampleUrl)
         .then(res => res.blob()) // Gets the response and returns it as a blob
         .then(blob => {
-          this.testResultSampleFile = new File([blob], `${item.info.name} Test result sample`)
+          const fileName = this.testResultSampleUrl.split("/").pop()
+          this.testResultSampleFile = new File([blob], fileName, { type: "application/pdf" })
       });
     }
   },
@@ -404,7 +405,9 @@ export default {
             fileType: file.type,
             fileName: file.name,
           })
-          context.imageUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server... (convert img to file path)
+          const computeLink = `${uploaded.ipfsPath[0].data.ipfsFilePath}/${uploaded.fileName}`
+
+          context.imageUrl = `https://ipfs.io/ipfs/${computeLink}` // this is an image file that can be sent to server... (convert img to file path)
           context.isUploading = false
           context.isLoading = false
         })
@@ -433,7 +436,9 @@ export default {
             fileType: file.type,
             fileName: file.name,
           })
-          context.testResultSampleUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server... (convert img to file path)
+          const computeLink = `${uploaded.ipfsPath[0].data.ipfsFilePath}/${uploaded.fileName}`
+
+          context.testResultSampleUrl = `https://ipfs.io/ipfs/${computeLink}` // this is an image file that can be sent to server... (convert img to file path)
           context.isUploading = false
           context.isLoading = false
         })

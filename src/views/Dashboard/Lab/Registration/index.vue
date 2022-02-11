@@ -174,6 +174,9 @@ import Certification from "./Certification"
 import Stepper from "./Stepper"
 import { getLocations, getStates, getCities } from "@/lib/api"
 import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
+import Kilt from "@kiltprotocol/sdk-js"
+import CryptoJS from "crypto-js"
+import { u8aToHex } from "@polkadot/util"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
@@ -380,7 +383,8 @@ export default {
       }
       try{
         this.isLoading = true
-        const boxPublicKey = this.mnemonicData.publicKey
+        const cred = Kilt.Identity.buildFromMnemonic(this.mnemonicData.toString(CryptoJS.enc.Utf8))
+        const boxPublicKey = u8aToHex(cred.boxKeyPair.publicKey)
 
         await registerLab(
           this.api,
@@ -445,7 +449,9 @@ export default {
             fileType: file.type,
             fileName: file.name,
           })
-          context.imageUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server...
+          const computeLink = `${uploaded.ipfsPath[0].data.ipfsFilePath}/${uploaded.fileName}`
+
+          context.imageUrl = `https://ipfs.io/ipfs/${computeLink}` // this is an image file that can be sent to server...
           context.isUploading = false
           context.isLoading = false
         })

@@ -22,6 +22,7 @@ const handler = {
 		let wording = valueMessage
 
 		if (data[2] == "LabUpdateVerificationStatus") {
+			store.dispatch("substrate/getLabAccount")
 			if (data[0].verificationStatus == "Verified") {
 				wording = `Congrats! ${wording}`
 			}
