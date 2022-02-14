@@ -74,7 +74,7 @@ export default {
     search: String,
     additionalClass: String,
     customFilter: Function,
-    sortBy: Array,
+    sortBy: [Array, String, Number],
     sortDesc: Array,
     loading: Boolean,
     loadingText: String,

@@ -48,6 +48,26 @@
             </v-card-text>
         </v-card>
 
+        <Dialog :show="confirmDeleteDialog" @close="confirmDeleteDialog = false" :width='400'>
+          <template v-slot:title>
+            <div></div>
+          </template>
+          <template v-slot:body>
+            <div class="d-flex justify-center pb-1 pt-1">
+                <v-img v-bind:src="require('@/assets/alert-circle.png')" max-width="75" />
+            </div>
+            <div align="center" class="pb-1">Are you sure you want to delete this certification?</div>
+          </template>
+          <template v-slot:actions>
+            <v-col col="12" md="6">
+                <Button @click="confirmDelete" elevation="2" dark>Yes</Button>
+            </v-col>
+            <v-col col="12" md="6">
+                <Button @click="confirmDeleteDialog = false" elevation="2" color="purple" dark>No</Button>
+            </v-col>
+          </template>
+        </Dialog>
+
         <Dialog :show="certificationDialog" @close="closeCertificationDialog">
             <template v-slot:title>
                 <div class="secondary--text h6">
@@ -155,7 +175,9 @@ export default {
     certificationDialog: false,
     isUploading: false,
     isEditCertificationDialog: false,
-    files: []
+    files: [],
+    confirmDeleteDialog: false,
+    certificationData: null
   }),
 
   computed: {
@@ -293,11 +315,14 @@ export default {
       })
     },
 
-    async deleteCertification(cert) {
-      const isConfirmed = confirm("Are you sure you want to delete this certification?")
-      if (isConfirmed) {
-        await this.dispatch(deleteCertification, this.api, this.pair, cert.id)
-      }
+    deleteCertification(cert) {
+      this.confirmDeleteDialog = true
+      this.certificationData = cert
+    },
+
+    async confirmDelete(cert) {
+      await this.dispatch(deleteCertification, this.api, this.pair, cert.id)
+      this.confirmDeleteDialog = false
     },
 
     fileUploadEventListener(file) {
