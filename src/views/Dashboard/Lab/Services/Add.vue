@@ -442,8 +442,9 @@ export default {
       if (!this.$refs.addServiceForm.validate()) {
         return
       }
+
+      this.isLoading = true
       try {
-        this.isLoading = true
         await createService(
           this.api,
           this.wallet,
@@ -507,6 +508,7 @@ export default {
           const computeLink = `${uploaded.ipfsPath[0].data.ipfsFilePath}/${uploaded.fileName}`
 
           context.imageUrl = `https://ipfs.io/ipfs/${computeLink}`
+          context.isUploading = false
           context.isLoading = false
         })
       }
@@ -536,6 +538,7 @@ export default {
           const computeLink = `${uploaded.ipfsPath[0].data.ipfsFilePath}/${uploaded.fileName}`
 
           context.testResultSampleUrl = `https://ipfs.io/ipfs/${computeLink}`
+          context.isUploading = false
           context.isLoading = false
         })
       }
