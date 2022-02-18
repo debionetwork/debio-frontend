@@ -45,7 +45,7 @@
                   :headers="headers"
                   :items="services"
                   :search="search"
-                  :sort-by="['info.name']"
+                  :sort-by="'info.name'"
                   :sort-desc="[false]"
                   :loading="isLoading"
                   additional-class="laporan-table"
@@ -127,7 +127,6 @@ import { deleteService } from '@/lib/polkadotProvider/command/services'
 import { mapGetters, mapState } from 'vuex'
 import Dialog from "@/components/Dialog"
 import Button from '@/components/Button'
-import { queryServicesCountByOwnerId } from "@/lib/polkadotProvider/query/services"
 
 export default {
   name: 'LabServices',
@@ -158,7 +157,8 @@ export default {
    ...mapGetters({
       api: 'substrate/getAPI',
       pair: 'substrate/wallet',
-      web3: 'metamask/getWeb3'
+      web3: 'metamask/getWeb3',
+      labAccount: 'substrate/labAccount',
    }),
 
    ...mapState({
@@ -233,9 +233,9 @@ export default {
     },
 
     async checkServiceCount() {
-       const res = await queryServicesCountByOwnerId(this.api, this.pair.address)
-       this.serviceCount = Number(res.toHuman())
+      this.serviceCount = this.labAccount.services.length
        if (this.serviceCount <= 1) {
+          console.log(this.serviceCount, "maasuk kondisi")
           this.activeButton = false
        }
     }
