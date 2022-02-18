@@ -235,7 +235,6 @@ export default {
     async checkServiceCount() {
       this.serviceCount = this.labAccount.services.length
        if (this.serviceCount <= 1) {
-          console.log(this.serviceCount, "maasuk kondisi")
           this.activeButton = false
        }
     }
