@@ -174,7 +174,10 @@ export default {
       const { labAccount: { services } } = await this.$store.dispatch("substrate/getLabAccount")
 
       this.services = services.reduce((filtered, service) => {
-         if (!filtered.find(v => v.id === service.id)) filtered.push(service)
+         if (!filtered.find(v => v.id === service.id)) {
+            service.info.image = this.getImageLink(service.info.image)
+            filtered.push(service)
+         }
 
          return filtered
       }, [])
@@ -189,7 +192,7 @@ export default {
       if(val && val != ""){
          return val
       }
-      return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
+      return "https://ipfs.io/ipfs/QmZveuvcQAbkcbcop28iqWrnCMoxN2n5SGzA3Hwr1cJ61i/debio-logo.png"
    },
    formatPrice(price) {
       const priceAndCurrency = price.replaceAll(",", "").split(" ")
