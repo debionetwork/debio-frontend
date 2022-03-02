@@ -227,6 +227,7 @@ import DialogAlert from "@/components/Dialog/DialogAlert"
 import serviceHandler from "@/mixins/serviceHandler"
 import { toEther } from "@/lib/balance-format"
 import { sendEmailRegisteredLab } from "@/lib/api/lab"
+import rulesHandler from "@/constants/rules"
 
 
 export default {
@@ -298,29 +299,21 @@ export default {
 
     fieldRequiredRule() {
       return [
-        this.fieldRequired
+        rulesHandler.FIELD_REQUIRED,
       ]
-    },
-
-    fieldRequired() {
-      return val => !!val || 'This field is required'
-    },
-
-    englishAlphabet() {
-      return val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
     },
 
     serviceNameRules() {
       return [
-        this.fieldRequired,
-        this.englishAlphabet,
-        val => (val && val.length <= 50) || 'This field only allows 50 characters',
+        rulesHandler.FIELD_REQUIRED,
+        rulesHandler.ENGLISH_ALPHABET,
+        rulesHandler.MAX_CHARACTER(50)
       ]
     },
 
     priceRules() {
       return [
-        this.fieldRequired,
+      rulesHandler.FIELD_REQUIRED,
         val => (val && val != 0) || 'Value on this field cannot 0',
         val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'This field only allows 3 decimal characters.'
       ]
@@ -328,29 +321,30 @@ export default {
     
     cqPriceRules() {
       return [
-        this.fieldRequired,
+        rulesHandler.FIELD_REQUIRED,
         val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'This field only allows 3 decimal characters.'
       ]
     },
 
     descriptionRules() {
       return [
-        this.fieldRequired,
-        this.englishAlphabet,
-        val => (val && val.length <= 100) || 'This field only allows 100 characters'
+        rulesHandler.FIELD_REQUIRED,
+        rulesHandler.ENGLISH_ALPHABET,
+        rulesHandler.MAX_CHARACTER(100)
       ]
     },
 
     longDescriptionRules() {
       return [
-        this.englishAlphabet,
-        val => (val && val.length <= 255) || 'This field only allows 255 characters',
+        rulesHandler.ENGLISH_ALPHABET,
+        rulesHandler.MAX_CHARACTER(255)
+
       ]
     },
 
     expectedDurationRules() {
       return [
-        this.fieldRequired,
+        rulesHandler.FIELD_REQUIRED,
         val => (val && val != 0) || 'Value on this field cannot 0'
       ]
     },
