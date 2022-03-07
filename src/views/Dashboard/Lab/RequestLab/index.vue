@@ -3,7 +3,7 @@
     <MapCountry @openList="handleOpenList" v-if="map" :service-request-by-country="serviceRequestByCountry" />
     <v-main class="request-service" v-else>
       <v-container fill-height fluid>
-        <ServiceTable :country-expand="country" :countries="countries" @closeMap="map = $event" />
+        <ServiceTable :country-expand="country" :countries="countries" :size="size" :page="page" @closeMap="map = $event" />
       </v-container>
     </v-main>
   </v-app>
@@ -28,6 +28,8 @@ export default {
       countries: [],
       serviceRequestByCountry: {},
       isLoading: true,
+      size: 10,
+      page: 1,
     }
   },
 
