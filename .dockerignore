@@ -1,3 +1,4 @@
 .git
 .github
 .maintain
+!.maintain/docker/nginx/
