@@ -54,7 +54,7 @@
                   autocomplete="off"
                   outlined
                   :disabled="!isEditable || isVerify"
-                  :rules="labNameRules"
+                  :rules="nameRules"
                   v-model="labName"
                 ></v-text-field>
 
@@ -295,7 +295,7 @@ export default {
 
     const res = await fetch(this.imageUrl)
     const blob = await res.blob() // Gets the response and returns it as a blob
-    const file = new File([blob], this.imageUrl.substring(21), {type: "image/jpeg"})
+    const file = new File([blob], this.imageUrl?.split("/").pop() ?? "Profile Image File", { type: "image/jpeg" })
     this.files = file
   },
 

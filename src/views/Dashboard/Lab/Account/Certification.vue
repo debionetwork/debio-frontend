@@ -63,11 +63,14 @@
                     </div>
                     <div>{{ cert.info.month }} {{ cert.info.year }} • {{ cert.info.issuer }}</div>
                     <div class="mt-3 mb-3">{{ cert.info.description }}</div>
-                    <div v-if="cert.info.supportingDocument" class="mt-3 mb-3">
-                    <a :href="cert.info.supportingDocument" class="support-url" target="_blank">
-                        <v-icon class="mx-1" small>mdi-file-document</v-icon>
-                        Supporting Documents
-                    </a>
+                    <div class="mt-3 mb-3">
+                      <a :href="cert.info.supportingDocument" class="support-url" target="_blank">
+                        <span v-if="cert.info.supportingDocument">
+                          <v-icon class="mx-1" small>mdi-file-document</v-icon>
+                          {{ cert.info.supportingDocument ? cert.info.supportingDocument.split("/").pop() : "Supporting Documents" }}
+                        </span>
+                        <span v-else>No supporting document</span>
+                      </a>
                     </div>
                 </div>
                 </div>
@@ -281,10 +284,13 @@ export default {
       this.certDescription = cert.info.description
       this.certSupportingDocumentsUrl = cert.info.supportingDocument
 
-      const res = await fetch(this.certSupportingDocumentsUrl)
-      const blob = await res.blob() // Gets the response and returns it as a blob
-      const file = new File([blob], this.certSupportingDocumentsUrl.substring(21), {type: "application/pdf"})
-      this.files = file
+      if (this.certSupportingDocumentsUrl) {
+        const res = await fetch(this.certSupportingDocumentsUrl)
+        const blob = await res.blob() // Gets the response and returns it as a blob
+        const file = new File([blob], this.certSupportingDocumentsUrl?.split("/").pop() ?? "Supporting Document File", {type: "application/pdf"})
+        this.files = file
+      }
+
 
       this.certificationDialog = true
       this.isEditCertificationDialog = true

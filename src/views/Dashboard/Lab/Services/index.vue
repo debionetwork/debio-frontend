@@ -45,7 +45,7 @@
                   :headers="headers"
                   :items="services"
                   :search="search"
-                  :sort-by="'info.name'"
+                  :sort-by="['info.name']"
                   :sort-desc="[false]"
                   :loading="isLoading"
                   additional-class="laporan-table"
