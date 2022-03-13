@@ -27,9 +27,6 @@ export default {
   },
   actions: {
     async initApp({ commit }) {
-      const roleApp = process.env.NODE_ENV;
-      console.log('roleApp', roleApp)
-
       const tokenName = process.env.VUE_APP_DEBIO_USE_TOKEN_NAME
       const escrowETHAddress = process.env.VUE_APP_DEBIO_ESCROW_ETH_ADDRESS
       const substrateWs = process.env.VUE_APP_DEBIO_SUBSTRATE_WS
