@@ -11,7 +11,7 @@
       </v-btn>
       <ServerSideDataTable
         :headers="headers"
-        :items="regions"
+        :items="filteredRegions"
         :sort-by="['city']"
         :loading="isLoading"
         :handle-page-change="handlePageChange"
@@ -216,9 +216,6 @@ export default {
 
   methods: {
     handleOnSearch(val) {
-      this.regions = this.regions.filter(region => {
-        return val.toLowerCase().split(' ').every(v => region.country.toLowerCase().includes(v))
-      })
       this.onSelectedItem = false
       this.searchQuery = val
 
