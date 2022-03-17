@@ -209,14 +209,16 @@ export default {
 
     prefillValue() {
       return this.regions.filter(
-        (region) =>
-          region.country.toLowerCase() === this.countryExpand.toLowerCase()
+        (region) => region.country.toLowerCase() === this.countryExpand.toLowerCase()
       )
     }
   },
 
   methods: {
     handleOnSearch(val) {
+      this.regions = this.regions.filter(region => {
+        return val.toLowerCase().split(' ').every(v => region.country.toLowerCase().includes(v))
+      })
       this.onSelectedItem = false
       this.searchQuery = val
 
