@@ -1,5 +1,6 @@
 import axios from "axios"
 import * as Sentry from "@sentry/vue"
+import VueRouter from "@/router"
 
 // EXPORT API COLLECTIONS HERE
 export * from "./categories"
@@ -19,12 +20,22 @@ const apiClientRequest = axios.create({
     }
 })
 
+const responseValidation = (response) => {
+  if (String(response?.status)[0] == 4 || String(response?.status)[0] == 5) {
+    VueRouter.push({ query: { error: true } })
+  }
+}
+
 apiClientRequest.interceptors.response.use(
   response => {
+    responseValidation(response)
+    
     return response;
   },
   error => {
     Sentry.captureException(error);
+
+    responseValidation(error)
 
     return Promise.reject(error);
   },
