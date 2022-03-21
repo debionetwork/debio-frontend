@@ -11,7 +11,7 @@
       </v-btn>
       <ServerSideDataTable
         :headers="headers"
-        :items="regions"
+        :items="filteredRegions"
         :sort-by="['city']"
         :loading="isLoading"
         :handle-page-change="handlePageChange"
@@ -209,8 +209,7 @@ export default {
 
     prefillValue() {
       return this.regions.filter(
-        (region) =>
-          region.country.toLowerCase() === this.countryExpand.toLowerCase()
+        (region) => region.country.toLowerCase() === this.countryExpand.toLowerCase()
       )
     }
   },
