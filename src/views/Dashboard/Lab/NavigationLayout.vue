@@ -59,6 +59,7 @@
     </v-main>
 
     <UnlockWalletDialog :show="show" @toggle="toggle()"></UnlockWalletDialog>
+    <ErrorConnectionDialog :show="showError" @action="onCloseError()" />
   </v-app>
 </template>
 
@@ -70,11 +71,13 @@ import Breadcrumbs from "@/views/Dashboard/Breadcrumbs";
 import HeaderUserInfo from "@/components/HeaderUserInfo";
 import NavigationDrawer from "@/components/NavigationDrawer";
 import UnlockWalletDialog from "@/components/UnlockWalletDialog";
+import ErrorConnectionDialog from "@/components/Dialog/DialogErrorConnection"
 import HeaderNotification from "@/components/HeaderNotification";
 import WalletBinding from "@/components/WalletBinding";
 import DialogAlert from "@/components/Dialog/DialogAlert";
 import { queryBalance } from "@/lib/polkadotProvider/query/balance";
 import localStorage from "@/lib/local-storage";
+import VueRouter from "@/router"
 
 export default {
   name: "Dashboard",
@@ -87,8 +90,11 @@ export default {
     HeaderNotification,
     WalletBinding,
     DialogAlert,
+    ErrorConnectionDialog
   },
+
   data: () => ({
+    showError: false,
     show: false,
     showWalletBinding: false,
     dialogAlert: false,
@@ -97,6 +103,7 @@ export default {
     alertTextAlert: "",
     imgWidth: "270",
   }),
+
   async mounted() {
     this.show = this.pair.isLocked;
 
@@ -136,6 +143,12 @@ export default {
     },
   },
   watch: {
+    $route() {
+      const query = VueRouter?.history?.current?.query
+      
+      if (query?.error) this.showError = true
+    },
+
     lastEventData(val) {
       if (val !== null) {
         if (val.method === "LabRegistered") return
@@ -163,6 +176,12 @@ export default {
         this.dialogAlert = true;
       }
     },
+
+    onCloseError() {
+      this.showError = false
+      this.goToDashboard()
+    },
+
     goToDashboard() {
       this.$router.push({ path: '/lab' });
     },
