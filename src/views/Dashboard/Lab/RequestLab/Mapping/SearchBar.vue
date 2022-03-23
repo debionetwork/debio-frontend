@@ -43,6 +43,7 @@ export default {
     itemValue: { type: String, default: "" },
     itemText: { type: String, default: "" },
     label: String,
+    value: String,
     withDropdown: Boolean,
     returnObject: Boolean,
   },
@@ -59,6 +60,15 @@ export default {
 
     showResults() {
       return this.withDropdown && this.filteredItems?.length && this.active && this.searchQuery
+    }
+  },
+
+  watch: {
+    value: {
+      immediate: true,
+      handler(val) {
+        this.searchQuery = val
+      }
     }
   },
 

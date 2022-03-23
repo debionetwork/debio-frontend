@@ -23,11 +23,12 @@
         :expanded-value="prefillValue"
         itemKey="countryId"
         @onExpanded="handleExpanded"
-        :total-item-length="totalOrders"
+        :total-item-length="filteredRegions.length"
       >
         <template v-slot:search-bar>
           <SearchBar
             label="Search"
+            v-model="searchQuery"
             @input="handleOnSearch"
             class="justify-end"
             :filteredItems="filteredRegions"
@@ -183,7 +184,6 @@ export default {
     // page: 1,
     chevronIconChange: false,
     pageSize: 10,
-    totalOrders: 0,
     address: "",
     onSelectedItem: false,
     password: "",
@@ -193,6 +193,7 @@ export default {
 
   created() {
     this.fetchRegions()
+    this.searchQuery = this.countryExpand
   },
 
   computed: {
@@ -239,7 +240,6 @@ export default {
         }, 0)
       }
 
-      this.totalOrders = this.countries.length
       this.regions = this.countries
         .map((region) => ({
           ...region,
