@@ -75,8 +75,6 @@ import ErrorConnectionDialog from "@/components/Dialog/DialogErrorConnection"
 import HeaderNotification from "@/components/HeaderNotification";
 import WalletBinding from "@/components/WalletBinding";
 import DialogAlert from "@/components/Dialog/DialogAlert";
-// import { queryBalance } from "@/lib/polkadotProvider/query/balance";
-// import localStorage from "@/lib/local-storage";
 import VueRouter from "@/router"
 
 export default {
