@@ -75,8 +75,6 @@ import ErrorConnectionDialog from "@/components/Dialog/DialogErrorConnection"
 import HeaderNotification from "@/components/HeaderNotification";
 import WalletBinding from "@/components/WalletBinding";
 import DialogAlert from "@/components/Dialog/DialogAlert";
-import { queryBalance } from "@/lib/polkadotProvider/query/balance";
-import localStorage from "@/lib/local-storage";
 import VueRouter from "@/router"
 
 export default {
@@ -106,16 +104,8 @@ export default {
 
   async mounted() {
     this.show = this.pair.isLocked;
-
-    const balance = await queryBalance(this.api, this.wallet.address);
-
-    if (balance <= 0) {
-      this.$store.dispatch("registration/registration", {
-        accountId: localStorage.getAddress(),
-        role: "lab",
-      });
-    }
   },
+  
   computed: {
     ...mapGetters({
       pair: "substrate/wallet",
