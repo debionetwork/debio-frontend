@@ -84,6 +84,7 @@ jobs:
           VUE_APP_DEBIO_SUBSTRATE_WS=${{ secrets.VUE_APP_DEBIO_SUBSTRATE_WS }}
           VUE_APP_WEB3_RPC=${{ secrets.VUE_APP_WEB3_RPC }}
           VUE_APP_BACKEND_API=${{ secrets.VUE_APP_BACKEND_API }}
+          VUE_APP_ETHERSCAN=${{ secrets.VUE_APP_ETHERSCAN }}
           VUE_APP_DEBIO_API_KEY=${{ secrets.VUE_APP_DEBIO_API_KEY }}
           VUE_APP_USERNAME=${{ secrets.VUE_APP_USERNAME }}
           VUE_APP_PASSWORD=${{ secrets.VUE_APP_PASSWORD }}
