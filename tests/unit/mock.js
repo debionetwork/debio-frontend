@@ -1,0 +1,1 @@
+export function mockFunction(args){} // eslint-disable-line
