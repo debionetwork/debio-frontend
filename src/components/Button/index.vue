@@ -23,8 +23,8 @@ export default {
     dark: Boolean,
     disabled: Boolean,
     loading: Boolean,
-    on: [Boolean, String, Function, Object],
-    bind: [Boolean, String, Function, Object]
+    on: [Object],
+    bind: [Object]
   },
   methods: {
     onClick() {
