@@ -1,7 +1,7 @@
-import store from '../store'
-import appConfig from './app-config'
-import * as EthUtil from 'ethereumjs-util'
-import Transaction from 'ethereumjs-tx'
+import store from "../store"
+import appConfig from "./app-config"
+import * as EthUtil from "ethereumjs-util"
+import Transaction from "ethereumjs-tx"
 
 /**
  * sendTransaction
@@ -13,7 +13,7 @@ import Transaction from 'ethereumjs-tx'
  * @param {String} value -> amount of ether to transfer
  * */
 async function sendTransaction(contractAddress, senderWallet, data, value) {
-  const web3 = store.getters['ethereum/getWeb3']
+  const web3 = store.getters["ethereum/getWeb3"]
 
   let nonce = await web3.eth.getTransactionCount(senderWallet.getAddressString())
 
@@ -37,10 +37,10 @@ async function sendTransaction(contractAddress, senderWallet, data, value) {
   tx.sign(privateKeyBuffer)
 
   // Serialize transaction
-  const serializedTx = tx.serialize().toString('hex')
+  const serializedTx = tx.serialize().toString("hex")
 
   // Send transaction
-  const txReceipt = await web3.eth.sendSignedTransaction('0x' + serializedTx)
+  const txReceipt = await web3.eth.sendSignedTransaction("0x" + serializedTx)
 
   return txReceipt
 }

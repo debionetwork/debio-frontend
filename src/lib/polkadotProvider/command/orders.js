@@ -5,7 +5,7 @@ export async function createOrder(api, pair, serviceId, customerBoxPublicKey, pr
   return result.toHuman()
 }
 
-export async function fulfillOrder(api, pair, orderId, callback = ()=>{}) {
+export async function fulfillOrder(api, pair, orderId, callback = () => {}) {
   const unsub = await api.tx.orders
     .fulfillOrder(orderId)
     .signAndSend(pair, { nonce: -1 }, ({ events, status }) => 

@@ -162,21 +162,21 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { rejectDnaSample, processDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
-import { queryDnaSamples } from '@/lib/polkadotProvider/query/geneticTesting'
-import Dialog from '@/components/Dialog'
-import DialogAlert from '@/components/Dialog/DialogAlert'
-import Button from '@/components/Button'
+import { mapGetters } from "vuex"
+import { rejectDnaSample, processDnaSample } from "@/lib/polkadotProvider/command/geneticTesting"
+import { queryDnaSamples } from "@/lib/polkadotProvider/query/geneticTesting"
+import Dialog from "@/components/Dialog"
+import DialogAlert from "@/components/Dialog/DialogAlert"
+import Button from "@/components/Button"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
 export default {
-  name: 'ProcessSpecimen',
+  name: "ProcessSpecimen",
   components: {
     Dialog,
     DialogAlert,
-    Button,
+    Button
   },
   props: {
     specimenNumber: String,
@@ -189,20 +189,20 @@ export default {
     rejectionDialog: false,
     rejectionStatementDialog: false,
     rejectionConfirmationDialog: false,
-    rejectionTitle: '',
-    rejectionDescription: '',
-    rejectionAlertDialog: false,
+    rejectionTitle: "",
+    rejectionDescription: "",
+    rejectionAlertDialog: false
   }),
   computed: {
     ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
+      api: "substrate/getAPI",
+      pair: "substrate/wallet"
     }),
 
     rejectionTitleRules() {
       return[
         val => !!val || "Title is required",
-        val => (val && val.length <= 100) || 'This field only allows 100 characters',
+        val => (val && val.length <= 100) || "This field only allows 100 characters",
         englishAlphabet
       ]
     },
@@ -210,7 +210,7 @@ export default {
     rejectionDescRules () {
       return[
         val => !!val || "Description is required",
-        val => (val && val.length <= 255) || 'This field only allows 255 characters',
+        val => (val && val.length <= 255) || "This field only allows 255 characters",
         englishAlphabet
       ]
     }
@@ -241,9 +241,9 @@ export default {
         this.specimenNumber,
         "QualityControlled",
         () => {
-            this.isLoading = false
-            this.qcCompletionDialog = false
-            this.$emit('qualityControlPassed')
+          this.isLoading = false
+          this.qcCompletionDialog = false
+          this.$emit("qualityControlPassed")
         }
       )
     },
@@ -277,13 +277,13 @@ export default {
         {
           trackingId: this.specimenNumber,
           rejected_title: this.rejectionTitle,
-          rejected_description: this.rejectionDescription,
+          rejected_description: this.rejectionDescription
         },
         () => {
           this.isLoading = false
           this.rejectionConfirmationDialog = false
           this.rejectionAlertDialog = true
-          this.$emit('rejectSpecimen')
+          this.$emit("rejectSpecimen")
         }
       )
       this.processDnaSample()
@@ -299,8 +299,8 @@ export default {
           this.isProcessing = false
         }
       )
-    },
-  },
+    }
+  }
 }
 </script>
 

@@ -34,7 +34,7 @@ const handler = {
     const finalText = await toFormatDebioCoin(data[valueMessage])
     const wording = finalText + " DBIO!"
     return { data, id, params, wording }
-  },
+  }
 }
 
 // If property not found, return defaultHandler

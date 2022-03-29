@@ -29,39 +29,39 @@
 // import { mapState } from 'vuex'
 const DUMMY_TESTS = [
   {
-    owner:'0x345271b9c5519f7c4cb057c11c7cbdd3227b934b',
-    labAccount: '0x59CbbB012ebf4A19CFd25D33e04c975Ac9e178e5', serviceCode: 'TEST-1', status: 'New'
+    owner:"0x345271b9c5519f7c4cb057c11c7cbdd3227b934b",
+    labAccount: "0x59CbbB012ebf4A19CFd25D33e04c975Ac9e178e5", serviceCode: "TEST-1", status: "New"
   },
   { 
-    owner: '0x345271b9c5519f7c4cb057c11c7cbdd3227b934b',
-    labAccount: '0x59CbbB012ebf4A19CFd25D33e04c975Ac9e178e5', serviceCode: 'TEST-2', status: 'Sending'
+    owner: "0x345271b9c5519f7c4cb057c11c7cbdd3227b934b",
+    labAccount: "0x59CbbB012ebf4A19CFd25D33e04c975Ac9e178e5", serviceCode: "TEST-2", status: "Sending"
   },
   {
-    owner: '0x345271b9c5519f7c4cb057c11c7cbdd3227b934b',
-    labAccount: '0x59CbbB012ebf4A19CFd25D33e04c975Ac9e178e5', serviceCode: 'TEST-3', status: 'Received'
+    owner: "0x345271b9c5519f7c4cb057c11c7cbdd3227b934b",
+    labAccount: "0x59CbbB012ebf4A19CFd25D33e04c975Ac9e178e5", serviceCode: "TEST-3", status: "Received"
   },
   {
-    owner: '0x345271b9c5519f7c4cb057c11c7cbdd3227b934b',
-    labAccount: '0x59CbbB012ebf4A19CFd25D33e04c975Ac9e178e5', serviceCode: 'TEST-1', status: 'Reject'
+    owner: "0x345271b9c5519f7c4cb057c11c7cbdd3227b934b",
+    labAccount: "0x59CbbB012ebf4A19CFd25D33e04c975Ac9e178e5", serviceCode: "TEST-1", status: "Reject"
   },
   {
-    owner: '0x345271b9c5519f7c4cb057c11c7cbdd3227b934b',
-    labAccount: '0x59CbbB012ebf4A19CFd25D33e04c975Ac9e178e5', serviceCode: 'TEST-2', status: 'Succes'
+    owner: "0x345271b9c5519f7c4cb057c11c7cbdd3227b934b",
+    labAccount: "0x59CbbB012ebf4A19CFd25D33e04c975Ac9e178e5", serviceCode: "TEST-2", status: "Succes"
   },
   {
-    owner: '0x345271b9c5519f7c4cb057c11c7cbdd3227b934b',
-    labAccount: '0x59CbbB012ebf4A19CFd25D33e04c975Ac9e178e5', serviceCode: 'TEST-3', status: 'Fail'
-  },
+    owner: "0x345271b9c5519f7c4cb057c11c7cbdd3227b934b",
+    labAccount: "0x59CbbB012ebf4A19CFd25D33e04c975Ac9e178e5", serviceCode: "TEST-3", status: "Fail"
+  }
 ]
 
 export default {
-  name: 'Tests',
+  name: "Tests",
   computed: {
   },
   data: () => ({
     tests: [],
     testsInProcess: [],
-    testsProcessed: [],
+    testsProcessed: []
   }),
   async mounted() {
     await this.getTests()
@@ -71,11 +71,11 @@ export default {
       this.tests = DUMMY_TESTS
     },
     async getTestsInProcess() {
-      const inProcess = this.tests.map(t => ['New', 'Sending', 'Received'].includes(t.status))
+      const inProcess = this.tests.map(t => ["New", "Sending", "Received"].includes(t.status))
       console.log(inProcess)
     },
     async getTestsProcessed() {
-      const processed = this.tests.map(t => ['Reject', 'Succes', 'Fail'].includes(t.status))
+      const processed = this.tests.map(t => ["Reject", "Succes", "Fail"].includes(t.status))
       console.log(processed)
     }
   }

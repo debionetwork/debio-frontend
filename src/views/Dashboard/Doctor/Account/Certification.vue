@@ -126,15 +126,15 @@
 import { mapGetters } from "vuex"
 import { createCertification, updateCertification, deleteCertification } from "@/lib/polkadotProvider/command/doctors/certifications"
 import serviceHandler from "@/mixins/serviceHandler"
-import Dialog from '@/components/Dialog'
-import Button from '@/components/Button'
+import Dialog from "@/components/Dialog"
+import Button from "@/components/Button"
 import { upload } from "@/lib/ipfs"
 
 export default {
-  name: 'DoctorCertification',
+  name: "DoctorCertification",
   components: {
     Dialog,
-    Button,
+    Button
   },
   mixins: [serviceHandler],
   data: () => ({
@@ -148,13 +148,13 @@ export default {
     selectMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     certificationDialog: false,
     isUploading: false,
-    isEditCertificationDialog: false,
+    isEditCertificationDialog: false
   }),
   computed: {
     ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
-      doctorAccount: 'substrate/doctorAccount',
+      api: "substrate/getAPI",
+      pair: "substrate/wallet",
+      doctorAccount: "substrate/doctorAccount"
     }),
 
     selectYears() {
@@ -168,37 +168,37 @@ export default {
 
     supportingDocumentsRules(){
       return [
-        file => !file || file.type == 'application/pdf' || 'Document type should be application/pdf',
-        file => !file || file.size <= 2_000_000 || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
+        file => !file || file.type == "application/pdf" || "Document type should be application/pdf",
+        file => !file || file.size <= 2_000_000 || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
       ]
     },
     titleRules() {
       return [
-        val => !!val || 'This field is required',
-        val => (val && val.length <= 50) || 'This field only allows 50 characters'
+        val => !!val || "This field is required",
+        val => (val && val.length <= 50) || "This field only allows 50 characters"
       ]
     },
     issuerRules() {
       return [
-        val => !!val || 'This field is required',
-        val => (val && val.length <= 100) || 'This field only allows 100 characters']
+        val => !!val || "This field is required",
+        val => (val && val.length <= 100) || "This field only allows 100 characters"]
     },
     monthRules() {
       return [
-        val => !!val || 'This field is required'
+        val => !!val || "This field is required"
       ]
     },
     yearRules() {
       return [
-        val => !!val || 'This field is required'
+        val => !!val || "This field is required"
       ]
     },
     descriptionRules() {
       return [
-        val => !!val || 'This field is required',
-        val => (val && val.length <= 255) || 'This field only allows 255 characters'
+        val => !!val || "This field is required",
+        val => (val && val.length <= 255) || "This field only allows 255 characters"
       ]
-    },
+    }
   },
   methods: {
     openCertificationDialog() {
@@ -288,7 +288,7 @@ export default {
           const uploaded = await upload({
             fileChunk: fr.result,
             fileType: file.type,
-            fileName: file.name,
+            fileName: file.name
           })
           const computeLink = `${uploaded.ipfsPath[0].data.ipfsFilePath}/${uploaded.fileName}`
 
@@ -297,7 +297,7 @@ export default {
           context.isLoading = false
         })
       }
-    },
+    }
   }
 }
 </script>

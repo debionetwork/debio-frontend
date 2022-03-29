@@ -82,10 +82,10 @@ export default {
     keystore: "",
     password: "",
     fileName: "",
-    keystoreInputErrors: [],
+    keystoreInputErrors: []
   }),
   props: {
-    show: Boolean,
+    show: Boolean
   },
   computed: {
     _show: {
@@ -94,19 +94,19 @@ export default {
       },
       set(val) {
         this.$emit("toggle", val);
-      },
+      }
     },
     ...mapState({
       isLoading: state => state.substrate.isLoadingWallet
-    }),
+    })
   },
   mounted() {},
   methods: {
     ...mapActions({
-      restoreAccountKeystore: "substrate/restoreAccountKeystore",
+      restoreAccountKeystore: "substrate/restoreAccountKeystore"
     }),
     ...mapMutations({
-      setIsLoading: 'substrate/SET_LOADING_WALLET'
+      setIsLoading: "substrate/SET_LOADING_WALLET"
     }),
     setKeystoreFileInputListener() {
       const context = this;
@@ -136,9 +136,9 @@ export default {
     },
     clearInput() {
       (this.keystore = ""),
-        (this.password = ""),
-        (this.fileName = ""),
-        (this.keystoreInputErrors = []);
+      (this.password = ""),
+      (this.fileName = ""),
+      (this.keystoreInputErrors = []);
     },
     async onPasswordInput() {
       this.setIsLoading(true);
@@ -146,7 +146,7 @@ export default {
       const keystore = JSON.parse(this.keystore);
       const result = await this.restoreAccountKeystore({
         file: keystore,
-        password: this.password,
+        password: this.password
       });
 
       if (result.success) {
@@ -156,8 +156,8 @@ export default {
         this.$router.push("/");
         return;
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

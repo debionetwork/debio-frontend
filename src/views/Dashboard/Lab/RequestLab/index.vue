@@ -29,7 +29,7 @@ export default {
       serviceRequestByCountry: {},
       isLoading: true,
       size: 10,
-      page: 1,
+      page: 1
     }
   },
 

@@ -14,10 +14,10 @@
 
 <script>
 export default {
-  name: 'EnabledCardButton',
+  name: "EnabledCardButton",
   methods: {
     onClick() {
-      this.$emit('click')
+      this.$emit("click")
     }
   }
 }

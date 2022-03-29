@@ -33,15 +33,15 @@
 
 <script>
 export default {
-  name: 'LoginOptionBtn',
+  name: "LoginOptionBtn",
   props: {
     img: String,
     text: String,
-    warning: String,
+    warning: String
   },
   methods: {
     onClick() {
-      this.$emit('click')
+      this.$emit("click")
     }
   }
 }

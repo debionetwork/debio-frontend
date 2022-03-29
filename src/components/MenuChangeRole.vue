@@ -50,24 +50,24 @@ import { mapGetters, mapState } from "vuex";
 export default {
   name: "MenuChangeRole",
   props: {
-    dark: Boolean,
+    dark: Boolean
   },
   components: {},
   computed: {
     ...mapState({
-      wallet: (state) => state.ethereum.wallet,
+      wallet: (state) => state.ethereum.wallet
     }),
     ...mapGetters({
       walletAddress: "ethereum/getWalletAddress",
       walletPublicKey: "ethereum/getWalletPublicKey",
-      walletPrivateKey: "ethereum/getWalletPrivateKey",
-    }),
+      walletPrivateKey: "ethereum/getWalletPrivateKey"
+    })
   },
   methods: {
     async copyToClipboard(text) {
       await navigator.clipboard.writeText(text);
-    },
-  },
+    }
+  }
 };
 </script>
 

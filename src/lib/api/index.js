@@ -12,12 +12,12 @@ export * from "./services"
 // AXIOS INSTANCE EXPORT BY DEFAULT
 // PLEASE DISCUSS BEFORE YOU WANT TO EDIT THIS SCRIPT
 const apiClientRequest = axios.create({
-    baseURL: process.env.VUE_APP_BACKEND_API,
-    headers: { "Content-Type": "application/json" },
-    auth: {
-        username: process.env.VUE_APP_USERNAME,
-        password: process.env.VUE_APP_PASSWORD
-    }
+  baseURL: process.env.VUE_APP_BACKEND_API,
+  headers: { "Content-Type": "application/json" },
+  auth: {
+    username: process.env.VUE_APP_USERNAME,
+    password: process.env.VUE_APP_PASSWORD
+  }
 })
 
 const responseValidation = (response) => {
@@ -38,7 +38,7 @@ apiClientRequest.interceptors.response.use(
     responseValidation(error)
 
     return Promise.reject(error);
-  },
+  }
 )
 
 export default apiClientRequest

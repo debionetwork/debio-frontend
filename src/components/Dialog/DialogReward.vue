@@ -28,16 +28,16 @@ import localStorage from "@/lib/local-storage"
 export default {
   name: "DialogReward",
   components: {
-    Button,
+    Button
   },
   props: {
     show: Boolean,
-    orderId: String,
+    orderId: String
   },
   data: () => ({
     textAlert: "",
     btnText: "Stake my data anonymously",
-    btnText1: "Not now, maybe later",
+    btnText1: "Not now, maybe later"
   }),
   computed: {
     _show: {
@@ -46,8 +46,8 @@ export default {
       },
       set(val) {
         this.$emit("toggle", val);
-      },
-    },
+      }
+    }
   },
   methods: {
     closeDialog() {
@@ -56,10 +56,10 @@ export default {
       let result = {
         orderId: this.orderId,
         isStake: false,
-        isReject: true,
+        isReject: true
       }
       resData.push(result)
-      localStorage.setLocalStorageByName('STATUS_REWARD', JSON.stringify(result))
+      localStorage.setLocalStorageByName("STATUS_REWARD", JSON.stringify(result))
       this.$emit("close");
     },
     closeDialogWithStakeData() {
@@ -68,12 +68,12 @@ export default {
       let result = {
         orderId: this.orderId,
         isStake: true,
-        isReject: false,
+        isReject: false
       }
       resData.push(result)
-      localStorage.setLocalStorageByName('STATUS_REWARD', JSON.stringify(result))
+      localStorage.setLocalStorageByName("STATUS_REWARD", JSON.stringify(result))
     }
-  },
+  }
 };
 </script>
 

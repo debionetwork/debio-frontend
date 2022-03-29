@@ -155,23 +155,23 @@
 
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters, mapState } from "vuex"
 import serviceHandler from "@/mixins/serviceHandler"
-import FileCard from './FileCard'
-import ipfsWorker from '@/web-workers/ipfs-worker'
-import cryptWorker from '@/web-workers/crypt-worker'
-import Kilt from '@kiltprotocol/sdk-js'
-import { fulfillOrder } from '@/lib/polkadotProvider/command/orders'
-import DialogAlert from '@/components/Dialog/DialogAlert'
-import Dialog from '@/components/Dialog'
-import Button from '@/components/Button'
-import { submitTestResult, processDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
+import FileCard from "./FileCard"
+import ipfsWorker from "@/web-workers/ipfs-worker"
+import cryptWorker from "@/web-workers/crypt-worker"
+import Kilt from "@kiltprotocol/sdk-js"
+import { fulfillOrder } from "@/lib/polkadotProvider/command/orders"
+import DialogAlert from "@/components/Dialog/DialogAlert"
+import Dialog from "@/components/Dialog"
+import Button from "@/components/Button"
+import { submitTestResult, processDnaSample } from "@/lib/polkadotProvider/command/geneticTesting"
 import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting"
 import localStorage from "@/lib/local-storage"
 
 
 export default {
-  name: 'ProcessSpecimen',
+  name: "ProcessSpecimen",
   
   components: {
     FileCard,
@@ -187,7 +187,7 @@ export default {
     orderId: String,
     specimenNumber: String,
     specimenStatus: String,
-    publicKey: [Uint8Array, String],
+    publicKey: [Uint8Array, String]
   },
 
   data: () => ({
@@ -204,30 +204,30 @@ export default {
     isProcessed: false,
     files: {
       genome: [],
-      report: [],
+      report: []
     },
     loading: {
       genome: false,
-      report: false,
+      report: false
     },
     loadingStatus: {
-      genome: '',
-      report: '',
+      genome: "",
+      report: ""
     },
     encryptProgress: {
       genome: 0,
-      report: 0,
+      report: 0
     },
     uploadProgress: {
       genome: 0,
-      report: 0,
-    },
+      report: 0
+    }
   }),
 
   async mounted(){    
     // Add file input event listener
-    this.addFileUploadEventListener(this.$refs.encryptUploadGenome, 'genome')
-    this.addFileUploadEventListener(this.$refs.encryptUploadReport, 'report')
+    this.addFileUploadEventListener(this.$refs.encryptUploadGenome, "genome")
+    this.addFileUploadEventListener(this.$refs.encryptUploadReport, "report")
 
     this.identity = Kilt.Identity.buildFromMnemonic(this.mnemonic)
 
@@ -239,8 +239,8 @@ export default {
 
   computed: {
     ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
+      api: "substrate/getAPI",
+      pair: "substrate/wallet"
     }),
 
     ...mapState({
@@ -273,7 +273,7 @@ export default {
 
     sendReportButtonVisible() {
       return this.hasGenomeFile && this.hasReportFile && !this.submitted
-    },
+    }
   },
 
   methods:{
@@ -281,15 +281,15 @@ export default {
       const { resultLink, reportLink } = testResult
       if(resultLink){
         const genomeFile = {
-          fileName: 'Genome File', // FIXME: Harusnya di simpan di dan di ambil dari blockchain  
-          ipfsPath: [{ data: { path: resultLink.split('/')[resultLink.split('/').length-1] } }]
+          fileName: "Genome File", // FIXME: Harusnya di simpan di dan di ambil dari blockchain  
+          ipfsPath: [{ data: { path: resultLink.split("/")[resultLink.split("/").length-1] } }]
         }
         this.files.genome.push(genomeFile)
       }
       if(reportLink){
         const reportFile = {
-          fileName: 'Report File', // FIXME: Harusnya di simpan di dan di ambil dari blockchain
-          ipfsPath: [{ data: { path: reportLink.split('/')[reportLink.split('/').length-1] } }]
+          fileName: "Report File", // FIXME: Harusnya di simpan di dan di ambil dari blockchain
+          ipfsPath: [{ data: { path: reportLink.split("/")[reportLink.split("/").length-1] } }]
         }
         this.files.report.push(reportFile)
       }
@@ -315,7 +315,7 @@ export default {
       return `https://ipfs.io/ipfs/${path}`
     },
 
-    async submitTestResult(callback = ()=>{}) {
+    async submitTestResult(callback = () => {}) {
       let genomeLink = ""
       if(this.files.genome.length){
         genomeLink = this.getFileIpfsUrl(this.files.genome[0])
@@ -348,7 +348,7 @@ export default {
         "ResultReady",
         async () => {
           await this.resultReady()
-        },
+        }
       )
     },
     
@@ -363,7 +363,7 @@ export default {
           this.isLoading = false
           this.confirmationDialog = false
           this.submitted = true
-          this.$emit('resultReady')
+          this.$emit("resultReady")
         }
       )
       this.sendingNotification()
@@ -371,7 +371,7 @@ export default {
 
     addFileUploadEventListener(fileInputRef, fileType) {
       const context = this
-      fileInputRef.addEventListener('change', function(e) {
+      fileInputRef.addEventListener("change", function(e) {
         const target = e.target || e.srcElement
         if (!target.value.length) return
 
@@ -386,7 +386,7 @@ export default {
             const encrypted = await context.encrypt({
               text: fr.result,
               fileType: file.fileType,
-              fileName: file.name,
+              fileName: file.name
             })
             
             const { chunks, fileName: encFileName, fileType: encFileType } = encrypted
@@ -408,23 +408,23 @@ export default {
             context.loading[file.fileType] = false
 
             // Emit finish
-            if(file.fileType == 'genome') {
+            if(file.fileType == "genome") {
               context.genomeSucceed = true
               context.genomeUploadSucceedDialog = true
-              context.$emit('uploadGenome')
+              context.$emit("uploadGenome")
               
               context.submitTestResult(() => {
                 context.loading[file.fileType] = false
               })
             }
-            if(file.fileType == 'report') {
+            if(file.fileType == "report") {
               context.reportSucceed = true
               context.reportUploadSucceedDialog = true
-              context.$emit('uploadReport')
+              context.$emit("uploadReport")
 
               context.submitTestResult(() => {
                 context.loading[file.fileType] = false
-                context.$emit('resultUploaded')
+                context.$emit("resultUploaded")
               })
             }
           } catch (err) {
@@ -437,7 +437,7 @@ export default {
 
     encrypt({ text, fileType, fileName }) {
       const context = this
-      this.loadingStatus[fileType] = 'Encrypting'
+      this.loadingStatus[fileType] = "Encrypting"
 
       return new Promise((resolve, reject) => {
         try {
@@ -466,7 +466,7 @@ export default {
               })
               // Cleanup
               this.encryptProgress[fileType] = 0
-              this.loadingStatus[fileType] = ''
+              this.loadingStatus[fileType] = ""
             }
           }
 
@@ -477,11 +477,11 @@ export default {
     },
 
     upload({ encryptedFileChunks, fileName, fileType }) {
-      this.loadingStatus[fileType] = 'Uploading'
+      this.loadingStatus[fileType] = "Uploading"
       const chunkSize = 10 * 1024 * 1024 // 10 MB
       let offset = 0
       const data = JSON.stringify(encryptedFileChunks)
-      const blob = new Blob([ data ], { type: 'text/plain' })
+      const blob = new Blob([ data ], { type: "text/plain" })
 
       return new Promise((resolve, reject) => {
         try {
@@ -510,7 +510,7 @@ export default {
               })
               // Cleanup
               this.uploadProgress[fileType] = 0
-              this.loadingStatus[fileType] = ''
+              this.loadingStatus[fileType] = ""
             }
           }
 
@@ -521,17 +521,17 @@ export default {
     },
 
     onEditClick(fileType) {
-      if (fileType == 'genome') this.uploadGenome()
-      if (fileType == 'report') this.uploadReport()
+      if (fileType == "genome") this.uploadGenome()
+      if (fileType == "report") this.uploadReport()
     },
 
     onFileDelete(fileType) {
       this.files[fileType] = []
-      if (fileType == 'genome') {
+      if (fileType == "genome") {
         this.genomeSucceed = false
         this.$refs.encryptUploadGenome.value = null
       }
-      if (fileType == 'report') {
+      if (fileType == "report") {
         this.reportSucceed = false
         this.$refs.encryptUploadReport.value = null
       }
@@ -555,7 +555,7 @@ export default {
         year: "numeric",
         month: "long", 
         hour: "numeric",
-        minute: "numeric",
+        minute: "numeric"
       });
 
       const notification = {
@@ -565,14 +565,14 @@ export default {
         route: "result-test",
         params: "",
         read: false,
-        notifDate: notifDate,
+        notifDate: notifDate
       }
 
       listNotification.push(notification)
       localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotification));
       listNotification.reverse();
-    },
-  },
+    }
+  }
 }
 </script>
 

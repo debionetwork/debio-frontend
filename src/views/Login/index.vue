@@ -149,12 +149,12 @@ export default {
     SetKeystorePasswordDialog,
     VerifyRecoveryPhraseDialog,
     AccessAccountMnemonicDialog,
-    DialogAlert,
+    DialogAlert
   },
   computed: {
     isDevEnv() {
       return process.env.NODE_ENV == "development";
-    },
+    }
   },
   data: () => ({
     role: "",
@@ -175,7 +175,7 @@ export default {
     alertTextAlert: "",
     imgWidth: "50",
     successLogin: false,
-    typelogin: "",
+    typelogin: ""
   }),
 
   created() {
@@ -186,7 +186,7 @@ export default {
 
   methods: {
     ...mapActions({
-      checkMnemonicSomeAddress: "substrate/checkMnemonicSomeAddress",
+      checkMnemonicSomeAddress: "substrate/checkMnemonicSomeAddress"
     }),
     ...mapMutations({}),
     onGenerateAccount() {
@@ -223,7 +223,7 @@ export default {
     async checkForgotPassword(previousDialog, secretType, secret) {
       const result = await this.checkMnemonicSomeAddress({
         mnemonic: secret.mnemonic,
-        accountAddress: this.forgotAddress,
+        accountAddress: this.forgotAddress
       });
 
       if (result.success) {
@@ -272,8 +272,8 @@ export default {
       this.dialogAlert = true;
 
       if (redirect) this.$router.push({ name: redirect, query: { ...payload } })
-    },
-  },
+    }
+  }
 };
 </script>
 

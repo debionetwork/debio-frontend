@@ -129,17 +129,17 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { updateDoctor } from '@/lib/polkadotProvider/command/doctors'
+import { mapGetters } from "vuex"
+import { updateDoctor } from "@/lib/polkadotProvider/command/doctors"
 import countryData from "@/assets/json/country.json"
 import { upload } from "@/lib/ipfs"
 import cityData from "@/assets/json/city.json"
-import DoctorCertification from './Certification'
+import DoctorCertification from "./Certification"
 
 export default {
-  name: 'DoctorAccount',
+  name: "DoctorAccount",
   components: {
-    DoctorCertification,
+    DoctorCertification
   },
   async mounted() {
     const doctorInfo = this.doctorAccount.info
@@ -179,23 +179,23 @@ export default {
   }),
   computed: {
     ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
-      doctorAccount: 'substrate/doctorAccount',
+      api: "substrate/getAPI",
+      pair: "substrate/wallet",
+      doctorAccount: "substrate/doctorAccount"
     }),
 
     rules(){
       return [
-        file => !!file || 'This field is required',
-        file => !file || file.type == 'image/jpg' || file.type == 'image/jpeg' || 'Document type should be image/jpg',
-        file => !file || file.size <= 3_097_152 || 'The total file size uploaded exceeds the maximum file size allowed (3MB)',
+        file => !!file || "This field is required",
+        file => !file || file.type == "image/jpg" || file.type == "image/jpeg" || "Document type should be image/jpg",
+        file => !file || file.size <= 3_097_152 || "The total file size uploaded exceeds the maximum file size allowed (3MB)"
       ]
     },
 
     emailRules(){
       return [
-        v => !!v || 'This field is required',
-        v => /.+@.+/.test(v) || 'Email is invalid. It should contain @ followed by a domain',
+        v => !!v || "This field is required",
+        v => /.+@.+/.test(v) || "Email is invalid. It should contain @ followed by a domain"
       ]
     }
   },
@@ -233,7 +233,7 @@ export default {
             profileImage: this.image,
             address: this.address,
             country: this.country,
-            city: this.city,
+            city: this.city
           },
           () => {
             this.isLoading = false
@@ -250,7 +250,7 @@ export default {
         return
       }
       if (file) {
-        if (file.name.lastIndexOf('.') <= 0) {
+        if (file.name.lastIndexOf(".") <= 0) {
           return
         }
         this.isUploading = true
@@ -260,12 +260,12 @@ export default {
         fr.readAsArrayBuffer(file)
 
         const context = this
-        fr.addEventListener('load', async () => {
+        fr.addEventListener("load", async () => {
           // Upload
           const uploaded = await upload({
             fileChunk: fr.result,
             fileType: file.type,
-            fileName: file.name,
+            fileName: file.name
           })
           context.image = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server...
           context.isUploading = false
@@ -274,9 +274,9 @@ export default {
       }
       else {
         this.files = []
-        this.image = ''
+        this.image = ""
       }
-    },
+    }
   }
 }
 </script>

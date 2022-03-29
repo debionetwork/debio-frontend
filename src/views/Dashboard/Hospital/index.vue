@@ -62,18 +62,18 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import MenuCard from '@/components/MenuCard'
+import { mapState } from "vuex"
+import MenuCard from "@/components/MenuCard"
 
 export default {
-  name: 'Hospital',
+  name: "Hospital",
   components: {
-    MenuCard,
+    MenuCard
   },
   computed: {
     ...mapState({
-      isHospitalAccountExist: (state) => state.substrate.isHospitalAccountExist,
-    }),
-  },
+      isHospitalAccountExist: (state) => state.substrate.isHospitalAccountExist
+    })
+  }
 }
 </script>

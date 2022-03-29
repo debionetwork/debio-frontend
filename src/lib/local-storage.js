@@ -2,10 +2,10 @@ const localStorage = {
   /**
    * Keys
    */
-  DEBIO_KS: 'DEBIO_KS',
-  DEBIO_RPC_URL: 'DEBIO_RPC_URL',
-  DEBIO_CONFIG: 'DEBIO_CONFIG',
-  DEBIO_ADDRESS_LOGIN: 'DEBIO_ADDRESS_LOGIN',
+  DEBIO_KS: "DEBIO_KS",
+  DEBIO_RPC_URL: "DEBIO_RPC_URL",
+  DEBIO_CONFIG: "DEBIO_CONFIG",
+  DEBIO_ADDRESS_LOGIN: "DEBIO_ADDRESS_LOGIN",
   /**
    * getter setters
    */
@@ -35,7 +35,7 @@ const localStorage = {
     window.localStorage.removeItem(this.DEBIO_ADDRESS_LOGIN)
     window.localStorage.removeItem(this.DEBIO_RPC_URL)
     window.localStorage.removeItem(this.DEBIO_CONFIG)
-   // window.localStorage.removeItem("mnemonic_data")
+    // window.localStorage.removeItem("mnemonic_data")
   },
   setAddress(address) {
     window.localStorage.setItem(this.DEBIO_ADDRESS_LOGIN, address)
@@ -54,7 +54,7 @@ const localStorage = {
   },
   removeLocalStorageByName(name) {
     window.localStorage.removeItem(name)
-  },
+  }
 }
 
 export default localStorage

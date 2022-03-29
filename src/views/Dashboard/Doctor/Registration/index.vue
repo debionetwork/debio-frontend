@@ -131,7 +131,7 @@ export default {
     image: "",
     files: [],
     isLoading: false,
-    isUploading: false,
+    isUploading: false
   }),
   async mounted() {
     await this.getCountries();
@@ -141,7 +141,7 @@ export default {
       api: "substrate/getAPI",
       pair: "substrate/wallet",
       doctorAccount: "substrate/doctorAccount",
-      isDoctorAccountExist: "substrate/isDoctorAccountExist",
+      isDoctorAccountExist: "substrate/isDoctorAccountExist"
     }),
     citiesSelection() {
       return this.cities
@@ -156,26 +156,26 @@ export default {
     },
     emailRules() {
       return [
-        val => !!val || 'This field is required',
-        val => /.+@.+\..+/.test(val) || 'Email is invalid. It should contain @ followed by a domain',
+        val => !!val || "This field is required",
+        val => /.+@.+\..+/.test(val) || "Email is invalid. It should contain @ followed by a domain"
       ]
     },
     nameRules() {
       return [
-        val => !!val || 'This field is required',
+        val => !!val || "This field is required"
       ]
     },
     addressRules() {
       return [
-        val => !!val || 'This field is required',
-        val => (val && val.length <= 180) || 'This field only allows 180 characters'
+        val => !!val || "This field is required",
+        val => (val && val.length <= 180) || "This field only allows 180 characters"
       ]
     },
     fileInputRules() {
       return [
-        value => !value || value.size < 2000000 || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
+        value => !value || value.size < 2000000 || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
       ]
-    },
+    }
   },
   methods: {
     setDoctorAccount() {
@@ -216,7 +216,7 @@ export default {
                 profileImage: this.image,
                 address: this.address,
                 country: this.country,
-                city: this.city,
+                city: this.city
               },
               async () => {
                 this.setDoctorAccount()
@@ -247,7 +247,7 @@ export default {
           const uploaded = await upload({
             fileChunk: fr.result,
             fileType: file.type,
-            fileName: file.name,
+            fileName: file.name
           })
           const computeLink = `${uploaded.ipfsPath[0].data.ipfsFilePath}/${uploaded.fileName}`
 
@@ -268,7 +268,7 @@ export default {
         return false
       }
       return true
-    },
+    }
   }
 }
 </script>

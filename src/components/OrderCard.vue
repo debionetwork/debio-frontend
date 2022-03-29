@@ -46,7 +46,7 @@ export default {
   name: "OrderCard",
   components: {
     CardButton,
-    StatusChip,
+    StatusChip
   },
   props: {
     icon: String,
@@ -56,7 +56,7 @@ export default {
     timestamp: String,
     orderDate: String,
     status: String,
-    disabled: Boolean,
+    disabled: Boolean
   },
   computed: {
     _icon() {
@@ -64,7 +64,7 @@ export default {
         (this.icon.startsWith("mdi") || this.icon.startsWith("$"))
         ? this.icon
         : false;
-    },
+    }
   },
   methods: {
     onClick() {
@@ -75,8 +75,8 @@ export default {
         return val;
       }
       return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr";
-    },
-  },
+    }
+  }
 };
 </script>
 

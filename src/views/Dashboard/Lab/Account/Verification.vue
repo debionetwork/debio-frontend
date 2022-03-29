@@ -46,14 +46,14 @@
 
 <script>
 export default {
-  name: 'LabAccount',
+  name: "LabAccount",
   computed: {
     fileInputRules() {
       return [
-        value => !value || value.size < 2000000 || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
+        value => !value || value.size < 2000000 || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
       ]
     }
-  },
+  }
 }
 </script>
 

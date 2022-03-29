@@ -36,25 +36,25 @@ import DialogSelectRole from "@/components/Dialog/DialogSelectRole";
 export default {
   name: "SelectRoleGroup",
   components: {
-    DialogSelectRole,
+    DialogSelectRole
   },
   computed: {
     isDevEnv() {
       return process.env.NODE_ENV == "development";
-    },
+    }
   },
   data: () => ({
-    dialogSelectRole: true,
+    dialogSelectRole: true
   }),
   methods: {
     ...mapActions({
-      checkMnemonicSomeAddress: "substrate/checkMnemonicSomeAddress",
+      checkMnemonicSomeAddress: "substrate/checkMnemonicSomeAddress"
     }),
     actionAlert(openRole) {
       this.$router.push(`/${openRole}`);
-    },
+    }
   
-  },
+  }
 };
 </script>
 

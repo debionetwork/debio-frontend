@@ -61,15 +61,15 @@
 import localStorage from "@/lib/local-storage"
 
 export default {
-  name: 'GenerateAccountDialog',
+  name: "GenerateAccountDialog",
 
   props: {
     show: Boolean,
-    role: String,
+    role: String
   },
 
   data: () => ({
-    agreeTerms: false,
+    agreeTerms: false
   }),
 
   computed: {
@@ -78,9 +78,9 @@ export default {
         return this.show
       },
       set(val) {
-        this.$emit('toggle', val)
+        this.$emit("toggle", val)
       }
-    },
+    }
   },
 
   created() {
@@ -92,7 +92,7 @@ export default {
   methods: {
     onAgreeTerms() {
       this._show = false
-      this.$emit('terms-agreed')
+      this.$emit("terms-agreed")
 
       localStorage.setLocalStorageByName("TERMS", this.agreeTerms)
       const hasAddress = localStorage.getLocalStorageByName("mnemonic_data")

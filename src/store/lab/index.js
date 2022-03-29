@@ -6,13 +6,13 @@ const defaultState = {
   city: null,
   category: null,
   providePayload: {},
-  amount: 0,
+  amount: 0
 };
 
 export default {
   namespaced: true,
   state: {
-    ...defaultState,
+    ...defaultState
   },
   mutations: {
     SET_COUNTRY(state, country) {
@@ -32,7 +32,7 @@ export default {
     },
     SET_PROVIDE_SERVICE_PAYLOAD(state, payload) {
       state.providePayload = payload;
-    },
+    }
   },
   actions: {
     async setCountryCity({ commit }, data) {
@@ -51,11 +51,11 @@ export default {
     },
     async setProvideService({ commit }, payload) {
       commit("SET_PROVIDE_SERVICE_PAYLOAD", payload);
-    },
+    }
   },
   getters: {
     getLabByCategory(state) {
       state.labs;
-    },
-  },
+    }
+  }
 };

@@ -11,7 +11,7 @@
 
 <script>
 export default {
-  name: 'InfoLabelValue',
+  name: "InfoLabelValue",
   props: {
     /**
       Type item = { title|label: String|Number, value: String|Number }
@@ -25,15 +25,15 @@ export default {
       const fontSize = 14;
       let longestLabelWidth = 120;
       for (let key in this.items) {
-        const label = this.items[key]['label'] ? this.items[key]['label'] : this.items[key]['title']
+        const label = this.items[key]["label"] ? this.items[key]["label"] : this.items[key]["title"]
         const labelWidth = label.length * (fontSize * 5/9)
         if (labelWidth > longestLabelWidth) {
           longestLabelWidth = labelWidth
         }
       }
       return longestLabelWidth
-    },
-  },
+    }
+  }
 }
 </script>
 

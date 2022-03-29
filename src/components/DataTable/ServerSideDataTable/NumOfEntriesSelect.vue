@@ -20,7 +20,7 @@
 export default {
   props: {
     value: [Number, String],
-    change: Function,
+    change: Function
   },
   data: () => ({
     numOfEntriesSelect: [5, 10, 15, 20]
@@ -31,7 +31,7 @@ export default {
         return this.value
       },
       set(val) {
-        this.$emit('select', val)
+        this.$emit("select", val)
       }
     }
   }

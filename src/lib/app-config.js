@@ -1,8 +1,8 @@
-import localStorage from './local-storage'
+import localStorage from "./local-storage"
 
 const defaultConfig = {
-  gasPrice: '100000',
-  gasLimit: '10000000'
+  gasPrice: "100000",
+  gasLimit: "10000000"
 }
 
 class AppConfig {

@@ -66,7 +66,7 @@ export default {
     DialogAlert
   },
   props: {
-    show: Boolean,
+    show: Boolean
   },
   data: () => ({
     textAlert: "",
@@ -80,8 +80,8 @@ export default {
       },
       set(val) {
         this.$emit("toggle", val);
-      },
-    },
+      }
+    }
   },
   methods: {
     closeDialog() {
@@ -89,8 +89,8 @@ export default {
     },
     onSubmit() {
       this.dialogAlert = true
-    },
-  },
+    }
+  }
 };
 </script>
 

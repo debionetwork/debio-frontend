@@ -141,10 +141,10 @@ export default {
     nonce: null,
     keystoreInputErrors: [],
     loading: false,
-    dataMnemonicJson: null,
+    dataMnemonicJson: null
   }),
   props: {
-    show: Boolean,
+    show: Boolean
   },
   computed: {
     _show: {
@@ -153,12 +153,12 @@ export default {
       },
       set(val) {
         this.$emit("toggle", val);
-      },
+      }
     },
     ...mapState({
       isLoading: (state) => state.substrate.isLoadingWallet,
-      api: (state) => state.substrate.api,
-    }),
+      api: (state) => state.substrate.api
+    })
 
   },
 
@@ -168,11 +168,11 @@ export default {
 
   methods: {
     ...mapActions({
-      restoreAccountKeystore: "substrate/restoreAccountKeystore",
+      restoreAccountKeystore: "substrate/restoreAccountKeystore"
     }),
 
     ...mapMutations({
-      setIsLoading: "substrate/SET_LOADING_WALLET",
+      setIsLoading: "substrate/SET_LOADING_WALLET"
     }),
 
     async getKeyStoreLocal() {
@@ -217,9 +217,9 @@ export default {
     },
     clearInput() {
       (this.keystore = ""),
-        (this.password = ""),
-        (this.fileName = ""),
-        (this.keystoreInputErrors = []);
+      (this.password = ""),
+      (this.fileName = ""),
+      (this.keystoreInputErrors = []);
     },
     async onPasswordInput() {
       this.loading = true;
@@ -239,7 +239,7 @@ export default {
         }
         const result = await this.restoreAccountKeystore({
           file: dataKeystore,
-          password: this.password,
+          password: this.password
         });
 
         this.loading = false;
@@ -262,8 +262,8 @@ export default {
     },
     showMnemonicForm() {
       this.$emit("show-mnemonic-form");
-    },
-  },
+    }
+  }
 };
 </script>
 

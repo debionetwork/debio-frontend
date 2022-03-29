@@ -12,13 +12,13 @@ export default {
   mutations: {
     SET_RESULT(state, data) {
       state.result = data
-    },
+    }
   },
   actions: {
     async registration({commit}, payload) {
       const { data } = await apiClientRequest.post("/substrate/get-dbio-pre-register", payload)
 
-      commit('SET_RESULT', data)
+      commit("SET_RESULT", data)
     }
   },
   getters: {

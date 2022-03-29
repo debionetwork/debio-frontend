@@ -45,7 +45,7 @@
 <script>
 
 export default {
-  name: 'Hospital Registration',
+  name: "Hospital Registration"
 }
 </script>
 

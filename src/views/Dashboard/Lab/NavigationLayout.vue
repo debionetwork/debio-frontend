@@ -99,7 +99,7 @@ export default {
     alertTextBtn: "Continue",
     alertImgPath: "warning.png",
     alertTextAlert: "",
-    imgWidth: "270",
+    imgWidth: "270"
   }),
 
   async mounted() {
@@ -108,14 +108,14 @@ export default {
   
   computed: {
     ...mapGetters({
-      pair: "substrate/wallet",
+      pair: "substrate/wallet"
     }),
 
     ...mapState({
       isServicesExist: (state) => state.substrate.isServicesExist,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
-      lastEventData: (state) => state.substrate.lastEventData,
+      lastEventData: (state) => state.substrate.lastEventData
     }),
 
     isLab() {
@@ -130,7 +130,7 @@ export default {
       return this.$route.meta.pageHeader
         ? this.$route.meta.pageHeader
         : v.titleCase(this.$route.name);
-    },
+    }
   },
   watch: {
     $route() {
@@ -146,10 +146,10 @@ export default {
         this.$store.dispatch("substrate/addListNotification", {
           address: this.wallet.address,
           event: val,
-          role: "lab",
+          role: "lab"
         });
       }
-    },
+    }
   },
   methods: {
     toggle() {
@@ -173,9 +173,9 @@ export default {
     },
 
     goToDashboard() {
-      this.$router.push({ path: '/lab' });
-    },
-  },
+      this.$router.push({ path: "/lab" });
+    }
+  }
 };
 </script>
 

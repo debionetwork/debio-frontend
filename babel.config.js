@@ -1,6 +1,6 @@
 module.exports = {
   presets: [
-    '@vue/cli-plugin-babel/preset',
+    "@vue/cli-plugin-babel/preset",
     "@babel/preset-env"
   ],
   "plugins": [
@@ -10,7 +10,7 @@ module.exports = {
         // "absoluteRuntime": false,
         "corejs": false,
         // "helpers": true,
-        "regenerator": true,
+        "regenerator": true
         // "useESModules": false
       }
     ]

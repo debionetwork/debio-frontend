@@ -11,7 +11,7 @@
 
 <script>
 export default {
-  name: 'DisabledCardButton',
+  name: "DisabledCardButton",
   methods: {
   }
 }

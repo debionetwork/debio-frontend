@@ -23,9 +23,9 @@
 </template>
 
 <script>
-import MenuCard from './MenuCard'
+import MenuCard from "./MenuCard"
 export default {
-  name: 'SelectableMenuCard',
+  name: "SelectableMenuCard",
   components: {
     MenuCard
   },
@@ -35,11 +35,11 @@ export default {
     subTitle: String,
     hoverText: String,
     isSelected: Boolean,
-    disabled: Boolean,
+    disabled: Boolean
   },
   methods: {
     onClick() {
-      this.$emit('click')
+      this.$emit("click")
     }
   }
 }

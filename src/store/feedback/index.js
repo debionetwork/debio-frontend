@@ -15,11 +15,11 @@ export default {
   mutations: {
     SET_FEEDBACK(state, data) {
       state.feedback = data
-    },
+    }
   },
   actions: {
     async sendFeedback({commit}, feedback) {
-      commit('SET_FEEDBACK', feedback)
+      commit("SET_FEEDBACK", feedback)
 
       const data = {
         "labId": feedback.labId,

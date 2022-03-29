@@ -2,15 +2,15 @@ import { createLocalVue, shallowMount } from "@vue/test-utils"
 import Dashboard from "@/views/Dashboard/Lab/NavigationLayout"
 import Vuex from "vuex"
 import Vuetify from "vuetify"
-import VueRouter from 'vue-router'
-import _ from 'lodash'
+import VueRouter from "vue-router"
+import _ from "lodash"
 
 describe("Dashboard Lab Navigation Layout", () => {
   let container
   let localVue = null
   
   const router = new VueRouter({routes: [
-    {path: '/lab', name: 'lab' },
+    {path: "/lab", name: "lab" }
   ]})
 
   beforeEach(() => {
@@ -34,7 +34,7 @@ describe("Dashboard Lab Navigation Layout", () => {
       router: router,
       store: new Vuex.Store({
         getters: {
-          'substrate/wallet' : () => {
+          "substrate/wallet" : () => {
             return false;
           }
         },

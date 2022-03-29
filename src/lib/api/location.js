@@ -4,10 +4,10 @@ export const getLocations = async () => {
   return apiClientRequest.get("/location")
 }
 
-export const getStates = async (country_code) => {
-  return apiClientRequest.get(`/location?country_code=${country_code}`)
+export const getStates = async (countryCode) => {
+  return apiClientRequest.get(`/location?country_code=${countryCode}`)
 }
 
-export const getCities = async (country_code, state_code) => {
-  return apiClientRequest.get(`/location?country_code=${country_code}&state_code=${state_code}`)
+export const getCities = async (countryCode, stateCode) => {
+  return apiClientRequest.get(`/location?country_code=${countryCode}&state_code=${stateCode}`)
 }

@@ -11,9 +11,9 @@
 
 <script>
 export default {
-  name: 'DisabledMenuCard',
+  name: "DisabledMenuCard",
   props: {
-    height: Number,
+    height: Number
   }
 }
 </script>

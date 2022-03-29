@@ -45,23 +45,23 @@
 </template>
 
 <script>
-import MnemonicTextbox from './MnemonicTextbox.vue'
-import MnemonicKeypad from './MnemonicKeypad.vue'
-import { shuffle, removeArrayByIndex, isIdentical } from '../lib/arrays'
+import MnemonicTextbox from "./MnemonicTextbox.vue"
+import MnemonicKeypad from "./MnemonicKeypad.vue"
+import { shuffle, removeArrayByIndex, isIdentical } from "../lib/arrays"
 
 export default {
   components: { 
     MnemonicKeypad,
     MnemonicTextbox
   },
-  name: 'VerifyRecoveryPhraseDialog',
+  name: "VerifyRecoveryPhraseDialog",
   props: {
     show: Boolean,
     role: String,
-    mnemonic: String,
+    mnemonic: String
   },
   data: () => ({
-    mnemonicData: '',
+    mnemonicData: "",
     shuffledMnemonic: [],
     correctMnemonicCollection: [],
     mnemonicCollection: [],
@@ -74,9 +74,9 @@ export default {
         return this.show
       },
       set(val) {
-        this.$emit('toggle', val)
+        this.$emit("toggle", val)
       }
-    },
+    }
   },
   watch: {
     _show(isShow) {
@@ -109,8 +109,8 @@ export default {
     },
     onMnemonicSaved() {
       this._show = false
-      this.$emit('mnemonic-and-role', { mnemonic: this.mnemonicData, role: this.role })
-      this.mnemonicData = ''
+      this.$emit("mnemonic-and-role", { mnemonic: this.mnemonicData, role: this.role })
+      this.mnemonicData = ""
       this.shuffledMnemonic = []
       this.mnemonicCollection = []
       this.mnemonicCollectionTextbox = []
@@ -118,7 +118,7 @@ export default {
     },
     closeDialog() {
       this._show = false
-      this.mnemonicData = ''
+      this.mnemonicData = ""
       this.shuffledMnemonic = []
       this.mnemonicCollection = []
       this.mnemonicCollectionTextbox = []

@@ -23,11 +23,11 @@
 
 <script>
 export default {
-  name: 'SquareCardBtn',
+  name: "SquareCardBtn",
   props: {
     loading: {
       type: Boolean,
-      default: false,
+      default: false
     },
     percentage: {
       type: Number,
@@ -36,7 +36,7 @@ export default {
   },
   methods: {
     onClick() {
-      this.$emit('click')
+      this.$emit("click")
     }
   }
 }

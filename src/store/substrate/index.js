@@ -1,5 +1,5 @@
 import store from "@/store/index"
-import CryptoJS from 'crypto-js'
+import CryptoJS from "crypto-js"
 import { u8aToHex } from "@polkadot/util" // u8aToString, stringToU8a
 import keyring from "@polkadot/ui-keyring"
 import { Keyring } from "@polkadot/keyring"
@@ -12,11 +12,11 @@ import { queryEntireDoctorDataById } from "@/lib/polkadotProvider/query/doctors"
 import { queryEntireHospitalDataById } from "@/lib/polkadotProvider/query/hospitals"
 
 const {
-  cryptoWaitReady,
-} = require('@polkadot/util-crypto');
+  cryptoWaitReady
+} = require("@polkadot/util-crypto");
 
 cryptoWaitReady().then(() => {
-  keyring.loadAll({ ss58Format: 42, type: 'sr25519' });
+  keyring.loadAll({ ss58Format: 42, type: "sr25519" });
 });
 
 const defaultState = {
@@ -25,7 +25,7 @@ const defaultState = {
   isLoadingWallet: false,
   wallet: null,
   walletBalance: null,
-  walletPublicKey: '',
+  walletPublicKey: "",
   labAccount: null,
   isLabAccountExist: false,
   isServicesExist: false,
@@ -36,7 +36,7 @@ const defaultState = {
   lastEventData: null,
   localListNotification: [],
   configEvent: null,
-  mnemonicData: null,
+  mnemonicData: null
 }
 
 export default {
@@ -102,13 +102,13 @@ export default {
     },
     SET_MNEMONIC_DATA(state, event) {
       state.mnemonicData = event
-    },
+    }
   },
   actions: {
     async connect({ commit }) {
       try {
-        commit('SET_LOADING_API', true)
-        const PROVIDER_SOCKET = store.getters['auth/getConfig'].substrateWs;
+        commit("SET_LOADING_API", true)
+        const PROVIDER_SOCKET = store.getters["auth/getConfig"].substrateWs;
         const wsProvider = new WsProvider(PROVIDER_SOCKET)
         const api = await ApiPromise.create({
           provider: wsProvider
@@ -120,138 +120,138 @@ export default {
             const { event } = record;
             if (event.section === "rewards" || event.section === "serviceRequest" || event.section === "services" || event.section === "labs" || event.section === "orders" || event.section === "geneticTesting" || event.section === "electronicMedicalRecord") {
               if (event.method === "OrderPaid") localStorage.removeLocalStorageByName("lastOrderStatus")
-              commit('SET_LAST_EVENT', event);
+              commit("SET_LAST_EVENT", event);
             }
           })
         })
 
         await api.isReady
-        commit('SET_API', api)
+        commit("SET_API", api)
 
-        commit('SET_LOADING_API', false)
+        commit("SET_LOADING_API", false)
       } catch (err) {
         console.error(err)
-        commit('SET_LOADING_API', false)
+        commit("SET_LOADING_API", false)
       }
     },
     async registerMnemonic({ commit }, { mnemonic, password, accountName }) {
       try {
-        commit('SET_LOADING_WALLET', true)
-        commit('CLEAR_WALLET')
+        commit("SET_LOADING_WALLET", true)
+        commit("CLEAR_WALLET")
 
         const { pair, json } = keyring.addUri(mnemonic, password, { name: accountName })
         pair.unlock(password)
         localStorage.setKeystore(JSON.stringify(json))
         localStorage.setAddress(pair.address)
-        commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
-        commit('SET_WALLET', pair) // FIXME: simpen untuk dev
-        commit('SET_LOADING_WALLET', false)
+        commit("SET_WALLET_PUBLIC_KEY", u8aToHex(pair.publicKey))
+        commit("SET_WALLET", pair) // FIXME: simpen untuk dev
+        commit("SET_LOADING_WALLET", false)
 
         localStorage.setLocalStorageByName("mnemonic_data", CryptoJS.AES.encrypt(mnemonic, password));
-        commit('SET_MNEMONIC_DATA', mnemonic)
+        commit("SET_MNEMONIC_DATA", mnemonic)
         return { success: true }
       } catch (err) {
         console.error(err)
-        commit('CLEAR_WALLET')
-        commit('SET_LOADING_WALLET', false)
+        commit("CLEAR_WALLET")
+        commit("SET_LOADING_WALLET", false)
         return { success: false, error: err.message }
       }
     },
     async restoreAccountKeystore({ commit }, { file, password }) {
       try {
         if (Array.isArray(file)) {
-          commit('SET_LOADING_WALLET', true)
+          commit("SET_LOADING_WALLET", true)
           const pair = keyring.restoreAccount(file[0], password);
           pair.unlock(password)
           localStorage.setKeystore(JSON.stringify(file[0]))
           localStorage.setAddress(pair.address)
-          commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
-          commit('SET_WALLET', pair)
+          commit("SET_WALLET_PUBLIC_KEY", u8aToHex(pair.publicKey))
+          commit("SET_WALLET", pair)
           const encryptedMnemonic = localStorage.getLocalStorageByName("mnemonic_data");
-          commit('SET_MNEMONIC_DATA', encryptedMnemonic)
-          commit('SET_LOADING_WALLET', false)
+          commit("SET_MNEMONIC_DATA", encryptedMnemonic)
+          commit("SET_LOADING_WALLET", false)
 
           return { success: true }
         } else {
           // FIXME: Ini belum ada mnemonic nya
-          commit('SET_LOADING_WALLET', true)
+          commit("SET_LOADING_WALLET", true)
           const pair = keyring.restoreAccount(file, password);
           pair.unlock(password)
           localStorage.setKeystore(JSON.stringify(file))
           localStorage.setAddress(pair.address)
-          commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
-          commit('SET_WALLET', pair)
+          commit("SET_WALLET_PUBLIC_KEY", u8aToHex(pair.publicKey))
+          commit("SET_WALLET", pair)
 
           return { success: true }
         }
 
       } catch (err) {
-        commit('CLEAR_WALLET')
-        commit('SET_LOADING_WALLET', false)
+        commit("CLEAR_WALLET")
+        commit("SET_LOADING_WALLET", false)
         return { success: false, error: err.message }
       }
     },
     getEncryptedAccountData({ commit }, { password }) {
       const encryptedMnemonic = localStorage.getLocalStorageByName("mnemonic_data");
       if (encryptedMnemonic != null) {
-        commit('SET_MNEMONIC_DATA', CryptoJS.AES.decrypt(encryptedMnemonic, password));
+        commit("SET_MNEMONIC_DATA", CryptoJS.AES.decrypt(encryptedMnemonic, password));
       }
     },
     async getAllAccounts({ commit, state }, { address }) {
       try {
-        commit('SET_LOADING_WALLET', true)
+        commit("SET_LOADING_WALLET", true)
         const pair = keyring.getPair(address);
-        commit('SET_WALLET_PUBLIC_KEY', u8aToHex(pair.publicKey))
-        commit('SET_WALLET', pair)
-        commit('SET_LOADING_WALLET', false)
+        commit("SET_WALLET_PUBLIC_KEY", u8aToHex(pair.publicKey))
+        commit("SET_WALLET", pair)
+        commit("SET_LOADING_WALLET", false)
 
-        commit('SET_LAB_ACCOUNT', null)
-        commit('SET_IS_LAB_ACCOUNT_EXIST', false)
+        commit("SET_LAB_ACCOUNT", null)
+        commit("SET_IS_LAB_ACCOUNT_EXIST", false)
         const labAccount = await queryEntireLabDataById(state.api, address)
         if (labAccount) {
-          commit('SET_LAB_ACCOUNT', labAccount)
-          commit('SET_IS_LAB_ACCOUNT_EXIST', true)
+          commit("SET_LAB_ACCOUNT", labAccount)
+          commit("SET_IS_LAB_ACCOUNT_EXIST", true)
           
           if(labAccount.services.length) {
-            commit('SET_IS_SERVICES_EXIST', true)
+            commit("SET_IS_SERVICES_EXIST", true)
           }
         }
 
-        commit('SET_DOCTOR_ACCOUNT', null)
-        commit('SET_IS_DOCTOR_ACCOUNT_EXIST', false)
+        commit("SET_DOCTOR_ACCOUNT", null)
+        commit("SET_IS_DOCTOR_ACCOUNT_EXIST", false)
         const doctorAccount = await queryEntireDoctorDataById(state.api, address)
         if (doctorAccount) {
-          commit('SET_DOCTOR_ACCOUNT', doctorAccount)
-          commit('SET_IS_DOCTOR_ACCOUNT_EXIST', true)
+          commit("SET_DOCTOR_ACCOUNT", doctorAccount)
+          commit("SET_IS_DOCTOR_ACCOUNT_EXIST", true)
         }
 
-        commit('SET_HOSPITAL_ACCOUNT', null)
-        commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', false)
+        commit("SET_HOSPITAL_ACCOUNT", null)
+        commit("SET_IS_HOSPITAL_ACCOUNT_EXIST", false)
         const hospitalAccount = await queryEntireHospitalDataById(state.api, address)
         if (hospitalAccount) {
-          commit('SET_HOSPITAL_ACCOUNT', hospitalAccount)
-          commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', true)
+          commit("SET_HOSPITAL_ACCOUNT", hospitalAccount)
+          commit("SET_IS_HOSPITAL_ACCOUNT_EXIST", true)
         }
 
         return { success: true }
       } catch (err) {
         console.error(err)
-        commit('CLEAR_WALLET')
-        commit('SET_LOADING_WALLET', false)
+        commit("CLEAR_WALLET")
+        commit("SET_LOADING_WALLET", false)
         return { success: false, error: err.message }
       }
     },
     async getLabAccount({ commit, state }) {
       try {
-        commit('SET_LAB_ACCOUNT', null)
-        commit('SET_IS_LAB_ACCOUNT_EXIST', false)
+        commit("SET_LAB_ACCOUNT", null)
+        commit("SET_IS_LAB_ACCOUNT_EXIST", false)
         const labAccount = await queryEntireLabDataById(state.api, state.wallet.address)
         if (labAccount) {
-          commit('SET_LAB_ACCOUNT', labAccount)
-          commit('SET_IS_LAB_ACCOUNT_EXIST', true)
+          commit("SET_LAB_ACCOUNT", labAccount)
+          commit("SET_IS_LAB_ACCOUNT_EXIST", true)
 
           if(labAccount.services.length) {
-            commit('SET_IS_SERVICES_EXIST', true)
+            commit("SET_IS_SERVICES_EXIST", true)
           }
         }
 
@@ -263,12 +263,12 @@ export default {
     },
     async getDoctorAccount({ commit, state }) {
       try {
-        commit('SET_DOCTOR_ACCOUNT', null)
-        commit('SET_IS_DOCTOR_ACCOUNT_EXIST', false)
+        commit("SET_DOCTOR_ACCOUNT", null)
+        commit("SET_IS_DOCTOR_ACCOUNT_EXIST", false)
         const doctorAccount = await queryEntireDoctorDataById(state.api, state.wallet.address)
         if (doctorAccount) {
-          commit('SET_DOCTOR_ACCOUNT', doctorAccount)
-          commit('SET_IS_DOCTOR_ACCOUNT_EXIST', true)
+          commit("SET_DOCTOR_ACCOUNT", doctorAccount)
+          commit("SET_IS_DOCTOR_ACCOUNT_EXIST", true)
         }
 
         return { success: true }
@@ -279,12 +279,12 @@ export default {
     },
     async getHospitalAccount({ commit, state }) {
       try {
-        commit('SET_HOSPITAL_ACCOUNT', null)
-        commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', false)
+        commit("SET_HOSPITAL_ACCOUNT", null)
+        commit("SET_IS_HOSPITAL_ACCOUNT_EXIST", false)
         const hospitalAccount = await queryEntireHospitalDataById(state.api, state.wallet.address)
         if (hospitalAccount) {
-          commit('SET_HOSPITAL_ACCOUNT', hospitalAccount)
-          commit('SET_IS_HOSPITAL_ACCOUNT_EXIST', true)
+          commit("SET_HOSPITAL_ACCOUNT", hospitalAccount)
+          commit("SET_IS_HOSPITAL_ACCOUNT_EXIST", true)
         }
 
         return { success: true }
@@ -295,9 +295,9 @@ export default {
     },
     async checkMnemonicSomeAddress({ commit }, { mnemonic, accountAddress }) {
       try {
-        const keyringX = new Keyring({ type: 'ed25519', ss58Format: 42 });
-        const pair = keyringX.addFromUri(mnemonic, { name: 'first pair' }, 'ed25519');
-        commit('SET_LOADING_WALLET', false)
+        const keyringX = new Keyring({ type: "ed25519", ss58Format: 42 });
+        const pair = keyringX.addFromUri(mnemonic, { name: "first pair" }, "ed25519");
+        commit("SET_LOADING_WALLET", false)
         if (accountAddress == pair.address) {
           return { success: true }
         } else {
@@ -311,14 +311,14 @@ export default {
     async getListNotification({ commit }, { address, role }) {
       try {
         //localStorage.removeLocalStorageByName("LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role, null);
-        commit('SET_CONFIG_EVENT', masterConfigEvent);
+        commit("SET_CONFIG_EVENT", masterConfigEvent);
         const listNotificationJson = localStorage.getLocalStorageByName("LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role);
         let listNotification = [];
         if (listNotificationJson != null && listNotificationJson != "") {
           listNotification = JSON.parse(listNotificationJson);
           listNotification.reverse();
         }
-        commit('SET_LIST_NOTIFICATION', listNotification);
+        commit("SET_LIST_NOTIFICATION", listNotification);
       } catch (err) {
         console.error(err);
       }
@@ -345,7 +345,7 @@ export default {
             year: "numeric", // numeric, 2-digit
             month: "long", // numeric, 2-digit, long, short, narrow
             hour: "numeric", // numeric, 2-digit
-            minute: "numeric",
+            minute: "numeric"
           });
 
           if (statusAdd) {
@@ -356,14 +356,14 @@ export default {
               route: route,
               params: params,
               read: false,
-              notifDate: notifDate,
+              notifDate: notifDate
             });
           }
         }
 
         localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotification));
         listNotification.reverse();
-        commit('SET_LIST_NOTIFICATION', listNotification);
+        commit("SET_LIST_NOTIFICATION", listNotification);
       } catch (err) {
         console.error(err);
       }
@@ -374,7 +374,7 @@ export default {
           data.reverse();
           localStorage.setLocalStorageByName("LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role, JSON.stringify(data));
           data.reverse();
-          commit('SET_LIST_NOTIFICATION', data);
+          commit("SET_LIST_NOTIFICATION", data);
         }
       } catch (err) {
         console.error(err);
@@ -399,7 +399,7 @@ export default {
             year: "numeric", // numeric, 2-digit
             month: "long", // numeric, 2-digit, long, short, narrow
             hour: "numeric", // numeric, 2-digit
-            minute: "numeric",
+            minute: "numeric"
           });
           listNotification.push({
             message: dataAdd.message,
@@ -408,17 +408,17 @@ export default {
             route: dataAdd.route,
             params: dataAdd.params,
             read: false,
-            notifDate: notifDate,
+            notifDate: notifDate
           });
         }
 
         localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotification));
         listNotification.reverse();
-        commit('SET_LIST_NOTIFICATION', listNotification);
+        commit("SET_LIST_NOTIFICATION", listNotification);
       } catch (err) {
         console.error(err);
       }
-    },
+    }
   },
   getters: {
     wallet(state) {

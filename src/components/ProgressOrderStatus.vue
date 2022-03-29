@@ -29,11 +29,11 @@
 </template>
 
 <script>
-import Button from '@/components/Button'
-import Stepper from '@/components/Stepper'
-import { mapGetters } from 'vuex'
-import { getOrdersDetail } from '@/lib/polkadotProvider/query/orders'
-import { format, addDays, addHours, addBusinessDays } from 'date-fns'
+import Button from "@/components/Button"
+import Stepper from "@/components/Stepper"
+import { mapGetters } from "vuex"
+import { getOrdersDetail } from "@/lib/polkadotProvider/query/orders"
+import { format, addDays, addHours, addBusinessDays } from "date-fns"
 
 export default {
   name: "ProgressOrderStatus",
@@ -42,23 +42,23 @@ export default {
   },
   components: {
     Button,
-    Stepper,
+    Stepper
   },
   data: () => ({
-    specimenStatus: '',
+    specimenStatus: "",
     resultIsReady: false,
     btnColor: "grey",
-    expectedDate: 'july 5th, 2020',
-    lateExpectedDate: 'july 26th, 2020',
+    expectedDate: "july 5th, 2020",
+    lateExpectedDate: "july 26th, 2020",
     order: null,
     stepperItems: [
-        { name: 'Registered', selected: false},
-        { name: 'Received', selected: false},
-        { name: 'QC (DNA prep and extraction)', selected: false},
-        { name: 'Wet Work', selected: false},
-        { name: 'Results Ready', selected: false},
+      { name: "Registered", selected: false},
+      { name: "Received", selected: false},
+      { name: "QC (DNA prep and extraction)", selected: false},
+      { name: "Wet Work", selected: false},
+      { name: "Results Ready", selected: false}
     ],
-    isProcessCompleted: false,
+    isProcessCompleted: false
   }),
   async mounted() {
     try {
@@ -76,66 +76,66 @@ export default {
     goToResult() {
       this.$router.push({
         name: "result-test",
-        params: { number: this.order.dnaSampleTrackingId },
+        params: { number: this.order.dnaSampleTrackingId }
       });
     },
 
     setExpectedDuration(orderCreatedAt, duration, durationType) {
-      if (durationType == 'WorkingDays') {
+      if (durationType == "WorkingDays") {
         const expectedDate = addBusinessDays(new Date(orderCreatedAt), parseInt(duration))
-        const expectedDateStr = format(expectedDate, 'MMMM dd, yyyy')
+        const expectedDateStr = format(expectedDate, "MMMM dd, yyyy")
         this.expectedDate = expectedDateStr
 
         // FIXME: as of Aug 20, 2021
         // Product requirements / UI design has not yet defined how late expected date is calculated 
         // Currently add more 7 business days to late expected date
         let lateExpectedDate = addBusinessDays(expectedDate, 7)
-        const lateExpectedDateStr = format(lateExpectedDate, 'MMMM dd, yyyy')
+        const lateExpectedDateStr = format(lateExpectedDate, "MMMM dd, yyyy")
         this.lateExpectedDate = lateExpectedDateStr
       }
-      if (durationType == 'Days') {
+      if (durationType == "Days") {
         const expectedDate = addDays(new Date(orderCreatedAt), parseInt(duration))
-        const expectedDateStr = format(expectedDate, 'MMMM dd, yyyy')
+        const expectedDateStr = format(expectedDate, "MMMM dd, yyyy")
         this.expectedDate = expectedDateStr
 
         // FIXME: as of Aug 20, 2021
         // Product requirements / UI design has not yet defined how late expected date is calculated 
         // Currently add more 7 business days to late expected date
         let lateExpectedDate = addBusinessDays(expectedDate, 7)
-        const lateExpectedDateStr = format(lateExpectedDate, 'MMMM dd, yyyy')
+        const lateExpectedDateStr = format(lateExpectedDate, "MMMM dd, yyyy")
         this.lateExpectedDate = lateExpectedDateStr
       }
-      if (durationType == 'Hours') {
+      if (durationType == "Hours") {
         const expectedDate = addHours(new Date(orderCreatedAt), parseInt(duration))
-        const expectedDateStr = format(expectedDate, 'MMMM dd, yyyy')
+        const expectedDateStr = format(expectedDate, "MMMM dd, yyyy")
         this.expectedDate = expectedDateStr
 
         // FIXME: as of Aug 20, 2021
         // Product requirements / UI design has not yet defined how late expected date is calculated 
         // Currently add more 7 business days to late expected date
         let lateExpectedDate = addBusinessDays(expectedDate, 7)
-        const lateExpectedDateStr = format(lateExpectedDate, 'MMMM dd, yyyy')
+        const lateExpectedDateStr = format(lateExpectedDate, "MMMM dd, yyyy")
         this.lateExpectedDate = lateExpectedDateStr
       }
     },
 
     async setCheckBoxByDnaStatus() {
-      if (this.specimenStatus == 'Registered') {
-        this.setStepperSelected(['Registered'], true)
+      if (this.specimenStatus == "Registered") {
+        this.setStepperSelected(["Registered"], true)
       }
-      if (this.specimenStatus == 'Arrived') {
+      if (this.specimenStatus == "Arrived") {
         this.onSpecimenReceived()
       }
 
-      if (this.specimenStatus == 'QualityControlled') {
+      if (this.specimenStatus == "QualityControlled") {
         this.onQcCompleted()
       }
 
-      if (this.specimenStatus == 'WetWork') {
+      if (this.specimenStatus == "WetWork") {
         this.onWetWorkCompleted()
       }
 
-      if (this.specimenStatus == 'ResultReady') {
+      if (this.specimenStatus == "ResultReady") {
         this.onResultReady()
         this.resultIsReady = true
         this.btnColor = "#52ffb6"
@@ -152,48 +152,48 @@ export default {
     },
 
     onSpecimenRegistered() {
-      this.setStepperSelected(['Registered'], true)
+      this.setStepperSelected(["Registered"], true)
     },
 
     onSpecimenReceived() {
       this.setStepperSelected([
-        'Registered',
-        'Received',
+        "Registered",
+        "Received"
       ], true)
     },
 
     onQcCompleted() {
       this.setStepperSelected([
-        'Registered',
-        'Received',
-        'QC (DNA prep and extraction)',
+        "Registered",
+        "Received",
+        "QC (DNA prep and extraction)"
       ], true)
     },
 
     onWetWorkCompleted() {
       this.setStepperSelected([
-        'Registered',
-        'Received',
-        'QC (DNA prep and extraction)',
-        'Wet Work',
+        "Registered",
+        "Received",
+        "QC (DNA prep and extraction)",
+        "Wet Work"
       ], true)
     },
 
     onResultReady() {
       this.setStepperSelected([
-        'Registered',
-        'Received',
-        'QC (DNA prep and extraction)',
-        'Wet Work',
-        'Results Ready',
+        "Registered",
+        "Received",
+        "QC (DNA prep and extraction)",
+        "Wet Work",
+        "Results Ready"
       ], true)
-    },
+    }
   },
   computed: {
     ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
-    }),
+      api: "substrate/getAPI",
+      pair: "substrate/wallet"
+    })
   }
 }
 </script>

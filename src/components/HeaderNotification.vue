@@ -91,11 +91,11 @@ export default {
     ...mapState({
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
-      localListNotification: (state) => state.substrate.localListNotification,
-    }),
+      localListNotification: (state) => state.substrate.localListNotification
+    })
   },
   props: {
-    role: String,
+    role: String
   },
   data: () => ({
     isLoading: false,
@@ -103,14 +103,14 @@ export default {
     name: "",
     listNotif: [],
     notifLength: 0,
-    showDialog: false,
+    showDialog: false
   }),
   methods: {
     ...mapMutations({
-      setMetamaskAddress: "metamask/SET_WALLET_ADDRESS",
+      setMetamaskAddress: "metamask/SET_WALLET_ADDRESS"
     }),
     ...mapActions({
-      clearAuth: "auth/clearAuth",
+      clearAuth: "auth/clearAuth"
     }),
     openNotif() {
       if (this.showDialog) {
@@ -122,7 +122,7 @@ export default {
     async getListNotification() {
       await this.$store.dispatch("substrate/getListNotification", {
         address: this.wallet.address,
-        role: this.role,
+        role: this.role
       });
       this.setData();
     },
@@ -136,7 +136,7 @@ export default {
         this.$store.dispatch("substrate/updateDataListNotification", {
           address: this.wallet.address,
           role: this.role,
-          data: this.listNotif,
+          data: this.listNotif
         });
       }
       // TODO: Remove this logic
@@ -144,14 +144,14 @@ export default {
       
       this.$router.push({
         name: notif.route,
-        params: notif.params,
+        params: notif.params
       });
-    },
+    }
   },
   watch: {
     localListNotification() {
       this.setData();
-    },
+    }
   },
   async mounted() {
     const inst = this;
@@ -163,6 +163,6 @@ export default {
       }
     });
     await this.getListNotification();
-  },
+  }
 };
 </script>
