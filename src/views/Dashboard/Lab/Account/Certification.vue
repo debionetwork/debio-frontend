@@ -163,7 +163,7 @@ import { upload } from "@/lib/ipfs"
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
 export default {
-  name: "Certification",
+  name: "LabCertification",
 
   components: {
     Dialog,
