@@ -21,8 +21,8 @@ module.exports = {
     "@polkadot/keyring": "<rootDir>/tests/unit/@polkadot-keyring.mock.js",
     "@polkadot/api": "<rootDir>/tests/unit/@polkadot-api.mock.js",
     "@/common/lib/ipfs": "<rootDir>/tests/unit/ipfs-index.mock.js",
-    "@/common/lib/ipfs/ipfs-worker": "<rootDir>/tests/unit/ipfs-worker.mock.js",
-    "@/common/lib/ipfs/crypt-worker": "<rootDir>/tests/unit/crypt-worker.mock.js"
+    "@/web-workers/ipfs-worker": "<rootDir>/tests/unit/ipfs-worker.mock.js",
+    "@/web-workers/crypt-worker": "<rootDir>/tests/unit/crypt-worker.mock.js"
   },
   modulePaths: [
     "<rootDir>/src",

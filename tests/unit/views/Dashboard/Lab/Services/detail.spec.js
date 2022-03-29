@@ -1,10 +1,10 @@
 import { createLocalVue, shallowMount } from "@vue/test-utils"
-import EditLabServices from "@/views/Dashboard/Lab/Services"
+import EditLabServices from "@/views/Dashboard/Lab/Services/Detail"
 import Vuex from "vuex"
 import Vuetify from "vuetify"
 import _ from "lodash"
 
-describe("Dashboard Lab Services Index", () => {
+describe("Dashboard Lab Services Detail Index", () => {
   let container
   let localVue = null
 
