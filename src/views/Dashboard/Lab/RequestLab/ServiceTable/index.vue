@@ -125,7 +125,7 @@ import SearchBar from "../Mapping/SearchBar"
 import localStorage from "@/lib/local-storage"
 
 export default {
-  name: "LabOrderHistory",
+  name: "RequestLabServiceTable",
   props: {
     countryExpand: {type: String, default: ""},
     countries: {type: Array, default: () => []},

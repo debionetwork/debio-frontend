@@ -1,3 +1,3 @@
 module.exports = {
-    import: "all"
+  import: "all"
 }
