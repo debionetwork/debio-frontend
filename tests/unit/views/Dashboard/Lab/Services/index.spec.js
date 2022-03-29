@@ -21,9 +21,8 @@ describe("Dashboard Lab Services Index", () => {
   it("Should render", () => {
     // Arrange
     const labServicesDashboard = _.cloneDeep(LabServices)
-    labServicesDashboard.methods = {
-      getServices: jest.fn()
-    }
+    labServicesDashboard.created = jest.fn()
+    labServicesDashboard.mounted = jest.fn()
 
     container = shallowMount(labServicesDashboard, {
       localVue,

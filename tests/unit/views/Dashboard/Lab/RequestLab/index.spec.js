@@ -1,10 +1,10 @@
 import { createLocalVue, shallowMount } from "@vue/test-utils"
-import EditLabServices from "@/views/Dashboard/Lab/Services/Detail"
+import RequestLab from "@/views/Dashboard/Lab/RequestLab"
 import Vuex from "vuex"
 import Vuetify from "vuetify"
 import _ from "lodash"
 
-describe("Dashboard Lab Services Detail Index", () => {
+describe("Dashboard Request Lab Index", () => {
   let container
   let localVue = null
 
@@ -20,11 +20,12 @@ describe("Dashboard Lab Services Detail Index", () => {
 
   it("Should render", () => {
     // Arrange
-    const editLabServicesDashboard = _.cloneDeep(EditLabServices)
-    editLabServicesDashboard.created = jest.fn()
-    editLabServicesDashboard.mounted = jest.fn()
+    const requestLabDashboard = _.cloneDeep(RequestLab)
+    requestLabDashboard.mixins = []
+    requestLabDashboard.created = jest.fn()
+    requestLabDashboard.mounted = jest.fn()
 
-    container = shallowMount(editLabServicesDashboard, {
+    container = shallowMount(requestLabDashboard, {
       localVue,
       vuetify: new Vuetify(),
       store: new Vuex.Store({

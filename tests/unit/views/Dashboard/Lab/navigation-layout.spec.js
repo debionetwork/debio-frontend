@@ -27,6 +27,8 @@ describe("Dashboard Lab Navigation Layout", () => {
   it("Should render", () => {
     // Arrange
     const dashboard = _.cloneDeep(Dashboard)
+    dashboard.created = jest.fn()
+    dashboard.mounted = jest.fn()
 
     container = shallowMount(dashboard, {
       localVue,
