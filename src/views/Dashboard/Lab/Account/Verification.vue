@@ -46,7 +46,7 @@
 
 <script>
 export default {
-  name: "LabAccount",
+  name: "LabVerification",
   computed: {
     fileInputRules() {
       return [
