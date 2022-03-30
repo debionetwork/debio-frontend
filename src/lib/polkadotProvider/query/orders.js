@@ -1,27 +1,27 @@
-import { queryServicesById } from './services'
-import { queryLabsById } from './labs'
-import { queryDnaSamples } from './geneticTesting'
-import { ethAddressByAccountId } from './userProfile'
-import localStorage from '@/lib/local-storage'
+import { queryServicesById } from "./services"
+import { queryLabsById } from "./labs"
+import { queryDnaSamples } from "./geneticTesting"
+import { ethAddressByAccountId } from "./userProfile"
+import localStorage from "@/lib/local-storage"
 import apiClientRequest from "@/lib/api"
 
 export async function getOrdersDetail(api, orderId){
   let orderDetail = await getOrdersData(api, orderId)
-  orderDetail['customer_eth_address'] = await ethAddressByAccountId(api, orderDetail.customerId)
-  orderDetail['seller_eth_address'] = await ethAddressByAccountId(api, orderDetail.sellerId)
-  orderDetail['createdAt'] = parseInt(orderDetail.createdAt.replace(/,/g, ""))
+  orderDetail["customer_eth_address"] = await ethAddressByAccountId(api, orderDetail.customerId)
+  orderDetail["seller_eth_address"] = await ethAddressByAccountId(api, orderDetail.sellerId)
+  orderDetail["createdAt"] = parseInt(orderDetail.createdAt.replace(/,/g, ""))
 
   const dna = await queryDnaSamples(api, orderDetail.dnaSampleTrackingId)
   if(dna){
-    orderDetail['dna_sample_status'] = dna.status
+    orderDetail["dna_sample_status"] = dna.status
   }
 
   const service = await queryServicesById(api, orderDetail.serviceId)
   if(service != null){
-    orderDetail['service_name'] = service.info.name
-    orderDetail['service_description'] = service.info.description
-    orderDetail['service_image'] = service.info.image
-    orderDetail['expectedDuration'] = service.info.expectedDuration
+    orderDetail["service_name"] = service.info.name
+    orderDetail["service_description"] = service.info.description
+    orderDetail["service_image"] = service.info.image
+    orderDetail["expectedDuration"] = service.info.expectedDuration
   }
 
   return orderDetail
@@ -52,25 +52,25 @@ export async function getOrdersDetailByAddressPagination(api, address, page, pag
   }
   for(let i = beginItemIndex; i < lastItemIndex; i++){
     let orderDetail = await getOrdersData(api, orderIds[i])
-    if(orderDetail['status'] == "Unpaid") continue // Skip unpaid orders
+    if(orderDetail["status"] == "Unpaid") continue // Skip unpaid orders
 
     const dna = await queryDnaSamples(api, orderDetail.dnaSampleTrackingId)
     if(dna){
-      orderDetail['dna_sample_status'] = dna.status
+      orderDetail["dna_sample_status"] = dna.status
     }
 
     const service = await queryServicesById(api, orderDetail.serviceId)
-    orderDetail['createdAt'] = parseInt(orderDetail.createdAt.replace(/,/g, ""))
+    orderDetail["createdAt"] = parseInt(orderDetail.createdAt.replace(/,/g, ""))
     
     let lab = null
     if(service){
-      orderDetail['service_name'] = service.info.name
-      orderDetail['service_image'] = service.info.image
+      orderDetail["service_name"] = service.info.name
+      orderDetail["service_image"] = service.info.image
       lab = await queryLabsById(api, service.ownerId)
     }
 
     if(lab){
-      orderDetail['lab_name'] = lab.info.name
+      orderDetail["lab_name"] = lab.info.name
     }
 
     orders.push(orderDetail)
@@ -124,22 +124,22 @@ export async function fetchOrderHistory(api, address) {
   
   for(let i = 0; i < orderIds.length; i++){
     let orderDetail = await getOrdersData(api, orderIds[i])
-    if(orderDetail['status'] == "Unpaid") continue // Skip unpaid orders
-    if(orderDetail['status'] == "Cancelled") continue // Skip cancelled orders
+    if(orderDetail["status"] == "Unpaid") continue // Skip unpaid orders
+    if(orderDetail["status"] == "Cancelled") continue // Skip cancelled orders
 
     const dna = await queryDnaSamples(api, orderDetail.dnaSampleTrackingId)
-    if (dna) orderDetail['dna_sample_status'] = dna.status
+    if (dna) orderDetail["dna_sample_status"] = dna.status
 
     const service = await queryServicesById(api, orderDetail.serviceId)
-    orderDetail['createdAt'] = parseInt(orderDetail.createdAt.replace(/,/g, ""))
+    orderDetail["createdAt"] = parseInt(orderDetail.createdAt.replace(/,/g, ""))
     
     let lab = null
     if (service) {
-      orderDetail['service_name'] = service.info.name
-      orderDetail['service_image'] = service.info.image
+      orderDetail["service_name"] = service.info.name
+      orderDetail["service_image"] = service.info.image
       lab = await queryLabsById(api, service.ownerId)
     }
-    if (lab) orderDetail['lab_name'] = lab.info.name
+    if (lab) orderDetail["lab_name"] = lab.info.name
 
     orders.push(orderDetail)
   }

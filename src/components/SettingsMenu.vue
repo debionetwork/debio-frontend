@@ -115,24 +115,24 @@
 </template>
 
 <script>
-import localStorage from '../lib/local-storage'
-import appConfig from '../lib/app-config'
-import { mapState, mapActions } from 'vuex'
+import localStorage from "../lib/local-storage"
+import appConfig from "../lib/app-config"
+import { mapState, mapActions } from "vuex"
 
 export default {
-  name: 'SettingsMenu',
+  name: "SettingsMenu",
   props: {
     dark: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   data: () => ({
     show: false,
-    rpcUrlInput: '',
-    gasPriceInput: '',
-    gasLimitInput: '',
-    justSetConfig: false,
+    rpcUrlInput: "",
+    gasPriceInput: "",
+    gasLimitInput: "",
+    justSetConfig: false
   }),
   computed: {
     ...mapState({
@@ -167,7 +167,7 @@ export default {
       this.show = !this.show
     },
     ...mapActions({
-      initWeb3: 'ethereum/initWeb3'
+      initWeb3: "ethereum/initWeb3"
     }),
     async onApplySettings() {
       const result = await this.initWeb3(this.rpcUrlInput)

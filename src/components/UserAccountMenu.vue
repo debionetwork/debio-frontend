@@ -37,34 +37,34 @@
 </template>
 
 <script>
-import localStorage from '../lib/local-storage'
-import { mapActions, mapMutations } from 'vuex'
+import localStorage from "../lib/local-storage"
+import { mapActions, mapMutations } from "vuex"
 
 export default {
   methods: {
     ...mapActions({
-      clearAuth: 'auth/clearAuth',
+      clearAuth: "auth/clearAuth"
     }),
     ...mapMutations({
-      clearWallet: 'substrate/CLEAR_WALLET',
+      clearWallet: "substrate/CLEAR_WALLET"
     }),
     logOut() {
       this.clearAuth()
       //this.clearWallet()
       localStorage.clear()
-      this.$router.push('/login')
+      this.$router.push("/login")
     },
     downloadKeystore() {
       const keystore = localStorage.getKeystore()
-      const blob = new Blob([ keystore ], {type: 'text/plain'})
-      const e = document.createEvent('MouseEvents')
-      const a = document.createElement('a')
-      a.download = 'keystore.json'
+      const blob = new Blob([ keystore ], {type: "text/plain"})
+      const e = document.createEvent("MouseEvents")
+      const a = document.createElement("a")
+      a.download = "keystore.json"
       a.href = window.URL.createObjectURL(blob)
-      a.dataset.downloadurl = ['text/json', a.download, a.href].join(':')
-      e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+      a.dataset.downloadurl = ["text/json", a.download, a.href].join(":")
+      e.initEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
       a.dispatchEvent(e)
-    },
+    }
   }
 }
 </script>

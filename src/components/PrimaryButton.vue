@@ -13,13 +13,13 @@
 
 <script>
 export default {
-  name: 'PrimaryButton',
+  name: "PrimaryButton",
   props: {
-    outlined: Boolean,
+    outlined: Boolean
   },
   methods: {
     onClick() {
-      this.$emit('click')
+      this.$emit("click")
     }
   }
 }

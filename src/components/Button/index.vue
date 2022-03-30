@@ -17,7 +17,7 @@
 
 <script>
 export default {
-  name: 'Button',
+  name: "Button",
   props: {
     color: String,
     dark: Boolean,
@@ -28,7 +28,7 @@ export default {
   },
   methods: {
     onClick() {
-      this.$emit('click')
+      this.$emit("click")
     }
   }
 }

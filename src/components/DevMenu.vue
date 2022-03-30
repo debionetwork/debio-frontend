@@ -76,11 +76,11 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters, mapState } from "vuex"
 export default {
-  name: 'DevMenu',
+  name: "DevMenu",
   props: {
-    dark: Boolean,
+    dark: Boolean
   },
   components: {
   },
@@ -89,9 +89,9 @@ export default {
       wallet: state => state.ethereum.wallet
     }),
     ...mapGetters({
-      walletAddress: 'ethereum/getWalletAddress',
-      walletPublicKey: 'ethereum/getWalletPublicKey',
-      walletPrivateKey: 'ethereum/getWalletPrivateKey',
+      walletAddress: "ethereum/getWalletAddress",
+      walletPublicKey: "ethereum/getWalletPublicKey",
+      walletPrivateKey: "ethereum/getWalletPrivateKey"
     })
   },
   methods: {

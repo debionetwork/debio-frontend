@@ -25,29 +25,29 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import keystore from '@/lib/keystore'
-import { LOG_REJECTED } from '@/constants/log-type'
+import { mapState } from "vuex"
+import keystore from "@/lib/keystore"
+import { LOG_REJECTED } from "@/constants/log-type"
 
 export default {
-  name: 'RejectedReasonDialog',
+  name: "RejectedReasonDialog",
   props: {
-    specimen: Object,
+    specimen: Object
   },
   computed: {
     ...mapState({
-      logContract: state => state.ethereum.contracts.contractDegenicsLog,
+      logContract: state => state.ethereum.contracts.contractDegenicsLog
     }),
     rejectionReason() {
       return this.logs.length > 0
-      ? this.logs.filter(l => l.logType == LOG_REJECTED)[0].log
-      : ''
-    },
+        ? this.logs.filter(l => l.logType == LOG_REJECTED)[0].log
+        : ""
+    }
   },
   data: () => ({
     LOG_REJECTED,
     logs: [],
-    isLoading: false,
+    isLoading: false
   }),
   mounted() {
     this.getLogs()
@@ -79,10 +79,10 @@ export default {
 
         this.isLoading = false
       } catch (err) {
-        this.logs = [{ log: 'Error getting log' }]
+        this.logs = [{ log: "Error getting log" }]
         this.isLoading = false
       }
-    },
+    }
   }
 }
 </script>

@@ -48,20 +48,20 @@
 
 <script>
 export default {
-  name: 'UsePrivateKeyDialog',
+  name: "UsePrivateKeyDialog",
   props: {
     show: Boolean
   },
   data: () => ({
     formValid: true,
-    privateKey: '',
+    privateKey: "",
     privateKeyRules: [
       value => {
         const pattern = /^(0x)?[0-9a-fA-F]{64}$/
         return pattern.test(value)
-          || 'Invalid private key'
+          || "Invalid private key"
       }
-    ],
+    ]
   }),
   computed: {
     _show: {
@@ -69,17 +69,17 @@ export default {
         return this.show
       },
       set(val) {
-        this.$emit('toggle', val)
+        this.$emit("toggle", val)
       }
-    },
+    }
   },
   methods: {
     onContinue() {
       this._show = false
-      const privateKey = this.privateKey.startsWith('0x')
+      const privateKey = this.privateKey.startsWith("0x")
         ? this.privateKey
-        : '0x' + this.privateKey
-      this.$emit('private-key-input', privateKey)
+        : "0x" + this.privateKey
+      this.$emit("private-key-input", privateKey)
       this.$refs.form.reset()
     },
     closeDialog() {

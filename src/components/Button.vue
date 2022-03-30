@@ -16,23 +16,23 @@
 
 <script>
 export default {
-  name: 'Button',
+  name: "Button",
   props: {
     outlined: Boolean,
     color: {
       type: String,
-      default: 'primary'
+      default: "primary"
     },
     elevation: String,
     dark: {
       type: Boolean,
-      default: true,
+      default: true
     },
-    loading: Boolean,
+    loading: Boolean
   },
   methods: {
     onClick() {
-      this.$emit('click')
+      this.$emit("click")
     }
   }
 }

@@ -69,11 +69,11 @@
 </template>
 
 <script>
-import EnabledMenuCard from './EnabledMenuCard'
-import DisabledMenuCard from './DisabledMenuCard'
+import EnabledMenuCard from "./EnabledMenuCard"
+import DisabledMenuCard from "./DisabledMenuCard"
 
 export default {
-  name: 'MenuCard',
+  name: "MenuCard",
   props: {
     icon: String,
     title: String,
@@ -82,23 +82,23 @@ export default {
     hoverText: String,
     disabled: Boolean,
     loading: Boolean,
-    height: Number,
+    height: Number
   },
   components: {
     EnabledMenuCard,
-    DisabledMenuCard,
+    DisabledMenuCard
   },
   computed: {
     cardComponent() {
-      return this.disabled ? 'DisabledMenuCard' : 'EnabledMenuCard'
+      return this.disabled ? "DisabledMenuCard" : "EnabledMenuCard"
     },
     _icon() {
-      return this.icon && (this.icon.startsWith('mdi') || this.icon.startsWith('$'))
+      return this.icon && (this.icon.startsWith("mdi") || this.icon.startsWith("$"))
     }
   },
   methods: {
     onClick() {
-      this.$emit('click')
+      this.$emit("click")
     }
   }
 }

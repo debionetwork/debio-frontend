@@ -214,9 +214,9 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState } from "vuex"
 import { upload } from "@/lib/ipfs"
-import { createService, claimRequestService } from '@/lib/polkadotProvider/command/services'
+import { createService, claimRequestService } from "@/lib/polkadotProvider/command/services"
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { getProvideRequestService, getCategories } from "@/lib/api";
 import { toEther } from "@/lib/balance-format"
@@ -224,14 +224,14 @@ import { toEther } from "@/lib/balance-format"
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
 export default {
-  name: 'AddLabServices',
+  name: "AddLabServices",
   data: () => ({
-    category: '',
-    name: '',
-    price: '',
-    qcPrice: '',
-    description: '',
-    longDescription: '',
+    category: "",
+    name: "",
+    price: "",
+    qcPrice: "",
+    description: "",
+    longDescription: "",
     imageUrl: "",
     testResultSampleUrl: "",
     statusLab: null,
@@ -243,22 +243,22 @@ export default {
     sampleFiles:[],
     isLoading: false,
     showModalAlert: false,
-    currencyList: ['DAI', 'ETH'],
-    currencyType: 'DAI',
+    currencyList: ["DAI", "ETH"],
+    currencyType: "DAI",
     listExpectedDuration: [
-      {text: 'Working Days', value: 'WorkingDays'},
-      {text: 'Hours', value: 'Hours'},
-      {text: 'Days', value: 'Days'}
+      {text: "Working Days", value: "WorkingDays"},
+      {text: "Hours", value: "Hours"},
+      {text: "Days", value: "Days"}
     ],
-    selectExpectedDuration: {text: 'Working Days', value: 'WorkingDays'},
-    expectedDuration: '',
+    selectExpectedDuration: {text: "Working Days", value: "WorkingDays"},
+    expectedDuration: "",
     biologicalType: "",
     listBiologicalType: [
       "Blood Cells - Dried Blood Spot Collection Process",
       "Epithelial Cells - Buccal Swab Collection Process",
       "Fecal Matters - Stool Collection Process",
       "Saliva - Saliva Collection Process",
-      "Urine - Clean Catch Urine Collection Process",
+      "Urine - Clean Catch Urine Collection Process"
     ],
     isBiomedical: false
   }),
@@ -275,7 +275,7 @@ export default {
       exist: (state) => state.substrate.isLabAccountExist,
       wallet: (state) => state.substrate.wallet,
       web3: (state) => state.metamask.web3,
-      lastEventData: (state) => state.substrate.lastEventData,
+      lastEventData: (state) => state.substrate.lastEventData
     }),
 
     hasServicePayload() {
@@ -284,19 +284,19 @@ export default {
 
     fieldRequiredRule() {
       return [
-        val => !!val || 'This field is required'
+        val => !!val || "This field is required"
       ]
     },
 
     serviceNameRules() {
       return [
-        val => (val && val.length <= 50) || 'This field only allows 50 characters.'
+        val => (val && val.length <= 50) || "This field only allows 50 characters."
       ]
     },
 
     decimalRule() {
       return [
-        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'This field only allows 3 decimal characters.'
+        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || "This field only allows 3 decimal characters."
       ]
     },
 
@@ -306,23 +306,23 @@ export default {
 
     descriptionRules() {
       return [
-        val => (val && val.length <= 100) || 'This field only allows 100 characters.'
+        val => (val && val.length <= 100) || "This field only allows 100 characters."
       ]
     },
 
     longDescriptionRules() {
       return [
-        val => (val && val.length <= 255) || 'This field only allows 255 characters.'
+        val => (val && val.length <= 255) || "This field only allows 255 characters."
       ]
     },
 
     fileInputRules() {
       return [
-        value => !Array.isArray(value) || 'This field is required',
-        value => (!Array.isArray(value) && value?.size < 2000000) || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
-        value => (!Array.isArray(value) && value?.type === "application/pdf") || 'The files uploaded are not in the supported file formats.'
+        value => !Array.isArray(value) || "This field is required",
+        value => (!Array.isArray(value) && value?.size < 2000000) || "The total file size uploaded exceeds the maximum file size allowed (2MB)",
+        value => (!Array.isArray(value) && value?.type === "application/pdf") || "The files uploaded are not in the supported file formats."
       ]
-    },
+    }
 
   },
 
@@ -465,8 +465,8 @@ export default {
                     component: "qc_price",
                     value: await toEther(this.qcPrice)
                   }
-                ],
-              },
+                ]
+              }
             ],
             expectedDuration: { 
               duration: this.expectedDuration, 
@@ -491,19 +491,19 @@ export default {
       this.isLoading = true
       this.imageUrl = ""
       if (file) {
-        if (file.name.lastIndexOf('.') <= 0) {
+        if (file.name.lastIndexOf(".") <= 0) {
           return
         }
         const fr = new FileReader()
         fr.readAsArrayBuffer(file)
 
         const context = this
-        fr.addEventListener('load', async () => {
+        fr.addEventListener("load", async () => {
           // Upload
           const uploaded = await upload({
             fileChunk: fr.result,
             fileType: file.type,
-            fileName: file.name,
+            fileName: file.name
           })
           const computeLink = `${uploaded.ipfsPath[0].data.ipfsFilePath}/${uploaded.fileName}`
 
@@ -522,19 +522,19 @@ export default {
       this.isLoading = true
       this.testResultSampleUrl = ""
       if (file) {
-        if (file.name.lastIndexOf('.') <= 0) {
+        if (file.name.lastIndexOf(".") <= 0) {
           return
         }
         const fr = new FileReader()
         fr.readAsArrayBuffer(file)
 
         const context = this
-        fr.addEventListener('load', async () => {
+        fr.addEventListener("load", async () => {
           // Upload
           const uploaded = await upload({
             fileChunk: fr.result,
             fileType: file.type,
-            fileName: file.name,
+            fileName: file.name
           })
           const computeLink = `${uploaded.ipfsPath[0].data.ipfsFilePath}/${uploaded.fileName}`
 
@@ -578,7 +578,7 @@ export default {
         await Promise.all(requests)
         this.isLoading = false
 
-        this.$router.push('/lab/services')
+        this.$router.push("/lab/services")
         this.$store.dispatch("lab/setProvideService", {})
       } catch (error) {
         this.isLoading = false
@@ -623,7 +623,7 @@ export default {
   
   watch: {
     category() {
-      if (this.category == 'Covid-19') {
+      if (this.category == "Covid-19") {
         this.isBiomedical = true
         this.qcPrice = "0"
       } else {
@@ -640,7 +640,7 @@ export default {
           Object.keys(this.servicePayload).length
         ) this.handleClaimRequest(dataEvent[0].id)
 
-        else this.$router.push('/lab/services')
+        else this.$router.push("/lab/services")
       }
     }
   }

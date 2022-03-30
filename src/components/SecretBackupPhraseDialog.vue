@@ -41,19 +41,19 @@
 </template>
 
 <script>
-import MnemonicKeypad from './MnemonicKeypad.vue'
+import MnemonicKeypad from "./MnemonicKeypad.vue"
 import localStorage from "@/lib/local-storage"
-const { /*cryptoWaitReady,*/ mnemonicGenerate  } = require('@polkadot/util-crypto')
+const { /*cryptoWaitReady,*/ mnemonicGenerate  } = require("@polkadot/util-crypto")
 
 export default {
   components: { MnemonicKeypad },
-  name: 'SecretBackupPhraseDialog',
+  name: "SecretBackupPhraseDialog",
   props: {
     show: Boolean,
-    role: String,
+    role: String
   },
   data: () => ({
-    mnemonic: '',
+    mnemonic: "",
     mnemonicCollection: []
   }),
   computed: {
@@ -62,9 +62,9 @@ export default {
         return this.show
       },
       set(val) {
-        this.$emit('toggle', val)
+        this.$emit("toggle", val)
       }
-    },
+    }
   },
   watch: {
     _show(isShow) {
@@ -74,7 +74,7 @@ export default {
 
         let mnemonicCollection = this.mnemonic.split(" ")
         for(let i = 1; i <= mnemonicCollection.length; i++){
-            this.mnemonicCollection.push(i + " " + mnemonicCollection[i-1])
+          this.mnemonicCollection.push(i + " " + mnemonicCollection[i-1])
         }
       }
     }
@@ -82,12 +82,12 @@ export default {
   methods: {
     onMnemonicSaved() {
       this._show = false
-      this.$emit('mnemonic-generated', { mnemonic: this.mnemonic, role: this.role })
-      this.mnemonic = ''
+      this.$emit("mnemonic-generated", { mnemonic: this.mnemonic, role: this.role })
+      this.mnemonic = ""
     },
     closeDialog() {
       this._show = false
-      this.mnemonic = ''
+      this.mnemonic = ""
 
       const hasAddress = localStorage.getLocalStorageByName("mnemonic_data")
 

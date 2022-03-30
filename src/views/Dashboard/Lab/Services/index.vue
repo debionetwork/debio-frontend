@@ -121,15 +121,15 @@
 </template>
 
 <script>
-import DataTable from '@/components/DataTable'
-import SearchBar from '@/components/DataTable/SearchBar'
-import { deleteService } from '@/lib/polkadotProvider/command/services'
-import { mapGetters, mapState } from 'vuex'
+import DataTable from "@/components/DataTable"
+import SearchBar from "@/components/DataTable/SearchBar"
+import { deleteService } from "@/lib/polkadotProvider/command/services"
+import { mapGetters, mapState } from "vuex"
 import Dialog from "@/components/Dialog"
-import Button from '@/components/Button'
+import Button from "@/components/Button"
 
 export default {
-  name: 'LabServices',
+  name: "LabServices",
   components: {
     DataTable,
     SearchBar,
@@ -138,13 +138,13 @@ export default {
   },
   data: () => ({
     headers: [
-        { text: 'Image', value: 'info.image', sortable: false },
-        { text: 'Name', value: 'info.name' },
-        { text: 'Description', value: 'info.description' },
-        { text: 'Price', value: 'info.price' },
-        { text: 'Action', value: 'actions', sortable: false, align: 'center', width: '10%' },
+      { text: "Image", value: "info.image", sortable: false },
+      { text: "Name", value: "info.name" },
+      { text: "Description", value: "info.description" },
+      { text: "Price", value: "info.price" },
+      { text: "Action", value: "actions", sortable: false, align: "center", width: "10%" }
     ],
-    search: '',
+    search: "",
     services: [],
     isLoading: false,
     showDialog: false,
@@ -161,9 +161,9 @@ export default {
       labAccount: 'substrate/labAccount',
    }),
 
-   ...mapState({
+    ...mapState({
       lastEventData: (state) => state.substrate.lastEventData
-   })
+    })
   },
 
   watch: {
@@ -184,46 +184,46 @@ export default {
    },
 
   methods:{
-   async getServices() {
+    async getServices() {
       const { labAccount: { services } } = await this.$store.dispatch("substrate/getLabAccount")
 
       this.services = services.reduce((filtered, service) => {
-         if (!filtered.find(v => v.id === service.id)) filtered.push(service)
+        if (!filtered.find(v => v.id === service.id)) filtered.push(service)
 
-         return filtered
+        return filtered
       }, [])
-   },
-   onSearchInput(val) {
+    },
+    onSearchInput(val) {
       this.search = val
-   },
-   gotoDetails({ id }){
-      this.$router.push({ name: 'lab-dashboard-services-detail', params: { id: id }})
-   },
-   getImageLink(val){
+    },
+    gotoDetails({ id }){
+      this.$router.push({ name: "lab-dashboard-services-detail", params: { id: id }})
+    },
+    getImageLink(val){
       if(val && val != ""){
-         return val
+        return val
       }
       return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
-   },
-   formatPrice(price) {
+    },
+    formatPrice(price) {
       const priceAndCurrency = price.replaceAll(",", "").split(" ")
-      const formatedPrice = this.web3.utils.fromWei(String(priceAndCurrency[0], 'ether'))
+      const formatedPrice = this.web3.utils.fromWei(String(priceAndCurrency[0], "ether"))
       return `${formatedPrice} ${priceAndCurrency[1]}`
-   },
-   isIcon(imageName) {
-      return imageName && (imageName.startsWith('mdi') || imageName.startsWith('$dgi'))
-   },
-   async deleteService() {
+    },
+    isIcon(imageName) {
+      return imageName && (imageName.startsWith("mdi") || imageName.startsWith("$dgi"))
+    },
+    async deleteService() {
       try {
-         this.isLoading = true
-         await deleteService(
-            this.api,
-            this.pair,
-            this.idItemDeleted
-         )
+        this.isLoading = true
+        await deleteService(
+          this.api,
+          this.pair,
+          this.idItemDeleted
+        )
       } catch (error) {
-         console.error(error.message)
-         this.isLoading = false
+        console.error(error.message)
+        this.isLoading = false
       }
     },
 

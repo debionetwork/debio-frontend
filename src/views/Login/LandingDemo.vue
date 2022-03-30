@@ -23,10 +23,10 @@ import Button from "@/components/Button";
 export default {
   name: "LandingDemo",
   components: {
-    Button,
+    Button
   },
   props: {
-    show: Boolean,
+    show: Boolean
   },
   data: () => ({}),
   computed: {
@@ -36,15 +36,15 @@ export default {
       },
       set(val) {
         this.$emit("toggle", val);
-      },
-    },
+      }
+    }
   },
   methods: {
     closeDialog() {
       this._show = false;
       this.$emit("close");
-    },
-  },
+    }
+  }
 };
 </script>
 

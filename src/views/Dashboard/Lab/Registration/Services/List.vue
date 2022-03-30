@@ -67,16 +67,16 @@ import serviceHandler from "@/mixins/serviceHandler"
 import { deleteService } from "@/lib/polkadotProvider/command/services"
 
 export default {
-  name: 'Service',
+  name: "Service",
   
   mixins: [serviceHandler],
 
   computed: {
     ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
-      labAccount: 'substrate/labAccount',
-      isLabAccountExist: 'substrate/isLabAccountExist',
+      api: "substrate/getAPI",
+      pair: "substrate/wallet",
+      labAccount: "substrate/labAccount",
+      isLabAccountExist: "substrate/isLabAccountExist"
     }),
 
     ...mapState({
@@ -86,26 +86,26 @@ export default {
 
   methods: {
     addService() {
-      this.$emit('add-service')
+      this.$emit("add-service")
     },
 
     editService(service) {
-      this.$emit('edit-service', service)
+      this.$emit("edit-service", service)
     },
 
     async deleteService(service) {
       const isConfirmed = confirm("Are you sure you want to delete this service?")
       if (isConfirmed) {
-        this.$emit('delete-service', true)
+        this.$emit("delete-service", true)
         await this.dispatch(deleteService, this.api, this.pair, service.id, () => {
           if(this.labAccount.services.length == 0) {
             this.$store.state.substrate.isServicesExist = false
-            this.$emit('delete-service', false)
+            this.$emit("delete-service", false)
           }
         })
-        this.$emit('delete-service', false)
+        this.$emit("delete-service", false)
       }
-    },
+    }
   }
 }
 </script>

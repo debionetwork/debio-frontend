@@ -19,10 +19,10 @@ export default {
   name: "DialogLoading",
   components: {},
   props: {
-    show: Boolean,
+    show: Boolean
   },
   data: () => ({
-    text: "",
+    text: ""
   }),
   computed: {
     _show: {
@@ -31,11 +31,11 @@ export default {
       },
       set(val) {
         this.$emit("toggle", val);
-      },
+      }
     },
     ...mapState({
-      loadingData: (state) => state.auth.loadingData,
-    }),
+      loadingData: (state) => state.auth.loadingData
+    })
   },
   watch: {
     loadingData() {
@@ -45,14 +45,14 @@ export default {
           this.closeDialog();
         }
       }
-    },
+    }
   },
   methods: {
     closeDialog() {
       this._show = false;
       this.$emit("close");
-    },
-  },
+    }
+  }
 };
 </script>
 

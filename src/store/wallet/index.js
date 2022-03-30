@@ -1,7 +1,7 @@
 import apiClientRequest from "@/lib/api";
 
 const defaultState = {
-  resultMsg: null,
+  resultMsg: null
 }
 
 export default {
@@ -10,7 +10,7 @@ export default {
   mutations: {
     SET_RESULT(state, resultMsg) {
       state.resultMsg = resultMsg
-    },
+    }
   },
   actions: {
     async walletBinding({commit}, payload) {
@@ -20,10 +20,10 @@ export default {
           headers: { "debio-api-key" : debioApiKey }
         })
 
-        commit('SET_RESULT', data)
+        commit("SET_RESULT", data)
       } catch (e) {
         console.error(e)
       }
     }
-  },
+  }
 }

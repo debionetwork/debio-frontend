@@ -5,26 +5,26 @@
 </template>
 
 <script>
-import EnabledCardButton from './EnabledCardButton'
-import DisabledCardButton from './DisabledCardButton'
+import EnabledCardButton from "./EnabledCardButton"
+import DisabledCardButton from "./DisabledCardButton"
 
 export default {
-  name: 'CardButton',
+  name: "CardButton",
   components: {
     EnabledCardButton,
     DisabledCardButton
   },
   props: {
-    disabled: Boolean,
+    disabled: Boolean
   },
   computed: {
     cardButtonComponent() {
-      return this.disabled ? 'DisabledCardButton' : 'EnabledCardButton'
+      return this.disabled ? "DisabledCardButton" : "EnabledCardButton"
     }
   },
   methods: {
     onClick() {
-      this.$emit('click')
+      this.$emit("click")
     }
   }
 }

@@ -21,7 +21,7 @@ import Button from "@/components/Button";
 export default {
   name: "DialogAlert",
   components: {
-    Button,
+    Button
   },
   props: {
     show: Boolean,
@@ -29,7 +29,7 @@ export default {
     textAlert: String,
     imgPath: String,
     btnText: String,
-    imgWidth: String,
+    imgWidth: String
   },
   data: () => ({}),
   computed: {
@@ -39,15 +39,15 @@ export default {
       },
       set(val) {
         this.$emit("toggle", val);
-      },
-    },
+      }
+    }
   },
   methods: {
     closeDialog() {
       this._show = false;
       this.$emit("close");
-    },
-  },
+    }
+  }
 };
 </script>
 

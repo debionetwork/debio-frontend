@@ -1,6 +1,6 @@
-import Web3 from 'web3'
-import localStorage from '../../lib/local-storage'
-import Wallet from '../../lib/dgnx-wallet'
+import Web3 from "web3"
+import localStorage from "../../lib/local-storage"
+import Wallet from "../../lib/dgnx-wallet"
 // import getWalletBalance from '../../lib/get-wallet-balance'
 
 const defaultState = {
@@ -9,15 +9,15 @@ const defaultState = {
   isLoadingWallet: false,
   isLoadingWalletBalance: false,
   wallet: null,
-  walletBalance: '',
-  walletAddress: '',
-  walletPublicKey: '',
+  walletBalance: "",
+  walletAddress: "",
+  walletPublicKey: ""
 }
 
 export default {
   namespaced: true,
   state: {
-    ...defaultState,
+    ...defaultState
   },
   mutations: {
     SET_LOADING_WEB3(state, isLoadingWeb3) {
@@ -49,32 +49,32 @@ export default {
     },
     CLEAR_WALLET(state) {
       state.wallet = null
-      state.walletBalance = ''
-      state.walletAddress = ''
-      state.walletPublicKey = ''
-    },
+      state.walletBalance = ""
+      state.walletAddress = ""
+      state.walletPublicKey = ""
+    }
   },
   actions: {
     async initWeb3({ commit }, rpcUrl) {
       try {
-        commit('SET_WEB3', null)
-        commit('SET_LOADING_WEB3', true)
+        commit("SET_WEB3", null)
+        commit("SET_LOADING_WEB3", true)
 
         const web3 = new Web3()
         web3.setProvider(new Web3.providers.HttpProvider(rpcUrl))
         const isConnected = await web3.eth.net.isListening()
         if (isConnected) {
           console.log(isConnected)
-          commit('SET_WEB3', web3)
+          commit("SET_WEB3", web3)
         }
 
-        commit('SET_LOADING_WEB3', false)
+        commit("SET_LOADING_WEB3", false)
         return { success: true }
       } catch (error) {
         console.log(error)
         
-        commit('SET_WEB3', null)
-        commit('SET_LOADING_WEB3', false)
+        commit("SET_WEB3", null)
+        commit("SET_LOADING_WEB3", false)
         return { success: false, error }
       }
     },
@@ -96,9 +96,9 @@ export default {
      */
     async generateWalletFromMnemonic({ commit }) {
       try {
-        commit('SET_LOADING_WALLET', true)
+        commit("SET_LOADING_WALLET", true)
 
-        commit('CLEAR_WALLET')
+        commit("CLEAR_WALLET")
 
         // // Convert mnemonic to seed buffer
         // const seedBuffer = await bip39.mnemonicToSeed(mnemonic)
@@ -128,8 +128,8 @@ export default {
         // commit('SET_LOADING_WALLET', false)
       } catch (err) {
         console.log(err)
-        commit('CLEAR_WALLET')
-        commit('SET_LOADING_WALLET', false)
+        commit("CLEAR_WALLET")
+        commit("SET_LOADING_WALLET", false)
 
         throw new Error(err)
       }
@@ -137,8 +137,8 @@ export default {
     async generateWalletFromPrivateKey({ commit }, { privateKey, password }) {
       try {
         // state
-        commit('SET_LOADING_WALLET', true)
-        commit('CLEAR_WALLET')
+        commit("SET_LOADING_WALLET", true)
+        commit("CLEAR_WALLET")
 
         // Create keystore and store it in localStorage
         const keystore = Wallet.encrypt(privateKey, password)
@@ -149,44 +149,44 @@ export default {
 
         // wallet.balance = await getWalletBalance(state.web3, wallet.address)
 
-        commit('SET_WALLET_PUBLIC_KEY', wallet.getPublicKeyString())
-        commit('SET_WALLET_ADDRESS', wallet.getAddressString())
+        commit("SET_WALLET_PUBLIC_KEY", wallet.getPublicKeyString())
+        commit("SET_WALLET_ADDRESS", wallet.getAddressString())
 
-        commit('SET_WALLET', wallet) // FIXME: simpen untuk dev
+        commit("SET_WALLET", wallet) // FIXME: simpen untuk dev
 
-        commit('SET_LOADING_WALLET', false)
+        commit("SET_LOADING_WALLET", false)
       } catch (err) {
         console.log(err)
-        commit('CLEAR_WALLET')
-        commit('SET_LOADING_WALLET', false)
+        commit("CLEAR_WALLET")
+        commit("SET_LOADING_WALLET", false)
 
         throw new Error(err)
       }
     },
     async decryptKeystore({ commit }, { keystore, password }) {
       try {
-        commit('SET_LOADING_WALLET', true)
-        commit('CLEAR_WALLET')
+        commit("SET_LOADING_WALLET", true)
+        commit("CLEAR_WALLET")
 
         const wallet = Wallet.decrypt(keystore, password)
         localStorage.setKeystore(JSON.stringify(keystore))
 
-        commit('SET_WALLET_PUBLIC_KEY', wallet.getPublicKeyString())
-        commit('SET_WALLET_ADDRESS', wallet.getAddressString())
+        commit("SET_WALLET_PUBLIC_KEY", wallet.getPublicKeyString())
+        commit("SET_WALLET_ADDRESS", wallet.getAddressString())
 
-        commit('SET_WALLET', wallet) // FIXME: simpen untuk dev
-        commit('SET_LOADING_WALLET', false)
+        commit("SET_WALLET", wallet) // FIXME: simpen untuk dev
+        commit("SET_LOADING_WALLET", false)
 
         return { success: true }
 
       } catch (err) {
         console.log(err)
-        commit('CLEAR_WALLET')
+        commit("CLEAR_WALLET")
 
-        commit('SET_LOADING_WALLET', false)
+        commit("SET_LOADING_WALLET", false)
         return { success: false, error: err.message }
       }
-    },
+    }
   },
   getters: {
     getWeb3(state) {
@@ -201,7 +201,7 @@ export default {
     getWalletPrivateKey(state) {
       return state.wallet
         ? state.wallet.getPrivateKeyString()
-        : ''
+        : ""
     },
     getWalletBalance(state) {
       return state.walletBalance

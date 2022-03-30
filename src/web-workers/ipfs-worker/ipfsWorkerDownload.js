@@ -1,4 +1,4 @@
- /* eslint-disable */
+/* eslint-disable */
 import ipfsClient from 'ipfs-http-client';
 import IPFSHttpClient from 'ipfs-http-client';
 

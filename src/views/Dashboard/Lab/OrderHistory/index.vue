@@ -51,38 +51,38 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import ServerSideDataTable from '@/components/DataTable/ServerSideDataTable'
-import { queryDnaSamples, queryDnaTestResults } from '@/lib/polkadotProvider/query/geneticTesting'
-import SearchBar from '@/components/DataTable/SearchBar'
-import { getOrdersData } from '@/lib/api'
-import serviceHandler from '@/lib/metamask/mixins/serviceHandler'
+import { mapGetters } from "vuex"
+import ServerSideDataTable from "@/components/DataTable/ServerSideDataTable"
+import { queryDnaSamples, queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting"
+import SearchBar from "@/components/DataTable/SearchBar"
+import { getOrdersData } from "@/lib/api"
+import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
 
 export default {
-  name: 'LabOrderHistory',
+  name: "LabOrderHistory",
   mixins: [serviceHandler],
 
   components: {
     ServerSideDataTable,
-    SearchBar,
+    SearchBar
   },
 
   data: () => ({
     headers: [
-      { text: 'Date', value: '_source.created_at' },
-      { text: 'Product Name', value: '_source.service_info.name' },
-      { text: 'Specimen Number', value: '_source.dna_sample_tracking_id' },
-      { text: 'Status', value: 'status' },
-      { text: 'Actions', value: 'actions', sortable: false, align: 'center', width: '5%' },
+      { text: "Date", value: "_source.created_at" },
+      { text: "Product Name", value: "_source.service_info.name" },
+      { text: "Specimen Number", value: "_source.dna_sample_tracking_id" },
+      { text: "Status", value: "status" },
+      { text: "Actions", value: "actions", sortable: false, align: "center", width: "5%" }
     ],
     orders: [],
     page: 1,
     pageSize: 10,
     totalOrders: 0,
-    address: '',
-    password: '',
-    search: '',
-    isLoading: false,
+    address: "",
+    password: "",
+    search: "",
+    isLoading: false
   }),
 
   async created() {
@@ -91,9 +91,9 @@ export default {
 
   computed: {
     ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
-    }),
+      api: "substrate/getAPI",
+      pair: "substrate/wallet"
+    })
   },
   methods: {
     async fetchDataOrders(keyword) {
@@ -127,7 +127,7 @@ export default {
     },
 
     processOrder(item){
-      this.$router.push({ name: 'lab-dashboard-process-order', params: { orderId: item._source.id }})
+      this.$router.push({ name: "lab-dashboard-process-order", params: { orderId: item._source.id }})
     },
 
     buttonClass(item){
@@ -186,7 +186,7 @@ export default {
       this.page = 1 // If change page size restart from page 1
       await this.fetchDataOrders()
     }
-  },
+  }
 }
 </script>
 

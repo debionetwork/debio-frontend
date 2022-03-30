@@ -33,8 +33,8 @@ export default {
   methods: {
     onClick() {
       this.$emit("action");
-    },
-  },
+    }
+  }
 }
 </script>
 

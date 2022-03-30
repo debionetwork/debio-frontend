@@ -22,10 +22,10 @@ if (SENTRY_DSN) {
     integrations: [
       new Integrations.BrowserTracing({
         routingInstrumentation: Sentry.vueRouterInstrumentation(router),
-        tracingOrigins: ["localhost", "app.debio.network", /^\//],
-      }),
+        tracingOrigins: ["localhost", "app.debio.network", /^\//]
+      })
     ],
-    tracesSampleRate: 1.0,
+    tracesSampleRate: 1.0
   })
 }
 

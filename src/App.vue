@@ -16,20 +16,20 @@ export default {
     ...mapState({
       substrateApi: (state) => state.substrate.api,
       isLoadingSubstrateApi: (state) => state.substrate.isLoadingApi,
-      web3: (state) => state.metamask.web3,
-    }),
+      web3: (state) => state.metamask.web3
+    })
   },
   data: () => ({
-    address: "",
+    address: ""
   }),
   async mounted() {
   },
   methods: {
     ...mapActions({
       initWeb3: "metamask/initWeb3",
-      initContracts: "metamask/contracts/initContracts",
-    }),
-  },
+      initContracts: "metamask/contracts/initContracts"
+    })
+  }
 };
 </script>
 

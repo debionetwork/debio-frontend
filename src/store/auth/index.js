@@ -1,9 +1,9 @@
-import localStorage from '../../lib/local-storage'
+import localStorage from "../../lib/local-storage"
 
 const defaultState = {
   role: null,
   configApp: null,
-  loadingData: null,
+  loadingData: null
 }
 
 export default {
@@ -37,26 +37,26 @@ export default {
         substrateWs,
         web3Rpc
       };
-      commit('SET_CONFIG', configApp)
+      commit("SET_CONFIG", configApp)
     },
     async getRole({ commit, rootGetters }) {
       try {
         let keystore = localStorage.getKeystore()
         keystore = JSON.parse(keystore)
-        const accountContract = rootGetters['ethereum/contracts/getAccountContract']
+        const accountContract = rootGetters["ethereum/contracts/getAccountContract"]
         let role = await accountContract.methods.myRole().call({ from: keystore.address })
-        console.log('In Get Role: ', role)
-        if (role == '') role = 'customer'
-        commit('SET_ROLE', role)
+        console.log("In Get Role: ", role)
+        if (role == "") role = "customer"
+        commit("SET_ROLE", role)
 
       } catch (err) {
-        commit('SET_ROLE', null)
-        throw new Error('Error on getting role from account Contract ', err.message)
+        commit("SET_ROLE", null)
+        throw new Error("Error on getting role from account Contract ", err.message)
       }
     },
     clearAuth({ commit }) {
       localStorage.removeAddress()
-      commit('CLEAR')
+      commit("CLEAR")
     }
   },
   getters: {

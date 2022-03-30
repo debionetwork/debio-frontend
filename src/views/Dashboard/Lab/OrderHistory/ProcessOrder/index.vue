@@ -153,7 +153,7 @@ export default {
     WetWorkSpecimen,
     ProcessSpecimen,
     DialogAlert,
-    Stepper,
+    Stepper
   },
   data: () => ({
     publicKey: "",
@@ -176,11 +176,11 @@ export default {
       { name: "Quality Control", selected: false },
       { name: "Analyzed", selected: false },
       { name: "Upload Result", selected: false },
-      { name: "Results Ready", selected: false },
+      { name: "Results Ready", selected: false }
     ],
     dnaCollectionProcess: "",
     isBiological: false,
-    testResult: null,
+    testResult: null
   }),
 
   watch: {
@@ -300,7 +300,7 @@ export default {
           "Quality Control",
           "Analyzed",
           "Upload Result",
-          "Results Ready",
+          "Results Ready"
         ],
         true
       );
@@ -320,7 +320,7 @@ export default {
         }
         return { ...item };
       });
-    },
+    }
   },
   computed: {
     ...mapState({
@@ -331,7 +331,7 @@ export default {
 
     ...mapGetters({
       api: "substrate/getAPI",
-      pair: "substrate/wallet",
+      pair: "substrate/wallet"
     }),
 
     orderId() {
@@ -392,7 +392,7 @@ export default {
           this.serviceImage.startsWith("$"))
         ? this.serviceImage
         : false;
-    },
-  },
+    }
+  }
 };
 </script>

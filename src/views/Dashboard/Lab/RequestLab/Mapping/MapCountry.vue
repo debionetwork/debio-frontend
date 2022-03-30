@@ -76,7 +76,7 @@ import { convertSLug } from "@/utils/convertSlug"
 export default {
   name: "MapCountry",
   props: {
-    serviceRequestByCountry: Object,
+    serviceRequestByCountry: Object
   },
 
   data: () => ({
@@ -89,16 +89,16 @@ export default {
     currentProvince: null,
     tooltipTotalRequest: 0,
     tooltipTotalValue: 0,
-    tooltipCountry: '',
+    tooltipCountry: "",
     active: false,
-    countries: [],
+    countries: []
   }),
 
   computed: {
     filteredResults() {
       return this.searchQuery
         ? this.countries.find(country => (
-          this.searchQuery.toLowerCase().split(' ').every(v =>
+          this.searchQuery.toLowerCase().split(" ").every(v =>
             country.name.toLowerCase().includes(v)
           )
         ))
@@ -126,9 +126,9 @@ export default {
 
       if (!val?.name) {
         d3.selectAll(".country")
-        .transition()
-        .duration(200)
-        .style("opacity", .5)
+          .transition()
+          .duration(200)
+          .style("opacity", .5)
         svg
           .transition()
           .duration(500)
@@ -141,7 +141,7 @@ export default {
 
       function zoomed(event) {
         const g = d3.select("g")
-        g.attr('transform', `translate(${event.transform.x}, ${event.transform.y}) scale(${event.transform.k})`)
+        g.attr("transform", `translate(${event.transform.x}, ${event.transform.y}) scale(${event.transform.k})`)
       }
 
       function boxZoom(box, centroid, paddingPerc, name) {
@@ -243,7 +243,7 @@ export default {
         .translate([svgWidth / 2, svgHeight / 2])
       const pathGenerator = d3.geoPath().projection(projection);
 
-      const g = svg.append('g');
+      const g = svg.append("g");
 
       var zoom = d3.zoom()
         .scaleExtent([1/2, 4])
@@ -253,7 +253,7 @@ export default {
 
       function zoomed(event) {
         const g = d3.select("g")
-        g.attr('transform', `translate(${event.transform.x}, ${event.transform.y}) scale(${event.transform.k})`)
+        g.attr("transform", `translate(${event.transform.x}, ${event.transform.y}) scale(${event.transform.k})`)
       }
 
       function transition(zoomLevel) {
@@ -263,11 +263,11 @@ export default {
           .call(zoom.scaleBy, zoomLevel);
       }
 
-      d3.selectAll('button').on('click', function() {
-        if (this.id === 'zoom_in') {
+      d3.selectAll("button").on("click", function() {
+        if (this.id === "zoom_in") {
           transition(2)
         }
-        if (this.id === 'zoom_out') {
+        if (this.id === "zoom_out") {
           transition(-2)
         }
       })
@@ -334,98 +334,98 @@ export default {
       const loadAndProcessData = () =>
 
         Promise.all([
-          d3.tsv('https://unpkg.com/world-atlas@1.1.4/world/50m.tsv'),
-          d3.json('https://unpkg.com/world-atlas@1.1.4/world/50m.json')
+          d3.tsv("https://unpkg.com/world-atlas@1.1.4/world/50m.tsv"),
+          d3.json("https://unpkg.com/world-atlas@1.1.4/world/50m.json")
         ])
 
-        .then(([tsvData, topoJSONdata]) => {
-          const rowById = tsvData.reduce((accumulator, d) => {
-            accumulator[d.iso_n3] = d;
-            return accumulator;
-          }, {});
+          .then(([tsvData, topoJSONdata]) => {
+            const rowById = tsvData.reduce((accumulator, d) => {
+              accumulator[d.iso_n3] = d;
+              return accumulator;
+            }, {});
 
-          const countries = topojson.feature(topoJSONdata, topoJSONdata.objects.countries);
+            const countries = topojson.feature(topoJSONdata, topoJSONdata.objects.countries);
 
-          countries.features.forEach(d =>{
-            Object.assign(d.properties, rowById[d.id])
+            countries.features.forEach(d => {
+              Object.assign(d.properties, rowById[d.id])
+            });
+
+            context.countries = countries.features.map(map => {
+              const country = { name: map.properties.name }
+              const service = serviceRequestByCountry[map.properties.name]
+
+              if (service !== undefined) country.services = service.services
+
+              return country
+            })
+
+            return countries;
           });
-
-          context.countries = countries.features.map(map => {
-            const country = { name: map.properties.name }
-            const service = serviceRequestByCountry[map.properties.name]
-
-            if (service !== undefined) country.services = service.services
-
-            return country
-          })
-
-          return countries;
-        });
 
       loadAndProcessData().then(countries => {
         var tooltip = d3.select("#map-container")
           .append("div")
-            .attr("class", "tooltip")
-            .style("visibility", "hidden")
-            .style("min-width", "250px")
-            .html(context.createTooltip({}))
+          .attr("class", "tooltip")
+          .style("visibility", "hidden")
+          .style("min-width", "250px")
+          .html(context.createTooltip({}))
 
-        g.selectAll('path').data(countries.features)
-          .enter().append('path')
-            .attr('class', 'country')
-            .attr('d', pathGenerator)
-            .attr('fill', d => countryColorScale(d))
-            .attr("id", (d) => convertSLug(d.properties.name))
-            .on('mouseenter', function(e) {
-              d3.selectAll(".country")
-                .transition()
-                .duration(200)
-                .style("opacity", .5)
-              d3.select(this)
-                .transition()
-                .duration(200)
-                .style("opacity", 1)
+        g.selectAll("path").data(countries.features)
+          .enter().append("path")
+          .attr("class", "country")
+          .attr("d", pathGenerator)
+          .attr("fill", d => countryColorScale(d))
+          .attr("id", (d) => convertSLug(d.properties.name))
+          .on("mouseenter", function(e) {
+            d3.selectAll(".country")
+              .transition()
+              .duration(200)
+              .style("opacity", .5)
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .style("opacity", 1)
 
-              const country = e.target.__data__.properties.name
-              if (serviceRequestByCountry[country] != undefined) {
-                const { totalRequests, totalValue } = serviceRequestByCountry[country]
-                return tooltip
-                  .html(context.createTooltip({ country, totalValue, totalRequests }))
-                  .style("opacity", "1")
-                  .style("visibility", "visible");
-              }
-            })
-            .on('mousemove', function(e) {
+            const country = e.target.__data__.properties.name
+            if (serviceRequestByCountry[country] != undefined) {
+              const { totalRequests, totalValue } = serviceRequestByCountry[country]
               return tooltip
-                .style("top", (e.pageY-70)+"px")
-                .style("left",(e.pageX-330)+"px")
-            })
-            .on('mouseout', function() {
-              d3.selectAll(".country")
-                .transition()
-                .duration(200)
-                .style("opacity", 1)
-              d3.select(this)
-                .transition()
-                .duration(200)
-              return tooltip
-                .style("visibility", "hidden")
-                .style("opacity", "0")
-            })
-            .on('click', function(e) {
-              const country = e.target.__data__
-              const isAustralia = country.properties.name === "Australia"
-                ? country.properties.name
-                : null
+                .html(context.createTooltip({ country, totalValue, totalRequests }))
+                .style("opacity", "1")
+                .style("visibility", "visible");
+            }
+          })
+          .on("mousemove", function(e) {
+            return tooltip
+              .style("top", (e.pageY-70)+"px")
+              .style("left",(e.pageX-330)+"px")
+          })
+          .on("mouseout", function() {
+            d3.selectAll(".country")
+              .transition()
+              .duration(200)
+              .style("opacity", 1)
+            d3.select(this)
+              .transition()
+              .duration(200)
+            return tooltip
+              .style("visibility", "hidden")
+              .style("opacity", "0")
+          })
+          .on("click", function(e) {
+            const country = e.target.__data__
+            const isAustralia = country.properties.name === "Australia"
+              ? country.properties.name
+              : null
 
-              context.searchQuery = country.properties.name
-              boxZoom(
-                pathGenerator.bounds(country),
-                pathGenerator.centroid(country),
-                70,
-                isAustralia
-              )
-            })
+            context.searchQuery = country.properties.name
+            boxZoom(
+              pathGenerator.bounds(country),
+              pathGenerator.centroid(country),
+              70,
+              isAustralia
+            )
+          })
       });
     }
   }

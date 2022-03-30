@@ -66,12 +66,12 @@
 </template>
 
 <script>
-import NumOfEntriesSelect from './NumOfEntriesSelect'
+import NumOfEntriesSelect from "./NumOfEntriesSelect"
 
 export default {
-  name: 'ServerSideDataTable',
+  name: "ServerSideDataTable",
   components: {
-    NumOfEntriesSelect,
+    NumOfEntriesSelect
   },
   props: {
     headers: Array,
@@ -98,7 +98,7 @@ export default {
   },
   watch: {
     currentPage: function(newVal, oldVal) { // watch it
-      if(newVal != oldVal) console.log('Change page!')
+      if(newVal != oldVal) console.log("Change page!")
       this.page = newVal
     }
   },
@@ -119,14 +119,14 @@ export default {
       },
       set(val) {
         console.log(val)
-        this.$emit('input', val)
+        this.$emit("input", val)
       }
     },
     pageCount(){
       return Math.ceil(this.totalItemLength / this.entriesPerPage)
     },
     computedLoadingText() {
-      return this.loadingText ? this.loadingText : 'Loading.. Please wait'
+      return this.loadingText ? this.loadingText : "Loading.. Please wait"
     }
   },
   methods: {
@@ -139,10 +139,10 @@ export default {
     setEntriesPerPage(val) {
       this.entriesPerPage = val
     },
-    defaultFilter(value, search, /*item*/) {
+    defaultFilter(value, search /*item*/) {
       return value != null &&
       search != null &&
-      typeof value !== 'boolean' &&
+      typeof value !== "boolean" &&
       value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1
     },
     /**
@@ -162,7 +162,7 @@ export default {
     },
     total() {
       return this.totalItemLength
-    },
+    }
     /** ----------------- */
   }
 }

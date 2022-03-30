@@ -62,18 +62,18 @@ import cityData from "@/assets/json/city.json";
 export default {
   name: "DNASampleSendingInstructions",
   components: {
-    BulletPoint,
+    BulletPoint
   },
   props: {
     specimenNumber: String,
     lab: Object,
     orderId: String,
     sourcePage: String,
-    hideOrderHistoryLink: Boolean,
+    hideOrderHistoryLink: Boolean
   },
   data: () => ({
     country: "",
-    city: "",
+    city: ""
   }),
   computed: {
     instructions() {
@@ -89,16 +89,16 @@ export default {
           <div><b>${this.lab.address ?? ""}</b></div>
           <div><b>${this.city}, ${this.country}</b></div>
           <div style="margin-top: 12px; text-decoration: underline;"><b>You do not need to mention your name, address, or any personal information</b></div>
-        `,
+        `
       ];
-    },
+    }
   },
   mounted() {
     if (this.lab != null) {
       this.country = cityData[this.lab.country].name;
       this.city = cityData[this.lab.country].divisions[this.lab.city];
     }
-  },
+  }
 };
 </script>
 

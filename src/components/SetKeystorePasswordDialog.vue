@@ -94,12 +94,12 @@ import apiClientRequest from "@/lib/api";
 export default {
   name: "SetKeystorePasswordDialog",
   components: {
-    VueRecaptcha,
+    VueRecaptcha
   },
   props: {
     secretType: String,
     secret: String,
-    show: Boolean,
+    show: Boolean
   },
   data: () => ({
     passwordsValid: false,
@@ -110,7 +110,7 @@ export default {
     passwordConfirmRule: (password) => (val) =>
       (!!password && password == val) || "Passwords must match.",
     recaptchaVerified: false,
-    accountName: "",
+    accountName: ""
   }),
   computed: {
     _show: {
@@ -119,28 +119,28 @@ export default {
       },
       set(val) {
         this.$emit("toggle", val);
-      },
+      }
     },
     sitekey() {
       return process.env.VUE_APP_RECAPTCHA_SITE_KEY;
     },
     ...mapState({
       substrateApi: (state) => state.substrate.api,
-      isLoading: (state) => state.substrate.isLoadingWallet,
+      isLoading: (state) => state.substrate.isLoadingWallet
     }),
     nameRules() {
       return [
-        val => !!val || 'This field is required',
-        val => (val && val.length >= 8) || 'Min 8 Character'
+        val => !!val || "This field is required",
+        val => (val && val.length >= 8) || "Min 8 Character"
       ]
     },
     passwordRules() {
       return [
         val => !!val || "This field is required",
-        val => (val && val.length >= 8) || 'Password Min 8 Character',
-        val => /^[a-zA-Z0-9-_]+$/.test(val) || 'Password must a-z, A-Z, '
+        val => (val && val.length >= 8) || "Password Min 8 Character",
+        val => /^[a-zA-Z0-9-_]+$/.test(val) || "Password must a-z, A-Z, "
       ]
-    },
+    }
   },
   mounted() {
     let recaptchaScript = document.createElement("script");
@@ -153,10 +153,10 @@ export default {
   },
   methods: {
     ...mapActions({
-      registerMnemonic: "substrate/registerMnemonic",
+      registerMnemonic: "substrate/registerMnemonic"
     }),
     ...mapMutations({
-      setIsLoading: "substrate/SET_LOADING_WALLET",
+      setIsLoading: "substrate/SET_LOADING_WALLET"
     }),
     async onVerifyRecaptcha(response) {
       const result = await apiClientRequest.post("/recaptcha", { response })
@@ -173,7 +173,7 @@ export default {
           const result = await this.registerMnemonic({
             mnemonic: this.secret,
             password: this.password,
-            accountName: this.accountName,
+            accountName: this.accountName
           });
           if (result.success) {
             this._show = false;
@@ -190,7 +190,7 @@ export default {
         if (this.secretType == "privateKey") {
           await this.generateWalletFromPrivateKey({
             privateKey: this.secret,
-            password: this.password,
+            password: this.password
           });
           this._show = false;
           this.$emit("key-store-set");
@@ -207,8 +207,8 @@ export default {
       this._show = false;
       this.$emit("key-store-set-cancelled");
       this.$refs.passwordForm.reset();
-    },
-  },
+    }
+  }
 };
 </script>
 
