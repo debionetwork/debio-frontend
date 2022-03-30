@@ -45,7 +45,7 @@
                   :headers="headers"
                   :items="services"
                   :search="search"
-                  :sort-by="['info.name']"
+                  :sort-by="'info.name'"
                   :sort-desc="[false]"
                   :loading="isLoading"
                   additional-class="laporan-table"
@@ -93,12 +93,21 @@
                         >
                            mdi-pencil
                            </v-icon>
-                        <v-icon 
-                           @click="confirmDeleteService(item)"
-                           color="black"
-                        >
-                           mdi-delete
-                        </v-icon>
+
+                        <v-tooltip bottom :disabled="activeButton">
+                          <template v-slot:activator="{ on, attrs }">
+                            <div v-bind="attrs" v-on="on">
+                              <v-icon 
+                                 @click="confirmDeleteService(item)"
+                                 color="black"
+                                 :disabled="!activeButton"
+                              >
+                                 mdi-delete
+                              </v-icon>
+                             </div>
+                           </template>
+                           <span>You need to have at least 1 service</span>
+                        </v-tooltip>
 
                      </v-container>
                   </template>
@@ -140,14 +149,17 @@ export default {
     isLoading: false,
     showDialog: false,
     showAlert: false,
-    idItemDeleted: ""
+    idItemDeleted: "",
+    activeButton: true,
+    serviceCount: 0
   }),
   computed:{
-    ...mapGetters({
-      api: "substrate/getAPI",
-      pair: "substrate/wallet",
-      web3: "metamask/getWeb3"
-    }),
+   ...mapGetters({
+      api: 'substrate/getAPI',
+      pair: 'substrate/wallet',
+      web3: 'metamask/getWeb3',
+      labAccount: 'substrate/labAccount',
+   }),
 
     ...mapState({
       lastEventData: (state) => state.substrate.lastEventData
@@ -158,16 +170,18 @@ export default {
     lastEventData(val) {
       if (val === null) return
       if (val.method === "ServiceDeleted") {
-        this.isLoading = false
-        this.showDialog = false
-        this.getServices()
+         this.isLoading = false
+         this.showDialog = false
+         this.getServices()
+         this.checkServiceCount()
       }
     }
   },
 
-  async created() {
-    await this.getServices()
-  },
+   async created() {
+      await this.getServices()
+      await this.checkServiceCount()
+   },
 
   methods:{
     async getServices() {
@@ -214,8 +228,15 @@ export default {
     },
 
     confirmDeleteService(item) {
-      this.idItemDeleted = item.id
-      this.showDialog = true
+       this.idItemDeleted = item.id
+       this.showDialog = true
+    },
+
+    async checkServiceCount() {
+      this.serviceCount = this.labAccount.services.length
+       if (this.serviceCount <= 1) {
+          this.activeButton = false
+       }
     }
   }
 }

@@ -8,6 +8,8 @@
     :style="dark ? 'color:white' : ''"
     :disabled="disabled"
     :loading="loading"
+    v-on="on"
+    v-bind="bind"
   >
     <slot></slot>
   </v-btn>
@@ -20,7 +22,9 @@ export default {
     color: String,
     dark: Boolean,
     disabled: Boolean,
-    loading: Boolean
+    loading: Boolean,
+    on: [Object],
+    bind: [Object]
   },
   methods: {
     onClick() {
