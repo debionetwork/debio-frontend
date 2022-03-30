@@ -50,9 +50,9 @@
 
 <script>
 export default {
-  name: 'NavigationDrawer',
+  name: "NavigationDrawer",
   props: {
-    width: String,
+    width: String
   },
 
   methods: {
@@ -63,7 +63,7 @@ export default {
     },
 
     openHref(href){
-      window.open(href, '_blank').focus();
+      window.open(href, "_blank").focus();
     }
   },
 

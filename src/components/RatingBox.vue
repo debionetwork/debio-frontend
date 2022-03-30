@@ -61,12 +61,12 @@
 <script>
 import { mapState } from "vuex";
 import Button from "@/components/Button";
-import DialogAlert from '@/components/Dialog/DialogAlert'
+import DialogAlert from "@/components/Dialog/DialogAlert"
 export default {
   name: "RatingBox",
   props: {
     orderId: String,
-    order: Object,
+    order: Object
   },
   data: () => ({
     rate: 0,
@@ -75,13 +75,13 @@ export default {
     labId: "",
     serviceId: "",
     customerId: "",
-    date: "",
+    date: ""
   }),
   computed: {
     ...mapState({
       rate: (state) => state.feedback.rate,
       comment: (state) => state.feedback.comment
-    }),
+    })
   },
   components: {
     Button,
@@ -91,7 +91,7 @@ export default {
     async sendFeedback () {
       await this.getDate()
       const { rate, comment, labId, serviceId, customerId, createdAt, orderId } = this
-      this.$store.dispatch('feedback/sendFeedback', {
+      this.$store.dispatch("feedback/sendFeedback", {
         rate, 
         comment,
         labId,
@@ -99,7 +99,7 @@ export default {
         customerId,
         createdAt,
         orderId
-        })
+      })
       this.dialogAlert = true
     },
     async actionAlert() {
@@ -116,14 +116,14 @@ export default {
       let hour = dateNow.getHours()
       let minute = dateNow.getMinutes()
       let second = dateNow. getSeconds()
-      this.createdAt = (year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second)
+      this.createdAt = (year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second)
     }
   },
   mounted() {
     this.labId = this.order.sellerId
     this.serviceId = this.order.serviceId
     this.customerId = this.order.customerId
-  },
+  }
 }
 </script>
 

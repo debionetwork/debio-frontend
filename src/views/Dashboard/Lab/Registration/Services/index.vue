@@ -216,9 +216,9 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState } from "vuex"
 import { upload } from "@/lib/ipfs"
-import { createService, updateService } from '@/lib/polkadotProvider/command/services'
+import { createService, updateService } from "@/lib/polkadotProvider/command/services"
 import { getCategories } from "@/lib/api"
 import List from "./List"
 import Stepper from "../Stepper"
@@ -231,7 +231,7 @@ import rulesHandler from "@/constants/rules"
 
 
 export default {
-  name: 'LabRegistrationServices',
+  name: "LabRegistrationServices",
 
   mixins: [
     serviceHandler
@@ -240,17 +240,17 @@ export default {
   components: { 
     List,
     Stepper,
-    DialogAlert,
+    DialogAlert
   },
 
   data: () => ({
-    serviceId: '',
-    category: '',
-    name: '',
-    price: '',
-    qcPrice: '',
-    description: '',
-    longDescription: '',
+    serviceId: "",
+    category: "",
+    name: "",
+    price: "",
+    qcPrice: "",
+    description: "",
+    longDescription: "",
     imageUrl: "",
     testResultSampleUrl: "",
     files: [],
@@ -259,18 +259,18 @@ export default {
     sampleFiles:[],
     isLoading: false,
     isUploading: false,
-    currencyList: ['DAI', 'Ethereum'],
-    currencyType: 'DAI',
+    currencyList: ["DAI", "Ethereum"],
+    currencyType: "DAI",
     listExpectedDuration: [
-      {text: 'Hours', value: 'Hours'},
-      {text: 'Days', value: 'Days'}
+      {text: "Hours", value: "Hours"},
+      {text: "Days", value: "Days"}
     ],
-    selectExpectedDuration: 'Days',
-    expectedDuration: '',
+    selectExpectedDuration: "Days",
+    expectedDuration: "",
     isEdit: false,
     stepperItems: [
       { name: "Lab Information", selected: true},
-      { name: "Lab Services", selected: false},
+      { name: "Lab Services", selected: false}
     ],
     dialogAlert: false,
     biologicalType: "",
@@ -279,7 +279,7 @@ export default {
       "Epithelial Cells - Buccal Swab Collection Process",
       "Fecal Matters - Stool Collection Process",
       "Saliva - Saliva Collection Process",
-      "Urine - Clean Catch Urine Collection Process",
+      "Urine - Clean Catch Urine Collection Process"
     ],
     isBiomedical: false
   }),
@@ -299,7 +299,7 @@ export default {
 
     fieldRequiredRule() {
       return [
-        rulesHandler.FIELD_REQUIRED,
+        rulesHandler.FIELD_REQUIRED
       ]
     },
 
@@ -313,16 +313,16 @@ export default {
 
     priceRules() {
       return [
-      rulesHandler.FIELD_REQUIRED,
-        val => (val && val != 0) || 'Value on this field cannot 0',
-        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'This field only allows 3 decimal characters.'
+        rulesHandler.FIELD_REQUIRED,
+        val => (val && val != 0) || "Value on this field cannot 0",
+        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || "This field only allows 3 decimal characters."
       ]
     },
     
     cqPriceRules() {
       return [
         rulesHandler.FIELD_REQUIRED,
-        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || 'This field only allows 3 decimal characters.'
+        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || "This field only allows 3 decimal characters."
       ]
     },
 
@@ -345,16 +345,16 @@ export default {
     expectedDurationRules() {
       return [
         rulesHandler.FIELD_REQUIRED,
-        val => (val && val != 0) || 'Value on this field cannot 0'
+        val => (val && val != 0) || "Value on this field cannot 0"
       ]
     },
 
     fileInputRules() {
       return [
-        value => (!!value && value.size < 2000000) || 'The total file size uploaded exceeds the maximum file size allowed (2MB)',
-        value => (!!value && value.type === "application/pdf") || 'The files uploaded are not in the supported file formats.'
+        value => (!!value && value.size < 2000000) || "The total file size uploaded exceeds the maximum file size allowed (2MB)",
+        value => (!!value && value.type === "application/pdf") || "The files uploaded are not in the supported file formats."
       ]
-    },
+    }
 
   },
 
@@ -370,13 +370,13 @@ export default {
       if (!this.isServicesExist) {
         this.stepperItems = [
           { name: "Lab Information", selected: true},
-          { name: "Lab Services", selected: false},
+          { name: "Lab Services", selected: false}
         ]
       }
     },
 
     gotoDashboard() {
-      this.$router.push({ name: 'lab-dashboard' })
+      this.$router.push({ name: "lab-dashboard" })
     },
 
     async actionAlert() {
@@ -393,7 +393,7 @@ export default {
             route: null,
             params: null
           },
-          role: "lab",
+          role: "lab"
         })
 
         this.dialogAlert = true
@@ -406,19 +406,19 @@ export default {
 
     clearServicesForm() {
       this.$refs.serviceForm.resetValidation()
-      this.name = ''
-      this.currencyType = 'DAI'
-      this.price = ''
-      this.qcPrice = ''
-      this.expectedDuration = ''
-      this.selectExpectedDuration = 'WorkingDays'
-      this.category = ''
-      this.description = ''
-      this.testResultSampleUrl = ''
-      this.longDescription = ''
-      this.imageUrl = ''
+      this.name = ""
+      this.currencyType = "DAI"
+      this.price = ""
+      this.qcPrice = ""
+      this.expectedDuration = ""
+      this.selectExpectedDuration = "WorkingDays"
+      this.category = ""
+      this.description = ""
+      this.testResultSampleUrl = ""
+      this.longDescription = ""
+      this.imageUrl = ""
       this.testResultSampleFile = []
-      this.biologicalType = ''
+      this.biologicalType = ""
     },
 
     async prefillServicesForm(service) {
@@ -491,8 +491,8 @@ export default {
                   component: "qc_price",
                   value: await toEther(this.qcPrice)
                 }
-              ],
-            },
+              ]
+            }
           ],
           expectedDuration: { 
             duration: this.expectedDuration, 
@@ -513,7 +513,7 @@ export default {
           this.isLoading = false
           this.stepperItems = [
             { name: "Lab Information", selected: true},
-            { name: "Lab Services", selected: true},
+            { name: "Lab Services", selected: true}
           ]
         }
       )
@@ -541,8 +541,8 @@ export default {
                   component: "qc_price",
                   value: await toEther(this.qcPrice)
                 }
-              ],
-            },
+              ]
+            }
           ],
           expectedDuration: { 
             duration: this.expectedDuration, 
@@ -570,19 +570,19 @@ export default {
       this.isLoading = true
       this.imageUrl = ""
       if (file) {
-        if (file.name.lastIndexOf('.') <= 0) {
+        if (file.name.lastIndexOf(".") <= 0) {
           return
         }
         const fr = new FileReader()
         fr.readAsArrayBuffer(file)
 
         const context = this
-        fr.addEventListener('load', async () => {
+        fr.addEventListener("load", async () => {
           // Upload
           const uploaded = await upload({
             fileChunk: fr.result,
             fileType: file.type,
-            fileName: file.name,
+            fileName: file.name
           })
           const computeLink = `${uploaded.ipfsPath[0].data.ipfsFilePath}/${uploaded.fileName}`
 
@@ -601,19 +601,19 @@ export default {
       this.isLoading = true
       this.testResultSampleUrl = ""
       if (file) {
-        if (file.name.lastIndexOf('.') <= 0) {
+        if (file.name.lastIndexOf(".") <= 0) {
           return
         }
         const fr = new FileReader()
         fr.readAsArrayBuffer(file)
 
         const context = this
-        fr.addEventListener('load', async () => {
+        fr.addEventListener("load", async () => {
           // Upload
           const uploaded = await upload({
             fileChunk: fr.result,
             fileType: file.type,
-            fileName: file.name,
+            fileName: file.name
           })
           context.testResultSampleUrl = `https://ipfs.io/ipfs/${uploaded.ipfsPath[0].data.path}` // this is an image file that can be sent to server... (convert img to file path)
           context.isUploading = false
@@ -625,7 +625,7 @@ export default {
     selectPicture() {
       this.$refs.fileInput.$refs.input.click()
     }
-  },
+  }
 }
 </script>
 

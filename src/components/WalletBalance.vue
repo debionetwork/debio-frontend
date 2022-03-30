@@ -7,31 +7,31 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations } from "vuex"
 
 export default {
-  name: 'WalletBalance',
+  name: "WalletBalance",
   computed: {
     ...mapState({
       walletBalance: state => state.substrate.walletBalance,
       api: state => state.substrate.api,
       wallet: state => state.substrate.wallet
-    }),
+    })
   },
   data: () => ({
-    isLoading: false,
+    isLoading: false
   }),
   methods: {
     ...mapMutations({
-      setWalletBalance: 'substrate/SET_WALLET_BALANCE',
+      setWalletBalance: "substrate/SET_WALLET_BALANCE"
     }),
     async fetchWalletBalance() {
       try {
         this.isLoading = true
-        console.log('address', this.wallet.address)
+        console.log("address", this.wallet.address)
         const { nonce, data: balance  } = await this.api.query.system.account(this.wallet.address);
-        console.log('nonce', nonce)
-        console.log('balance', balance.free.toHuman())
+        console.log("nonce", nonce)
+        console.log("balance", balance.free.toHuman())
         this.setWalletBalance(balance.free.toHuman())
         this.isLoading = false
       } catch (err) {

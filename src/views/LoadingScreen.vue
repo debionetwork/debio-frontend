@@ -10,7 +10,7 @@
 
 <script>
 export default {
-  name: "LoadingScreen",
+  name: "LoadingScreen"
 }
 </script>
 

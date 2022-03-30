@@ -1,11 +1,11 @@
-import localStorage from './local-storage'
+import localStorage from "./local-storage"
 
 class Keystore {
   get() {
     try {
       return JSON.parse(localStorage.getKeystore())
     } catch (err) {
-      return ''
+      return ""
     }
   }
 

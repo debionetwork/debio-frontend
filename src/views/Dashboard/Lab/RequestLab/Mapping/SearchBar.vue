@@ -37,7 +37,7 @@
 
 <script>
 export default {
-  name: 'SearchBar',
+  name: "SearchBar",
   props: {
     filteredItems: { type: Array, default: () => [] },
     itemValue: { type: String, default: "" },
@@ -45,17 +45,17 @@ export default {
     label: String,
     value: String,
     withDropdown: Boolean,
-    returnObject: Boolean,
+    returnObject: Boolean
   },
 
   data: () => ({
     active: true,
-    searchQuery: null,
+    searchQuery: null
   }),
 
   computed: {
     showFilter() { // Show filter if filter-menu slot has content
-      return !!this.$slots['filter-menu']
+      return !!this.$slots["filter-menu"]
     },
 
     showResults() {
@@ -80,14 +80,14 @@ export default {
     onSearchInput(val) {
       this.active = true
       this.searchQuery = val
-      this.$emit('input', val)
+      this.$emit("input", val)
     },
 
     boldString(str, substr) {
       substr = substr.charAt(0).toUpperCase() + substr.slice(1)
 
-      const strRegExp = new RegExp(substr, 'g');
-      return str.replace(strRegExp, '<b>'+substr+'</b>');
+      const strRegExp = new RegExp(substr, "g");
+      return str.replace(strRegExp, "<b>"+substr+"</b>");
     },
 
     onItemSelected(item) {

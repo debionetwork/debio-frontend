@@ -48,28 +48,28 @@
 </template>
 
 <script>
-import v from 'voca'
-import DevMenu from '@/components/DevMenu'
-import UserAccountMenu from '@/components/UserAccountMenu'
-import SettingsMenu from '@/components/SettingsMenu'
-import WalletBalance from '@/components/WalletBalance'
-import Breadcrumbs from './Breadcrumbs'
+import v from "voca"
+import DevMenu from "@/components/DevMenu"
+import UserAccountMenu from "@/components/UserAccountMenu"
+import SettingsMenu from "@/components/SettingsMenu"
+import WalletBalance from "@/components/WalletBalance"
+import Breadcrumbs from "./Breadcrumbs"
 
 export default {
-  name: 'Dashboard',
+  name: "Dashboard",
   components: {
     DevMenu,
     UserAccountMenu,
     SettingsMenu,
     Breadcrumbs,
-    WalletBalance,
+    WalletBalance
   },
   computed: {
     isLab() {
-      return this.$route.path.indexOf('lab') > 0
+      return this.$route.path.indexOf("lab") > 0
     },
     isDevEnv() {
-      return process.env.NODE_ENV == 'development'
+      return process.env.NODE_ENV == "development"
     },
     pageHeader() {
       return this.$route.meta.pageHeader

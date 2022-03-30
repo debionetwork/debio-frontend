@@ -45,7 +45,7 @@
 <script>
 
 export default {
-  name: 'Lab Registration'
+  name: "Lab Registration"
 }
 </script>
 

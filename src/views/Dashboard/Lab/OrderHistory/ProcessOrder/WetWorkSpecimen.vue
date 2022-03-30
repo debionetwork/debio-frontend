@@ -43,7 +43,7 @@
 import { mapGetters } from "vuex"
 import Dialog from "@/components/Dialog"
 import DialogAlert from "@/components/Dialog/DialogAlert"
-import Button from '@/components/Button'
+import Button from "@/components/Button"
 import { processDnaSample } from "@/lib/polkadotProvider/command/geneticTesting"
 
 export default {
@@ -51,21 +51,21 @@ export default {
   components: {
     Dialog,
     DialogAlert,
-    Button,
+    Button
   },
   props: {
-    specimenNumber: String,
+    specimenNumber: String
   },
   data: () => ({
     isProcessing: false,
     wetWorkDialog: false,
-    wetWorkAlertDialog: false,
+    wetWorkAlertDialog: false
   }),
   computed: {
     ...mapGetters({
       api: "substrate/getAPI",
-      pair: "substrate/wallet",
-    }),
+      pair: "substrate/wallet"
+    })
   },
   methods:{
     async processDnaSample() {
@@ -85,7 +85,7 @@ export default {
     closeWetWorkAlertDialog () {
       this.$emit("wetWorkCompleted")
     }
-  },
+  }
 }
 </script>
 

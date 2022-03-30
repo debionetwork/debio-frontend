@@ -1,5 +1,5 @@
 import ipfsWorker from "@/web-workers/ipfs-worker"
-import store from '@/store/index'
+import store from "@/store/index"
 
 export function upload({ fileChunk, fileName, fileType }) {
   const chunkSize = 10 * 1024 * 1024 // 10 MB
@@ -8,7 +8,7 @@ export function upload({ fileChunk, fileName, fileType }) {
   const newBlobData = new File([blob], fileName)
 
   return new Promise((resolve, reject) => {
-      try {
+    try {
       const fileSize = newBlobData.size
       do {
         let chunk = newBlobData.slice(offset, chunkSize + offset);
@@ -19,34 +19,34 @@ export function upload({ fileChunk, fileName, fileType }) {
       let uploadSize = 0
       const uploadedResultChunks = []
       ipfsWorker.workerUpload.onmessage = async event => {
-          uploadedResultChunks.push(event.data)
-          uploadSize += event.data.data.size
+        uploadedResultChunks.push(event.data)
+        uploadSize += event.data.data.size
           
-          if (uploadSize >= fileSize) {
+        if (uploadSize >= fileSize) {
           resolve({
-              fileName: fileName,
-              fileType: fileType,
-              ipfsPath: uploadedResultChunks
+            fileName: fileName,
+            fileType: fileType,
+            ipfsPath: uploadedResultChunks
           })
-          }
+        }
       }
 
-      } catch (err) {
+    } catch (err) {
       reject(new Error(err.message))
-      }
+    }
   })
 }
 
 export async function downloadDecryptedFromIPFS(path, secretKey, publicKey, fileName, type) {
   store.state.auth.loadingData = {
     loading: true,
-    loadingText: "Decrypt File",
+    loadingText: "Decrypt File"
   };
   const channel = new MessageChannel();
   channel.port1.onmessage = ipfsWorker.workerDownload;
   const pair = {
     secretKey,
-    publicKey,
+    publicKey
   };
 
   const typeFile = type;
@@ -54,7 +54,7 @@ export async function downloadDecryptedFromIPFS(path, secretKey, publicKey, file
   ipfsWorker.workerDownload.onmessage = (event) => {
     store.state.auth.loadingData = {
       loading: true,
-      loadingText: "Downloading File",
+      loadingText: "Downloading File"
     };
     if (type == "application/pdf") {
       downloadPDF(event.data, fileName);
@@ -92,7 +92,7 @@ export async function download(data, fileName) {
   a.dispatchEvent(e);
   store.state.auth.loadingData = {
     loading: false,
-    loadingText: "Downloaded File",
+    loadingText: "Downloaded File"
   };
 }
 
@@ -123,6 +123,6 @@ export async function downloadPDF(data, fileName) {
   a.dispatchEvent(e);
   store.state.auth.loadingData = {
     loading: false,
-    loadingText: "Downloaded File",
+    loadingText: "Downloaded File"
   };
 }

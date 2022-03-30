@@ -86,22 +86,22 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import MenuCard from '@/components/MenuCard'
+import { mapState } from "vuex"
+import MenuCard from "@/components/MenuCard"
 import LabOrders from "./LabOrders";
 
 export default {
-  name: 'Lab',
+  name: "Lab",
 
   components: {
     MenuCard,
-    LabOrders,
+    LabOrders
   },
 
   computed: {
     ...mapState({
       labAccount: (state) => state.substrate.labAccount,
-      isServicesExist: (state) => state.substrate.isServicesExist,
+      isServicesExist: (state) => state.substrate.isServicesExist
     }),
 
     computeVerificationStatus() {

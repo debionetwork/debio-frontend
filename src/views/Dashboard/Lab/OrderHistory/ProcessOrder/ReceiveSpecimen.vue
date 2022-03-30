@@ -35,14 +35,14 @@
 
 
 <script>
-import { mapGetters } from 'vuex'
-import { processDnaSample } from '@/lib/polkadotProvider/command/geneticTesting'
-import DialogAlert from '@/components/Dialog/DialogAlert'
+import { mapGetters } from "vuex"
+import { processDnaSample } from "@/lib/polkadotProvider/command/geneticTesting"
+import DialogAlert from "@/components/Dialog/DialogAlert"
 
 export default {
-  name: 'ReceiveSpecimen',
+  name: "ReceiveSpecimen",
   components: {
-    DialogAlert,
+    DialogAlert
   },
   props: {
     specimenNumber: String,
@@ -53,14 +53,14 @@ export default {
     valid: false,
     confirmSpecimenNumber: "",
     confirmSpecimenNumberRule: (password) => (val) =>
-        (!!password && password == val) || "Specimen number must match.",
-    specimenAlertDialog: false,
+      (!!password && password == val) || "Specimen number must match.",
+    specimenAlertDialog: false
   }),
   computed: {
     ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
-    }),
+      api: "substrate/getAPI",
+      pair: "substrate/wallet"
+    })
   },
   methods:{
     async receiveDnaSample() {
@@ -90,7 +90,7 @@ export default {
           )
         }
       }
-    },
-  },
+    }
+  }
 }
 </script>

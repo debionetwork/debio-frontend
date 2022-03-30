@@ -15,16 +15,16 @@
 
 <script>
 export default {
-  name: 'Button',
+  name: "Button",
   props: {
     color: String,
     dark: Boolean,
     disabled: Boolean,
-    loading: Boolean,
+    loading: Boolean
   },
   methods: {
     onClick() {
-      this.$emit('click')
+      this.$emit("click")
     }
   }
 }

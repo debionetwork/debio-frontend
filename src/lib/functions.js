@@ -1,5 +1,5 @@
-import localStorage from '../lib/local-storage'
-import store from '@/store/index'
+import localStorage from "../lib/local-storage"
+import store from "@/store/index"
 
 const globalFunctions = {
   hasStatusLogin() {
@@ -8,24 +8,24 @@ const globalFunctions = {
   },
   async checkIsLoggedIn(to, from, next) {
     const address = localStorage.getAddress();
-    let api = store.getters['substrate/getAPI'];
+    let api = store.getters["substrate/getAPI"];
     if (api == null) {
-      await store.dispatch('substrate/connect', address);
+      await store.dispatch("substrate/connect", address);
     }
 
-    let wallet = store.getters['substrate/wallet'];
+    let wallet = store.getters["substrate/wallet"];
     const keystore = localStorage.getAddress()
     const isLoggedIn = !!keystore;
-    if (to.path == '/login') {
+    if (to.path == "/login") {
       if (isLoggedIn && !to.query.forgot) {
         if (wallet == null) {
           if (address != "") {
-            await store.dispatch('substrate/getAllAccounts', {
+            await store.dispatch("substrate/getAllAccounts", {
               address: address
             })
           }
         }
-        next('/')
+        next("/")
         return address;
       } else {
         next()
@@ -35,7 +35,7 @@ const globalFunctions = {
       if (isLoggedIn) {
         if (wallet == null) {
           if (address != "") {
-            await store.dispatch('substrate/getAllAccounts', {
+            await store.dispatch("substrate/getAllAccounts", {
               address: address
             })
           }
@@ -43,11 +43,11 @@ const globalFunctions = {
         next()
         return address;
       } else {
-        next('/login')
+        next("/login")
         return ""
       }
     }
-  },
+  }
 }
 
 export default globalFunctions

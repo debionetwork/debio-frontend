@@ -1,4 +1,4 @@
-const ERC20Interface = require('./abi/ERC20Interface.json')
+const ERC20Interface = require("./abi/ERC20Interface.json")
 
 const defaultState = {
   contractERC20Interface: null
@@ -7,7 +7,7 @@ const defaultState = {
 export default {
   namespaced: true,
   state: {
-    ...defaultState,
+    ...defaultState
   },
   mutations: {
     SET_CONTRACT_ERC20Interface(state, contractERC20Interface) {
@@ -21,7 +21,7 @@ export default {
       let contractAddress = process.env.VUE_APP_DEBIO_DAI_TOKEN_ADDRESS;
       ERC20InterfaceContract = new web3.eth.Contract(ERC20Interface, contractAddress);
 
-      commit('SET_CONTRACT_ERC20Interface', ERC20InterfaceContract)
+      commit("SET_CONTRACT_ERC20Interface", ERC20InterfaceContract)
     }
   },
   getters: {

@@ -1,6 +1,6 @@
 const defaultState = {
   lab: null,
-  products: [],
+  products: []
 }
 
 export default {
@@ -16,15 +16,15 @@ export default {
     CLEAR_TEST_REQUEST(state) {
       state.lab = null
       state.products = []
-    },
+    }
   },
   actions: {
     async getLab({ commit }, lab) {
-      commit('SET_LAB', lab)
+      commit("SET_LAB", lab)
     },
     async getProduct({ commit }, product) {
-      commit('SET_PRODUCTS', product)
-    },
+      commit("SET_PRODUCTS", product)
+    }
   },
   getters: {
   }

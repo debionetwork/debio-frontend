@@ -14,7 +14,7 @@
 import Stepper from "@/components/Stepper"
 
 export default {
-  name: 'StepperRegistration',
+  name: "StepperRegistration",
 
   components: { Stepper },
 

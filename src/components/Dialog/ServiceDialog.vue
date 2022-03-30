@@ -50,13 +50,13 @@
 import Button from "@/components/Button";
 import { downloadDecryptedFromIPFS } from "@/lib/ipfs";
 import { hexToU8a } from "@polkadot/util";
-import { mapState } from 'vuex';
+import { mapState } from "vuex";
 
 
 export default {
   name: "ServiceDialog",
   components: {
-    Button,
+    Button
   },
   props: {
     show: Boolean,
@@ -75,10 +75,10 @@ export default {
       },
       set(val) {
         this.$emit("toggle", val);
-      },
+      }
     },
     ...mapState({
-      mnemonicData: (state) => state.substrate.mnemonicData,
+      mnemonicData: (state) => state.substrate.mnemonicData
     })
   },
   methods: {
@@ -102,7 +102,7 @@ export default {
     onSubmit() {
       this.$router.push({ name: "request-test-checkout" });
     }
-  },
+  }
 };
 </script>
 

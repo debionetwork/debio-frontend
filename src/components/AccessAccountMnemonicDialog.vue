@@ -50,7 +50,7 @@ export default {
   props: {
     show: Boolean,
     role: String,
-    type: String,
+    type: String
   },
   data: () => ({
     formValid: true,
@@ -63,7 +63,7 @@ export default {
       },
       set(val) {
         this.$emit("toggle", val);
-      },
+      }
     },
 
     mnemonicRules() {
@@ -72,7 +72,7 @@ export default {
         val => (val && mnemonicValidate(val)) || "Mnemonic invalid.",
         val => (val && val.trim().split(/\s+/g).length >= 12) || "Number of words must be 12 or more"
       ]
-    },
+    }
   },
   methods: {
     onContinue() {
@@ -83,12 +83,12 @@ export default {
       if (this.type == "login-mnemonic") {
         this.$emit("mnemonic-input-login", {
           mnemonic: this.mnemonic,
-          role: this.role,
+          role: this.role
         });
       } else {
         this.$emit("mnemonic-input", {
           mnemonic: this.mnemonic,
-          role: this.role,
+          role: this.role
         });
       }
 
@@ -97,7 +97,7 @@ export default {
     closeDialog() {
       this._show = false;
       this.$refs.form.reset();
-    },
-  },
+    }
+  }
 };
 </script>

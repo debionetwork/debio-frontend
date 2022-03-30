@@ -85,7 +85,7 @@ export default {
     UnlockWalletDialog,
     HeaderNotification,
     WalletBinding,
-    DialogAlert,
+    DialogAlert
   },
   data: () => ({
     show: false,
@@ -94,7 +94,7 @@ export default {
     alertTextBtn: "Continue",
     alertImgPath: "warning.png",
     alertTextAlert: "",
-    imgWidth: "270",
+    imgWidth: "270"
   }),
   mounted() {
     console.log("Is pair locked?", this.pair.isLocked);
@@ -102,13 +102,13 @@ export default {
   },
   computed: {
     ...mapGetters({
-      pair: "substrate/wallet",
+      pair: "substrate/wallet"
     }),
 
     ...mapState({
       isDoctorAccountExist: (state) => state.substrate.isDoctorAccountExist,
       wallet: (state) => state.substrate.wallet,
-      lastEventData: (state) => state.substrate.lastEventData,
+      lastEventData: (state) => state.substrate.lastEventData
     }),
 
     isDoctor() {
@@ -123,7 +123,7 @@ export default {
       return this.$route.meta.pageHeader
         ? this.$route.meta.pageHeader
         : v.titleCase(this.$route.name);
-    },
+    }
   },
   watch: {
     lastEventData() {
@@ -131,10 +131,10 @@ export default {
         this.$store.dispatch("substrate/addListNotification", {
           address: this.wallet.address,
           event: this.lastEventData,
-          role: "doctor",
+          role: "doctor"
         });
       }
-    },
+    }
   },
   methods: {
     toggle() {
@@ -153,9 +153,9 @@ export default {
     },
 
     goToDashboard() {
-      this.$router.push({ path: '/doctor' });
-    },
-  },
+      this.$router.push({ path: "/doctor" });
+    }
+  }
 };
 </script>
 

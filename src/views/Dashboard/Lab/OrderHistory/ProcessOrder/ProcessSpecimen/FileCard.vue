@@ -26,15 +26,15 @@ export default {
     filename: String,
     ipfsUrl: String,
     hideDelete: Boolean,
-    viewOnly: Boolean,
+    viewOnly: Boolean
   },
   methods: {
     onDeleteClick() {
-      this.$emit('delete', this.file)
+      this.$emit("delete", this.file)
     },
     onEditClick() {
       this.$emit("edit")
-    },
+    }
   }
 }
 </script>

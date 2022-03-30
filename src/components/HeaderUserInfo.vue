@@ -60,27 +60,27 @@ export default {
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
       metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
-      metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance,
-    }),
+      metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance
+    })
   },
   data: () => ({
     isLoading: false,
     balance: 0,
-    name: "",
+    name: ""
   }),
   methods: {
     ...mapMutations({
       setWalletBalance: "substrate/SET_WALLET_BALANCE",
       clearWallet: "substrate/CLEAR_WALLET",
       setMetamaskAddress: "metamask/SET_WALLET_ADDRESS",
-      setMetamaskBalance: "metamask/SET_WALLET_BALANCE",
+      setMetamaskBalance: "metamask/SET_WALLET_BALANCE"
     }),
     ...mapActions({
-      clearAuth: "auth/clearAuth",
+      clearAuth: "auth/clearAuth"
     }),
     async getBalance(balanceNummber) {
       const balance = Number(await fromEther(balanceNummber)).toFixed(3)
-      this.balance = balance.replace(/\.000/,'')
+      this.balance = balance.replace(/\.000/,"")
       if (this.balance == "0") {
         this.balance = "0";
       }
@@ -121,7 +121,7 @@ export default {
           this.setMetamaskAddress(ethRegisterAddress);
         }
       }
-    },
+    }
   },
   watch: {
     async wallet() {
@@ -136,12 +136,12 @@ export default {
     },
     walletBalance() {
       this.getBalance(this.walletBalance);
-    },
+    }
   },
   async mounted() {
     await this.fetchWalletBalance();
     await this.checkMetamaskAddress();
-  },
+  }
 };
 </script>
 

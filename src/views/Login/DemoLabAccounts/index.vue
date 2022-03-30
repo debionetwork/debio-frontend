@@ -32,26 +32,26 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
-import labs from './labs.js'
+import { mapActions } from "vuex"
+import labs from "./labs.js"
 
 export default {
-  name: 'DemoLabAccounts',
+  name: "DemoLabAccounts",
   computed: {
     items() {
       return labs
-    },
+    }
   },
   data: () => ({
-    password: 'degenics', // Hardcoded for demo account
-    isLoading: false,
+    password: "degenics", // Hardcoded for demo account
+    isLoading: false
   }),
   methods: {
     ...mapActions({
-      generateWalletFromPrivateKey: 'ethereum/generateWalletFromPrivateKey',
+      generateWalletFromPrivateKey: "ethereum/generateWalletFromPrivateKey"
     }),
     async loginAsLab(item) {
-      this.$emit('lab-selected', item);
+      this.$emit("lab-selected", item);
     }
   }
 }

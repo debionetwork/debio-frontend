@@ -15,11 +15,11 @@
 </template>
 
 <script>
-import { chunk } from '../lib/arrays'
+import { chunk } from "../lib/arrays"
 export default {
-  name: 'MnemonicKeypad',
+  name: "MnemonicKeypad",
   props: {
-    mnemonicCollection: Array,
+    mnemonicCollection: Array
   },
   computed: {
     chunkedMnemonic() {
@@ -35,7 +35,7 @@ export default {
   },
   methods: {
     emitClick(idx) {
-      this.$emit('mnemonic-index-remove', { idx: idx })
+      this.$emit("mnemonic-index-remove", { idx: idx })
     }
   }
 }

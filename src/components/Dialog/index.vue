@@ -26,14 +26,14 @@
 
 <script>
 export default {
-  name: 'Dialog',
+  name: "Dialog",
   props: {
     show: Boolean,
-    width: Number,
+    width: Number
   },
   methods: {
     closeDialog() {
-      this.$emit('close')
+      this.$emit("close")
     }
   }
 }

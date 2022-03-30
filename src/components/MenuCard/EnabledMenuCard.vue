@@ -18,14 +18,14 @@
 
 <script>
 export default {
-  name: 'EnabledMenuCard',
+  name: "EnabledMenuCard",
   props: {
     height: Number,
-    to: { type: [String, Object], default: "" },
+    to: { type: [String, Object], default: "" }
   },
   methods: {
     onClick() {
-      this.$emit('click')
+      this.$emit("click")
     }
   }
 }

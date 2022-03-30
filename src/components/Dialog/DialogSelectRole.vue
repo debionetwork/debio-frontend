@@ -51,7 +51,7 @@ export default {
     show: Boolean,
     textAlert: String,
     imgPath: String,
-    btnText: String,
+    btnText: String
   },
   data: () => ({}),
   computed: {
@@ -61,15 +61,15 @@ export default {
       },
       set(val) {
         this.$emit("toggle", val);
-      },
-    },
+      }
+    }
   },
   methods: {
     closeDialog(openRole) {
       this._show = false;
       this.$emit("close", { openRole: openRole });
-    },
-  },
+    }
+  }
 };
 </script>
 

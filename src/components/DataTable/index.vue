@@ -60,12 +60,12 @@
 </template>
 
 <script>
-import NumOfEntriesSelect from './NumOfEntriesSelect'
+import NumOfEntriesSelect from "./NumOfEntriesSelect"
 
 export default {
-  name: 'DataTable',
+  name: "DataTable",
   components: {
-    NumOfEntriesSelect,
+    NumOfEntriesSelect
   },
   props: {
     headers: Array,
@@ -77,12 +77,12 @@ export default {
     sortBy: [Array, String, Number],
     sortDesc: Array,
     loading: Boolean,
-    loadingText: String,
+    loadingText: String
   },
   data: () => ({
     entriesPerPage: 10,
     page: 1,
-    pageCount: 0,
+    pageCount: 0
   }),
   computed: {
     dataTableSearchVal: {
@@ -91,21 +91,21 @@ export default {
       },
       set(val) {
         console.log(val)
-        this.$emit('input', val)
+        this.$emit("input", val)
       }
     },
     computedLoadingText() {
-      return this.loadingText ? this.loadingText : 'Loading.. Please wait'
+      return this.loadingText ? this.loadingText : "Loading.. Please wait"
     }
   },
   methods: {
     setEntriesPerPage(val) {
       this.entriesPerPage = val
     },
-    defaultFilter(value, search, /*item*/) {
+    defaultFilter(value, search /*item*/) {
       return value != null &&
       search != null &&
-      typeof value !== 'boolean' &&
+      typeof value !== "boolean" &&
       value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1
     },
     /**
@@ -125,7 +125,7 @@ export default {
     },
     total() {
       return this.items.length
-    },
+    }
     /** ----------------- */
   }
 }

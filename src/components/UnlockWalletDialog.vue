@@ -34,33 +34,33 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import Dialog from './Dialog'
-import Button from './Button'
-import store from '@/store/index'
+import { mapGetters } from "vuex"
+import Dialog from "./Dialog"
+import Button from "./Button"
+import store from "@/store/index"
 
 export default {
-  name: 'UnlockWalletDialog',
+  name: "UnlockWalletDialog",
 
   components: {
     Dialog,
-    Button,
+    Button
   },
 
   props: { show: Boolean },
 
   data: () => ({
     showPassword: false,
-    password: '',
+    password: "",
     isLoading: false,
-    errorMessages: [],
+    errorMessages: []
   }),
 
   computed: {
     ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
-    }),
+      api: "substrate/getAPI",
+      pair: "substrate/wallet"
+    })
   },
 
   methods: {
@@ -74,14 +74,14 @@ export default {
       try {
         this.pair.unlock(this.password)
 
-        await store.dispatch('substrate/getEncryptedAccountData', {
+        await store.dispatch("substrate/getEncryptedAccountData", {
           password: this.password
         })
 
         this.isLoading = false
-        this.password = ''
+        this.password = ""
         
-        this.$emit('toggle')
+        this.$emit("toggle")
 
       } catch (err) {
         this.isLoading = false

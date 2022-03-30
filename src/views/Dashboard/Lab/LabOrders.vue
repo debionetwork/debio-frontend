@@ -55,21 +55,21 @@ import { mapState } from "vuex"
 import OrderCard from "@/components/OrderCard"
 import PrimaryButton from "@/components/PrimaryButton"
 import {
-  fetchOrderHistory,
+  fetchOrderHistory
 } from "@/lib/polkadotProvider/query/orders"
 
 export default {
   name: "LabOrders",
   components: {
     OrderCard,
-    PrimaryButton,
+    PrimaryButton
   },
   computed: {
     ...mapState({
       walletBalance: (state) => state.substrate.walletBalance,
       api: (state) => state.substrate.api,
-      wallet: (state) => state.substrate.wallet,
-    }),
+      wallet: (state) => state.substrate.wallet
+    })
   },
   mounted() {
     this.getOrderHistory()
@@ -77,7 +77,7 @@ export default {
   data: () => ({
     orderHistory: [],
     preparedOrderHistory: [],
-    isLoadingOrderHistory: false,
+    isLoadingOrderHistory: false
   }),
   methods: {
     async getOrderHistory() {
@@ -119,7 +119,7 @@ export default {
         labName,
         timestamp,
         status,
-        dnaSampleTrackingId,
+        dnaSampleTrackingId
       }
 
       this.preparedOrderHistory.push(order)
@@ -127,17 +127,17 @@ export default {
 
     goToOrderHistory() {
       this.$router.push({
-        name: "lab-dashboard-order-history",
+        name: "lab-dashboard-order-history"
       })
     },
     
     gotoDetailOrder(id) {
       this.$router.push({ 
-        name: 'lab-dashboard-process-order', 
+        name: "lab-dashboard-process-order", 
         params: { orderId: id }
       })
-    },
-  },
+    }
+  }
 }
 </script>
 

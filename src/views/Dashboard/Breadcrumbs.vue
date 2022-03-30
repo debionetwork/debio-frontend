@@ -21,7 +21,7 @@ export default {
         return this.$route.meta.breadcrumbs
       }
       return []
-    },
+    }
   },
   methods: {
     /**
@@ -38,7 +38,7 @@ export default {
       })
       return _href
     }
-  },
+  }
 }
 </script>
 
