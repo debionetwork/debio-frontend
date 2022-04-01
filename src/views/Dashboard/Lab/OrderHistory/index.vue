@@ -99,7 +99,7 @@ export default {
     async fetchDataOrders(keyword) {
       this.orders = []
       const orders = await this.dispatch(getOrdersData, this.pair.address, this.page, this.pageSize, keyword)
-      console.log("orders", orders)
+      
       for (let order of orders.data) {
         const dna = await queryDnaSamples(this.api, order._source.dna_sample_tracking_id)
         const dnaTestResult = await queryDnaTestResults(this.api, order._source.dna_sample_tracking_id)
