@@ -122,7 +122,7 @@ export default {
         dnaSampleTrackingId
       }
 
-      this.preparedOrderHistory.push(order)
+      if (status != "ResultReady") this.preparedOrderHistory.push(order)
     },
 
     goToOrderHistory() {
