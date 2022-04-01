@@ -3,8 +3,9 @@
         <v-card class="dg-card mt-5" elevation="0" outlined>
             <v-card-text class="px-8 mt-5">
                 <div class="d-flex justify-space-between align-center">
-                <div class="secondary--text text-h6">
-                    <b>Certifications</b>
+                <div>
+                    <b class="secondary--text text-h6">Certifications</b>
+                    <span> (e.g. ISO 17025:2017, ISO 9001, etc.)</span>
                 </div>
                 <v-btn small dark color="#75DEE4" fab style="border-radius:10px;" @click="openCertificationDialog">
                     <v-icon>mdi-plus</v-icon>
