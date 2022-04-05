@@ -168,7 +168,6 @@
 <script>
 import { mapState, mapGetters } from "vuex"
 import { registerLab } from "@/lib/polkadotProvider/command/labs"
-// import { upload } from "@/lib/ipfs"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import Certification from "./Certification"
 import Stepper from "./Stepper"

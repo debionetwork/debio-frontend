@@ -215,7 +215,7 @@
 
 <script>
 import { mapState } from "vuex"
-import { upload } from "@/lib/ipfs"
+import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import { createService, claimRequestService } from "@/lib/polkadotProvider/command/services"
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { getProvideRequestService, getCategories } from "@/lib/api";
@@ -487,35 +487,43 @@ export default {
       }
     },
 
-    imageUploadEventListener(file) {
+    async imageUploadEventListener(file) {
       this.isLoading = true
       this.imageUrl = ""
       if (file) {
         if (file.name.lastIndexOf(".") <= 0) {
           return
         }
-        const fr = new FileReader()
-        fr.readAsArrayBuffer(file)
+        const dataFile = await this.setupFileReader(file)
 
-        const context = this
-        fr.addEventListener("load", async () => {
-          // Upload
-          const uploaded = await upload({
-            fileChunk: fr.result,
-            fileType: file.type,
-            fileName: file.name
-          })
-          const computeLink = `${uploaded.ipfsPath[0].data.ipfsFilePath}/${uploaded.fileName}`
-
-          context.imageUrl = `https://ipfs.io/ipfs/${computeLink}`
-          context.isUploading = false
-          context.isLoading = false
-          context.isUploading = false
+        const result = await uploadFile({
+          title: dataFile.name,
+          type: dataFile.type,
+          file: dataFile
         })
+
+        const link = getFileUrl(result.IpfsHash)
+        this.imageUrl = link
+        this.isLoading = false
       }
     },
 
-    fileUploadEventListener(file) {
+    setupFileReader(value) {
+      return new Promise((resolve, reject) => {
+        const file = value
+        const fr = new FileReader()
+
+        fr.onload = async function () {
+          resolve(value)
+        }
+
+        fr.onerror = reject
+
+        fr.readAsArrayBuffer(file)
+      })
+    },
+
+    async fileUploadEventListener(file) {
       if (!file || file.size >= 2000000) {
         return
       }
@@ -525,24 +533,17 @@ export default {
         if (file.name.lastIndexOf(".") <= 0) {
           return
         }
-        const fr = new FileReader()
-        fr.readAsArrayBuffer(file)
+        const dataFile = await this.setupFileReader(file)
 
-        const context = this
-        fr.addEventListener("load", async () => {
-          // Upload
-          const uploaded = await upload({
-            fileChunk: fr.result,
-            fileType: file.type,
-            fileName: file.name
-          })
-          const computeLink = `${uploaded.ipfsPath[0].data.ipfsFilePath}/${uploaded.fileName}`
-
-          context.testResultSampleUrl = `https://ipfs.io/ipfs/${computeLink}`
-          context.isUploading = false
-          context.isLoading = false
-          context.isUploading = false
+        const result = await uploadFile({
+          title: dataFile.name,
+          type: dataFile.type,
+          file: dataFile
         })
+
+        const link = getFileUrl(result.IpfsHash)
+        this.testResultSampleUrl = link
+        this.isLoading = false
       }
     },
 
