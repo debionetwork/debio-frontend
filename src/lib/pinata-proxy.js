@@ -49,10 +49,12 @@ export const downloadFile = async (ipfsLink, withMetaData = false) => {
 }
 
 export const getIpfsMetaData = async (cid) => {
-  return await pinataIpfsGetIpfsMetadata(
+  const metaData = await pinataIpfsGetIpfsMetadata(
     cid,
     pinataJwtKey
   )
+
+  return metaData
 }
 
 export const decryptFile = (obj, pair) => {
