@@ -159,7 +159,7 @@ import { createCertification, updateCertification, deleteCertification } from "@
 import serviceHandler from "@/mixins/serviceHandler"
 import Dialog from "@/components/Dialog"
 import Button from "@/components/Button"
-import { upload } from "@/lib/ipfs"
+import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
@@ -317,36 +317,43 @@ export default {
       await this.dispatch(deleteCertification, this.api, this.pair, cert.id)
       this.showDeletePrompt = false
     },
-    fileUploadEventListener(file) {
+    async fileUploadEventListener(file) {
       this.certSupportingDocumentsUrl = ""
-      if (!this.$refs.certificationForm.validate()) {
-        return
-      }
       if (file && file.name) {
         if (file.name.lastIndexOf(".") <= 0) {
           return
         }
         this.isUploading = true
         this.isLoading = true
+        const dataFile = await this.setupFileReader(file)
 
-        const fr = new FileReader()
-        fr.readAsArrayBuffer(file)
-
-        const context = this
-        fr.addEventListener("load", async () => {
-          // Upload
-          const uploaded = await upload({
-            fileChunk: fr.result,
-            fileType: file.type,
-            fileName: file.name
-          })
-          const computeLink = `${uploaded.ipfsPath[0].data.ipfsFilePath}/${uploaded.fileName}`
-
-          context.certSupportingDocumentsUrl = `https://ipfs.io/ipfs/${computeLink}` // this is an image file that can be sent to server...
-          context.isUploading = false
-          context.isLoading = false
+        const result = await uploadFile({
+          title: dataFile.name,
+          type: dataFile.type,
+          file: dataFile
         })
+
+        const link = getFileUrl(result.IpfsHash)
+
+        this.certSupportingDocumentsUrl = link
+        this.isUploading = false
+        this.isLoading = false
       }
+    },
+
+    setupFileReader(value) {
+      return new Promise((resolve, reject) => {
+        const file = value
+        const fr = new FileReader()
+
+        fr.onload = async function () {
+          resolve(value)
+        }
+
+        fr.onerror = reject
+
+        fr.readAsArrayBuffer(file)
+      })
     }
   }
 }

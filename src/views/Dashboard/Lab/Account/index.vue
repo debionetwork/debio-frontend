@@ -160,7 +160,7 @@ import { getLocations, getStates, getCities } from "@/lib/api"
 import Kilt from "@kiltprotocol/sdk-js"
 import { u8aToHex } from "@polkadot/util"
 import Certification from "./Certification"
-import { upload } from "@/lib/ipfs"
+import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
@@ -373,7 +373,7 @@ export default {
       }
     },
     
-    fileUploadEventListener(file) {
+    async fileUploadEventListener(file) {
       this.imageUrl = ""
       if (!this.$refs.form.validate()) {
         return
@@ -385,28 +385,39 @@ export default {
         this.isUploading = true
         this.isLoading = true
 
-        const fr = new FileReader()
-        fr.readAsArrayBuffer(file)
+        const dataFile = await this.setupFileReader(file)
 
-        const context = this
-        fr.addEventListener("load", async () => {
-          // Upload
-          const uploaded = await upload({
-            fileChunk: fr.result,
-            fileType: file.type,
-            fileName: file.name
-          })
-          const computeLink = `${uploaded.ipfsPath[0].data.ipfsFilePath}/${uploaded.fileName}`
-
-          context.imageUrl = `https://ipfs.io/ipfs/${computeLink}` // this is an image file that can be sent to server...
-          context.isUploading = false
-          context.isLoading = false
+        const result = await uploadFile({
+          title: dataFile.name,
+          type: dataFile.type,
+          file: dataFile
         })
+
+        const link = getFileUrl(result.IpfsHash)
+
+        this.imageUrl = link
+        this.isUploading = false
+        this.isLoading = false
       }
       else {
         this.files = []
         this.imageUrl = ""
       }
+    },
+
+    setupFileReader(value) {
+      return new Promise((resolve, reject) => {
+        const file = value
+        const fr = new FileReader()
+
+        fr.onload = async function () {
+          resolve(value)
+        }
+
+        fr.onerror = reject
+
+        fr.readAsArrayBuffer(file)
+      })
     },
 
     checkVerify() {
