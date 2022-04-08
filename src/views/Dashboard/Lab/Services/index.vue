@@ -154,12 +154,12 @@ export default {
     serviceCount: 0
   }),
   computed:{
-   ...mapGetters({
-      api: 'substrate/getAPI',
-      pair: 'substrate/wallet',
-      web3: 'metamask/getWeb3',
-      labAccount: 'substrate/labAccount',
-   }),
+    ...mapGetters({
+      api: "substrate/getAPI",
+      pair: "substrate/wallet",
+      web3: "metamask/getWeb3",
+      labAccount: "substrate/labAccount"
+    }),
 
     ...mapState({
       lastEventData: (state) => state.substrate.lastEventData
@@ -170,18 +170,18 @@ export default {
     lastEventData(val) {
       if (val === null) return
       if (val.method === "ServiceDeleted") {
-         this.isLoading = false
-         this.showDialog = false
-         this.getServices()
-         this.checkServiceCount()
+        this.isLoading = false
+        this.showDialog = false
+        this.getServices()
+        this.checkServiceCount()
       }
     }
   },
 
-   async created() {
-      await this.getServices()
-      await this.checkServiceCount()
-   },
+  async created() {
+    await this.getServices()
+    await this.checkServiceCount()
+  },
 
   methods:{
     async getServices() {
@@ -228,15 +228,15 @@ export default {
     },
 
     confirmDeleteService(item) {
-       this.idItemDeleted = item.id
-       this.showDialog = true
+      this.idItemDeleted = item.id
+      this.showDialog = true
     },
 
     async checkServiceCount() {
       this.serviceCount = this.labAccount.services.length
-       if (this.serviceCount <= 1) {
-          this.activeButton = false
-       }
+      if (this.serviceCount <= 1) {
+        this.activeButton = false
+      }
     }
   }
 }
