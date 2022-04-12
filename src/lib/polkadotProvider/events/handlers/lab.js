@@ -28,7 +28,7 @@ const handler = {
       }
       wording = `${wording} ${data[0].verificationStatus.toLowerCase()}`
     }
-		
+
     return { data, id, params, wording }
   },
   balances: async (dataEvent, value, valueMessage) => {
@@ -44,7 +44,8 @@ const handler = {
     const data = dataEvent[0];
     const id = data[value];
     const params = { orderId: id }
-    const wording = valueMessage
+    const formatedHash = `${id.substr(0, 4)}...${id.substr(id.length - 4)}`
+    const wording = `${valueMessage} ${formatedHash} is awaiting process.`
     return { data, id, params, wording }
   },
   rewards: async (dataEvent, value, valueMessage) => {
@@ -54,14 +55,15 @@ const handler = {
     const params = null;
     const finalText = await toFormatDebioCoin(data[valueMessage])
     const coin = web3.utils.fromWei(finalText, "ether")
-    const wording = `${coin} DBIO for registering in Debio Appchain`;
+    const wording = `${coin} DBIO from account verification`;
     return { data, id, params, wording }
   },
   geneticTesting: async (dataEvent, value, valueMessage) => {
     const data = dataEvent[0];
     const id = data[value];
     const params = { orderId: id };
-    const wording = `${valueMessage} DBIO from the quality control fee.`;
+    const formatedHash = `${id.substr(0, 4)}...${id.substr(id.length - 4)}`
+    const wording = `${valueMessage} DAI as quality control fees for ${formatedHash}.`;
     return { data, id, params, wording }
   },
   services: async (dataEvent, value, valueMessage) => {
@@ -70,7 +72,7 @@ const handler = {
     const params = { id: id };
     const wording = valueMessage;
     const notifications = JSON.parse(localStorage.getLocalStorageByName(
-			`LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_lab`
+      `LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_lab`
     ))
     const isExist = notifications?.find(notif => notif.params.id === id)
 
