@@ -21,6 +21,7 @@ describe("Dashboard Lab Order History Process Order Index", () => {
   it("Should render", () => {
     // Arrange
     const processOrder = _.cloneDeep(ProcessOrder)
+    processOrder.computed.orderId = jest.fn()
     processOrder.created = jest.fn()
     processOrder.mounted = jest.fn()
 
@@ -35,6 +36,9 @@ describe("Dashboard Lab Order History Process Order Index", () => {
             mnemonicData: "oil spend nation obey lecture behave lake diary reward forest gym apple"
           },
           auth: {
+            configApp: {
+              escrowETHAddress: "escrowETHAddress"
+            },
             loadingData: "LOADING"
           },
           metamask: {
