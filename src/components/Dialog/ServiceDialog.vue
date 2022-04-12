@@ -48,7 +48,7 @@
 
 <script>
 import Button from "@/components/Button";
-import { downloadDecryptedFromIPFS } from "@/lib/ipfs";
+import { downloadFile, decryptFile, downloadDocumentFile } from "@/lib/pinata-proxy"
 import { hexToU8a } from "@polkadot/util";
 import { mapState } from "vuex";
 
@@ -87,17 +87,14 @@ export default {
       this.$emit("close");
     },
     async downloadFile() {
-      const publicKey = hexToU8a(this.mnemonicData.publicKey);
-      const privateKey = hexToU8a(this.mnemonicData.privateKey);
-      const baseUrl = "https://ipfs.io/ipfs/";
-      const path = this.downloadPath.replace(baseUrl, "")
-      await downloadDecryptedFromIPFS(
-        path,
-        privateKey,
-        publicKey,
-        this.serviceId + ".pdf",
-        "application/pdf"
-      );
+      const type = "application/pdf"
+      const pair = {
+        publicKey: hexToU8a(this.mnemonicData.publicKey),
+        secretKey: hexToU8a(this.mnemonicData.privateKey)
+      }
+      const { data } = await downloadFile(this.downloadPath)
+      const decryptedFile = decryptFile(data, pair, type)
+      await downloadDocumentFile(decryptedFile, this.downloadPath.split("/").pop(), type)
     },
     onSubmit() {
       this.$router.push({ name: "request-test-checkout" });

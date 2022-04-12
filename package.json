@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.12.5",
+    "@debionetwork/pinata-ipfs": "0.0.2",
     "@kiltprotocol/sdk-js": "^0.22.1",
     "@metamask/detect-provider": "^1.2.0",
     "@polkadot/api": "^6.5.2",
