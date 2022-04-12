@@ -106,7 +106,7 @@
     "lab": {
       "labs": {
         "LabRegistered": {
-          "message": "Your verification request has been submitted.",
+          "message": "You've successfully submitted your account verification.",
           "value": 0,
           "value_message": "",
           "route": "",
@@ -126,7 +126,7 @@
         "OrderPaid": {
           "message": "",
           "value": "id",
-          "value_message": "You have new order awaiting to procceed",
+          "value_message": "A new order",
           "route": "lab-dashboard-process-order",
           "params": "orderId",
           "identity": "sellerId"
@@ -146,7 +146,7 @@
         "DnaSampleRejected": {
           "message": "",
           "value": "orderId",
-          "value_message": "You’ve got ",
+          "value_message": "You’ve received ",
           "route": "lab-dashboard-process-order",
           "params": "orderId",
           "identity": "labId"
@@ -154,7 +154,7 @@
         "DnaSampleResultReady": {
           "message": "",
           "value": "orderId",
-          "value_message": "You’ve got ",
+          "value_message": "You’ve received ",
           "route": "lab-dashboard-process-order",
           "params": "orderId",
           "identity": "labId"
@@ -162,7 +162,7 @@
       },
       "rewards": {
         "RewardFunds": {
-          "message": "Congrats! You’ve got ",
+          "message": "Congrats! You’ve received ",
           "value": 0,
           "value_message": 1,
           "route": "",
@@ -174,7 +174,7 @@
         "ServiceCreated": {
           "message": "",
           "value": "id",
-          "value_message": "Congrats! You have successfully added your new service",
+          "value_message": "You've successfully added your new service",
           "route": "lab-dashboard-services-detail",
           "params": "id",
           "identity": "ownerId"
