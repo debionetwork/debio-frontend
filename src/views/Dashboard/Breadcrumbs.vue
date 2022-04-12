@@ -1,7 +1,7 @@
 <template>
   <v-breadcrumbs class="pl-0" :items="items" divider=">">
     <template v-slot:item="{ item }">
-      <v-breadcrumbs-item :disabled="item.disabled">
+      <v-breadcrumbs-item v-if="item != undefined" :disabled="item.disabled">
         <router-link v-if="item.href" :to="createHref(item.href)" style="text-decoration:none;">
           <b>{{ item.text }}</b>
         </router-link>
@@ -18,6 +18,7 @@ export default {
   computed: {
     items() {
       if (this.$route.meta && this.$route.meta.breadcrumbs) {
+        console.log(this.$route.meta.breadcrumbs[0]);
         return this.$route.meta.breadcrumbs
       }
       return []
