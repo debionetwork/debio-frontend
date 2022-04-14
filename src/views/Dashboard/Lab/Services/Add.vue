@@ -141,6 +141,10 @@
                       </v-row>
                     </div>
 
+                    <div class="grey--text mb-6">
+                      *Every transaction fee includes a 5% service charge.
+                    </div>
+
                     <v-text-field
                       dense
                       label="Short Description"
