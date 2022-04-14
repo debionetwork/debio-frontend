@@ -134,9 +134,8 @@ export default {
     },
     passwordRules() {
       return [
-        (val) => !!val || "This field is required",
-        (val) => (val && val.length >= 8) || "Password Min 8 Character",
-        (val) => /^[a-zA-Z0-9-_]+$/.test(val) || "Password must a-z, A-Z, "
+        rulesHandler.FIELD_REQUIRED,
+        rulesHandler.PASSWORD
       ]
     }
   },
