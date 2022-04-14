@@ -154,7 +154,7 @@
                   ></v-textarea>
 
                   <v-file-input
-                    :rules="[fileInputRules, fieldRequiredRule]"
+                    :rules="fileInputRules"
                     accept="image/png, image/jpeg, image/bmp, .pdf"
                     dense
                     label="Test Result Sample"
@@ -336,6 +336,7 @@ export default {
 
     longDescriptionRules() {
       return [
+        rulesHandler.FIELD_REQUIRED,
         rulesHandler.ENGLISH_ALPHABET,
         rulesHandler.MAX_CHARACTER(255)
 
@@ -351,6 +352,7 @@ export default {
 
     fileInputRules() {
       return [
+        value => !value || "This field is required",
         value => (!!value && value.size < 2000000) || "The total file size uploaded exceeds the maximum file size allowed (2MB)",
         value => (!!value && value.type === "application/pdf") || "The files uploaded are not in the supported file formats."
       ]
