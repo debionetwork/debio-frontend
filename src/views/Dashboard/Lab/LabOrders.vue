@@ -85,7 +85,6 @@ export default {
       try {
         const address = this.wallet.address
         let {orders} = await fetchOrderHistory(this.api, address)
-        console.log("orders", orders)
         for (let i = 0; i < orders.length; i++) {
           this.prepareOrderData(orders[i])
         }

@@ -102,8 +102,6 @@ export default {
       for (let order of orders.data) {
         const dna = await queryDnaSamples(this.api, order._source.dna_sample_tracking_id)
         const dnaTestResult = await queryDnaTestResults(this.api, order._source.dna_sample_tracking_id)
-        console.log("dna", dna)
-        console.log("dnaTestResult", dnaTestResult)
         const data = {
           ...order,
           _source: {
@@ -117,7 +115,7 @@ export default {
             })
           }
         }
-        
+
         if (data._source.status === "Fulfilled") this.orders.push(data)
       }
       this.totalOrders = orders.info.count.body.count
