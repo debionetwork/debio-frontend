@@ -129,6 +129,7 @@ import localStorage from "../lib/local-storage";
 import { mapActions, mapState, mapMutations } from "vuex";
 import { queryBalance } from "@/lib/polkadotProvider/query/balance"
 import { fromEther } from "@/lib/balance-format";
+import errorMessages from "../../src/constants/error-messages"
 export default {
   name: "DialogSelectUserLogin",
   data: () => ({
@@ -241,7 +242,7 @@ export default {
           file: dataKeystore,
           password: this.password
         });
-
+        
         this.loading = false;
         this.setIsLoading(false);
         this.keystoreInputErrors = "";
@@ -253,7 +254,7 @@ export default {
           this.$emit("key-store-set");
           return;
         } else {
-          this.keystoreInputErrors = result.error;
+          this.keystoreInputErrors = errorMessages.INCORRECT_PASSWORD;
         }
       } else {
         this.setIsLoading(false);

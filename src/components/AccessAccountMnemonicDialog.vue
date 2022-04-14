@@ -69,7 +69,7 @@ export default {
     mnemonicRules() {
       return [
         val => !!val || "Mnemonic cannot be empty.",
-        val => (val && mnemonicValidate(val)) || "Mnemonic invalid.",
+        val => (val && mnemonicValidate(val)) || "The mnemonic you entered is incorrect.",
         val => (val && val.trim().split(/\s+/g).length >= 12) || "Number of words must be 12 or more"
       ]
     }
