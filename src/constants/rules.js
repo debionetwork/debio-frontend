@@ -9,5 +9,6 @@ export default Object.freeze({
   FILE_SIZE: (size) => {
     return val => (!!val && val.size <= size) || errorMessages.FILE_SIZE(size / 1000000)
   },
-  DEFAULT_ACCEPT_DOCUMENTS: val => (!!val && (val.type === "application/pdf" || val.type === "application/msword" || val.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document")) || errorMessages.FILE_FORMAT("PDF/DOC/DOCX")
+  DEFAULT_ACCEPT_DOCUMENTS: val => (!!val && (val.type === "application/pdf" || val.type === "application/msword" || val.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document")) || errorMessages.FILE_FORMAT("PDF/DOC/DOCX"),
+  PASSWORD: val => (val && val.length >= 8) && /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(val) || errorMessages.PASSWORD(8, "at least UPPER/lowercase characters, number and special character in (!@#$%^&*)")
 })

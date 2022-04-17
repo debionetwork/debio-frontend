@@ -87,9 +87,10 @@
 </template>
 
 <script>
-import { mapActions, mapState, mapMutations } from "vuex";
-import VueRecaptcha from "vue-recaptcha";
-import apiClientRequest from "@/lib/api";
+import {mapActions, mapState, mapMutations} from "vuex"
+import VueRecaptcha from "vue-recaptcha"
+import apiClientRequest from "@/lib/api"
+import rulesHandler from "@/constants/rules"
 
 export default {
   name: "SetKeystorePasswordDialog",
@@ -115,41 +116,37 @@ export default {
   computed: {
     _show: {
       get() {
-        return this.show;
+        return this.show
       },
       set(val) {
-        this.$emit("toggle", val);
+        this.$emit("toggle", val)
       }
     },
     sitekey() {
-      return process.env.VUE_APP_RECAPTCHA_SITE_KEY;
+      return process.env.VUE_APP_RECAPTCHA_SITE_KEY
     },
     ...mapState({
       substrateApi: (state) => state.substrate.api,
       isLoading: (state) => state.substrate.isLoadingWallet
     }),
     nameRules() {
-      return [
-        val => !!val || "This field is required",
-        val => (val && val.length >= 8) || "Min 8 Character"
-      ]
+      return [rulesHandler.FIELD_REQUIRED, rulesHandler.MAX_CHARACTER(100)]
     },
     passwordRules() {
       return [
-        val => !!val || "This field is required",
-        val => (val && val.length >= 8) || "Password Min 8 Character",
-        val => /^[a-zA-Z0-9-_]+$/.test(val) || "Password must a-z, A-Z, "
+        rulesHandler.FIELD_REQUIRED,
+        rulesHandler.PASSWORD
       ]
     }
   },
   mounted() {
-    let recaptchaScript = document.createElement("script");
+    let recaptchaScript = document.createElement("script")
     const recaptchaSrc =
-      "https://www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit";
-    recaptchaScript.setAttribute("src", recaptchaSrc);
-    recaptchaScript.setAttribute("async", true);
-    recaptchaScript.setAttribute("defer", true);
-    document.head.appendChild(recaptchaScript);
+      "https://www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit"
+    recaptchaScript.setAttribute("src", recaptchaSrc)
+    recaptchaScript.setAttribute("async", true)
+    recaptchaScript.setAttribute("defer", true)
+    document.head.appendChild(recaptchaScript)
   },
   methods: {
     ...mapActions({
@@ -159,7 +156,7 @@ export default {
       setIsLoading: "substrate/SET_LOADING_WALLET"
     }),
     async onVerifyRecaptcha(response) {
-      const result = await apiClientRequest.post("/recaptcha", { response })
+      const result = await apiClientRequest.post("/recaptcha", {response})
 
       if (result.data.success) this.recaptchaVerified = true
     },
@@ -167,23 +164,25 @@ export default {
       try {
         if (this.secretType == "mnemonic") {
           if (this.accountName == "") {
-            this.accountName = "Account Name";
+            this.accountName = "Account Name"
           }
-          this.setIsLoading(true);
+          this.setIsLoading(true)
           const result = await this.registerMnemonic({
             mnemonic: this.secret,
             password: this.password,
             accountName: this.accountName
-          });
+          })
           if (result.success) {
-            this._show = false;
-            this.$emit("key-store-set");
-            const accounts = Object.keys(window.localStorage).filter(v => /account:/.test(v))
+            this._show = false
+            this.$emit("key-store-set")
+            const accounts = Object.keys(window.localStorage).filter((v) =>
+              /account:/.test(v)
+            )
 
             if (accounts.length > 1) window.localStorage.removeItem(accounts[0])
             //this.$router.push("/");
-            this.setIsLoading(false);
-            return;
+            this.setIsLoading(false)
+            return
           }
         }
 
@@ -191,27 +190,25 @@ export default {
           await this.generateWalletFromPrivateKey({
             privateKey: this.secret,
             password: this.password
-          });
-          this._show = false;
-          this.$emit("key-store-set");
+          })
+          this._show = false
+          this.$emit("key-store-set")
           //this.$router.push("/");
-          this.setIsLoading(false);
-          return;
+          this.setIsLoading(false)
+          return
         }
       } catch (err) {
-        this.setIsLoading(false);
-        console.log(err);
+        this.setIsLoading(false)
+        console.log(err)
       }
     },
     closeDialog() {
-      this._show = false;
-      this.$emit("key-store-set-cancelled");
-      this.$refs.passwordForm.reset();
+      this._show = false
+      this.$emit("key-store-set-cancelled")
+      this.$refs.passwordForm.reset()
     }
   }
-};
+}
 </script>
 
-<style>
-</style>
-
+<style></style>
