@@ -99,7 +99,6 @@ export default {
     async fetchDataOrders(keyword) {
       this.orders = []
       const orders = await this.dispatch(getOrdersData, this.pair.address, this.page, this.pageSize, keyword)
-      
       for (let order of orders.data) {
         const dna = await queryDnaSamples(this.api, order._source.dna_sample_tracking_id)
         const dnaTestResult = await queryDnaTestResults(this.api, order._source.dna_sample_tracking_id)
@@ -116,8 +115,8 @@ export default {
             })
           }
         }
-        
-        if (data._source.status === "ResultReady") this.orders.push(data)
+
+        if (data._source.status === "Fulfilled") this.orders.push(data)
       }
       this.totalOrders = orders.info.count.body.count
     },
