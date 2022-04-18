@@ -13,6 +13,13 @@ export async function fulfillOrder(api, pair, orderId, callback = () => {}) {
     )
 }
 
+export async function  fullfillOrderFee(api, pair, orderId) {
+  const result = await api.tx.orders
+    .fulfillOrder(orderId)
+    .paymentInfo(pair)
+  return result
+}
+
 export async function refundOrder(api, pair, orderId) {
   const result = await api.tx.orders
     .refundOrder(orderId)
