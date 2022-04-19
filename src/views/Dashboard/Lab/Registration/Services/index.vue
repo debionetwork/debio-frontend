@@ -356,7 +356,7 @@ export default {
 
     fileInputRules() {
       return [
-        value => !value || "This field is required",
+        value => !!value || "This field is required",
         value => (!!value && value.size < 2000000) || "The total file size uploaded exceeds the maximum file size allowed (2MB)",
         value => (!!value && value.type === "application/pdf") || "The files uploaded are not in the supported file formats."
       ]
@@ -417,7 +417,7 @@ export default {
       this.price = ""
       this.qcPrice = ""
       this.expectedDuration = ""
-      this.selectExpectedDuration = "WorkingDays"
+      this.selectExpectedDuration = "Days"
       this.category = ""
       this.description = ""
       this.testResultSampleUrl = ""
