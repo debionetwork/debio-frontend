@@ -10,7 +10,7 @@
             :sort-by="['createdAt']"
             :sort-desc="[true]"
             :loading="isLoading"
-            :total-item-length="totalOrders"
+            :total-item-length="orders.length"
             :handle-page-change="handlePageChange"
             :handle-page-size-change="handlePageSizeChange"
             :current-page="page"
@@ -78,7 +78,6 @@ export default {
     orders: [],
     page: 1,
     pageSize: 10,
-    totalOrders: 0,
     address: "",
     password: "",
     search: "",
@@ -119,7 +118,6 @@ export default {
         
         if (listStatus.includes(data._source.status)) this.orders.push(data)
       }
-      this.totalOrders = orders.info.count.body.count
     },
 
     async handleSearch(val) {
@@ -175,13 +173,11 @@ export default {
 
     async handlePageChange(value){
       this.page = value
-      await this.fetchDataOrders()
     },
 
     async handlePageSizeChange(value){
       this.pageSize = value
       this.page = 1 // If change page size restart from page 1
-      await this.fetchDataOrders()
     }
   }
 }
