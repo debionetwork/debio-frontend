@@ -266,8 +266,9 @@ export default {
     currencyList: ["DAI", "Ethereum"],
     currencyType: "DAI",
     listExpectedDuration: [
-      {text: "Hours", value: "Hours"},
-      {text: "Days", value: "Days"}
+      { text: "Working Days", value: "WorkingDays" },
+      { text: "Hours", value: "Hours" },
+      { text: "Days", value: "Days" }
     ],
     selectExpectedDuration: "Days",
     expectedDuration: "",
@@ -417,7 +418,7 @@ export default {
       this.price = ""
       this.qcPrice = ""
       this.expectedDuration = ""
-      this.selectExpectedDuration = "Days"
+      this.selectExpectedDuration = "WorkingDays"
       this.category = ""
       this.description = ""
       this.testResultSampleUrl = ""
