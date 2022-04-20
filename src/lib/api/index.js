@@ -21,7 +21,7 @@ const apiClientRequest = axios.create({
 })
 
 const responseValidation = (response) => {
-  if (String(response?.status)[0] == 4 || String(response?.status)[0] == 5) {
+  if (String(response?.status)[0] === "4" || String(response?.status)[0] === "5") {
     VueRouter.push({ query: { error: true } })
   }
 }
