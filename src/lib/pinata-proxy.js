@@ -28,7 +28,10 @@ export const uploadFile = val => {
     options,
     val.file,
     pinataJwtKey,
-    source.token
+    source.token,
+    (progressEvent) => {
+      if(!progressEvent.lengthComputable) return
+    }
   )
 }
 
