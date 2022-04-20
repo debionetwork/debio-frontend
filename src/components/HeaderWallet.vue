@@ -12,12 +12,12 @@
     <div class="mt-11">
       <v-card class="card-container">
         <div>
-          <b class="notification-title">Wallet</b>
+          <strong class="notification-title">Wallet</strong>
           <div class="d-flex">
             <div class="wallet-icon">
               <v-img src="@/assets/polkadot-icon.svg" />
             </div>
-            <b class="notification-subtitle">Polkadot</b>
+            <strong class="notification-subtitle">Polkadot</strong>
           </div>
           <div class="text-content">Address</div>
           <div class="d-flex justify-space-between address-wrapper">
@@ -42,7 +42,7 @@
             <div class="wallet-icon">
               <v-img src="@/assets/debio-logo.png" />
             </div>
-            <b class="notification-subtitle">{{ balance }} DBIO</b>
+            <strong class="notification-subtitle">{{ balance }} DBIO</strong>
           </div>
         </div>
         <div class="divider"></div>
@@ -52,7 +52,7 @@
               <div class="wallet-icon">
                 <v-img src="@/assets/metamask-icon.svg" />
               </div>
-              <b class="notification-subtitle">Metamask</b>
+              <strong class="notification-subtitle">Metamask</strong>
             </div>
             <div class="disconnect-text" v-if="metamaskAddress" @click="disconnectWallet">Disconnect</div>
           </div>
@@ -80,8 +80,8 @@
               <div class="wallet-icon">
                 <v-img src="@/assets/dai-icon.svg" />
               </div>
-              <b class="notification-subtitle"
-                >{{ Number(metamaskBalance).toFixed(3) }} DAI</b
+              <strong class="notification-subtitle"
+                >{{ Number(metamaskBalance).toFixed(3) }} DAI</strong
               >
             </div>
           </div>
