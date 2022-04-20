@@ -38,6 +38,7 @@ import { mapGetters } from "vuex"
 import Dialog from "./Dialog"
 import Button from "./Button"
 import store from "@/store/index"
+import errorMessages from "../../src/constants/error-messages"
 
 export default {
   name: "UnlockWalletDialog",
@@ -85,7 +86,8 @@ export default {
 
       } catch (err) {
         this.isLoading = false
-        this.errorMessages = [err.message]
+        if (err.message === "Unable to decode using the supplied passphrase") this.errorMessages = [errorMessages.INCORRECT("password")]
+        else this.errorMessages = [err.message]
       }
     }
   }
