@@ -53,7 +53,7 @@
                   placeholder="Lab Name"
                   autocomplete="off"
                   outlined
-                  :disabled="!isEditable || isVerify"
+                  :disabled="!isEditable"
                   :rules="nameRules"
                   v-model="labName"
                 ></v-text-field>
@@ -64,10 +64,11 @@
                   item-text="name"
                   item-value="iso2"
                   @change="onCountryChange"
+                  return-object
                   :label="computeCountryLabel"
                   autocomplete="off"
                   v-model="country"
-                  :disabled="!isEditable || isVerify"
+                  disabled
                   :rules="isRequired"
                   outlined
                 ></v-autocomplete>
@@ -79,7 +80,7 @@
                   item-value="state_code"
                   @change="onStateChange"
                   :label="computeStateLabel"
-                  :disabled="(!country || !isEditable || isVerify)"
+                  disabled
                   :rules="isRequired"
                   autocomplete="off"
                   v-model="state"
@@ -94,7 +95,7 @@
                   return-object
                   @change="onCityChange"
                   :label="computeCityLabel"
-                  :disabled="(!state || !isEditable || isVerify)"
+                  disabled
                   :rules="isRequired"
                   autocomplete="off"
                   v-model="city"
@@ -108,20 +109,37 @@
                   autocomplete="off"
                   outlined
                   v-model="address"
-                  :disabled="!isEditable || isVerify"
+                  disabled
                   :rules="addressRules"
                 ></v-text-field>
 
-                <v-text-field
-                  dense
-                  label="Phone Number"
-                  placeholder="Phone Number"
-                  autocomplete="off"
-                  outlined
-                  v-model="phoneNumber"
-                  :rules="phoneNumberRules"
-                  :disabled="!isEditable"
-                ></v-text-field>
+                <v-row>
+                  <v-col md="3" class="pr-0">
+                    <v-autocomplete
+                      dense
+                      return-object
+                      :items="countries"
+                      item-text="phone_code"
+                      item-value="phone_code"
+                      label="Phone code"
+                      outlined
+                      v-model="phoneCode"
+                      :disabled="!isEditable"
+                      :rules="[val => !!val || 'Phone code is Required']"
+                    ></v-autocomplete>
+                  </v-col>
+                  <v-col>
+                    <v-text-field
+                      dense
+                      label="Phone Number"
+                      placeholder="Phone Number"
+                      outlined
+                      v-model="phoneNumber"
+                      :rules="phoneNumberRules"
+                      :disabled="!isEditable"
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
 
                 <v-text-field
                   dense
@@ -176,6 +194,7 @@ export default {
     labName: "",
     address: "",
     phoneNumber: "",
+    phoneCode: null,
     website: "",
     country: "",
     state: "",
@@ -186,9 +205,7 @@ export default {
     cities: [],
     files: [],
     isEditable: false,
-    isUploading: false,
-    verificationStatus: "",
-    isVerify: false
+    isUploading: false
   }),
 
   computed: {
@@ -285,8 +302,6 @@ export default {
     this.phoneNumber = labInfo.phoneNumber
     this.website = labInfo.website
     this.imageUrl = labInfo.profileImage
-    this.verificationStatus = this.labAccount.verificationStatus
-    this.checkVerify()
 
     await this.getCountries()
     await this.onCountryChange(labInfo.country)
@@ -309,15 +324,19 @@ export default {
     },
 
     async onCountryChange(selectedCountry) {
+      const selected = typeof selectedCountry !== "string"
+        ? selectedCountry
+        : this.countries.find(country => country.iso2 === selectedCountry)
       this.state = ""
       this.city = ""
 
       const { data:
         { data }
-      } = await this.dispatch(getStates, selectedCountry)
+      } = await this.dispatch(getStates, selected?.iso2 ?? selectedCountry)
 
-      this.country = selectedCountry;
       this.states = data;
+      this.country = selected?.iso2 ?? selectedCountry
+      this.phoneCode = selected?.phone_code ?? null
     },
 
     async onStateChange(selectedState) {
@@ -418,12 +437,6 @@ export default {
 
         fr.readAsArrayBuffer(file)
       })
-    },
-
-    checkVerify() {
-      if (this.verificationStatus == "Verified") {
-        return this.isVerify = true
-      }
     }
   }
 }

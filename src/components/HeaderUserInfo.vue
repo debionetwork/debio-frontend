@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex align-center">
     <div>
-      <v-img src="@/assets/user-profile-sample.png" max-width="35" />
+      <v-img :src="computedAvatar" max-width="35" />
     </div>
     <div>
       <div class="ml-3 text-left">
@@ -20,8 +20,13 @@ export default {
 
   computed: {
     ...mapState({
-      wallet: (state) => state.substrate.wallet
+      wallet: (state) => state.substrate.wallet,
+      labAccount: (state) => state.substrate.labAccount
     })
+
+    computedAvatar() {
+      return this.labAccount.info.profileImage ?? require("@/assets/user-profile-sample.png")
+    }
   },
 
   data: () => ({
