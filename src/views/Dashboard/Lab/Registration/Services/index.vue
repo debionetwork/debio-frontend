@@ -139,6 +139,7 @@
                     </v-col>
                     <v-col cols="4">
                       <v-select
+                        label="Duration Type"
                         outlined
                         dense
                         v-model="document.durationType"
@@ -540,7 +541,6 @@ export default {
 
       fee = await createServiceFee(this.api, this.wallet, newService)
       this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
-
     },
 
     async handleCreateService() {

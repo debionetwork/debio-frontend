@@ -242,8 +242,6 @@ export default {
       lastEventData: (state) => state.substrate.lastEventData
     }),
 
-
-
     selectYears() {
       const years = []
       const thisYear = new Date().getFullYear()
@@ -321,8 +319,6 @@ export default {
         }
       }      
     }
-
-
   },
 
   methods: {
@@ -367,7 +363,6 @@ export default {
       }
 
       this.certificationInfo.supportingDocument = this.certSupportingDocumentsUrl
-
       await this.dispatch(createCertification, this.api, this.pair, this.certificationInfo, () => {
         this.closeCertificationDialog()
       })
