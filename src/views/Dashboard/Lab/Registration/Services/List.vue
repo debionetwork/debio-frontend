@@ -3,8 +3,8 @@
     <v-card class="dg-card mt-5" elevation="0" outlined>
       <v-card-text class="px-8 mt-5">
         <div class="d-flex justify-space-between align-center">
-        <div class="secondary--text text-h6" @click="toggleDelete({id: 1010})">
-          <b>Services Added</b>
+        <div class="secondary--text text-h6">
+          <strong>Services Added</strong>
         </div>
         <v-btn :disabled="!isLabAccountExist" small :dark="isLabAccountExist" color="#75DEE4" fab style="border-radius:10px;" @click="addService">
           <v-icon>mdi-plus</v-icon>
@@ -29,10 +29,10 @@
             class="my-3"
           >
             <div class="d-flex justify-space-between align-center" style="width: 100%;">
-              <div class=""><b>{{ service.info.name }}</b></div>
+              <div class=""><strong>{{ service.info.name }}</strong></div>
               <div class="d-flex">
                 <v-icon class="mx-1" small @click="editService(service)">mdi-pencil</v-icon>
-                <v-icon class="mx-1" small @click="deleteService(service)">mdi-delete</v-icon>
+                <v-icon class="mx-1" small @click="toggleDelete(service)">mdi-delete</v-icon>
               </div>
             </div>
             <div>
