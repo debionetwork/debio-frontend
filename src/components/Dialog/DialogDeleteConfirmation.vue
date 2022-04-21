@@ -8,7 +8,7 @@
         />
       </div>
       <div align="center" class="pb-5">
-        <b>Are you sure you want delete this {{ type }}?</b>
+        <strong>Are you sure you want delete this {{ type }}?</strong>
       </div>
       <div class="d-flex justify-center pb-5">
         <v-col lg="5" md="5" sm="8">
