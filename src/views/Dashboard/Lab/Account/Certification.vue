@@ -58,7 +58,14 @@
                           </v-card-actions>
                         </v-card>
                       </v-dialog>
-                      <v-icon class="mx-1" small @click="editCertification(cert)">mdi-pencil</v-icon>
+                      <v-icon v-if="currentLoading !== cert.id" class="mx-1" small @click="editCertification(cert)">mdi-pencil</v-icon>
+                      <v-progress-circular
+                        v-if="currentLoading === cert.id"
+                        indeterminate
+                        size="15"
+                        width="2"
+                        color="warning"
+                      ></v-progress-circular>
                       <v-icon class="mx-1" small @click="showDeletePrompt = true">mdi-delete</v-icon>
                     </div>
                     </div>
@@ -68,7 +75,7 @@
                       <a :href="cert.info.supportingDocument" class="support-url" target="_blank">
                         <span v-if="cert.info.supportingDocument">
                           <v-icon class="mx-1" small>mdi-file-document</v-icon>
-                          {{ cert.info.supportingDocument ? cert.info.supportingDocument.split("/").pop() : "Supporting Documents" }}
+                          {{ cert.info.documentName || "Supporting Documents" }}
                         </span>
                         <span v-else>No supporting document</span>
                       </a>
@@ -159,7 +166,7 @@ import { createCertification, updateCertification, deleteCertification } from "@
 import serviceHandler from "@/mixins/serviceHandler"
 import Dialog from "@/components/Dialog"
 import Button from "@/components/Button"
-import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
+import { uploadFile, getFileUrl, getIpfsMetaData } from "@/lib/pinata-proxy"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
@@ -180,6 +187,7 @@ export default {
     certMonth: "",
     certYear: "",
     certDescription: "",
+    currentLoading: null,
     certSupportingDocumentsUrl: "",
     selectMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     certificationDialog: false,
@@ -243,6 +251,19 @@ export default {
       ]
     }
   },
+
+  async created() {
+    let certifications = []
+
+    for (const cert of this.labAccount.certifications) {
+      const { rows } = await getIpfsMetaData(cert.info.supportingDocument?.split("/").pop())
+      cert.info.documentName = rows[0].metadata.name ?? "Supporting Document File"
+      cert.info.documentType = rows[0].metadata.keyvalues.type
+      certifications.push(cert)
+    }
+
+    this.labAccount.certifications = certifications
+  },
   methods: {
     openCertificationDialog() {
       this.certificationDialog = true
@@ -277,24 +298,27 @@ export default {
       })
     },
     async editCertification(cert) {
-      this.certId = cert.id
-      this.certTitle = cert.info.title
-      this.certIssuer = cert.info.issuer
-      this.certMonth = cert.info.month
-      this.certYear = cert.info.year
-      this.certDescription = cert.info.description
-      this.certSupportingDocumentsUrl = cert.info.supportingDocument
+      try {
+        this.currentLoading = cert.id
+        this.certId = cert.id
+        this.certTitle = cert.info.title
+        this.certIssuer = cert.info.issuer
+        this.certMonth = cert.info.month
+        this.certYear = cert.info.year
+        this.certDescription = cert.info.description
 
-      if (this.certSupportingDocumentsUrl) {
-        const res = await fetch(this.certSupportingDocumentsUrl)
+        const res = await fetch(cert.info.supportingDocument)
         const blob = await res.blob() // Gets the response and returns it as a blob
-        const file = new File([blob], this.certSupportingDocumentsUrl?.split("/").pop() ?? "Supporting Document File", {type: "application/pdf"})
+        const file = new File([blob], cert.info.documentName, { type: cert.info.documentType })
+
         this.files = file
+        this.certificationDialog = true
+        this.isEditCertificationDialog = true
+        this.currentLoading = null
+      } catch (error) {
+        console.error(error);
+        this.currentLoading = null
       }
-
-
-      this.certificationDialog = true
-      this.isEditCertificationDialog = true
     },
     async updateCertification() {
       if (!this.$refs.certificationForm.validate()) {
