@@ -22,7 +22,7 @@ export default {
     ...mapState({
       wallet: (state) => state.substrate.wallet,
       labAccount: (state) => state.substrate.labAccount
-    })
+    }),
 
     computedAvatar() {
       return this.labAccount.info.profileImage ?? require("@/assets/user-profile-sample.png")
