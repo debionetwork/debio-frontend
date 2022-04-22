@@ -356,7 +356,6 @@ export default {
 
       this.verificationStatus = this.labAccount.verificationStatus
 
-      await this.checkVerify()
       await this.getCountries()
       await this.onCountryChange(country)
       await this.onStateChange(region)
