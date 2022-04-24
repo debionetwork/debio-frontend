@@ -15,6 +15,28 @@
                     <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
                 </div>
                 <div align="center" class="pb-5">Are you sure you want to complete the Analysis process?</div>
+                <div class="ml-5 mr-5 pb-1 d-flex justify-space-between mt-5">
+                  <div>
+                    <span style="font-size: 12px"> Estimated Transaction Weight </span>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-icon
+                          color="primary"
+                          size="12"
+                          v-bind="attrs"
+                          v-on="on"
+                        > mdi-alert-circle-outline
+                        </v-icon>
+                      </template>
+                      <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+                    </v-tooltip>
+                  </div>
+                  <div>
+                    <span style="font-size: 12px;">
+                      {{ Number(fee).toFixed(4) }} DBIO
+                    </span>
+                  </div>
+                </div>
             </template>
             <template v-slot:actions>
                 <v-col col="12" md="6">
@@ -40,11 +62,11 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex"
+import { mapGetters, mapState } from "vuex"
 import Dialog from "@/components/Dialog"
 import DialogAlert from "@/components/Dialog/DialogAlert"
 import Button from "@/components/Button"
-import { processDnaSample } from "@/lib/polkadotProvider/command/geneticTesting"
+import { processDnaSample, processDnaSampleFee } from "@/lib/polkadotProvider/command/geneticTesting"
 
 export default {
   name: "WetWork",
@@ -53,20 +75,34 @@ export default {
     DialogAlert,
     Button
   },
+
   props: {
     specimenNumber: String
   },
+  
   data: () => ({
     isProcessing: false,
     wetWorkDialog: false,
-    wetWorkAlertDialog: false
+    wetWorkAlertDialog: false,
+    nextStatus: "WetWork",
+    fee: 0
   }),
+
   computed: {
     ...mapGetters({
       api: "substrate/getAPI",
       pair: "substrate/wallet"
+    }),
+
+    ...mapState({
+      web3: (state) => state.metamask.web3
     })
   },
+
+  async mounted() {
+    await this.getProcessDnaSampleFee()
+  },
+
   methods:{
     async processDnaSample() {
       this.isProcessing = true
@@ -74,7 +110,7 @@ export default {
         this.api,
         this.pair,
         this.specimenNumber,
-        "WetWork",
+        this.nextStatus,
         () => {
           this.isProcessing = false
           this.wetWorkDialog = false
@@ -82,13 +118,15 @@ export default {
         }
       )
     },
+
     closeWetWorkAlertDialog () {
       this.$emit("wetWorkCompleted")
+    },
+
+    async getProcessDnaSampleFee() {
+      const fee = await processDnaSampleFee(this.api, this.pair, this.specimenNumber, this.nextStatus)
+      this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
     }
   }
 }
 </script>
-
-<style>
-
-</style>

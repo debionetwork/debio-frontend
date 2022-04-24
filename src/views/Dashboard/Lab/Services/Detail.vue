@@ -39,7 +39,7 @@
                     dense
                     label="Service Category"
                     placeholder="Service Category"
-                    v-model="category"
+                    v-model="document.category"
                     outlined
                     :items="listCategories"
                     item-text="service_categories"
@@ -51,9 +51,9 @@
                     dense
                     label="Type of Biological Sample"
                     placeholder="Type of Biological Sample"
-                    v-model="biologicalType"
+                    v-model="document.dnaCollectionProcess"
                     outlined
-                    :items="listBiologicalType"
+                    :items="dnaCollectionProcessList"
                     item-text="dnaCollectionProcess"
                     item-value="dnaCollectionProcess"
                     :rules="fieldRequiredRule"
@@ -64,7 +64,7 @@
                       label="Service Name"
                       placeholder="Service Name"
                       outlined
-                      v-model="name"
+                      v-model="document.name"
                       :rules="[...fieldRequiredRule, ...serviceNameRules, ...fieldEnglishRules]"
                     ></v-text-field>
 
@@ -76,7 +76,7 @@
                           outlined
                           dense
                           max="30"
-                          v-model="currencyType"
+                          v-model="document.currency"
                           :items="currencyList"
                           :rules="fieldRequiredRule"
                           ></v-select>
@@ -90,7 +90,7 @@
                             type="number"
                             min="0"
                             step=".001"
-                            v-model.number="price"
+                            v-model.number="document.price"
                             :rules="[...fieldRequiredRule, ...decimalRule]"
                           ></v-text-field>
                         </v-col>
@@ -100,7 +100,7 @@
                           label="QC Currency"
                           outlined
                           dense
-                          v-model="currencyType"
+                          v-model="document.currency"
                           :items="currencyList"
                           :rules="fieldRequiredRule"
                           ></v-select>
@@ -115,7 +115,7 @@
                             type="number"
                             min="0"
                             step=".001"
-                            v-model.number="qcPrice"
+                            v-model.number="document.qcPrice"
                             :rules="[...fieldRequiredRule, ...decimalRule]"
                           ></v-text-field>
                         </v-col>
@@ -127,7 +127,7 @@
                       label="Short Description"
                       placeholder="Short Description"
                       outlined
-                      v-model="description"
+                      v-model="document.description"
                       :rules="[...fieldRequiredRule, ...descriptionRules, ...fieldEnglishRules]"
                     ></v-text-field>
                     
@@ -139,7 +139,7 @@
                           placeholder="Expected Duration"
                           max="30"
                           outlined
-                          v-model="expectedDuration"
+                          v-model="document.duration"
                           :rules="fieldRequiredRule"
                         ></v-text-field>
                       </v-col>
@@ -147,7 +147,7 @@
                         <v-select
                           outlined
                           dense
-                          v-model="selectExpectedDuration"
+                          v-model="document.durationType"
                           :items="listExpectedDuration"
                           :rules="fieldRequiredRule"
                         ></v-select>
@@ -159,7 +159,7 @@
                       label="Long Description"
                       placeholder="Long Description"
                       outlined
-                      v-model="longDescription"
+                      v-model="document.longDescription"
                       :rules="[...fieldRequiredRule, ...longDescriptionRules, ...fieldEnglishRules]"
                     ></v-textarea>
 
@@ -174,6 +174,29 @@
                       v-model="testResultSampleFile"
                       @change="fileUploadEventListener"
                     ></v-file-input>
+
+                    <div class= "d-flex justify-space-between" >
+                      <div class="mb-5">
+                        <span
+                          style="font-size: 12px"
+                        > Estimated Transaction Weight </span>
+                          <v-tooltip bottom>
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-icon
+                                color="primary"
+                                size="14"
+                                v-bind="attrs"
+                                v-on="on"
+                              > mdi-alert-circle-outline
+                              </v-icon>
+                            </template>
+                            <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+                          </v-tooltip>
+                      </div>
+                      <span style="font-size: 12px;">
+                        {{ Number(fee).toFixed(4) }} DBIO
+                      </span>
+                    </div>
 
                     <v-btn
                       color="primary"
@@ -197,8 +220,9 @@ import { mapGetters, mapState } from "vuex"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import { getCategories } from "@/lib/api"
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
-import { fromEther } from "@/lib/balance-format"
-import { updateService } from "@/lib/polkadotProvider/command/services"
+import { fromEther, toEther } from "@/lib/balance-format"
+import { updateService, updateServiceFee } from "@/lib/polkadotProvider/command/services"
+import { generalDebounce } from "@/utils"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
@@ -206,17 +230,22 @@ export default {
   name: "EditLabServices",
 
   data: () => ({
-    name: "",
-    category: "",
-    price: "",
-    qcPrice: "",
-    description: "",
-    longDescription: "",
+    document: {
+      category: "",
+      dnaCollectionProcess: "",
+      name: "",
+      currency: "",
+      price: 0,
+      qcPrice: 0,
+      description: "",
+      longDescription: "",
+      duration: "",
+      durationType: ""
+    },
     imageUrl: "",
     testResultSampleUrl: "",
     files: [],
     testResultSampleFile:[],
-    sampleFiles:[],
     isLoading: false,
     isUploading: false,
     currencyList: ["DAI", "Ethereum"],
@@ -224,51 +253,21 @@ export default {
     listExpectedDuration: ["WorkingDays", "Hours", "Days"],
     listCategories: [],
     selectExpectedDuration: "",
-    expectedDuration: "",
-    biologicalType: "",
-    listBiologicalType: [
+    dnaCollectionProcessList: [
       "Blood Cells - Dried Blood Spot Collection Process",
       "Epithelial Cells - Buccal Swab Collection Process",
       "Fecal Matters - Stool Collection Process",
       "Saliva - Saliva Collection Process",
       "Urine - Clean Catch Urine Collection Process"
     ],
-    isBiomedical: false
+    isBiomedical: false,
+    fee: 0
   }),
 
   async mounted(){
+    this.id = this.$route.params.id
     await this.getServiceCategory()
-    const item = await this.getService(this.$route.params.id)
-    this.id = item.id
-    this.name = item.info.name
-    this.price = Number(await fromEther(item.info.pricesByCurrency[0].priceComponents[0].value.replaceAll(",", "")))
-    this.qcPrice = Number(await fromEther(item.info.pricesByCurrency[0].additionalPrices[0].value.replaceAll(",", "")))
-    this.currencyType = item.info.pricesByCurrency[0].currency.toUpperCase()
-    this.description = item.info.description
-    this.longDescription = item.info.longDescription
-    this.imageUrl = item.info.image
-    this.testResultSampleUrl = item.info.testResultSample
-    this.expectedDuration = item.info.expectedDuration.duration
-    this.selectExpectedDuration = item.info.expectedDuration.durationType
-    this.category = item.info.category
-    this.biologicalType = item.info.dnaCollectionProcess
-    
-    if(this.imageUrl){
-      fetch(this.imageUrl)
-        .then(res => res.blob()) // Gets the response and returns it as a blob
-        .then(blob => {
-          this.files.push(new File([blob], this.imageUrl.substring(21)))
-        });
-    }
-    
-    if(this.testResultSampleUrl){
-      fetch(this.testResultSampleUrl)
-        .then(res => res.blob()) // Gets the response and returns it as a blob
-        .then(blob => {
-          const fileName = this.testResultSampleUrl.split("/").pop()
-          this.testResultSampleFile = new File([blob], fileName, { type: "application/pdf" })
-        });
-    }
+    await this.getService()
   },
 
   computed: {
@@ -322,21 +321,74 @@ export default {
         value => (!Array.isArray(value) && value?.type === "application/pdf") || "The files uploaded are not in the supported file formats."
       ]
     }
-
   },
 
   methods: {
-    async getService(id) {
-      const detailService = await queryServicesById(
-        this.api,
-        id
-      )
-      return detailService
+    async getService() {
+      const detailService = await queryServicesById(this.api,this.id)
+      const { category, description, dnaCollectionProcess, expectedDuration, image, longDescription, name, pricesByCurrency, testResultSample } = detailService.info
+
+      this.document = {
+        category,
+        dnaCollectionProcess,
+        name,
+        description,
+        longDescription,
+        currency: pricesByCurrency[0].currency,
+        price: Number(await fromEther(pricesByCurrency[0].priceComponents[0].value.replaceAll(",", ""))),
+        qcPrice: Number(await fromEther(pricesByCurrency[0].additionalPrices[0].value.replaceAll(",", ""))),
+        duration: expectedDuration.duration,
+        durationType: expectedDuration.durationType
+      }
+      this.imageUrl = image
+      this.testResultSampleUrl = testResultSample
+
+      if(this.imageUrl){
+        fetch(this.imageUrl)
+          .then(res => res.blob()) // Gets the response and returns it as a blob
+          .then(blob => {
+            this.files.push(new File([blob], this.imageUrl.substring(21)))
+          });
+      }
+      
+      if(this.testResultSampleUrl){
+        fetch(this.testResultSampleUrl)
+          .then(res => res.blob()) // Gets the response and returns it as a blob
+          .then(blob => {
+            const fileName = this.testResultSampleUrl.split("/").pop()
+            this.testResultSampleFile = new File([blob], fileName, { type: "application/pdf" })
+          });
+      }
     },
 
     async getServiceCategory() {
       const { data : data } = await getCategories()
       this.listCategories =  data
+    },
+
+    async getUpdateServiceFee() {
+      const { category, dnaCollectionProcess, name, currency, price, qcPrice, description, longDescription, duration, durationType } = this.document
+      const service = {
+        name,
+        pricesByCurrency: [{
+          currency,
+          totalPrice: await toEther(price + qcPrice),
+          priceComponents: [{
+            component: "testing_price",
+            value: await toEther(price)
+          }],
+          additionalPrices: [{
+            component: "qc_price",
+            value: await toEther(qcPrice)
+          }]
+        }],
+        expectedDuration: { duration, durationType },
+        category, description, longDescription, dnaCollectionProcess,
+        image: this.imageUrl,
+        testResultSample: this.testResultSampleUrl
+      }
+      const fee = await updateServiceFee(this.api, this.pair, this.$route.params.id, service)
+      this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
     },
 
     async updateService() {
@@ -345,40 +397,33 @@ export default {
         return
       }
       this.isLoading = true
+
+      const { category, dnaCollectionProcess, name, currency, price, qcPrice, description, longDescription, duration, durationType } = this.document
+      const service = {
+        name,
+        pricesByCurrency: [{
+          currency,
+          totalPrice: await toEther(price + qcPrice),
+          priceComponents: [{
+            component: "testing_price",
+            value: await toEther(price)
+          }],
+          additionalPrices: [{
+            component: "qc_price",
+            value: await toEther(qcPrice)
+          }]
+        }],
+        expectedDuration: { duration, durationType },
+        category, description, longDescription, dnaCollectionProcess,
+        image: this.imageUrl,
+        testResultSample: this.testResultSampleUrl
+      }
+
       await updateService(
         this.api,
         this.pair,
         this.id,
-        {
-          name: this.name,
-          pricesByCurrency: [
-            {
-              currency: this.currencyType,
-              priceComponents: [
-                {
-                  component: "testing_price",
-                  value: this.web3.utils.toWei(String(this.price), "ether")
-                }
-              ],
-              additionalPrices: [
-                {
-                  component: "qc_price",
-                  value: this.web3.utils.toWei(String(this.qcPrice), "ether")
-                }
-              ]
-            }
-          ],
-          expectedDuration: { 
-            duration: this.expectedDuration, 
-            durationType: this.selectExpectedDuration
-          },
-          category: this.category,
-          description: this.description,
-          testResultSample: this.testResultSampleUrl,
-          longDescription: this.longDescription,
-          image: this.imageUrl,
-          dnaCollectionProcess: this.biologicalType
-        },
+        service,
         () => {
           this.$router.push("/lab/services")
           this.isLoading = false
@@ -395,7 +440,6 @@ export default {
           return
         }
         const dataFile = await this.setupFileReader(file)
-
         const result = await uploadFile({
           title: dataFile.name,
           type: dataFile.type,
@@ -459,12 +503,20 @@ export default {
 
   watch: {
     category() {
-      if (this.category == "Covid-19") {
+      if (this.document.category == "Covid-19") {
         this.isBiomedical = true
-        this.qcPrice = "0"
+        this.document.qcPrice = "0"
       } else {
         this.isBiomedical = false
       }
+    },
+
+    document: {
+      deep: true,
+      immediate: true,
+      handler: generalDebounce( async function() {
+        await this.getUpdateServiceFee()
+      }, 500)
     }
   }
 }
