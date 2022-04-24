@@ -42,7 +42,7 @@
 }
 </style>
 <template>
-  <div class="d-flex align-center ml-7 mr-5">
+  <div class="d-flex align-center ml-3 mr-5">
     <div class="d-flex align-center">
       <div style="cursor: pointer">
         <v-badge
