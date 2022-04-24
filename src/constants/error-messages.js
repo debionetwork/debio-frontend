@@ -3,7 +3,6 @@
 export default Object.freeze({
   REQUIRED: "This field is required",
   EMAIL: "Email is invalid. It should contain @ followed by a domain",
-  INCORRECT_PASSWORD: "The password you entered is incorrect",
 
   /**
    *
@@ -75,6 +74,11 @@ export default Object.freeze({
    */
   MAX_CHARACTER: (number) => {
     const message = `This field only allows ${number} characters`
+    return message
+  },
+  
+  INCORRECT: (type) => {
+    const message = `The ${type} you entered is incorrect`
     return message
   }
 })

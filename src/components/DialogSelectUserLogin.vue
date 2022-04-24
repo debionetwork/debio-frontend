@@ -254,7 +254,7 @@ export default {
           this.$emit("key-store-set");
           return;
         } else {
-          this.keystoreInputErrors = errorMessages.INCORRECT_PASSWORD;
+          this.keystoreInputErrors = errorMessages.INCORRECT("password");
         }
       } else {
         this.setIsLoading(false);
