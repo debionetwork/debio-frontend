@@ -4,7 +4,7 @@
       <div class="d-flex align-center mr-4" v-bind="attrs" v-on="on">
         <div class="d-flex align-center">
           <div style="cursor: pointer">
-            <v-img src="@/assets/user-profile-sample.png" max-width="35" />
+            <v-img :src="computedAvatar" max-width="35" />
           </div>
           <div>
             <!-- :class="hover ? 'primary--text' : ''" -->
@@ -59,9 +59,14 @@ export default {
       walletBalance: (state) => state.substrate.walletBalance,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      labAccount: (state) => state.substrate.labAccount,
       metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
       metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance
-    })
+    }),
+
+    computedAvatar() {
+      return this.labAccount.info.profileImage ?? require("@/assets/user-profile-sample.png")
+    }
   },
   data: () => ({
     isLoading: false,
