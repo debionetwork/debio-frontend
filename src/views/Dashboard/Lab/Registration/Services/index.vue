@@ -296,8 +296,9 @@ export default {
     isUploading: false,
     currencyList: ["DAI", "Ethereum"],
     listExpectedDuration: [
-      {text: "Hours", value: "Hours"},
-      {text: "Days", value: "Days"}
+      { text: "Working Days", value: "WorkingDays" },
+      { text: "Hours", value: "Hours" },
+      { text: "Days", value: "Days" }
     ],
     isEdit: false,
     stepperItems: [
