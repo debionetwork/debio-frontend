@@ -56,7 +56,7 @@
                     dense
                     label="Service Category"
                     placeholder="Service Category"
-                    v-model="category"
+                    v-model="document.category"
                     outlined
                     :items="listCategories"
                     :disabled="hasServicePayload"
@@ -69,9 +69,9 @@
                     dense
                     label="Type of Biological Sample"
                     placeholder="Type of Biological Sample"
-                    v-model="biologicalType"
+                    v-model="document.dnaCollectionProcess"
                     outlined
-                    :items="listBiologicalType"
+                    :items="dnaCollectionProcessList"
                     item-text="dnaCollectionProcess"
                     item-value="dnaCollectionProcess"
                     :rules="fieldRequiredRule"
@@ -82,7 +82,7 @@
                       label="Service Name"
                       placeholder="Service Name"
                       outlined
-                      v-model="name"
+                      v-model="document.name"
                       :rules="[...fieldRequiredRule, ...serviceNameRules, ...fieldEnglishRules]"
                     ></v-text-field>
 
@@ -94,7 +94,7 @@
                           outlined
                           dense
                           max="30"
-                          v-model="currencyType"
+                          v-model="document.currency"
                           :items="currencyList"
                           :rules="fieldRequiredRule"
                           :disabled="hasServicePayload"
@@ -106,7 +106,7 @@
                             label="Price"
                             placeholder="e.g. 20.005"
                             outlined
-                            v-model.number="price"
+                            v-model.number="document.price"
                             type="number"
                             min="0"
                             step=".001"
@@ -119,7 +119,7 @@
                           label="QC Currency"
                           outlined
                           dense
-                          v-model="currencyType"
+                          v-model="document.currency"
                           :items="currencyList"
                           :rules="fieldRequiredRule"
                           ></v-select>
@@ -131,7 +131,7 @@
                             label="QC Price"
                             placeholder="e.g. 20.005"
                             outlined
-                            v-model.number="qcPrice"
+                            v-model.number="document.qcPrice"
                             type="number"
                             min="0"
                             step=".001"
@@ -150,7 +150,7 @@
                       label="Short Description"
                       placeholder="Short Description"
                       outlined
-                      v-model="description"
+                      v-model="document.description"
                       :rules="[...fieldRequiredRule, ...descriptionRules, ...fieldEnglishRules]"
                     ></v-text-field>
                     
@@ -164,15 +164,16 @@
                           max="30"
                           outlined
                           type="number"
-                          v-model="expectedDuration"
+                          v-model="document.duration"
                           :rules="fieldRequiredRule"
                         ></v-text-field>
                       </v-col>
                       <v-col cols="4">
                         <v-select
+                          label="Duration Type"
                           outlined
                           dense
-                          v-model="selectExpectedDuration"
+                          v-model="document.durationType"
                           :items="listExpectedDuration"
                           :rules="fieldRequiredRule"
                         ></v-select>
@@ -184,7 +185,7 @@
                       label="Long Description"
                       placeholder="Long Description"
                       outlined
-                      v-model="longDescription"
+                      v-model="document.longDescription"
                       :rules="[...fieldRequiredRule, ...longDescriptionRules, ...fieldEnglishRules]"
                     ></v-textarea>
 
@@ -200,6 +201,29 @@
                       @change="fileUploadEventListener"
                     ></v-file-input>
 
+                    <div class= "d-flex justify-space-between" >
+                      <div class="mb-5">
+                        <span
+                          style="font-size: 12px"
+                        > Estimated Transaction Weight </span>
+                          <v-tooltip bottom>
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-icon
+                                color="primary"
+                                size="14"
+                                v-bind="attrs"
+                                v-on="on"
+                              > mdi-alert-circle-outline
+                              </v-icon>
+                            </template>
+                            <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+                          </v-tooltip>
+                      </div>
+                      <span style="font-size: 12px;">
+                        {{ fee }}
+                      </span>
+                    </div>
+                    
                     <v-btn
                       color="primary"
                       block
@@ -220,22 +244,29 @@
 <script>
 import { mapState } from "vuex"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
-import { createService, claimRequestService } from "@/lib/polkadotProvider/command/services"
+import { createService, createServiceFee, claimRequestService } from "@/lib/polkadotProvider/command/services"
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { getProvideRequestService, getCategories } from "@/lib/api";
 import { toEther } from "@/lib/balance-format"
+import { generalDebounce } from "@/utils"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
 export default {
   name: "AddLabServices",
   data: () => ({
-    category: "",
-    name: "",
-    price: "",
-    qcPrice: "",
-    description: "",
-    longDescription: "",
+    document: {
+      category: "",
+      dnaCollectionProcess: "",
+      name: "",
+      currency: "DAI",
+      price: 0,
+      qcPrice: 0,
+      description: "",
+      longDescription: "",
+      duration: "",
+      durationType: "Days"
+    },
     imageUrl: "",
     testResultSampleUrl: "",
     statusLab: null,
@@ -244,27 +275,22 @@ export default {
     files: [],
     testResultSampleFile:[],
     listCategories:[],
-    sampleFiles:[],
     isLoading: false,
     showModalAlert: false,
     currencyList: ["DAI", "ETH"],
-    currencyType: "DAI",
     listExpectedDuration: [
-      {text: "Working Days", value: "WorkingDays"},
       {text: "Hours", value: "Hours"},
       {text: "Days", value: "Days"}
     ],
-    selectExpectedDuration: {text: "Working Days", value: "WorkingDays"},
-    expectedDuration: "",
-    biologicalType: "",
-    listBiologicalType: [
+    dnaCollectionProcessList: [
       "Blood Cells - Dried Blood Spot Collection Process",
       "Epithelial Cells - Buccal Swab Collection Process",
       "Fecal Matters - Stool Collection Process",
       "Saliva - Saliva Collection Process",
       "Urine - Clean Catch Urine Collection Process"
     ],
-    isBiomedical: false
+    isBiomedical: false,
+    fee: 0
   }),
 
   async mounted() {
@@ -426,19 +452,53 @@ export default {
       this.listCategories =  data
     },
 
-    prefillValues() {
+    prefillValues() {      
       const checkQuery = Object.keys(this.servicePayload).length
       if (!checkQuery) return
 
       const {
         category,
-        currencyType,
+        currency,
         serviceFlow
       } = this.servicePayload
 
-      this.category = category
-      this.currencyType = currencyType
-      this.serviceFlow = serviceFlow
+      this.document.category = category
+      this.document.currency = currency
+      this.document.serviceFlow = serviceFlow
+    },
+
+    async getCreateServiceFee() {
+      const { category, dnaCollectionProcess, name, currency, price, qcPrice, description, longDescription, duration, durationType } = this.document
+      const newService = {
+        name,
+        pricesByCurrency: [{
+          currency,
+          totalPrice: await toEther(price + qcPrice),
+          priceComponents: [{
+            component: "testing_price",
+            value: await toEther(price)
+          }],
+          additionalPrices: [{
+            component: "qc_price",
+            value: await toEther(qcPrice)
+          }]
+        }],
+        expectedDuration: { duration, durationType },
+        category, description, longDescription, dnaCollectionProcess,
+        image: this.imageUrl,
+        testResultSample: this.testResultSampleUrl
+      }
+
+      const fee = await createServiceFee(this.api, this.wallet, newService, this.serviceFlow)
+      const checkQuery = Object.keys(this.servicePayload).length
+      const txWeight = this.web3.utils.fromWei(String(fee.partialFee), "ether")
+      const claimRequestServiceFee = 0.0203 // Static Estimated claimRequestServiceFee
+
+      if (!checkQuery) {
+        this.fee = `${Number(txWeight).toFixed(4)} DBIO`
+        return
+      }
+      this.fee = `${(Number(txWeight) + claimRequestServiceFee).toFixed(4)} DBIO`
     },
 
     async handleCreateService() {
@@ -449,40 +509,31 @@ export default {
 
       this.isLoading = true
       try {
+        const { category, dnaCollectionProcess, name, currency, price, qcPrice, description, longDescription, duration, durationType } = this.document
+        const newService = {
+          name,
+          pricesByCurrency: [{
+            currency,
+            totalPrice: await toEther(price + qcPrice),
+            priceComponents: [{
+              component: "testing_price",
+              value: await toEther(price)
+            }],
+            additionalPrices: [{
+              component: "qc_price",
+              value: await toEther(qcPrice)
+            }]
+          }],
+          expectedDuration: { duration, durationType },
+          category, description, longDescription, dnaCollectionProcess,
+          image: this.imageUrl,
+          testResultSample: this.testResultSampleUrl
+        }
+
         await createService(
           this.api,
           this.wallet,
-          {
-            name: this.name,
-            pricesByCurrency: [
-              {
-                currency: this.currencyType,
-                totalPrice: await toEther(this.price + this.qcPrice),
-                priceComponents: [
-                  {
-                    component: "testing_price",
-                    value: await toEther(this.price)
-                  }
-                ],
-                additionalPrices: [
-                  {
-                    component: "qc_price",
-                    value: await toEther(this.qcPrice)
-                  }
-                ]
-              }
-            ],
-            expectedDuration: { 
-              duration: this.expectedDuration, 
-              durationType: this.selectExpectedDuration.value
-            },
-            category: this.category,
-            description: this.description,
-            testResultSample: this.testResultSampleUrl,
-            longDescription: this.longDescription,
-            image: this.imageUrl,
-            dnaCollectionProcess: this.biologicalType
-          },
+          newService,
           this.serviceFlow
         )
       } catch (error) {
@@ -563,8 +614,8 @@ export default {
               claimRequestService(this.api, this.wallet, {
                 id,
                 hash: dataRequestServices[i].request.hash,
-                testing_price: await toEther(this.price),
-                qc_price: await toEther(this.qcPrice)
+                testing_price: await toEther(this.document.price),
+                qc_price: await toEther(this.document.qcPrice)
               })
             )
           }
@@ -628,9 +679,9 @@ export default {
   
   watch: {
     category() {
-      if (this.category == "Covid-19") {
+      if (this.document.category == "Covid-19") {
         this.isBiomedical = true
-        this.qcPrice = "0"
+        this.document.qcPrice = "0"
       } else {
         this.isBiomedical = false
       }
@@ -647,6 +698,14 @@ export default {
 
         else this.$router.push("/lab/services")
       }
+    },
+
+    document: {
+      deep: true,
+      immediate: true,
+      handler: generalDebounce(async function() {
+        await this.getCreateServiceFee()
+      }, 500)
     }
   }
 }

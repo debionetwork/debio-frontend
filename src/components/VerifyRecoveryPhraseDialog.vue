@@ -23,6 +23,7 @@
             :mnemonicCollection="mnemonicCollectionTextbox"
             @mnemonic-index-remove="({ idx }) => removeMnemonicCollectionTextbox(idx)"
         ></MnemonicTextbox>
+        <span style="color: #F92020" v-if="mnemonicError">{{ errorMessages.INCORRECT("mnemonic") }}</span>
         <MnemonicKeypad
             :mnemonicCollection="shuffledMnemonic"
             @mnemonic-keypad-click="({ mnemonic }) => addMnemonicCollectionTextbox(mnemonic)"
@@ -48,6 +49,7 @@
 import MnemonicTextbox from "./MnemonicTextbox.vue"
 import MnemonicKeypad from "./MnemonicKeypad.vue"
 import { shuffle, removeArrayByIndex, isIdentical } from "../lib/arrays"
+import errorMessages from "../../src/constants/error-messages"
 
 export default {
   components: { 
@@ -66,7 +68,8 @@ export default {
     correctMnemonicCollection: [],
     mnemonicCollection: [],
     mnemonicCollectionTextbox: [],
-    shouldBeDisabled: true
+    shouldBeDisabled: true,
+    errorMessages
   }),
   computed: {
     _show: {
@@ -76,6 +79,13 @@ export default {
       set(val) {
         this.$emit("toggle", val)
       }
+    },
+
+    mnemonicError() {
+      if (!isIdentical(this.mnemonicCollection, this.correctMnemonicCollection) && this.mnemonicCollection.length === 12) {
+        return true
+      }
+      return false
     }
   },
   watch: {
