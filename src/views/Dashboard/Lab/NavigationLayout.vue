@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar app color="secondary" dark class="dg-app-bar" clipped-left>
       <div class="dg-app-bar-items-container">
-        <a @click.stop="goToDashboard"  style="text-decoration: none">
+        <a @click.stop="goToDashboard" style="text-decoration: none">
           <div class="d-flex align-center">
             <v-img
               alt="Vuetify Logo"
@@ -17,13 +17,17 @@
             </div>
           </div>
         </a>
-        <v-spacer/>
-        <HeaderUserInfo
-          @showWalletBinding="openWalletBinding"
-        ></HeaderUserInfo>
+        <v-spacer />
+        <HeaderUserInfo />
         <!-- Menu For Development Purposes -->
         <!-- <MenuChangeRole /> -->
+        <HeaderWallet @showWalletBinding="openWalletBinding"></HeaderWallet>
         <HeaderNotification :role="'lab'"></HeaderNotification>
+        <div class="d-flex align-center ml-3 mr-5">
+          <div style="cursor: pointer" @click="logOut">
+            <v-icon>mdi-logout</v-icon>
+          </div>
+        </div>
       </div>
     </v-app-bar>
 
@@ -31,11 +35,11 @@
     <WalletBinding
       :show="showWalletBinding"
       @toggle="showWalletBinding = $event"
-      @status-wallet="({ status, img }) => connectWalletResult(status, img)"
+      @status-wallet="({status, img}) => connectWalletResult(status, img)"
     ></WalletBinding>
 
     <v-main class="main" v-if="!isServicesExist && isLabDashboard">
-      <router-view/>
+      <router-view />
     </v-main>
 
     <v-main class="dg-dashboard-main ml-5" v-else>
@@ -55,7 +59,7 @@
         </div>
       </v-container>
 
-      <router-view/>
+      <router-view />
     </v-main>
 
     <UnlockWalletDialog :show="show" @toggle="toggle()"></UnlockWalletDialog>
@@ -64,18 +68,20 @@
 </template>
 
 <script>
-import v from "voca";
-import { mapState, mapGetters } from "vuex";
-import Breadcrumbs from "@/views/Dashboard/Breadcrumbs";
+import v from "voca"
+import {mapState, mapGetters, mapActions} from "vuex"
+import Breadcrumbs from "@/views/Dashboard/Breadcrumbs"
 // import MenuChangeRole from "@/components/MenuChangeRole";
-import HeaderUserInfo from "@/components/HeaderUserInfo";
-import NavigationDrawer from "@/components/NavigationDrawer";
-import UnlockWalletDialog from "@/components/UnlockWalletDialog";
+import HeaderUserInfo from "@/components/HeaderUserInfo"
+import NavigationDrawer from "@/components/NavigationDrawer"
+import UnlockWalletDialog from "@/components/UnlockWalletDialog"
 import ErrorConnectionDialog from "@/components/Dialog/DialogErrorConnection"
-import HeaderNotification from "@/components/HeaderNotification";
-import WalletBinding from "@/components/WalletBinding";
-import DialogAlert from "@/components/Dialog/DialogAlert";
+import HeaderNotification from "@/components/HeaderNotification"
+import WalletBinding from "@/components/WalletBinding"
+import DialogAlert from "@/components/Dialog/DialogAlert"
+import HeaderWallet from "@/components/HeaderWallet"
 import VueRouter from "@/router"
+import localStorage from "@/lib/local-storage";
 
 export default {
   name: "Dashboard",
@@ -88,7 +94,8 @@ export default {
     HeaderNotification,
     WalletBinding,
     DialogAlert,
-    ErrorConnectionDialog
+    ErrorConnectionDialog,
+    HeaderWallet
   },
 
   data: () => ({
@@ -103,9 +110,9 @@ export default {
   }),
 
   async mounted() {
-    this.show = this.pair.isLocked;
+    this.show = this.pair.isLocked
   },
-  
+
   computed: {
     ...mapGetters({
       pair: "substrate/wallet"
@@ -119,23 +126,23 @@ export default {
     }),
 
     isLab() {
-      return this.$route.path.indexOf("lab") > 0;
+      return this.$route.path.indexOf("lab") > 0
     },
 
     isLabDashboard() {
-      return this.$route.path === "/lab" || this.$route.path === "/lab/";
+      return this.$route.path === "/lab" || this.$route.path === "/lab/"
     },
 
     pageHeader() {
       return this.$route.meta.pageHeader
         ? this.$route.meta.pageHeader
-        : v.titleCase(this.$route.name);
+        : v.titleCase(this.$route.name)
     }
   },
   watch: {
     $route() {
       const query = VueRouter?.history?.current?.query
-      
+
       if (query?.error) this.showError = true
     },
 
@@ -147,23 +154,27 @@ export default {
           address: this.wallet.address,
           event: val,
           role: "lab"
-        });
+        })
       }
     }
   },
   methods: {
+    ...mapActions({
+      clearAuth: "auth/clearAuth"
+    }),
+
     toggle() {
-      this.show = false;
+      this.show = false
     },
 
     openWalletBinding(status) {
-      this.showWalletBinding = status;
+      this.showWalletBinding = status
     },
-    
+
     connectWalletResult(status, img) {
       if (status) {
-        this.alertImgPath = img;
-        this.dialogAlert = true;
+        this.alertImgPath = img
+        this.dialogAlert = true
       }
     },
 
@@ -173,10 +184,18 @@ export default {
     },
 
     goToDashboard() {
-      this.$router.push({ path: "/lab" });
+      this.$router.push({path: "/lab"})
+    },
+
+    logOut() {
+      this.clearAuth();
+      localStorage.clear();
+      this.$store.dispatch("lab/setProvideService", {})
+      this.$store.commit("substrate/SET_IS_SERVICES_EXIST", false)
+      this.$router.push("/login");
     }
   }
-};
+}
 </script>
 
 <style lang="scss">

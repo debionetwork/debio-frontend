@@ -54,9 +54,7 @@
 import { mapState } from "vuex"
 import OrderCard from "@/components/OrderCard"
 import PrimaryButton from "@/components/PrimaryButton"
-import {
-  fetchOrderHistory
-} from "@/lib/polkadotProvider/query/orders"
+import { fetchOrderHistory } from "@/lib/polkadotProvider/query/orders"
 
 export default {
   name: "LabOrders",

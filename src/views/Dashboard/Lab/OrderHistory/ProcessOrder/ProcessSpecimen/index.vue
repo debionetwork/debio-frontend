@@ -1,6 +1,35 @@
 <template>
   <div>
     <template>
+      <v-card class="mt-10 px-10" v-if="specimenStatus === 'WorkWet'">
+        <div class= "d-flex justify-space-between">
+          <div class="mb-5 mt-5">
+            <span
+              style="font-size: 12px"
+            > Estimated Transaction Weight </span>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
+                    color="primary"
+                    size="14"
+                    v-bind="attrs"
+                    v-on="on"
+                  > mdi-alert-circle-outline
+                  </v-icon>
+                </template>
+                <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+              </v-tooltip>
+          </div>
+          <div class="mt-5">
+            <span style="font-size: 12px;">
+              {{ Number(fee).toFixed(4) }} DBIO
+            </span>
+          </div>
+        </div>
+      </v-card>
+    </template>
+
+    <template>
       <input
         type="file"
         style="display: none"
@@ -161,11 +190,12 @@ import FileCard from "./FileCard"
 import ipfsWorker from "@/web-workers/ipfs-worker"
 import cryptWorker from "@/web-workers/crypt-worker"
 import Kilt from "@kiltprotocol/sdk-js"
+import CryptoJS from "crypto-js"
 import { fulfillOrder } from "@/lib/polkadotProvider/command/orders"
 import DialogAlert from "@/components/Dialog/DialogAlert"
 import Dialog from "@/components/Dialog"
 import Button from "@/components/Button"
-import { submitTestResult, processDnaSample } from "@/lib/polkadotProvider/command/geneticTesting"
+import { submitTestResult, processDnaSample, submitTestResultFee } from "@/lib/polkadotProvider/command/geneticTesting"
 import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting"
 import localStorage from "@/lib/local-storage"
 
@@ -197,6 +227,7 @@ export default {
     genomeUploadSucceedDialog: false,
     reportUploadSucceedDialog: false,
     confirmationDialog: false,
+    fee: 0,
     comment: "",
     reportLink: "",
     resultLink: "",
@@ -224,12 +255,12 @@ export default {
     }
   }),
 
-  async mounted(){    
+  async mounted(){
+    await this.getFee()
+
     // Add file input event listener
     this.addFileUploadEventListener(this.$refs.encryptUploadGenome, "genome")
     this.addFileUploadEventListener(this.$refs.encryptUploadReport, "report")
-
-    this.identity = Kilt.Identity.buildFromMnemonic(this.mnemonic)
 
     const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
     if(testResult) this.setUploadFields(testResult)
@@ -244,7 +275,8 @@ export default {
     }),
 
     ...mapState({
-      mnemonic: state => state.substrate.mnemonicData.mnemonic
+      mnemonic: state => state.substrate.mnemonicData,
+      web3: state => state.metamask.web3
     }),
 
     disableRejectButton(){
@@ -276,7 +308,15 @@ export default {
     }
   },
 
+  created() {
+    if (this.mnemonic) this.initialData()
+  },
+
   methods:{
+    initialData() {
+      this.identity = Kilt.Identity.buildFromMnemonic(this.mnemonic.toString(CryptoJS.enc.Utf8))
+    },
+
     setUploadFields(testResult){
       const { resultLink, reportLink } = testResult
       if(resultLink){
@@ -313,6 +353,11 @@ export default {
     getFileIpfsUrl(file) {
       const path = this.getFileIpfsPath(file)
       return `https://ipfs.io/ipfs/${path}`
+    },
+
+    async getFee() {
+      const fee = await submitTestResultFee(this.api, this.pair, this.specimenNumber, this.nextStatus)
+      this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
     },
 
     async submitTestResult(callback = () => {}) {

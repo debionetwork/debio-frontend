@@ -10,10 +10,10 @@
                 ref="labForm">
               <v-text-field
                 dense
-                label="Email"
+                label="Email on registration"
                 placeholder="Email"
                 outlined
-                v-model="email"
+                v-model="document.email"
                 :disabled="isLabAccountExist"
                 :rules="emailRules"
                 ></v-text-field>
@@ -23,7 +23,7 @@
                 label="Lab Name"
                 placeholder="Lab Name"
                 outlined
-                v-model="labName"
+                v-model="document.name"
                 :disabled="isLabAccountExist"
                 :rules="nameRules"
                 ></v-text-field>
@@ -37,7 +37,7 @@
                 return-object
                 :label="computeCountryLabel"
                 outlined
-                v-model="country"
+                v-model="document.country"
                 :disabled="isLabAccountExist"
                 :rules="[val => !!val || 'This field is required']"
               ></v-autocomplete>
@@ -49,9 +49,9 @@
                 item-value="state_code"
                 @change="onStateChange"
                 :label="computeStateLabel"
-                :disabled="!country || isLabAccountExist"
+                :disabled="!document.country || isLabAccountExist"
                 outlined
-                v-model="state"
+                v-model="document.region"
                 :rules="[val => !!val || 'This field is required']"
               ></v-autocomplete>
 
@@ -63,9 +63,9 @@
                 return-object
                 @change="onCityChange"
                 :label="computeCityLabel"
-                :disabled="!state || isLabAccountExist"
+                :disabled="!document.region || isLabAccountExist"
                 outlined
-                v-model="city"
+                v-model="document.city"
                 :rules="[val => !!val || 'This field is required']"
               ></v-autocomplete>
 
@@ -74,7 +74,7 @@
                 label="Address"
                 placeholder="Address"
                 outlined
-                v-model="address"
+                v-model="document.address"
                 :rules="addressRules"
                 :disabled="isLabAccountExist"
               ></v-text-field>
@@ -89,7 +89,7 @@
                     item-value="phone_code"
                     label="Phone code"
                     outlined
-                    v-model="phoneCode"
+                    v-model="document.phoneCode"
                     :disabled="isLabAccountExist"
                     :rules="[val => !!val || 'Phone code is Required']"
                   ></v-autocomplete>
@@ -100,7 +100,7 @@
                     label="Phone Number"
                     placeholder="Phone Number"
                     outlined
-                    v-model="phoneNumber"
+                    v-model="document.phoneNumber"
                     :rules="phoneNumberRules"
                     :disabled="isLabAccountExist"
                   ></v-text-field>
@@ -112,7 +112,7 @@
                 label="Website"
                 placeholder="Website"
                 outlined
-                v-model="website"
+                v-model="document.website"
                 :rules="websiteRules"
                 :disabled="isLabAccountExist"
               ></v-text-field>
@@ -130,12 +130,35 @@
                   accept="image/png, image/jpeg"
                 ></v-file-input>
 
+                <div class= "d-flex justify-space-between" >
+                  <div class="mb-5">
+                    <span
+                      style="font-size: 12px"
+                    > Estimated Transaction Weight </span>
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-icon
+                            color="primary"
+                            size="14"
+                            v-bind="attrs"
+                            v-on="on"
+                          > mdi-alert-circle-outline
+                          </v-icon>
+                        </template>
+                        <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+                      </v-tooltip>
+                  </div>
+                  <span style="font-size: 12px;">
+                    {{ Number(fee).toFixed(4) }} DBIO
+                  </span>
+                </div>
+
                 <v-btn
                   color="primary"
                   block
                   large
-                  :disabled="isUploading || isLabAccountExist"
-                  :loading="isLoading || isUploading"
+                  :disabled="isLabAccountExist"
+                  :loading="isLoading && !isLabAccountExist"
                   @click="registerLab"
                 >Submit</v-btn>
               </v-form>
@@ -146,7 +169,6 @@
 
           <v-btn
             :disabled="!isLabAccountExist"
-            :loading="isLoading || isUploading"
             color="primary"
             block
             large
@@ -167,7 +189,7 @@
 
 <script>
 import { mapState, mapGetters } from "vuex"
-import { registerLab } from "@/lib/polkadotProvider/command/labs"
+import { registerLab, registerLabFee } from "@/lib/polkadotProvider/command/labs"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import Certification from "./Certification"
 import Stepper from "./Stepper"
@@ -176,6 +198,8 @@ import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
 import Kilt from "@kiltprotocol/sdk-js"
 import CryptoJS from "crypto-js"
 import { u8aToHex } from "@polkadot/util"
+import { generalDebounce } from "@/utils"
+
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
@@ -195,22 +219,25 @@ export default {
   },
 
   data: () => ({
-    country: "",
-    state: "",
-    city: "",
+    document: {
+      name: "",
+      email: "",
+      address: "",
+      phoneNumber: "",
+      website: "",
+      country: "",
+      region: "",
+      city: ""
+    },
+    boxPublicKey: null,
     countries: [],
     cities: [],
     states: [],
-    email: "",
-    labName: "",
-    address: "",
     phoneCode: "",
-    phoneNumber: "",
-    website: "",
-    imageUrl: "",
     files: null,
     isLoading: false,
     isUploading: false,
+    fee: 0,
     stepperItems: [
       { name: "Lab Information", selected: false},
       { name: "Lab Services", selected: false}
@@ -226,12 +253,13 @@ export default {
     }),
 
     ...mapState({
+      web3: (state) => state.metamask.web3,
       mnemonicData: state => state.substrate.mnemonicData
     }),
 
     citiesSelection() {
       return this.cities
-        .filter((c) => c.country == this.country)
+        .filter((c) => c.country == this.document.country)
         .map((c) => ({ value: c.city, text: c.city, country: c.country }));
     },
 
@@ -286,25 +314,44 @@ export default {
 
     fileInputRules() {
       return [
-        value => !!value.size || "This field is required",
-        value => value.size < 2000000 || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
+        value => !!value || "This field is required",
+        value => (value && value.size < 2000000) || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
       ]
     },
 
     computeCountryLabel() {
-      return !this.country && this.isLoading ? this.loadingPlaceholder : "Select Country"
+      return !this.document.country && this.isLoading ? this.loadingPlaceholder : "Select Country"
     },
 
     computeStateLabel() {
-      return !this.state && this.isLoading ? this.loadingPlaceholder : "Select State/Province"
+      return !this.document.region && this.isLoading ? this.loadingPlaceholder : "Select State/Province"
     },
 
     computeCityLabel() {
-      return !this.city && this.isLoading ? this.loadingPlaceholder : "Select City"
+      return !this.document.city && this.isLoading ? this.loadingPlaceholder : "Select City"
     }
   },
 
+  watch: {
+    document: {
+      deep: true,
+      immediate: true,
+      handler: generalDebounce(async function() {
+        await this.getRegisterLabFee()
+      }, 500)
+    }
+  },
+
+  async created() {
+    if (this.mnemonicData) this.initialData()
+  },
+
   methods: {
+    initialData(){
+      const cred = Kilt.Identity.buildFromMnemonic(this.mnemonicData.toString(CryptoJS.enc.Utf8))
+      this.boxPublicKey = u8aToHex(cred.boxKeyPair.publicKey)
+    },
+
     gotoServicesPage() {
       this.$router.push({ name: "lab-registration-services" })
     },
@@ -316,11 +363,11 @@ export default {
         this.address = this.labAccount.info.address
         this.phoneNumber = this.labAccount.info.phoneNumber
         this.website = this.labAccount.info.website
-        this.country = this.labAccount.info.country
-        await this.onCountryChange(this.country)
-        this.state = this.labAccount.info.region
+        this.document.country = this.labAccount.info.country
+        await this.onCountryChange(this.document.country)
+        this.document.region = this.labAccount.info.region
         await this.onStateChange(this.labAccount.info.region) // Region means the state, backend response got region instead state
-        this.city = this.labAccount.info.city
+        this.document.city = this.labAccount.info.city
         await this.onCityChange({ name: this.labAccount.info.city })
         this.imageUrl = this.labAccount.info.profileImage
 
@@ -345,16 +392,16 @@ export default {
     },
 
     async onCountryChange(selectedCountry) {
-      this.state = ""
-      this.city = ""
+      this.document.region = ""
+      this.document.city = ""
 
       const { data:
         { data }
       } = await this.dispatch(getStates, selectedCountry?.iso2 ?? selectedCountry)
 
       this.states = data;
-      this.country = selectedCountry?.iso2 ?? selectedCountry;
-      this.phoneCode = selectedCountry?.phone_code ?? null;
+      this.document.country = selectedCountry?.iso2 ?? selectedCountry;
+      this.document.phoneCode = selectedCountry?.phone_code ?? null;
     },
 
     async onPhoneCodeChange(selectedCountry) {
@@ -362,58 +409,57 @@ export default {
     },
 
     async onStateChange(selectedState) {
-      this.city = ""
+      this.document.city = ""
 
       const { data:
         { data }
-      } = await this.dispatch(getCities, this.country, selectedState)
+      } = await this.dispatch(getCities, this.document.country, selectedState)
 
       this.cities = data;
-      this.state = selectedState;
+      this.document.region = selectedState;
     },
 
     onCityChange({ name }) {
-      this.city = name;
+      this.document.city = name;
     },
 
     async registerLab(){
+
       if (!this.validating()) {
         return
       }
       try{
+        const { name, email, address, phoneNumber, website, country, city, region } = this.document
         this.isLoading = true
-        const cred = Kilt.Identity.buildFromMnemonic(this.mnemonicData.toString(CryptoJS.enc.Utf8))
-        const boxPublicKey = u8aToHex(cred.boxKeyPair.publicKey)
 
         await this.fileUploadEventListener(this.files)
         await registerLab(
           this.api,
           this.pair,
           {
-            boxPublicKey,
-            name: this.labName,
-            email: this.email,
-            address: this.address,
-            phoneNumber: this.phoneNumber,
-            website: this.website,
-            country: this.country,
-            region: this.state,
-            city: this.city,
+            boxPublicKey: this.boxPublicKey,
+            name,
+            email,
+            address,
+            phoneNumber,
+            website,
+            country,
+            region,
+            city,
             profileImage: this.imageUrl
           },
           async () => {
-            this.isLoading = false
             const labAccount = {
               accountId: this.pair.address,
               services: [],
               certifications: [],
               info: {
-                boxPublicKey,
-                name: this.labName,
-                email: this.email,
-                address: this.address,
-                country: this.country,
-                city: this.city,
+                boxPublicKey: this.boxPublicKey,
+                name,
+                email,
+                address,
+                country,
+                city: city,
                 profileImage: this.imageUrl
               }
             }
@@ -436,7 +482,6 @@ export default {
           return
         }
         this.isUploading = true
-        this.isLoading = true
 
         const dataFile = await this.setupFileReader(file)
 
@@ -450,7 +495,6 @@ export default {
 
         this.imageUrl = link
         this.isUploading = false
-        this.isLoading = false
       }
       else {
         this.files = null
@@ -474,11 +518,32 @@ export default {
     },
 
     validating() {
-      if (this.labName == "" || this.email == "" || this.address == "" || this.country == "" || this.city == "" || this.state == "") {
+      if (this.document.name == "" || this.document.email == "" || this.document.address == "" || this.document.country == "" || this.document.city == "" || this.document.state == "" || this.files == null) {
         this.$refs.labForm.validate()
         return false
       }
       return true
+    },
+
+    async getRegisterLabFee() {
+      const { name, email, address, phoneNumber, website, country, city, region } = this.document
+      const txWeight = await registerLabFee(
+        this.api,
+        this.pair,
+        {
+          boxPublicKey: this.boxPublicKey,
+          name,
+          email,
+          address,
+          phoneNumber,
+          website,
+          country,
+          region,
+          city,
+          profileImage: this.imageUrl
+        }
+      )
+      this.fee = this.web3.utils.fromWei(String(txWeight.partialFee), "ether")
     }
   }
 }

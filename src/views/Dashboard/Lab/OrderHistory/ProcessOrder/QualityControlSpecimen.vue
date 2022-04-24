@@ -15,6 +15,28 @@
                     <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
                 </div>
                 <div align="center" class="pb-5">Are you sure you want to complete the QC Process?</div>
+                <div class="ml-5 mr-5 pb-1 d-flex justify-space-between mt-5">
+                  <div>
+                    <span style="font-size: 12px"> Estimated Transaction Weight </span>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-icon
+                          color="primary"
+                          size="12"
+                          v-bind="attrs"
+                          v-on="on"
+                        > mdi-alert-circle-outline
+                        </v-icon>
+                      </template>
+                      <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+                    </v-tooltip>
+                  </div>
+                  <div>
+                    <span style="font-size: 12px;">
+                      {{ Number(fee).toFixed(4) }} DBIO
+                    </span>
+                  </div>
+                </div>
             </template>
             <template v-slot:actions>
                 <v-col col="12" md="6">
@@ -53,6 +75,28 @@
                     <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
                 </div>
                 <div align="center" class="pb-5">Are you sure you want to reject specimen?</div>
+                <div class="ml-5 mr-5 pb-1 d-flex justify-space-between mt-5">
+                  <div>
+                    <span style="font-size: 12px"> Estimated Transaction Weight </span>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-icon
+                          color="primary"
+                          size="12"
+                          v-bind="attrs"
+                          v-on="on"
+                        > mdi-alert-circle-outline
+                        </v-icon>
+                      </template>
+                      <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+                    </v-tooltip>
+                  </div>
+                  <div>
+                    <span style="font-size: 12px;">
+                      {{ Number(fee).toFixed(4) }} DBIO
+                    </span>
+                  </div>
+                </div>
             </template>
             <template v-slot:actions>
                 <v-col col="12" md="6">
@@ -162,8 +206,8 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex"
-import { rejectDnaSample, processDnaSample } from "@/lib/polkadotProvider/command/geneticTesting"
+import { mapGetters, mapState } from "vuex"
+import { rejectDnaSample, processDnaSample, processDnaSampleFee } from "@/lib/polkadotProvider/command/geneticTesting"
 import { queryDnaSamples } from "@/lib/polkadotProvider/query/geneticTesting"
 import Dialog from "@/components/Dialog"
 import DialogAlert from "@/components/Dialog/DialogAlert"
@@ -178,10 +222,12 @@ export default {
     DialogAlert,
     Button
   },
+
   props: {
     specimenNumber: String,
     specimenStatus: String
   },
+
   data: () => ({
     isLoading: false,
     qcDialog: false,
@@ -191,12 +237,20 @@ export default {
     rejectionConfirmationDialog: false,
     rejectionTitle: "",
     rejectionDescription: "",
-    rejectionAlertDialog: false
+    rejectionAlertDialog: false,
+    fee: 0,
+    nextStatus: "",
+    status: ["Registered", "Arrived", "QualityControlled", "WetWork", "ResultReady"]
   }),
+
   computed: {
     ...mapGetters({
       api: "substrate/getAPI",
       pair: "substrate/wallet"
+    }),
+
+    ...mapState({
+      web3: (state) => state.metamask.web3
     }),
 
     rejectionTitleRules() {
@@ -214,10 +268,12 @@ export default {
         englishAlphabet
       ]
     }
-
-
   },
+
   async mounted() {
+    await this.setStatus()
+    await this.getFee()
+    
     try {
       const dnaSample = await queryDnaSamples(this.api, this.specimenNumber)
       if (dnaSample) {
@@ -228,11 +284,27 @@ export default {
       console.log(err)
     }
   },
+
   methods:{
+
+    async setStatus() {
+      this.status.forEach((e,i) => {
+        if (e === this.specimenStatus) {
+          this.nextStatus = this.status[i + 1]
+        }
+      })
+    },
+
+    async getFee() {
+      const fee = await processDnaSampleFee(this.api, this.pair, this.specimenNumber, this.nextStatus)
+      this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
+    },
+
     closeQcDialog(){
       this.qcDialog = false
       this.qcCompletionDialog = true
     },
+
     async closeQcCompletionDialogProceed(){
       this.isLoading = true
       await processDnaSample(
@@ -247,14 +319,17 @@ export default {
         }
       )
     },
+
     closeQcCompletionDialogReject(){
       this.qcCompletionDialog = false
       this.rejectionDialog = true
     },
+
     closeRejectionDialog(){
       this.rejectionDialog = false
       this.rejectionStatementDialog = true
     },
+
     closeRejectionStatementDialog(){
       if (!this.$refs.rejectForm.validate()) {
         return
@@ -262,10 +337,12 @@ export default {
       this.rejectionStatementDialog = false
       this.rejectionConfirmationDialog = true
     },
+
     backToRejectionStatementDialog(){
       this.rejectionConfirmationDialog = false
       this.rejectionStatementDialog = true
     },
+
     async submitRejectionStatementDialog(){
       if (!this.$refs.rejectForm.validate()) {
         return
@@ -288,6 +365,7 @@ export default {
       )
       this.processDnaSample()
     },
+
     async processDnaSample() {
       this.isProcessing = true
       await processDnaSample(
