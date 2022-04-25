@@ -30,6 +30,26 @@
                         <v-img v-bind:src="require('@/assets/alert-circle.png')" max-width="75" />
                      </div>
                      <div align="center" class="pb-1">Are you sure you want delete this service?</div>
+                      <div align="center" class= "ml-5 mr-5 pb-1 d-flex justify-space-between mt-5" >
+                        <div>
+                          <span style="font-size: 12px"> Estimated Transaction Weight </span>
+                          <v-tooltip bottom>
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-icon
+                                color="primary"
+                                size="14"
+                                v-bind="attrs"
+                                v-on="on"
+                              > mdi-alert-circle-outline
+                              </v-icon>
+                            </template>
+                            <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+                          </v-tooltip>
+                        </div>
+                        <span style="font-size: 12px;">
+                          {{ Number(fee).toFixed(4) }} DBIO
+                        </span>
+                      </div>
                   </template>
                   <template v-slot:actions>
                      <v-col col="12" md="6">
@@ -123,7 +143,7 @@
 <script>
 import DataTable from "@/components/DataTable"
 import SearchBar from "@/components/DataTable/SearchBar"
-import { deleteService } from "@/lib/polkadotProvider/command/services"
+import { deleteService, deleteServiceFee } from "@/lib/polkadotProvider/command/services"
 import { mapGetters, mapState } from "vuex"
 import Dialog from "@/components/Dialog"
 import Button from "@/components/Button"
@@ -151,7 +171,8 @@ export default {
     showAlert: false,
     idItemDeleted: "",
     activeButton: true,
-    serviceCount: 0
+    serviceCount: 0,
+    fee: 0
   }),
   computed:{
     ...mapGetters({
@@ -193,26 +214,37 @@ export default {
         return filtered
       }, [])
     },
+
     onSearchInput(val) {
       this.search = val
     },
+
     gotoDetails({ id }){
       this.$router.push({ name: "lab-dashboard-services-detail", params: { id: id }})
     },
+
     getImageLink(val){
       if(val && val != ""){
         return val
       }
       return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
     },
+    
     formatPrice(price) {
       const priceAndCurrency = price.replaceAll(",", "").split(" ")
       const formatedPrice = this.web3.utils.fromWei(String(priceAndCurrency[0], "ether"))
       return `${formatedPrice} ${priceAndCurrency[1]}`
     },
+    
     isIcon(imageName) {
       return imageName && (imageName.startsWith("mdi") || imageName.startsWith("$dgi"))
     },
+
+    async getDeleteServiceFee() {
+      const fee = await deleteServiceFee(this.api, this.pair, this.idItemDeleted)
+      this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
+    },
+
     async deleteService() {
       try {
         this.isLoading = true
@@ -227,8 +259,9 @@ export default {
       }
     },
 
-    confirmDeleteService(item) {
+    async confirmDeleteService(item) {
       this.idItemDeleted = item.id
+      await this.getDeleteServiceFee()
       this.showDialog = true
     },
 

@@ -9,6 +9,13 @@ export async function registerLab(api, pair, data, callback = () => {}){
     })
 }
 
+export async function registerLabFee(api, pair, data) {
+  const result = await api.tx.labs
+    .registerLab(data)
+    .paymentInfo(pair)
+  return result
+}
+
 export async function updateLab(api, pair, data, callback = () => {}){
   const unsub = await api.tx.labs
     .updateLab(data)
@@ -17,11 +24,25 @@ export async function updateLab(api, pair, data, callback = () => {}){
     })
 }
 
+export async function updateLabFee(api, pair, data) {
+  const result = await api.tx.labs
+    .updateLab(data)
+    .paymentInfo(pair)
+  return result
+}
+
 export async function deregisterLab(api, pair){
   const result = await api.tx.labs
     .deregisterLab()
     .signAndSend(pair, { nonce: -1 })
   return result.toHuman()
+}
+
+export async function deregisterLabFee(api, pair, id) {
+  const result = await api.tx.labs
+    .deregisterLab(id)
+    .paymentInfo(pair)
+  return result
 }
 
 export async function labCommandCallback(api, pair, { events, status, callback, unsub }){
@@ -41,6 +62,13 @@ export async function labCommandCallback(api, pair, { events, status, callback, 
 export async function unstakeLab(api, pair) {
   const result = await api.tx.labs
     .unstakeLab()
-    .paymentInfo(pair)
+    .signAndSend(pair, { nonce: -1 })
   return result.toHuman()
+}
+
+export async function unstakeLabFee(api, pair, id) {
+  const result = await api.tx.labs
+    .updateLab(id)
+    .paymentInfo(pair)
+  return result
 }

@@ -36,6 +36,28 @@
                         <v-card class="d-flex flex-column px-15 py-13">
                           <v-icon size="80" class="mx-auto" color="primary">mdi-information-outline</v-icon>
                           <v-card-title class="text-center">Are you sure you want delete this certification?</v-card-title>
+                          <div class="ml-5 mr-5 pb-1 d-flex justify-space-between mt-5">
+                            <div>
+                              <span style="font-size: 12px"> Estimated Transaction Weight </span>
+                              <v-tooltip bottom>
+                                <template v-slot:activator="{ on, attrs }">
+                                  <v-icon
+                                    color="primary"
+                                    size="12"
+                                    v-bind="attrs"
+                                    v-on="on"
+                                  > mdi-alert-circle-outline
+                                  </v-icon>
+                                </template>
+                                <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+                              </v-tooltip>
+                            </div>
+                            <div>
+                              <span style="font-size: 12px;">
+                                {{ Number(fee).toFixed(4) }} DBIO
+                              </span>
+                            </div>
+                          </div>
                           <v-card-actions style="gap: 40px">
                             <v-btn
                               style="flex: 1"
@@ -59,7 +81,7 @@
                         </v-card>
                       </v-dialog>
                       <v-icon class="mx-1" small @click="editCertification(cert)">mdi-pencil</v-icon>
-                      <v-icon class="mx-1" small @click="showDeletePrompt = true">mdi-delete</v-icon>
+                      <v-icon class="mx-1" small @click="showDelete(cert)">mdi-delete</v-icon>
                     </div>
                     </div>
                     <div>{{ cert.info.month }} {{ cert.info.year }} • {{ cert.info.issuer }}</div>
@@ -91,7 +113,7 @@
                     label="Title"
                     placeholder="Title"
                     outlined
-                    v-model="certTitle"
+                    v-model="certificationInfo.title"
                     :rules="titleRules"
                     ></v-text-field>
                 <v-text-field
@@ -99,7 +121,7 @@
                     label="Issuer"
                     placeholder="Issuer"
                     outlined
-                    v-model="certIssuer"
+                    v-model="certificationInfo.issuer"
                     :rules="issuerRules"
                     ></v-text-field>
                 <div class="d-flex justify-space-between align-center">
@@ -109,7 +131,7 @@
                         label="Month"
                         :items="selectMonths"
                         outlined
-                        v-model="certMonth"
+                        v-model="certificationInfo.month"
                         :rules="monthRules"
                         ></v-select>
                     </div>
@@ -119,7 +141,7 @@
                         label="Year"
                         :items="selectYears"
                         outlined
-                        v-model="certYear"
+                        v-model="certificationInfo.year"
                         :rules="yearRules"
                         ></v-select>
                     </div>
@@ -127,7 +149,7 @@
                 <v-textarea
                     outlined
                     label="Description"
-                    v-model="certDescription"
+                    v-model="certificationInfo.description"
                     :rules="descriptionRules"
                 ></v-textarea>
                 <v-file-input
@@ -143,6 +165,28 @@
                     accept="application/pdf, image/png, image/jpeg,"
                 ></v-file-input>
                 </v-form>
+                <div class= "d-flex justify-space-between" >
+                  <div class="mb-5">
+                    <span
+                      style="font-size: 12px"
+                    > Estimated Transaction Weight </span>
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-icon
+                            color="primary"
+                            size="14"
+                            v-bind="attrs"
+                            v-on="on"
+                          > mdi-alert-circle-outline
+                          </v-icon>
+                        </template>
+                        <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+                      </v-tooltip>
+                  </div>
+                  <span style="font-size: 12px;">
+                    {{ Number(fee).toFixed(4) }} DBIO
+                  </span>
+                </div>
             </template>
             <template v-slot:actions>
                 <Button @click="submitCertification" :loading="isLoading" :disabled="isUploading" color="primary" dark>
@@ -154,12 +198,13 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex"
-import { createCertification, updateCertification, deleteCertification } from "@/lib/polkadotProvider/command/labs/certifications"
+import { mapGetters, mapState } from "vuex"
+import { createCertification, createCertificationFee, updateCertification, updateCertificationFee, deleteCertification, deleteCertificationFee } from "@/lib/polkadotProvider/command/labs/certifications"
 import serviceHandler from "@/mixins/serviceHandler"
 import Dialog from "@/components/Dialog"
 import Button from "@/components/Button"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
+import { generalDebounce } from "@/utils"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
@@ -175,18 +220,22 @@ export default {
 
   data: () => ({
     certId: "", // for update certification
-    certTitle: "",
-    certIssuer: "",
-    certMonth: "",
-    certYear: "",
-    certDescription: "",
+    certificationInfo: {
+      title: "",
+      issuer: "",
+      month: "",
+      year: "",
+      description: "",
+      supportingDocument: ""
+    },
     certSupportingDocumentsUrl: "",
     selectMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     certificationDialog: false,
     isUploading: false,
     showDeletePrompt: false,
     isEditCertificationDialog: false,
-    files: []
+    files: [],
+    fee: 0
   }),
 
   computed: {
@@ -194,6 +243,10 @@ export default {
       api: "substrate/getAPI",
       pair: "substrate/wallet",
       labAccount: "substrate/labAccount"
+    }),
+
+    ...mapState({
+      web3: (state) => state.metamask.web3
     }),
 
     selectYears() {
@@ -243,16 +296,48 @@ export default {
       ]
     }
   },
+
+  watch: {
+    certificationInfo: {
+      deep: true,
+      immediate: true,
+      handler: generalDebounce(async function() {
+        if (this.isEditCertificationDialog) {
+          await this.getUpdateCertificationFee()
+          return
+        }
+        await this.getCreateCertificationFee()
+      }, 500)
+    }
+  },
+
   methods: {
+    async getCreateCertificationFee(){
+      const fee = await createCertificationFee(this.api, this.pair, this.certificationInfo)
+      this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
+    },
+
+    async getUpdateCertificationFee() {
+      const fee = await updateCertificationFee(this.api, this.pair, this.certId, this.certificationInfo)
+      this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
+    },
+
+    async getDeleteCertificationFee() {
+      const fee = await deleteCertificationFee(this.api, this.pair, this.certId)
+      this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
+    },
+
     openCertificationDialog() {
       this.certificationDialog = true
     },
+
     closeCertificationDialog() {
       this.certId = ""
       this.certificationDialog = false
       this.isEditCertificationDialog = false
       this.$refs.certificationForm.reset()
     },
+
     async submitCertification() {
       if (!this.certId) {
         await this.addCertification()
@@ -260,63 +345,58 @@ export default {
       }
       await this.updateCertification()
     },
+
     async addCertification() {
       if (!this.$refs.certificationForm.validate()) {
         return
       }
-      const certificationInfo = {
-        title: this.certTitle,
-        issuer: this.certIssuer,
-        month: this.certMonth,
-        year: this.certYear,
-        description: this.certDescription,
-        supportingDocument: this.certSupportingDocumentsUrl
-      }
-      await this.dispatch(createCertification, this.api, this.pair, certificationInfo, () => {
+
+      this.certificationInfo.supportingDocument = this.certSupportingDocumentsUrl
+      await this.dispatch(createCertification, this.api, this.pair, this.certificationInfo, () => {
         this.closeCertificationDialog()
       })
     },
+
     async editCertification(cert) {
-      this.certId = cert.id
-      this.certTitle = cert.info.title
-      this.certIssuer = cert.info.issuer
-      this.certMonth = cert.info.month
-      this.certYear = cert.info.year
-      this.certDescription = cert.info.description
-      this.certSupportingDocumentsUrl = cert.info.supportingDocument
-
-      if (this.certSupportingDocumentsUrl) {
-        const res = await fetch(this.certSupportingDocumentsUrl)
-        const blob = await res.blob() // Gets the response and returns it as a blob
-        const file = new File([blob], this.certSupportingDocumentsUrl?.split("/").pop() ?? "Supporting Document File", {type: "application/pdf"})
-        this.files = file
-      }
-
-
       this.certificationDialog = true
+      const { title, issuer, month, year, description, supportingDocument} = cert.info
+      this.certId = cert.id
+      this.certificationInfo = { title, issuer, month, year, description, supportingDocument }
+
+      const res = await fetch(this.certificationInfo.supportingDocument)
+      const blob = await res.blob() // Gets the response and returns it as a blob
+      const type = blob.type
+      const file = new File([blob], this.certificationInfo.supportingDocument.substring(21), {type})
+      
+      this.files = file
       this.isEditCertificationDialog = true
     },
+
     async updateCertification() {
       if (!this.$refs.certificationForm.validate()) {
         return
       }
-      const certificationInfo = {
-        title: this.certTitle,
-        issuer: this.certIssuer,
-        month: this.certMonth,
-        year: this.certYear,
-        description: this.certDescription,
-        supportingDocument: this.certSupportingDocumentsUrl
+
+      if (this.certSupportingDocumentsUrl) {
+        this.certificationInfo.supportingDocument = this.certSupportingDocumentsUrl
       }
-      await this.dispatch(updateCertification, this.api, this.pair, this.certId, certificationInfo, () => {
+
+      await this.dispatch(updateCertification, this.api, this.pair, this.certId, this.certificationInfo, () => {
         this.closeCertificationDialog()
       })
     },
 
-    async deleteCertification(cert) {
-      await this.dispatch(deleteCertification, this.api, this.pair, cert.id)
+    async showDelete(cert) {
+      this.certId = cert.id
+      this.getDeleteCertificationFee()
+      this.showDeletePrompt = true
+    },
+
+    async deleteCertification() {
+      await this.dispatch(deleteCertification, this.api, this.pair, this.certId)
       this.showDeletePrompt = false
     },
+
     async fileUploadEventListener(file) {
       this.certSupportingDocumentsUrl = ""
       if (file && file.name) {

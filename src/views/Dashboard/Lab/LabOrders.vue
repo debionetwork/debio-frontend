@@ -54,9 +54,7 @@
 import { mapState } from "vuex"
 import OrderCard from "@/components/OrderCard"
 import PrimaryButton from "@/components/PrimaryButton"
-import {
-  fetchOrderHistory
-} from "@/lib/polkadotProvider/query/orders"
+import { fetchOrderHistory } from "@/lib/polkadotProvider/query/orders"
 
 export default {
   name: "LabOrders",
@@ -100,6 +98,7 @@ export default {
 
       const title = detailOrder.lab_name
       const labName = detailOrder.service_name
+      const listStatus = ["Refunded", "Fulfilled"]
       
       let icon = "mdi-needle"
       if (detailOrder.service_image) {
@@ -120,8 +119,8 @@ export default {
         status,
         dnaSampleTrackingId
       }
-
-      if (status != "Fulfilled") this.preparedOrderHistory.push(order)
+      
+      if (!listStatus.includes(status)) this.preparedOrderHistory.push(order)
     },
 
     goToOrderHistory() {

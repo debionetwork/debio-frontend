@@ -10,7 +10,7 @@
             :sort-by="['createdAt']"
             :sort-desc="[true]"
             :loading="isLoading"
-            :total-item-length="totalOrders"
+            :total-item-length="orders.length"
             :handle-page-change="handlePageChange"
             :handle-page-size-change="handlePageSizeChange"
             :current-page="page"
@@ -78,7 +78,6 @@ export default {
     orders: [],
     page: 1,
     pageSize: 10,
-    totalOrders: 0,
     address: "",
     password: "",
     search: "",
@@ -98,6 +97,7 @@ export default {
   methods: {
     async fetchDataOrders(keyword) {
       this.orders = []
+      const listStatus = ["Refunded", "Fulfilled"]
       const orders = await this.dispatch(getOrdersData, this.pair.address, this.page, this.pageSize, keyword)
       for (let order of orders.data) {
         const dna = await queryDnaSamples(this.api, order._source.dna_sample_tracking_id)
@@ -115,10 +115,9 @@ export default {
             })
           }
         }
-
-        if (data._source.status === "Fulfilled") this.orders.push(data)
+        
+        if (listStatus.includes(data._source.status)) this.orders.push(data)
       }
-      this.totalOrders = orders.info.count.body.count
     },
 
     async handleSearch(val) {
@@ -174,13 +173,11 @@ export default {
 
     async handlePageChange(value){
       this.page = value
-      await this.fetchDataOrders()
     },
 
     async handlePageSizeChange(value){
       this.pageSize = value
       this.page = 1 // If change page size restart from page 1
-      await this.fetchDataOrders()
     }
   }
 }
