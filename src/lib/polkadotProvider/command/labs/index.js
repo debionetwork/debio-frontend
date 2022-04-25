@@ -37,3 +37,10 @@ export async function labCommandCallback(api, pair, { events, status, callback, 
     }
   }
 }
+
+export async function unstakeLab(api, pair) {
+  const result = await api.tx.labs
+    .unstakeLab()
+    .paymentInfo(pair)
+  return result.toHuman()
+}
