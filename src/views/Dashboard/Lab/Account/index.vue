@@ -44,7 +44,7 @@
                   outlined
                   :disabled="!isEditable"
                   :rules="emailRules"
-                  v-model="email"
+                  v-model="document.email"
                 ></v-text-field>
                 
                 <v-text-field
@@ -55,7 +55,7 @@
                   outlined
                   :disabled="!isEditable"
                   :rules="nameRules"
-                  v-model="labName"
+                  v-model="document.name"
                 ></v-text-field>
 
                 <v-autocomplete
@@ -67,7 +67,7 @@
                   return-object
                   :label="computeCountryLabel"
                   autocomplete="off"
-                  v-model="country"
+                  v-model="document.country"
                   disabled
                   :rules="isRequired"
                   outlined
@@ -83,7 +83,7 @@
                   disabled
                   :rules="isRequired"
                   autocomplete="off"
-                  v-model="state"
+                  v-model="document.region"
                   outlined
                 ></v-autocomplete>
 
@@ -98,7 +98,7 @@
                   disabled
                   :rules="isRequired"
                   autocomplete="off"
-                  v-model="city"
+                  v-model="document.city"
                   outlined
                 ></v-autocomplete>
                 
@@ -108,7 +108,7 @@
                   placeholder="Address"
                   autocomplete="off"
                   outlined
-                  v-model="address"
+                  v-model="document.address"
                   disabled
                   :rules="addressRules"
                 ></v-text-field>
@@ -134,7 +134,7 @@
                       label="Phone Number"
                       placeholder="Phone Number"
                       outlined
-                      v-model="phoneNumber"
+                      v-model="document.phoneNumber"
                       :rules="phoneNumberRules"
                       :disabled="!isEditable"
                     ></v-text-field>
@@ -147,10 +147,33 @@
                   placeholder="Website"
                   autocomplete="off"
                   outlined
-                  v-model="website"
+                  v-model="document.website"
                   :rules="websiteRules"
                   :disabled="!isEditable"
                 ></v-text-field>
+
+                <div class= "d-flex justify-space-between" >
+                  <div class="mb-5">
+                    <span
+                      style="font-size: 12px"
+                    > Estimated Transaction Weight </span>
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-icon
+                            color="primary"
+                            size="14"
+                            v-bind="attrs"
+                            v-on="on"
+                          > mdi-alert-circle-outline
+                          </v-icon>
+                        </template>
+                        <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+                      </v-tooltip>
+                  </div>
+                  <span style="font-size: 12px;">
+                    {{ Number(fee).toFixed(4) }} DBIO
+                  </span>
+                </div>
 
                 <v-btn
                   color="primary"
@@ -173,13 +196,15 @@
 
 <script>
 import { mapState, mapGetters } from "vuex"
-import { updateLab } from "@/lib/polkadotProvider/command/labs"
+import { updateLab, updateLabFee } from "@/lib/polkadotProvider/command/labs"
 import { getLocations, getStates, getCities } from "@/lib/api"
 import Kilt from "@kiltprotocol/sdk-js"
+import CryptoJS from "crypto-js"
 import { u8aToHex } from "@polkadot/util"
 import Certification from "./Certification"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
+import { generalDebounce } from "@/utils"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
@@ -190,22 +215,27 @@ export default {
   components: { Certification },
 
   data: () => ({
-    email: "",
-    labName: "",
-    address: "",
-    phoneNumber: "",
+    document: {
+      name: "",
+      email: "",
+      address: "",
+      phoneNumber: "",
+      website: "",
+      country: "",
+      region: "",
+      city: ""
+    },
     phoneCode: null,
-    website: "",
-    country: "",
-    state: "",
-    city: "",
     imageUrl: "",
     countries: [],
     states: [],
     cities: [],
     files: [],
     isEditable: false,
-    isUploading: false
+    isUploading: false,
+    verificationStatus: "",
+    isVerify: false,
+    fee: 0
   }),
 
   computed: {
@@ -216,7 +246,8 @@ export default {
     }),
 
     ...mapState({
-      mnemonic: state => state.substrate.mnemonicData.mnemonic
+      mnemonic: state => state.substrate.mnemonicData,
+      web3: state => state.metamask.web3
     }),
 
     citiesSelection() {
@@ -282,39 +313,61 @@ export default {
     },
 
     computeCountryLabel() {
-      return !this.country && this.isLoading ? this.loadingPlaceholder : "Select Region"
+      return !this.document.country && this.isLoading ? this.loadingPlaceholder : "Select Country"
     },
 
     computeStateLabel() {
-      return !this.state && this.isLoading ? this.loadingPlaceholder : "Select State"
+      return !this.document.region && this.isLoading ? this.loadingPlaceholder : "Select State"
     },
 
     computeCityLabel() {
-      return !this.city && this.isLoading ? this.loadingPlaceholder : "Select City"
+      return !this.document.city && this.isLoading ? this.loadingPlaceholder : "Select City"
     }
   },
 
-  async mounted() {
-    const labInfo = this.labAccount.info
-    this.email = labInfo.email
-    this.labName = labInfo.name
-    this.address = labInfo.address
-    this.phoneNumber = labInfo.phoneNumber
-    this.website = labInfo.website
-    this.imageUrl = labInfo.profileImage
+  watch: {
+    mnemonic(val) {
+      if (val) this.getKiltBoxPublicKey()
+    },
 
-    await this.getCountries()
-    await this.onCountryChange(labInfo.country)
-    await this.onStateChange(labInfo.region) // Region means the state, backend response got region instead state
-    await this.onCityChange({ name: labInfo.city })
+    document: {
+      deep: true,
+      immediate: true,
+      handler: generalDebounce(async function() {
+        if (this.mnemonic) await this.getUpdateLabFee()
+      }, 500)
+    }
+  },
 
-    const res = await fetch(this.imageUrl)
-    const blob = await res.blob() // Gets the response and returns it as a blob
-    const file = new File([blob], this.imageUrl?.split("/").pop() ?? "Profile Image File", { type: "image/jpeg" })
-    this.files = file
+  async created() {
+    await this.getLabInfo()
   },
 
   methods: {
+    async getLabInfo() {
+      const { address, city, country, email, name, phoneNumber, profileImage, region, website } = this.labAccount.info
+      this.document = { 
+        name, 
+        email, 
+        address, 
+        phoneNumber, 
+        website
+      }
+
+      this.verificationStatus = this.labAccount.verificationStatus
+
+      await this.getCountries()
+      await this.onCountryChange(country)
+      await this.onStateChange(region)
+      await this.onCityChange({ name: city})
+      this.imageUrl = profileImage
+
+      const res = await fetch(this.imageUrl)
+      const blob = await res.blob() // Gets the response and returns it as a blob
+      const file = new File([blob], this.imageUrl?.split("/").pop() ?? "Profile Image File", { type: "image/jpeg" })
+      this.files = file
+    },
+
     async getCountries() {
       const { data:
         { data }
@@ -327,36 +380,46 @@ export default {
       const selected = typeof selectedCountry !== "string"
         ? selectedCountry
         : this.countries.find(country => country.iso2 === selectedCountry)
-      this.state = ""
-      this.city = ""
+      this.document.region = ""
+      this.document.city = ""
 
       const { data:
         { data }
       } = await this.dispatch(getStates, selected?.iso2 ?? selectedCountry)
 
       this.states = data;
-      this.country = selected?.iso2 ?? selectedCountry
+      this.document.country = selected?.iso2 ?? selectedCountry
       this.phoneCode = selected?.phone_code ?? null
     },
 
     async onStateChange(selectedState) {
-      this.city = ""
+      this.document.city = ""
 
       const { data:
         { data }
-      } = await this.dispatch(getCities, this.country, selectedState)
+      } = await this.dispatch(getCities, this.document.country, selectedState)
 
-      this.state = selectedState;
+      this.document.region = selectedState;
       this.cities = data
     },
 
     onCityChange({ name }) {
-      this.city = name;
+      this.document.city = name;
     },
 
     getKiltBoxPublicKey() {
-      const cred = Kilt.Identity.buildFromMnemonic(this.mnemonic)
+      const cred = Kilt.Identity.buildFromMnemonic(this.mnemonic.toString(CryptoJS.enc.Utf8))
       return u8aToHex(cred.boxKeyPair.publicKey)
+    },
+
+    async getUpdateLabFee() {
+      const boxPublicKey = this.getKiltBoxPublicKey()
+      const { name, email, address, phoneNumber, website, country, city, region } = this.document
+      const fee = await updateLabFee(
+        this.api, this.pair, { boxPublicKey, name, email, address, phoneNumber, website, country, city, region, profileImage: this.imageUrl}
+      )
+
+      this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
     },
 
     async updateLab(){
@@ -366,21 +429,10 @@ export default {
       try{
         this.isLoading = true
         const boxPublicKey = this.getKiltBoxPublicKey()
+        const { name, email, address, phoneNumber, website, country, city, region } = this.document
+
         await updateLab(
-          this.api,
-          this.pair,
-          {
-            boxPublicKey,
-            name: this.labName,
-            email: this.email,
-            address: this.address,
-            phoneNumber: this.phoneNumber,
-            website: this.website,
-            country: this.country,
-            region: this.state, // Region means the state, backend parameter only accept region instead state
-            city: this.city,
-            profileImage: this.imageUrl
-          },
+          this.api, this.pair, { boxPublicKey, name, email, address, phoneNumber, country, website, region, city, profileImage: this.imageUrl },
           () => {
             this.isLoading = false
             this.isEditable = false
