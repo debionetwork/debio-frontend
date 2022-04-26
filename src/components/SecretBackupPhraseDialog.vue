@@ -102,7 +102,7 @@ export default {
     },
     async handleCopyMnemonic() {
       await navigator.clipboard.writeText(this.mnemonic)
-      this.copyText = "Your mnemonic has been copied successfully !"
+      this.copyText = "Mnemonic has been copied successfully !"
 
       clearTimeout(timeout)
       timeout = setTimeout(() => {
