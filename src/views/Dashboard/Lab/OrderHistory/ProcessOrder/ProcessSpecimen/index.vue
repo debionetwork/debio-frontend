@@ -1,7 +1,7 @@
 <template>
   <div>
     <template>
-      <v-card class="mt-10 px-10" v-if="specimenStatus === 'WorkWet'">
+      <v-card class="mt-10 px-10" v-if="specimenStatus === 'WetWork'">
         <div class= "d-flex justify-space-between">
           <div class="mb-5 mt-5">
             <span
