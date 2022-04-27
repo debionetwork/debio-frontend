@@ -17,12 +17,16 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-app-bar>
-      <v-card-text class="pb-0 text-subtitle-1 text-center">
+      <v-card-text class="pb-0 text-subtitle-1">
         <MnemonicKeypad
+            class="text-center"
             :mnemonicCollection="mnemonicCollection"
         ></MnemonicKeypad>
-        <p class="pl-5 pr-5">
+        <p class="pl-5 pr-5 text-center">
             <b>Write down these words in the right order and save them safely</b>
+        </p>
+        <p class="mt-10 primary--text" role="button" @click="handleCopyMnemonic">
+          <v-icon class="primary--text">mdi-content-copy</v-icon> {{ copyText }}
         </p>
       </v-card-text>
       <v-card-actions class="px-6 pb-4">
@@ -45,6 +49,8 @@ import MnemonicKeypad from "./MnemonicKeypad.vue"
 import localStorage from "@/lib/local-storage"
 const { /*cryptoWaitReady,*/ mnemonicGenerate  } = require("@polkadot/util-crypto")
 
+let timeout = 0
+
 export default {
   components: { MnemonicKeypad },
   name: "SecretBackupPhraseDialog",
@@ -54,6 +60,7 @@ export default {
   },
   data: () => ({
     mnemonic: "",
+    copyText: "Copy this Mnemonic Phrase to clipboard",
     mnemonicCollection: []
   }),
   computed: {
@@ -92,6 +99,15 @@ export default {
       const hasAddress = localStorage.getLocalStorageByName("mnemonic_data")
 
       if (!hasAddress) localStorage.removeLocalStorageByName("TERMS")
+    },
+    async handleCopyMnemonic() {
+      await navigator.clipboard.writeText(this.mnemonic)
+      this.copyText = "Mnemonic has been copied successfully !"
+
+      clearTimeout(timeout)
+      timeout = setTimeout(() => {
+        this.copyText = "Copy this Mnemonic Phrase to clipboard"
+      }, 1000)
     }
   }
 }
