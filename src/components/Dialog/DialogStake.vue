@@ -28,7 +28,7 @@
         </div>
         <div class="d-flex justify-space-between mb-3">
           <div><strong>Staking Amount</strong></div>
-          <div><strong>50,000 DBIO</strong></div>
+          <div><strong>{{ stakeAmount }} DBIO</strong></div>
         </div>
         <div style="color: #F5222D" class="mb-3" v-if="computeBalance">
           <strong>Insufficient Balance</strong>
@@ -106,7 +106,8 @@ export default {
   data: () => ({
     fee: 0,
     balance: 0,
-    minimumStake: 0
+    minimumStake: 0,
+    stakeAmount: ""
   }),
 
   async mounted() {
@@ -126,8 +127,10 @@ export default {
 
     async getMinimumStake() {
       const stakeAmount = await minimumStakeAmount(this.api)
+      const minimumStake = stakeAmount ? stakeAmount : 50000*(10**18)
       
-      this.minimumStake = stakeAmount ? stakeAmount : 50000**18
+      this.stakeAmount = `${new Intl.NumberFormat("en-US").format(minimumStake / 10 ** 18)} `
+      this.minimumStake = minimumStake
     },
 
     async fetchWalletBalance() {
@@ -143,7 +146,7 @@ export default {
     async getStakeFee() {
       try {
         const fee = await stakeLabFee(this.api, this.pair)
-
+        
         this.fee = Number(
           this.web3.utils.fromWei(String(fee.partialFee), "ether")
         )
