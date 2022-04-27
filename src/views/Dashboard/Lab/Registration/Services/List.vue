@@ -59,6 +59,7 @@
       </v-card-text>
     </v-card>
     <DialogDelete 
+      :fee="fee"
       :show="deleteConfirmation" 
       type="service" 
       @close="toggleDelete"
@@ -70,7 +71,7 @@
 <script>
 import { mapGetters, mapState } from "vuex"
 import serviceHandler from "@/mixins/serviceHandler"
-import { deleteService } from "@/lib/polkadotProvider/command/services"
+import { deleteService, deleteServiceFee } from "@/lib/polkadotProvider/command/services"
 import DialogDelete from "@/components/Dialog/DialogDeleteConfirmation"
 
 export default {
@@ -84,7 +85,8 @@ export default {
 
   data: () => ({
     deleteConfirmation: false,
-    service: null
+    service: null,
+    fee: 0
   }),
 
   computed: {
@@ -109,7 +111,7 @@ export default {
       this.$emit("edit-service", service)
     },
 
-    toggleDelete(service) {
+    async toggleDelete(service) {
       if (service) {
         this.service = service
         this.deleteConfirmation = true
@@ -117,6 +119,13 @@ export default {
         this.service = null
         this.deleteConfirmation = false
       }
+
+      await this.getDeleteFee()
+    },
+
+    async getDeleteFee() {
+      const fee = await deleteServiceFee(this.api, this.pair, this.service.id)
+      this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
     },
 
     async deleteService() {
