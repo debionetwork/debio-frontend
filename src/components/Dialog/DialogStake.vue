@@ -73,6 +73,7 @@ import {mapGetters, mapState} from "vuex"
 import Button from "@/components/Button"
 import {stakeLabFee} from "@/lib/polkadotProvider/command/labs"
 import {queryBalance} from "@/lib/polkadotProvider/query/balance"
+import {minimumStakeAmount} from "@/lib/polkadotProvider/query/labs"
 
 export default {
   name: "DialogStake",
@@ -93,7 +94,7 @@ export default {
     }),
 
     computeBalance() {
-      return this.balance < 50000**18
+      return this.balance < this.minimumStake
     }
   },
 
@@ -104,12 +105,14 @@ export default {
 
   data: () => ({
     fee: 0,
-    balance: 0
+    balance: 0,
+    minimumStake: 0
   }),
 
   async mounted() {
     await this.getStakeFee()
     await this.fetchWalletBalance()
+    await this.getMinimumStake()
   },
 
   methods: {
@@ -119,6 +122,12 @@ export default {
 
     handleSubmit() {
       this.$emit("submit")
+    },
+
+    async getMinimumStake() {
+      const stakeAmount = await minimumStakeAmount(this.api)
+      
+      this.minimumStake = stakeAmount ? stakeAmount : 50000**18
     },
 
     async fetchWalletBalance() {
