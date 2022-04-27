@@ -1,5 +1,9 @@
 <template>
   <div>
+    <DialogErrorBalance
+      :show="isShowError"
+      @close="closeDialog"
+     />
     <v-container>
       <v-row>
         <v-col cols="7">
@@ -199,6 +203,7 @@ import Kilt from "@kiltprotocol/sdk-js"
 import CryptoJS from "crypto-js"
 import { u8aToHex } from "@polkadot/util"
 import { generalDebounce } from "@/utils"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
@@ -210,7 +215,8 @@ export default {
 
   components: { 
     Certification,
-    Stepper  
+    Stepper,
+    DialogErrorBalance
   },
 
   async mounted() {
@@ -241,7 +247,8 @@ export default {
     stepperItems: [
       { name: "Lab Information", selected: false},
       { name: "Lab Services", selected: false}
-    ]
+    ],
+    isShowError: false
   }),
 
   computed: {
@@ -473,6 +480,9 @@ export default {
       }
       catch(e){
         console.error(e)
+        if (e.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
+        }
       }
     },
 
@@ -544,6 +554,11 @@ export default {
         }
       )
       this.fee = this.web3.utils.fromWei(String(txWeight.partialFee), "ether")
+    },
+
+    closeDialog() {
+      this.isShowError = false
+      this.isLoading = false
     }
   }
 }
