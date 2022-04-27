@@ -193,6 +193,7 @@ import CryptoJS from "crypto-js"
 import { fulfillOrder } from "@/lib/polkadotProvider/command/orders"
 import DialogAlert from "@/components/Dialog/DialogAlert"
 import Dialog from "@/components/Dialog"
+import { u8aToHex } from "@polkadot/util"
 import Button from "@/components/Button"
 import { uploadFile, getFileUrl, getIpfsMetaData } from "@/lib/pinata-proxy"
 import { submitTestResult, processDnaSample, submitTestResultFee } from "@/lib/polkadotProvider/command/geneticTesting"
@@ -480,7 +481,7 @@ export default {
       return new Promise((resolve, reject) => {
         try {
           const pair = {
-            secretKey: context.identity.boxKeyPair.secretKey,
+            secretKey: u8aToHex(context.identity.boxKeyPair.secretKey),
             publicKey: context.publicKey // Customer's box publicKey
           }
           const arrChunks = []
