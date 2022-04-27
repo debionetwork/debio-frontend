@@ -32,6 +32,11 @@
                     <div class="d-flex justify-space-between align-center" style="width: 100%;">
                     <div class=""><b>{{ cert.info.title }}</b></div>
                     <div class="d-flex">
+                      <DialogErrorBalance
+                        :show="isShowError"
+                        @close="closeDialog"
+                      />
+
                       <v-dialog v-model="showDeletePrompt" persistent width="477">
                         <v-card class="d-flex flex-column px-15 py-13">
                           <v-icon size="80" class="mx-auto" color="primary">mdi-information-outline</v-icon>
@@ -80,7 +85,14 @@
                           </v-card-actions>
                         </v-card>
                       </v-dialog>
-                      <v-icon class="mx-1" small @click="editCertification(cert)">mdi-pencil</v-icon>
+                      <v-icon v-if="currentLoading !== cert.id" class="mx-1" small @click="editCertification(cert)">mdi-pencil</v-icon>
+                      <v-progress-circular
+                        v-if="currentLoading === cert.id"
+                        indeterminate
+                        size="15"
+                        width="2"
+                        color="warning"
+                      ></v-progress-circular>
                       <v-icon class="mx-1" small @click="showDelete(cert)">mdi-delete</v-icon>
                     </div>
                     </div>
@@ -90,7 +102,7 @@
                       <a :href="cert.info.supportingDocument" class="support-url" target="_blank">
                         <span v-if="cert.info.supportingDocument">
                           <v-icon class="mx-1" small>mdi-file-document</v-icon>
-                          {{ cert.info.supportingDocument ? cert.info.supportingDocument.split("/").pop() : "Supporting Documents" }}
+                          {{ cert.info.documentName || "Supporting Documents" }}
                         </span>
                         <span v-else>No supporting document</span>
                       </a>
@@ -203,8 +215,9 @@ import { createCertification, createCertificationFee, updateCertification, updat
 import serviceHandler from "@/mixins/serviceHandler"
 import Dialog from "@/components/Dialog"
 import Button from "@/components/Button"
-import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
+import { uploadFile, getFileUrl, getIpfsMetaData } from "@/lib/pinata-proxy"
 import { generalDebounce } from "@/utils"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
@@ -213,7 +226,8 @@ export default {
 
   components: {
     Dialog,
-    Button
+    Button,
+    DialogErrorBalance
   },
 
   mixins: [serviceHandler],
@@ -232,10 +246,12 @@ export default {
     selectMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     certificationDialog: false,
     isUploading: false,
+    currentLoading: null,
     showDeletePrompt: false,
     isEditCertificationDialog: false,
     files: [],
-    fee: 0
+    fee: 0,
+    isShowError: false
   }),
 
   computed: {
@@ -297,6 +313,10 @@ export default {
     }
   },
 
+  async created() {
+    this.getDetailDocument()
+  },
+
   watch: {
     certificationInfo: {
       deep: true,
@@ -312,6 +332,19 @@ export default {
   },
 
   methods: {
+    async getDetailDocument () {
+      let certifications = []
+
+      for (const cert of this.labAccount.certifications) {
+        const { rows } = await getIpfsMetaData(cert.info.supportingDocument?.split("/").pop())
+        cert.info.documentName = rows[0].metadata.name ?? "Supporting Document File"
+        cert.info.documentType = rows[0].metadata.keyvalues.type
+        certifications.push(cert)
+      }
+
+      this.labAccount.certifications = certifications
+    },
+
     async getCreateCertificationFee(){
       const fee = await createCertificationFee(this.api, this.pair, this.certificationInfo)
       this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
@@ -343,36 +376,50 @@ export default {
         await this.addCertification()
         return
       }
-      await this.updateCertification()
+      await this.updateCertificationDocument()
     },
 
     async addCertification() {
       if (!this.$refs.certificationForm.validate()) {
         return
       }
-
-      this.certificationInfo.supportingDocument = this.certSupportingDocumentsUrl
-      await this.dispatch(createCertification, this.api, this.pair, this.certificationInfo, () => {
-        this.closeCertificationDialog()
-      })
+      try {
+        this.certificationInfo.supportingDocument = this.certSupportingDocumentsUrl
+        await this.dispatch(createCertification, this.api, this.pair, this.certificationInfo, () => {
+          this.closeCertificationDialog()
+          this.getDetailDocument()
+        })
+      } catch (error) {
+        this.isLoading = false
+        if (error.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
+        }
+      }
     },
 
     async editCertification(cert) {
-      this.certificationDialog = true
-      const { title, issuer, month, year, description, supportingDocument} = cert.info
-      this.certId = cert.id
-      this.certificationInfo = { title, issuer, month, year, description, supportingDocument }
+      try {
+        this.currentLoading = cert.id
+        const { title, issuer, month, year, description, supportingDocument, documentName, documentType } = cert.info
+        this.certId = cert.id
+        this.certificationInfo = { title, issuer, month, year, description, supportingDocument }
 
-      const res = await fetch(this.certificationInfo.supportingDocument)
-      const blob = await res.blob() // Gets the response and returns it as a blob
-      const type = blob.type
-      const file = new File([blob], this.certificationInfo.supportingDocument.substring(21), {type})
-      
-      this.files = file
-      this.isEditCertificationDialog = true
+        const res = await fetch(supportingDocument)
+        const blob = await res.blob() // Gets the response and returns it as a blob
+        const file = new File([blob], documentName, { type: documentType })
+
+        this.files = file
+        this.isEditCertificationDialog = true
+        this.certificationDialog = true
+        this.currentLoading = null
+      } catch (error) {
+        console.error(error);
+        this.currentLoading = null
+      }
+
     },
 
-    async updateCertification() {
+    async updateCertificationDocument() {
       if (!this.$refs.certificationForm.validate()) {
         return
       }
@@ -383,6 +430,7 @@ export default {
 
       await this.dispatch(updateCertification, this.api, this.pair, this.certId, this.certificationInfo, () => {
         this.closeCertificationDialog()
+        this.getDetailDocument()
       })
     },
 
@@ -393,7 +441,9 @@ export default {
     },
 
     async deleteCertification() {
-      await this.dispatch(deleteCertification, this.api, this.pair, this.certId)
+      await this.dispatch(deleteCertification, this.api, this.pair, this.certId, () => {
+        this.getDetailDocument()
+      })
       this.showDeletePrompt = false
     },
 
@@ -434,6 +484,11 @@ export default {
 
         fr.readAsArrayBuffer(file)
       })
+    },
+    
+    closeDialog() {
+      this.isShowError = false
+      this.showDeletePrompt = false
     }
   }
 }
