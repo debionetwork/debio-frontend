@@ -43,7 +43,7 @@
             <div v-for="(file, idx) in files.genome" :key="idx + '-' + file.fileName + '-' + file.fileType">
               <FileCard
                 :filename="file.fileName"
-                :ipfsUrl="getFileIpfsUrl(file)"
+                :ipfsUrl="file.ipfsPath"
                 :view-only="submitted"
                 @edit="onEditClick('genome')"
                 @delete="onFileDelete('genome')"
@@ -90,7 +90,7 @@
             <div v-for="(file, idx) in files.report" :key="idx + '-' + file.fileName + '-' + file.fileType">
               <FileCard
                 :filename="file.fileName"
-                :ipfsUrl="getFileIpfsUrl(file)"
+                :ipfsUrl="file.ipfsPath"
                 :view-only="submitted"
                 @edit="onEditClick('report')"
                 @delete="onFileDelete('report')"
@@ -187,14 +187,15 @@
 import { mapGetters, mapState } from "vuex"
 import serviceHandler from "@/mixins/serviceHandler"
 import FileCard from "./FileCard"
-import ipfsWorker from "@/web-workers/ipfs-worker"
 import cryptWorker from "@/web-workers/crypt-worker"
 import Kilt from "@kiltprotocol/sdk-js"
 import CryptoJS from "crypto-js"
 import { fulfillOrder } from "@/lib/polkadotProvider/command/orders"
 import DialogAlert from "@/components/Dialog/DialogAlert"
 import Dialog from "@/components/Dialog"
+import { u8aToHex } from "@polkadot/util"
 import Button from "@/components/Button"
+import { uploadFile, getFileUrl, getIpfsMetaData } from "@/lib/pinata-proxy"
 import { submitTestResult, processDnaSample, submitTestResultFee } from "@/lib/polkadotProvider/command/geneticTesting"
 import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting"
 import localStorage from "@/lib/local-storage"
@@ -202,7 +203,7 @@ import localStorage from "@/lib/local-storage"
 
 export default {
   name: "ProcessSpecimen",
-  
+
   components: {
     FileCard,
     DialogAlert,
@@ -211,7 +212,7 @@ export default {
   },
 
   mixins: [serviceHandler],
-  
+
   props: {
     isSubmitted: Boolean,
     orderId: String,
@@ -286,7 +287,7 @@ export default {
     disableSendButton(){
       return !this.disableRejectButton
     },
-    
+
     hasGenomeFile() {
       return this.files.genome.length > 0
     },
@@ -312,24 +313,38 @@ export default {
     if (this.mnemonic) this.initialData()
   },
 
+  watch: {
+    mnemonic(val) {
+      if (val) this.initialData()
+    }
+  },
+
   methods:{
     initialData() {
       this.identity = Kilt.Identity.buildFromMnemonic(this.mnemonic.toString(CryptoJS.enc.Utf8))
     },
 
-    setUploadFields(testResult){
+    async setUploadFields(testResult){
       const { resultLink, reportLink } = testResult
+      const metadata = async (cid, documentType) => {
+        this.loading[documentType] = true
+        const { rows } = await getIpfsMetaData(cid)
+        this.loading[documentType] = false
+
+        return rows[0].metadata.name
+      }
+
       if(resultLink){
         const genomeFile = {
-          fileName: "Genome File", // FIXME: Harusnya di simpan di dan di ambil dari blockchain  
-          ipfsPath: [{ data: { path: resultLink.split("/")[resultLink.split("/").length-1] } }]
+          fileName: await metadata(resultLink.split("/").pop(), "genome"),
+          ipfsPath: resultLink
         }
         this.files.genome.push(genomeFile)
       }
       if(reportLink){
         const reportFile = {
-          fileName: "Report File", // FIXME: Harusnya di simpan di dan di ambil dari blockchain
-          ipfsPath: [{ data: { path: reportLink.split("/")[reportLink.split("/").length-1] } }]
+          fileName: await metadata(reportLink.split("/").pop(), "report"),
+          ipfsPath: reportLink
         }
         this.files.report.push(reportFile)
       }
@@ -343,42 +358,20 @@ export default {
       this.$refs.encryptUploadReport.click()
     },
 
-    /**
-     * @returns {String} The first ipfs path (a file has multiple ipfs path, because a file may be chunked)
-     */
-    getFileIpfsPath(file) {
-      return file.ipfsPath[0].data.path
-    },
-
-    getFileIpfsUrl(file) {
-      const path = this.getFileIpfsPath(file)
-      return `https://ipfs.io/ipfs/${path}`
-    },
-
     async getFee() {
       const fee = await submitTestResultFee(this.api, this.pair, this.specimenNumber, this.nextStatus)
       this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
     },
 
-    async submitTestResult(callback = () => {}) {
-      let genomeLink = ""
-      if(this.files.genome.length){
-        genomeLink = this.getFileIpfsUrl(this.files.genome[0])
-      }
-
-      let reportLink = ""
-      if(this.files.report.length){
-        reportLink = this.getFileIpfsUrl(this.files.report[0])      
-      }
-
+    async submitTestResultDocument(callback = () => {}) {
       await submitTestResult(
         this.api,
         this.pair,
         this.specimenNumber,
         {
           comment: this.comment,
-          reportLink: reportLink,
-          resultLink: genomeLink
+          reportLink: this.files.report[0]?.ipfsPath || "",
+          resultLink: this.files.genome[0]?.ipfsPath || ""
         },
         callback
       )
@@ -396,7 +389,7 @@ export default {
         }
       )
     },
-    
+
     async resultReady() {
       this.isProcessing = true
       await this.dispatch(
@@ -433,21 +426,22 @@ export default {
               fileType: file.fileType,
               fileName: file.name
             })
-            
+
             const { chunks, fileName: encFileName, fileType: encFileType } = encrypted
             // Upload
             const uploaded = await context.upload({
               encryptedFileChunks: chunks,
               fileName: encFileName,
-              fileType: encFileType
+              documentType: encFileType,
+              type: file.type
             })
-            
+
             // files is array, but currently only support storing 1 file for each type
-            const { fileName, fileType, ipfsPath } = uploaded
+
             if (context.files[fileType].length > 0) {
-              context.files[fileType][0] = { fileName, fileType, ipfsPath }
+              context.files[fileType][0] = { fileName: file.name, fileType, ipfsPath: uploaded }
             } else {
-              context.files[fileType].push({ fileName, fileType, ipfsPath })
+              context.files[fileType].push({ fileName: file.name, fileType, ipfsPath: uploaded })
             }
 
             context.loading[file.fileType] = false
@@ -457,8 +451,8 @@ export default {
               context.genomeSucceed = true
               context.genomeUploadSucceedDialog = true
               context.$emit("uploadGenome")
-              
-              context.submitTestResult(() => {
+
+              context.submitTestResultDocument(() => {
                 context.loading[file.fileType] = false
               })
             }
@@ -467,7 +461,7 @@ export default {
               context.reportUploadSucceedDialog = true
               context.$emit("uploadReport")
 
-              context.submitTestResult(() => {
+              context.submitTestResultDocument(() => {
                 context.loading[file.fileType] = false
                 context.$emit("resultUploaded")
               })
@@ -486,8 +480,8 @@ export default {
 
       return new Promise((resolve, reject) => {
         try {
-          const pair = { 
-            secretKey: context.identity.boxKeyPair.secretKey,
+          const pair = {
+            secretKey: u8aToHex(context.identity.boxKeyPair.secretKey),
             publicKey: context.publicKey // Customer's box publicKey
           }
           const arrChunks = []
@@ -521,48 +515,23 @@ export default {
       })
     },
 
-    upload({ encryptedFileChunks, fileName, fileType }) {
-      this.loadingStatus[fileType] = "Uploading"
-      const chunkSize = 10 * 1024 * 1024 // 10 MB
-      let offset = 0
+    async upload({ encryptedFileChunks, fileName, documentType, type }) {
+      this.loadingStatus[documentType] = "Uploading"
       const data = JSON.stringify(encryptedFileChunks)
-      const blob = new Blob([ data ], { type: "text/plain" })
+      const blob = new Blob([ data ], { type })
 
-      return new Promise((resolve, reject) => {
-        try {
-          const fileSize = blob.size
-          do {
-            let chunk = blob.slice(offset, chunkSize + offset);
-            ipfsWorker.workerUpload.postMessage({
-              seed: chunk.seed, file: blob
-            })
-            offset += chunkSize
-          } while((chunkSize + offset) < fileSize)
-          
-          let uploadSize = 0
-          const uploadedResultChunks = []
-          ipfsWorker.workerUpload.onmessage = async event => {
-            uploadedResultChunks.push(event.data)
-            uploadSize += event.data.data.size
-            this.uploadProgress[fileType] =
-              uploadSize / fileSize * 100
-              
-            if (uploadSize >= fileSize) {
-              resolve({
-                fileName: fileName,
-                fileType: fileType,
-                ipfsPath: uploadedResultChunks
-              })
-              // Cleanup
-              this.uploadProgress[fileType] = 0
-              this.loadingStatus[fileType] = ""
-            }
-          }
-
-        } catch (err) {
-          reject(new Error(err.message))
-        }
+      const result = await uploadFile({
+        title: fileName,
+        type: type,
+        file: blob
       })
+
+      const link = getFileUrl(result.IpfsHash)
+
+      this.uploadProgress[documentType] = 0
+      this.loadingStatus[documentType] = ""
+
+      return link
     },
 
     onEditClick(fileType) {
@@ -596,9 +565,9 @@ export default {
       const timestamp = dateSet.getTime().toString()
       const notifDate = dateSet.toLocaleString("en-US", {
         weekday: "short",
-        day: "numeric", 
+        day: "numeric",
         year: "numeric",
-        month: "long", 
+        month: "long",
         hour: "numeric",
         minute: "numeric"
       });
