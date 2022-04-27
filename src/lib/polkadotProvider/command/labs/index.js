@@ -58,3 +58,19 @@ export async function labCommandCallback(api, pair, { events, status, callback, 
     }
   }
 }
+
+export async function stakeLab(api, pair) {
+  const result = await api.tx.labs
+    .stakeLab()
+    .signAndSend(pair, { nonce: -1 })
+    
+  console.log("result", result.toHuman())
+  // return result.toHuman()
+}
+
+export async function stakeLabFee(api, pair) {
+  const result = await api.tx.labs
+    .stakeLab()
+    .paymentInfo(pair)
+  return result
+}

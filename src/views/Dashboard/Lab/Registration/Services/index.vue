@@ -239,18 +239,27 @@
       @toggle="dialogAlert = $event"
       @close="gotoDashboard"
     ></DialogAlert>
+
+    <DialogStake 
+      :show="dialogStake" 
+      @close="dialogStake = false" 
+      @submit="handleStakeLab" 
+      :loading="stakeLoading" 
+    />
   </div>
 </template>
 
 <script>
-import { mapState } from "vuex"
+import { mapState, mapGetters } from "vuex"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import { createService, updateService, createServiceFee, updateServiceFee } from "@/lib/polkadotProvider/command/services"
 import { getCategories } from "@/lib/api"
 import List from "./List"
 import Stepper from "../Stepper"
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs"
+import { stakeLab } from "@/lib/polkadotProvider/command/labs"
 import DialogAlert from "@/components/Dialog/DialogAlert"
+import DialogStake from "@/components/Dialog/DialogStake"
 import serviceHandler from "@/mixins/serviceHandler"
 import { toEther } from "@/lib/balance-format"
 import { sendEmailRegisteredLab } from "@/lib/api/lab"
@@ -268,7 +277,8 @@ export default {
   components: { 
     List,
     Stepper,
-    DialogAlert
+    DialogAlert,
+    DialogStake
   },
 
   data: () => ({
@@ -314,7 +324,9 @@ export default {
       "Urine - Clean Catch Urine Collection Process"
     ],
     isBiomedical: false,
-    fee: 0
+    fee: 0,
+    dialogStake: false,
+    stakeLoading: false
   }),
 
   async mounted() {
@@ -328,6 +340,10 @@ export default {
       web3: (state) => state.metamask.web3,
       isLabExist: state => state.substrate.isLabAccountExist,
       isServicesExist: state => state.substrate.isServicesExist
+    }),
+
+    ...mapGetters({
+      pair: "substrate/wallet"
     }),
 
     fieldRequiredRule() {
@@ -443,8 +459,21 @@ export default {
         })
 
         this.isSubmiting = false
-        this.dialogAlert = true
+        this.dialogStake = true
       }
+    },
+
+    async handleStakeLab() {
+      this.stakeLoading = true
+
+      try {
+        await stakeLab(this.api, this.pair)
+        this.dialogAlert = true
+      } catch (error) {
+        console.error(error)
+      }
+
+      this.stakeLoading = false
     },
 
     setServices() {
