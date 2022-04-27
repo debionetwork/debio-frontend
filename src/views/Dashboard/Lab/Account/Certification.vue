@@ -32,6 +32,11 @@
                     <div class="d-flex justify-space-between align-center" style="width: 100%;">
                     <div class=""><b>{{ cert.info.title }}</b></div>
                     <div class="d-flex">
+                      <DialogErrorBalance
+                        :show="isShowError"
+                        @close="closeDialog"
+                      />
+
                       <v-dialog v-model="showDeletePrompt" persistent width="477">
                         <v-card class="d-flex flex-column px-15 py-13">
                           <v-icon size="80" class="mx-auto" color="primary">mdi-information-outline</v-icon>
@@ -205,6 +210,7 @@ import Dialog from "@/components/Dialog"
 import Button from "@/components/Button"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import { generalDebounce } from "@/utils"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
@@ -213,7 +219,8 @@ export default {
 
   components: {
     Dialog,
-    Button
+    Button,
+    DialogErrorBalance
   },
 
   mixins: [serviceHandler],
@@ -235,7 +242,8 @@ export default {
     showDeletePrompt: false,
     isEditCertificationDialog: false,
     files: [],
-    fee: 0
+    fee: 0,
+    isShowError: false
   }),
 
   computed: {
@@ -351,10 +359,17 @@ export default {
         return
       }
 
-      this.certificationInfo.supportingDocument = this.certSupportingDocumentsUrl
-      await this.dispatch(createCertification, this.api, this.pair, this.certificationInfo, () => {
-        this.closeCertificationDialog()
-      })
+      try {
+        this.certificationInfo.supportingDocument = this.certSupportingDocumentsUrl
+        await this.dispatch(createCertification, this.api, this.pair, this.certificationInfo, () => {
+          this.closeCertificationDialog()
+        })
+      } catch (error) {
+        this.isLoading = false
+        if (error.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
+        }
+      }
     },
 
     async editCertification(cert) {
@@ -434,6 +449,11 @@ export default {
 
         fr.readAsArrayBuffer(file)
       })
+    },
+    
+    closeDialog() {
+      this.isShowError = false
+      this.showDeletePrompt = false
     }
   }
 }
