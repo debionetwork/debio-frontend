@@ -326,20 +326,20 @@ export default {
   },
 
   watch: {
+    mnemonic(val) {
+      if (val) this.getKiltBoxPublicKey()
+    },
+
     document: {
       deep: true,
       immediate: true,
       handler: generalDebounce(async function() {
-        await this.getUpdateLabFee()
+        if (this.mnemonic) await this.getUpdateLabFee()
       }, 500)
     }
   },
 
   async created() {
-    if (this.mnemonic) this.getKiltBoxPublicKey()
-  },
-
-  async mounted() {
     await this.getLabInfo()
   },
 
