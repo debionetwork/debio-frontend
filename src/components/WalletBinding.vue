@@ -73,7 +73,7 @@
                     <div class="ml-3 text-left font-weight-bold">
                       {{ account.name }} (...{{ account.lastAddr }})
                     </div>
-                    <div class="ml-3 text-left">{{ account.balance }} ETH</div>
+                    <div class="ml-3 text-left">{{ account.balance }} DAI</div>
                   </v-col>
                   <v-col cols="12" v-if="account.active" lg="2" md="2" xl="2">
                     <v-icon color="green" :size="25"> mdi-check-bold </v-icon>
@@ -102,7 +102,7 @@
                     {{ selectAccount.name }} (...{{ selectAccount.lastAddr }})
                   </div>
                   <div class="ml-3 text-left">
-                    {{ selectAccount.balance }} ETH
+                    {{ selectAccount.balance }} DAI
                   </div>
                 </v-col>
                 <v-col cols="12" lg="2" md="2" xl="2">
@@ -158,7 +158,7 @@
 /* eslint-disable */
 import { mapState, mapMutations } from "vuex";
 import { startApp } from "@/lib/metamask";
-import { getBalanceETH } from "@/lib/metamask/wallet.js";
+import { getBalanceETH, getBalanceDAI } from "@/lib/metamask/wallet.js";
 import localStorage from "@/lib/local-storage"
 
 export default {
@@ -223,7 +223,7 @@ export default {
           } else {
             this.accountList = [];
             for (let x = 0; x < this.ethAccount.accountList.length; x++) {
-              const balance = await getBalanceETH(
+              const balance = await getBalanceDAI(
                 this.ethAccount.accountList[x]
               );
               var lastAddr = this.ethAccount.accountList[x].substr(
@@ -243,6 +243,7 @@ export default {
                 active: isActive,
               });
             }
+            
             this.putWallet = false;
             this.putAccount = true;
           }
