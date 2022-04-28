@@ -211,15 +211,6 @@
             @delete-service="setDeleteLoading"
           />
 
-          <!-- <v-btn
-            :disabled="!isServicesExist"
-            color="primary"
-            block
-            large
-            class="mt-5 mb-3"
-            :loading="isSubmiting"
-            @click="actionAlert"
-          >Submit</v-btn> -->
           <v-btn
             :disabled="!isServicesExist"
             color="primary"
