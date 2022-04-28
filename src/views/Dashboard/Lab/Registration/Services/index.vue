@@ -483,8 +483,19 @@ export default {
 
     clearServicesForm() {
       this.$refs.serviceForm.resetValidation()
-      this.$refs.serviceForm.reset()
-      this.document.durationType = "Days"
+      this.document = {
+        category: "",
+        dnaCollectionProcess: "",
+        name: "",
+        currency: "DAI",
+        price: 0,
+        qcPrice: 0,
+        description: "",
+        longDescription: "",
+        duration: "",
+        durationType: "Days"
+      },
+      this.testResultSampleFile = ""
       this.imageUrl = ""
       this.fee = 0
     },

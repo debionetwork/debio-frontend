@@ -1,7 +1,29 @@
 <template>
   <div>
     <template>
-      <v-card class="mt-10 px-10" v-if="specimenStatus === 'WorkWet'">
+      <input
+        type="file"
+        style="display: none"
+        ref="encryptUploadGenome"
+        accept=".vcf"
+      />
+      <div v-if="hasGenomeFile" class="d-flex mt-5 mb-5">
+        <v-row >
+          <v-col>
+            <b class="secondary--text card-header mb-2" style="display: block">VCF Data</b>
+            <div v-for="(file, idx) in files.genome" :key="idx + '-' + file.fileName + '-' + file.fileType">
+              <FileCard
+                :filename="file.fileName"
+                :ipfsUrl="file.ipfsPath"
+                :view-only="submitted"
+                @edit="onEditClick('genome')"
+                @delete="onFileDelete('genome')"
+              />
+            </div>
+          </v-col>
+        </v-row>
+      </div>
+      <div v-else class="mb-3 mt-3">
         <div class= "d-flex justify-space-between">
           <div class="mb-5 mt-5">
             <span
@@ -26,33 +48,7 @@
             </span>
           </div>
         </div>
-      </v-card>
-    </template>
 
-    <template>
-      <input
-        type="file"
-        style="display: none"
-        ref="encryptUploadGenome"
-        accept=".vcf"
-      />
-      <div v-if="hasGenomeFile" class="d-flex mt-5 mb-5">
-        <v-row >
-          <v-col>
-            <b class="secondary--text card-header mb-2" style="display: block">VCF Data</b>
-            <div v-for="(file, idx) in files.genome" :key="idx + '-' + file.fileName + '-' + file.fileType">
-              <FileCard
-                :filename="file.fileName"
-                :ipfsUrl="file.ipfsPath"
-                :view-only="submitted"
-                @edit="onEditClick('genome')"
-                @delete="onFileDelete('genome')"
-              />
-            </div>
-          </v-col>
-        </v-row>
-      </div>
-      <div v-else class="mb-3 mt-3">
         <v-btn
           color="primary"
           large
@@ -100,6 +96,30 @@
         </v-row>
       </div>
       <div v-else class="mb-3">
+        <div class= "d-flex justify-space-between" v-if="!uploadReportDisabled">
+          <div class="mb-5 mt-5">
+            <span
+              style="font-size: 12px"
+            > Estimated Transaction Weight </span>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
+                    color="primary"
+                    size="14"
+                    v-bind="attrs"
+                    v-on="on"
+                  > mdi-alert-circle-outline
+                  </v-icon>
+                </template>
+                <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+              </v-tooltip>
+          </div>
+          <div class="mt-5">
+            <span style="font-size: 12px;">
+              {{ Number(fee).toFixed(4) }} DBIO
+            </span>
+          </div>
+        </div>
         <v-btn
           color="primary"
           large
@@ -130,7 +150,7 @@
         block
         class="mt-6"
         :disabled="isLoading"
-        @click="confirmationDialog = true"
+        @click="showConfirmationDialog"
       >
         Submit Result
         <template v-slot:loader>
@@ -160,7 +180,7 @@
       @close="reportUploadSucceedDialog = false"
       />
 
-    <Dialog :show="confirmationDialog" @close="!confirmationDialog">
+    <Dialog :show="confirmationDialog" @close="confirmationDialog = false">
       <template v-slot:title>
           <div></div>
       </template>
@@ -169,6 +189,30 @@
               <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
           </div>
           <div align="center" class="pb-5">Are you sure you want to submit the results?</div>
+          <div class= "d-flex justify-space-between px-5">
+            <div class="mt-5">
+              <span
+                style="font-size: 12px"
+              > Estimated Transaction Weight </span>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon
+                      color="primary"
+                      size="14"
+                      v-bind="attrs"
+                      v-on="on"
+                    > mdi-alert-circle-outline
+                    </v-icon>
+                  </template>
+                  <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+                </v-tooltip>
+            </div>
+            <div class="mt-5">
+              <span style="font-size: 12px;">
+                {{ Number(fee).toFixed(4) }} DBIO
+              </span>
+            </div>
+          </div>
       </template>
       <template v-slot:actions>
           <v-col col="12" md="6">
@@ -196,7 +240,7 @@ import Dialog from "@/components/Dialog"
 import { u8aToHex } from "@polkadot/util"
 import Button from "@/components/Button"
 import { uploadFile, getFileUrl, getIpfsMetaData } from "@/lib/pinata-proxy"
-import { submitTestResult, processDnaSample, submitTestResultFee } from "@/lib/polkadotProvider/command/geneticTesting"
+import { submitTestResult, processDnaSample, submitTestResultFee, processDnaSampleFee } from "@/lib/polkadotProvider/command/geneticTesting"
 import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting"
 import localStorage from "@/lib/local-storage"
 
@@ -359,7 +403,7 @@ export default {
     },
 
     async getFee() {
-      const fee = await submitTestResultFee(this.api, this.pair, this.specimenNumber, this.nextStatus)
+      const fee = await submitTestResultFee(this.api, this.pair, this.specimenNumber)
       this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
     },
 
@@ -390,6 +434,13 @@ export default {
       )
     },
 
+    async showConfirmationDialog() {
+      const fee = await processDnaSampleFee(this.api, this.pair, this.specimenNumber, "ResultReady")
+      this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
+
+      this.confirmationDialog = true
+    },
+    
     async resultReady() {
       this.isProcessing = true
       await this.dispatch(
