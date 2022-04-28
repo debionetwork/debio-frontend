@@ -200,7 +200,7 @@
                     large
                     :loading="isLoading || isUploading"
                     @click="triggerCreateOrUpdate"
-                  >Submit</v-btn>
+                  >Save</v-btn>
               </v-card-text>
             </v-form>
           </v-card>
@@ -211,7 +211,7 @@
             @delete-service="setDeleteLoading"
           />
 
-          <v-btn
+          <!-- <v-btn
             :disabled="!isServicesExist"
             color="primary"
             block
@@ -219,7 +219,16 @@
             class="mt-5 mb-3"
             :loading="isSubmiting"
             @click="actionAlert"
-          >Submit</v-btn>
+          >Submit</v-btn> -->
+          <v-btn
+            :disabled="!isServicesExist"
+            color="primary"
+            block
+            large
+            class="mt-5 mb-3"
+            :loading="isSubmiting"
+            @click="dialogStake = true"
+          >proceed</v-btn>
         </v-col>
         <v-col cols="5">
           <Stepper
@@ -459,7 +468,7 @@ export default {
         })
 
         this.isSubmiting = false
-        this.dialogStake = true
+        this.dialogAlert = true
       }
     },
 
@@ -468,7 +477,8 @@ export default {
 
       try {
         await stakeLab(this.api, this.pair)
-        this.dialogAlert = true
+
+        this.actionAlert()
       } catch (error) {
         console.error(error)
       }

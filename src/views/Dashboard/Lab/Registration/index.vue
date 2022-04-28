@@ -164,7 +164,7 @@
                   :disabled="isLabAccountExist"
                   :loading="isLoading && !isLabAccountExist"
                   @click="registerLab"
-                >Submit</v-btn>
+                >Save</v-btn>
               </v-form>
             </v-card-text>
           </v-card>
