@@ -102,7 +102,7 @@
 import {mapState, mapMutations, mapActions} from "vuex"
 import {ethAddressByAccountId} from "@/lib/polkadotProvider/query/userProfile"
 import {queryBalance} from "@/lib/polkadotProvider/query/balance"
-import {getBalanceETH} from "@/lib/metamask/wallet.js"
+import {getBalanceDAI} from "@/lib/metamask/wallet.js"
 import {fromEther} from "@/lib/balance-format"
 import Button from "@/components/Button"
 
@@ -162,7 +162,8 @@ export default {
       this.$emit("showWalletBinding", true)
     },
 
-    async checkMetamaskAddress() {
+    async checkMetamaskBalance() {
+      this.metamaskAddress = this.metamaskWalletAddress
       let address = ""
       if (this.metamaskWalletAddress == "") {
         const ethRegisterAddress = await ethAddressByAccountId(
@@ -175,11 +176,9 @@ export default {
       }
 
       if (address != "") {
-        const balance = await getBalanceETH(address)
+        const balance = await getBalanceDAI(address)
 
-        this.setMetamaskAddress(address)
         this.setMetamaskBalance(balance)
-        this.metamaskAddress = address
         this.metamaskBalance = balance
       }
     },
@@ -201,6 +200,7 @@ export default {
     },
 
     disconnectWallet() {
+      this.metamaskAddress = ""
       this.clearWallet()
     }
   },
@@ -212,6 +212,10 @@ export default {
 
     walletBalance() {
       this.getBalance(this.walletBalance)
+    },
+
+    metamaskWalletAddress() {
+      this.checkMetamaskBalance()
     }
   },
 
@@ -219,7 +223,8 @@ export default {
     this.polkadotAddress = this.wallet.address
 
     await this.fetchWalletBalance()
-    await this.checkMetamaskAddress()
+
+    if (this.metamaskWalletAddress) await this.checkMetamaskBalance()
   }
 }
 </script>
