@@ -49,3 +49,8 @@ export async function queryLabsCountByCountryRegionCity(api, countryRegion, city
   const res = await api.query.labs.labCountByCountryRegionCity(countryRegion, city)
   return res.toHuman()
 }
+
+export async function minimumStakeAmount(api) {
+  const res = await api.query.labs.minimumStakeAmount()
+  return res.toHuman()
+}
