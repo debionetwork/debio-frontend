@@ -58,3 +58,32 @@ export async function labCommandCallback(api, pair, { events, status, callback, 
     }
   }
 }
+
+export async function unstakeLab(api, pair) {
+  const result = await api.tx.labs
+    .unstakeLab()
+    .signAndSend(pair, { nonce: -1 })
+  return result.toHuman()
+}
+
+export async function unstakeLabFee(api, pair, id) {
+  const result = await api.tx.labs
+    .updateLab(id)
+    .paymentInfo(pair)
+  return result
+}
+  
+export async function stakeLab(api, pair) {
+  const result = await api.tx.labs
+    .stakeLab()
+    .signAndSend(pair, { nonce: -1 })
+    
+  return result.toHuman()
+}
+
+export async function stakeLabFee(api, pair) {
+  const result = await api.tx.labs
+    .stakeLab()
+    .paymentInfo(pair)
+  return result
+}

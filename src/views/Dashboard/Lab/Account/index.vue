@@ -9,18 +9,23 @@
                 <div class="secondary--text text-h6">
                   <b>Lab Account Information</b>
                 </div>
-                <v-btn small dark color="#75DEE4" fab style="border-radius:10px;" @click="isEditable = !isEditable">
+                <v-btn
+                  small
+                  dark
+                  color="#75DEE4"
+                  fab
+                  style="border-radius:10px;"
+                  @click="isEditable = !isEditable"
+                >
                   <v-icon>mdi-pencil</v-icon>
                 </v-btn>
               </div>
 
               <v-form class="mt-5" ref="form">
-                <v-container :class="imageUrl ? 'mb-2 d-flex align-center' : ''">
-                  <v-avatar
-                    class="mr-2"
-                    rounded
-                    size="150"
-                    v-if="imageUrl">
+                <v-container
+                  :class="imageUrl ? 'mb-2 d-flex align-center' : ''"
+                >
+                  <v-avatar class="mr-2" rounded size="150" v-if="imageUrl">
                     <img :src="imageUrl" />
                   </v-avatar>
                   <v-file-input
@@ -46,7 +51,7 @@
                   :rules="emailRules"
                   v-model="document.email"
                 ></v-text-field>
-                
+
                 <v-text-field
                   dense
                   label="Lab Name"
@@ -101,7 +106,7 @@
                   v-model="document.city"
                   outlined
                 ></v-autocomplete>
-                
+
                 <v-text-field
                   dense
                   label="Address"
@@ -125,7 +130,7 @@
                       outlined
                       v-model="phoneCode"
                       :disabled="!isEditable"
-                      :rules="[val => !!val || 'Phone code is Required']"
+                      :rules="[(val) => !!val || 'Phone code is Required']"
                     ></v-autocomplete>
                   </v-col>
                   <v-col>
@@ -151,6 +156,36 @@
                   :rules="websiteRules"
                   :disabled="!isEditable"
                 ></v-text-field>
+
+                <v-row>
+                  <v-col>
+                    <v-text-field
+                      dense
+                      label="Stake Amount"
+                      placeholder="Stake Amount"
+                      autocomplete="off"
+                      outlined
+                      v-model="stakingAmount"
+                      :disabled="!isEditable"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col md="3">
+                    <v-btn
+                      color="primary"
+                      block
+                      large
+                      @click="unstakeDialog = true"
+                      :disabled="stakeStatus !== 'Staked'"
+                      :loading="unstakeLoading"
+                      >Unstake</v-btn
+                    >
+                  </v-col>
+                </v-row>
+
+                <div class="unstake-alert" v-if="stakeStatus === 'WaitingForUnstaked'">
+                  Your staking amount will be returned on
+                  <strong>{{ computeUnstakeDate }}</strong>. You can stake again after your unstake period finished.
+                </div>
 
                 <div class= "d-flex justify-space-between" >
                   <div class="mb-5">
@@ -182,7 +217,8 @@
                   :loading="isLoading || isUploading"
                   :disabled="isUploading || !isEditable"
                   @click="updateLab"
-                >Submit</v-btn>
+                  >Submit</v-btn
+                >
               </v-form>
             </v-card-text>
           </v-card>
@@ -191,28 +227,37 @@
         </v-col>
       </v-row>
     </v-container>
+    <DialogUnstake
+      :show="unstakeDialog"
+      @close="unstakeDialog = false"
+      @submit="handleUnstakeLab"
+      :fee="unstakeFee"
+    />
   </div>
 </template>
 
 <script>
 import { mapState, mapGetters } from "vuex"
-import { updateLab, updateLabFee } from "@/lib/polkadotProvider/command/labs"
+import { updateLab, updateLabFee, unstakeLab, unstakeLabFee } from "@/lib/polkadotProvider/command/labs"
 import { getLocations, getStates, getCities } from "@/lib/api"
 import Kilt from "@kiltprotocol/sdk-js"
 import CryptoJS from "crypto-js"
 import { u8aToHex } from "@polkadot/util"
 import Certification from "./Certification"
-import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
+import {uploadFile, getFileUrl} from "@/lib/pinata-proxy"
 import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
+import DialogUnstake from "@/components/Dialog/DialogUnstake"
 import { generalDebounce } from "@/utils"
 
-const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
+const englishAlphabet = (val) =>
+  (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) ||
+  "This field can only contain English alphabet"
 
 export default {
   name: "LabAccount",
   mixins: [serviceHandler],
 
-  components: { Certification },
+  components: {Certification, DialogUnstake},
 
   data: () => ({
     document: {
@@ -233,6 +278,12 @@ export default {
     files: [],
     isEditable: false,
     isUploading: false,
+    stakeStatus: "",
+    unstakeAt: "",
+    stakingAmount: "",
+    unstakeDialog: false,
+    unstakeLoading: false,
+    unstakeFee: 0,
     verificationStatus: "",
     isVerify: false,
     fee: 0
@@ -253,62 +304,81 @@ export default {
     citiesSelection() {
       return this.cities
         .filter((c) => c.country == this.country)
-        .map((c) => ({ value: c.city, text: c.city, country: c.country }));
+        .map((c) => ({value: c.city, text: c.city, country: c.country}))
     },
-    
-    rules(){
+
+    rules() {
       return [
-        file => !file || file.size <= 3_097_152 || "The total file size uploaded exceeds the maximum file size allowed (3MB)",
-        file => !file || file.type == "image/jpg" || file.type == "image/jpeg" || "Document type should be image/jpg/jpeg"
+        (file) =>
+          !file ||
+          file.size <= 3_097_152 ||
+          "The total file size uploaded exceeds the maximum file size allowed (3MB)",
+        (file) =>
+          !file ||
+          file.type == "image/jpg" ||
+          file.type == "image/jpeg" ||
+          "Document type should be image/jpg/jpeg"
       ]
     },
 
-    isRequired () {
-      return [
-        val => !!val || "This field is required"
-      ]
+    isRequired() {
+      return [(val) => !!val || "This field is required"]
     },
 
     emailRules() {
       return [
-        val => !!val || "This field is required",
-        val => /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(val) || "Email is invalid. It should contain @ followed by a domain",
-        val => (val && val.length <= 255) || "This field only allows 255 characters",
-        val => (val && /^[A-Za-z0-9 ]?[A-Za-z0-9@. ]+$/.test(val)) || "This field only allows Alphabetic characters."
+        (val) => !!val || "This field is required",
+        (val) =>
+          /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(val) ||
+          "Email is invalid. It should contain @ followed by a domain",
+        (val) =>
+          (val && val.length <= 255) || "This field only allows 255 characters",
+        (val) =>
+          (val && /^[A-Za-z0-9 ]?[A-Za-z0-9@. ]+$/.test(val)) ||
+          "This field only allows Alphabetic characters."
       ]
     },
 
     nameRules() {
       return [
-        val => !!val || "This field is required",
-        val => (val && val.length <= 100) || "This field only allows 100 characters",
+        (val) => !!val || "This field is required",
+        (val) =>
+          (val && val.length <= 100) || "This field only allows 100 characters",
         englishAlphabet
       ]
     },
 
     addressRules() {
       return [
-        val => !!val || "This field is required",
-        val => (val && val.length <= 255) || "This field only allows 255 characters",
+        (val) => !!val || "This field is required",
+        (val) =>
+          (val && val.length <= 255) || "This field only allows 255 characters",
         englishAlphabet
       ]
     },
 
-
     phoneNumberRules() {
       return [
-        val => !!val || "This field is required",
+        (val) => !!val || "This field is required",
         englishAlphabet,
-        val => /^\+?([0-9]{2})\)?[-. ]?([0-9]{4})[-. ]?([0-9]{4})$/.test(val) || "This field can only contain number",
-        val => (val && val.length <= 12) || "This field only allows 12 characters"
+        (val) =>
+          /^\+?([0-9]{2})\)?[-. ]?([0-9]{4})[-. ]?([0-9]{4})$/.test(val) ||
+          "This field can only contain number",
+        (val) =>
+          (val && val.length <= 12) || "This field only allows 12 characters"
       ]
     },
 
     websiteRules() {
       return [
-        val => !!val || "This field is required",
-        val => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&/=]*)/.test(val) || "Website is invalid. It should contain protocol (https://) followed by a domain",
-        val => (val && val.length <= 255) || "This field only allows 255 characters"
+        (val) => !!val || "This field is required",
+        (val) =>
+          /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&/=]*)/.test(
+            val
+          ) ||
+          "Website is invalid. It should contain protocol (https://) followed by a domain",
+        (val) =>
+          (val && val.length <= 255) || "This field only allows 255 characters"
       ]
     },
 
@@ -322,30 +392,38 @@ export default {
 
     computeCityLabel() {
       return !this.document.city && this.isLoading ? this.loadingPlaceholder : "Select City"
+    },
+
+    computeUnstakeDate() {
+      let date = new Date(this.unstakeAt)
+      date.setDate(date.getDate() + 6)
+      return date.toLocaleDateString("en-US")
     }
   },
 
   watch: {
+    mnemonic(val) {
+      if (val) this.getKiltBoxPublicKey()
+    },
+
     document: {
       deep: true,
       immediate: true,
       handler: generalDebounce(async function() {
-        await this.getUpdateLabFee()
+        if (this.mnemonic) await this.getUpdateLabFee()
       }, 500)
     }
   },
 
   async created() {
-    if (this.mnemonic) this.getKiltBoxPublicKey()
-  },
-
-  async mounted() {
     await this.getLabInfo()
+    await this.getUnstakeFee()
   },
 
   methods: {
     async getLabInfo() {
       const { address, city, country, email, name, phoneNumber, profileImage, region, website } = this.labAccount.info
+      
       this.document = { 
         name, 
         email, 
@@ -366,14 +444,24 @@ export default {
       const blob = await res.blob() // Gets the response and returns it as a blob
       const file = new File([blob], this.imageUrl?.split("/").pop() ?? "Profile Image File", { type: "image/jpeg" })
       this.files = file
+
+      const stakeAmount = Number(this.labAccount.stakeAmount.replaceAll(",", ""))
+      this.stakingAmount = `${new Intl.NumberFormat("en-US").format(stakeAmount / 10 ** 18)} DBIO`
+      this.stakeStatus = this.labAccount.stakeStatus
+      if (this.labAccount.unstakeAt !== 0) {
+        const dateOfBirth = this.labAccount.unstakeAt.replaceAll(",", "")
+        const _dateOfBirth = new Date(+dateOfBirth).toLocaleDateString()
+        
+        this.unstakeAt = _dateOfBirth
+      }
     },
 
     async getCountries() {
-      const { data:
-        { data }
+      const {
+        data: {data}
       } = await this.dispatch(getLocations)
 
-      this.countries = data;
+      this.countries = data
     },
 
     async onCountryChange(selectedCountry) {
@@ -383,8 +471,8 @@ export default {
       this.document.region = ""
       this.document.city = ""
 
-      const { data:
-        { data }
+      const {
+        data: {data}
       } = await this.dispatch(getStates, selected?.iso2 ?? selectedCountry)
 
       this.states = data;
@@ -422,11 +510,17 @@ export default {
       this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
     },
 
+    async getUnstakeFee() {
+      const fee = await unstakeLabFee(this.api, this.pair)
+
+      this.unstakeFee = Number(this.web3.utils.fromWei(String(fee.partialFee), "ether"))
+    },
+
     async updateLab(){
       if (!this.$refs.form.validate()) {
         return
       }
-      try{
+      try {
         this.isLoading = true
         const boxPublicKey = this.getKiltBoxPublicKey()
         const { name, email, address, phoneNumber, website, country, city, region } = this.document
@@ -438,12 +532,11 @@ export default {
             this.isEditable = false
           }
         )
-      }
-      catch(err){
+      } catch (err) {
         console.error(err)
       }
     },
-    
+
     async fileUploadEventListener(file) {
       this.imageUrl = ""
       if (!this.$refs.form.validate()) {
@@ -469,8 +562,7 @@ export default {
         this.imageUrl = link
         this.isUploading = false
         this.isLoading = false
-      }
-      else {
+      } else {
         this.files = []
         this.imageUrl = ""
       }
@@ -481,7 +573,7 @@ export default {
         const file = value
         const fr = new FileReader()
 
-        fr.onload = async function () {
+        fr.onload = async function() {
           resolve(value)
         }
 
@@ -489,6 +581,17 @@ export default {
 
         fr.readAsArrayBuffer(file)
       })
+    },
+
+    async handleUnstakeLab() {
+      this.unstakeLoading = true
+      try {
+        await unstakeLab(this.api, this.pair)
+      }
+      catch(err) {
+        console.error(err)
+      }
+      this.unstakeLoading = false
     }
   }
 }
@@ -498,8 +601,13 @@ export default {
 .on-hover {
   cursor: pointer;
 }
-.support-url{
+.support-url {
   text-decoration: none;
   color: gray;
+}
+.unstake-alert {
+  font-size: 13px;
+  padding-bottom: 12px;
+  color: #363636;
 }
 </style>

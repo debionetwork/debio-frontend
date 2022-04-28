@@ -36,6 +36,11 @@
                   <v-icon class="mx-1" small @click="deleteCertification(cert)">mdi-delete</v-icon>
               </div>
             </div>
+
+            <DialogErrorBalance
+              :show="isShowError"
+              @close="closeDialog"
+            />
             <div>{{ cert.info.month }} {{ cert.info.year }} • {{ cert.info.issuer }}</div>
             <div class="mt-3 mb-3">{{ cert.info.description }}</div>
             <div v-if="cert.info.supportingDocument" class="mt-3 mb-3">
@@ -194,6 +199,7 @@ import Dialog from "@/components/Dialog"
 import Button from "@/components/Button"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import { generalDebounce } from "@/utils"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
@@ -202,7 +208,8 @@ export default {
 
   components: {
     Dialog,
-    Button
+    Button,
+    DialogErrorBalance
   },
 
   mixins: [serviceHandler],
@@ -226,7 +233,8 @@ export default {
     confirmDeleteDialog: false,
     certificationData: null,
     fee: "",
-    isDeleting: false
+    isDeleting: false,
+    isShowError: false
   }),
 
   computed: {
@@ -327,6 +335,7 @@ export default {
     },
 
     closeCertificationDialog() {
+      this.isLoading = false
       this.certId = ""
       this.certificationDialog = false
       this.isEditCertificationDialog = false
@@ -362,10 +371,18 @@ export default {
         return
       }
 
-      this.certificationInfo.supportingDocument = this.certSupportingDocumentsUrl
-      await this.dispatch(createCertification, this.api, this.pair, this.certificationInfo, () => {
+      try {
+        this.certificationInfo.supportingDocument = this.certSupportingDocumentsUrl
+        await this.dispatch(createCertification, this.api, this.pair, this.certificationInfo, () => {
+          this.closeCertificationDialog()
+        })
+      } catch (error) {
         this.closeCertificationDialog()
-      })
+        this.isLoading = false
+        if (error.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
+        }
+      }
     },
 
     async editCertification(cert) {
@@ -388,13 +405,21 @@ export default {
         return
       }
 
-      if (this.certSupportingDocumentsUrl) {
-        this.certificationInfo.supportingDocument = this.certSupportingDocumentsUrl
-      }
+      try {
+        if (this.certSupportingDocumentsUrl) {
+          this.certificationInfo.supportingDocument = this.certSupportingDocumentsUrl
+        }
 
-      await this.dispatch(updateCertification, this.api, this.pair, this.certId, this.certificationInfo, () => {
+        await this.dispatch(updateCertification, this.api, this.pair, this.certId, this.certificationInfo, () => {
+          this.closeCertificationDialog()
+        })
+      } catch (error) {
         this.closeCertificationDialog()
-      })
+        this.isLoading = false
+        if (error.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
+        }
+      }
     },
 
     async deleteCertification(cert) {
@@ -405,8 +430,16 @@ export default {
     },
 
     async confirmDelete() {
-      this.isDeleting = true
-      await this.dispatch(deleteCertification, this.api, this.pair, this.certId)
+      try {
+        this.isDeleting = true
+        await this.dispatch(deleteCertification, this.api, this.pair, this.certId)
+      } catch (error) {
+        this.isDeleting = false
+        if (error.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isConfirmDeleteDialog = false
+          this.isShowError = true
+        }
+      }
     },
 
     async fileUploadEventListener(file) {
@@ -447,6 +480,13 @@ export default {
 
         fr.readAsArrayBuffer(file)
       })
+    },
+
+    closeDialog() {
+      this.isLoading = false
+      this.isDeleting = false
+      this.isShowError = false
+      this.showDeletePrompt = false
     }
   }
 }

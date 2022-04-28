@@ -246,6 +246,7 @@ export default {
         commit("SET_LAB_ACCOUNT", null)
         commit("SET_IS_LAB_ACCOUNT_EXIST", false)
         const labAccount = await queryEntireLabDataById(state.api, state.wallet.address)
+        
         if (labAccount) {
           commit("SET_LAB_ACCOUNT", labAccount)
           commit("SET_IS_LAB_ACCOUNT_EXIST", true)
