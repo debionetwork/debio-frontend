@@ -24,11 +24,11 @@
 </style>
 
 <template>
-  <v-container :class="!isServicesExist || (labAccount.stakeStatus === 'Unstaked' && labAccount.unstakeAt === '0') ? 'center-all' : ''">
-    <v-container v-if="!isServicesExist || (labAccount.stakeStatus === 'Unstaked' && labAccount.unstakeAt === '0')">
+  <v-container :class="!isServicesExist || computeStakingStatus ? 'center-all' : ''">
+    <v-container v-if="!isServicesExist || computeStakingStatus">
       <h1 class="title-text-color">You don't have a lab account yet</h1>
       <v-btn color="primary" to="/lab/registration">
-        {{ labAccount.stakeStatus === "Unstaked" && labAccount.unstakeAt === "0" ? "Continue Registration" : "Register Now!" }}
+        {{ computeStakingStatus ? "Continue Registration" : "Register Now!" }}
       </v-btn>
     </v-container>
     <v-row v-else justify="center" class="pr20">
@@ -108,6 +108,10 @@ export default {
       return this.labAccount?.verificationStatus
         ? `Your lab account's verification status is: ${this.labAccount?.verificationStatus}`
         : "Loading verification..."
+    },
+
+    computeStakingStatus() {
+      return this.labAccount?.stakeStatus === "Unstaked" && this.labAccount.unstakeAt === "0"
     }
   }
 }
