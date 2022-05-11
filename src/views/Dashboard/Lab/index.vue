@@ -24,11 +24,11 @@
 </style>
 
 <template>
-  <v-container :class="!isServicesExist ? 'center-all' : ''">
-    <v-container v-if="!isServicesExist">
+  <v-container :class="!isServicesExist || (labAccount.stakeStatus === 'Unstaked' && labAccount.unstakeAt === '0') ? 'center-all' : ''">
+    <v-container v-if="!isServicesExist || (labAccount.stakeStatus === 'Unstaked' && labAccount.unstakeAt === '0')">
       <h1 class="title-text-color">You don't have a lab account yet</h1>
       <v-btn color="primary" to="/lab/registration">
-        Register Now!
+        {{ labAccount.stakeStatus === "Unstaked" && labAccount.unstakeAt === "0" ? "Continue Registration" : "Register Now!" }}
       </v-btn>
     </v-container>
     <v-row v-else justify="center" class="pr20">

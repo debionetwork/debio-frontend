@@ -38,7 +38,7 @@
       @status-wallet="({status, img}) => connectWalletResult(status, img)"
     ></WalletBinding>
 
-    <v-main class="main" v-if="!isServicesExist && isLabDashboard">
+    <v-main class="main" v-if="(!isServicesExist || (labAccount.stakeStatus === 'Unstaked' && labAccount.unstakeAt === '0')) && isLabDashboard">
       <router-view />
     </v-main>
 
@@ -122,7 +122,8 @@ export default {
       isServicesExist: (state) => state.substrate.isServicesExist,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
-      lastEventData: (state) => state.substrate.lastEventData
+      lastEventData: (state) => state.substrate.lastEventData,
+      labAccount: (state) => state.substrate.labAccount
     }),
 
     isLab() {
