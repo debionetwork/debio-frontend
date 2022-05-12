@@ -244,7 +244,7 @@
       :show="dialogStake" 
       @close="dialogStake = false" 
       @submit="handleStakeLab" 
-      :loading="stakeLoading" 
+      :loading="stakeLoading || isSubmiting" 
     />
   </div>
 </template>
@@ -461,6 +461,9 @@ export default {
         this.isSubmiting = false
         this.dialogAlert = true
       }
+      
+      await this.$store.dispatch("substrate/getLabAccount");
+      this.$router.push({ name: "lab-dashboard" });
     },
 
     async handleStakeLab() {
