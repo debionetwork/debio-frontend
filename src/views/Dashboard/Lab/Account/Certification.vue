@@ -7,7 +7,7 @@
                     <b class="secondary--text text-h6">Certifications</b>
                     <span> (e.g. ISO 17025:2017, ISO 9001, etc.)</span>
                 </div>
-                <v-btn small dark color="#75DEE4" fab style="border-radius:10px;" @click="openCertificationDialog">
+                <v-btn :disabled="loading" small dark color="#75DEE4" fab style="border-radius:10px;" @click="openCertificationDialog">
                     <v-icon>mdi-plus</v-icon>
                 </v-btn>
                 </div>
@@ -127,6 +127,7 @@
                     outlined
                     v-model="certificationInfo.title"
                     :rules="titleRules"
+                    :disabled="isUploading || isLoading"
                     ></v-text-field>
                 <v-text-field
                     dense
@@ -134,6 +135,7 @@
                     placeholder="Issuer"
                     outlined
                     v-model="certificationInfo.issuer"
+                    :disabled="isUploading || isLoading"
                     :rules="issuerRules"
                     ></v-text-field>
                 <div class="d-flex justify-space-between align-center">
@@ -144,6 +146,7 @@
                         :items="selectMonths"
                         outlined
                         v-model="certificationInfo.month"
+                        :disabled="isUploading || isLoading"
                         :rules="monthRules"
                         ></v-select>
                     </div>
@@ -154,6 +157,7 @@
                         :items="selectYears"
                         outlined
                         v-model="certificationInfo.year"
+                        :disabled="isUploading || isLoading"
                         :rules="yearRules"
                         ></v-select>
                     </div>
@@ -162,6 +166,7 @@
                     outlined
                     label="Description"
                     v-model="certificationInfo.description"
+                    :disabled="isUploading || isLoading"
                     :rules="descriptionRules"
                 ></v-textarea>
                 <v-file-input
@@ -171,6 +176,7 @@
                     prepend-icon="mdi-file-document"
                     outlined
                     @change="fileUploadEventListener"
+                    :disabled="isUploading || isLoading"
                     :rules="supportingDocumentsRules"
                     show-size
                     v-model="files"
@@ -253,6 +259,10 @@ export default {
     fee: 0,
     isShowError: false
   }),
+
+  props: {
+    loading: Boolean
+  },
 
   computed: {
     ...mapGetters({
@@ -448,6 +458,7 @@ export default {
     },
 
     async fileUploadEventListener(file) {
+      this.isUploading = true
       this.certSupportingDocumentsUrl = ""
       if (file && file.name) {
         if (file.name.lastIndexOf(".") <= 0) {
@@ -466,9 +477,9 @@ export default {
         const link = getFileUrl(result.IpfsHash)
 
         this.certSupportingDocumentsUrl = link
-        this.isUploading = false
-        this.isLoading = false
       }
+      this.isUploading = false
+      this.isLoading = false
     },
 
     setupFileReader(value) {
