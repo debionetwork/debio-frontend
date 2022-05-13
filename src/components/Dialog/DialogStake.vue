@@ -73,7 +73,7 @@ import Button from "@/components/Button"
 import {stakeLabFee} from "@/lib/polkadotProvider/command/labs"
 import {queryBalance} from "@/lib/polkadotProvider/query/balance"
 import {minimumStakeAmount} from "@/lib/polkadotProvider/query/labs"
-import { toEther, fromEther } from "@/lib/balance-format"
+import { toEther } from "@/lib/balance-format"
 
 export default {
   name: "DialogStake",
@@ -127,10 +127,10 @@ export default {
 
     async getMinimumStake() {
       const stakeAmount = await minimumStakeAmount(this.api)
-      const minimumStake = stakeAmount ? await toEther(stakeAmount) : toEther(50000)
+      const _minimumStakeAmount = Number(stakeAmount.replaceAll(",", ""))
 
-      this.minimumStake = minimumStake
-      this.stakeAmount = await fromEther(minimumStake)
+      this.minimumStake = stakeAmount ? await _minimumStakeAmount : toEther(50000)
+      this.stakeAmount = new Intl.NumberFormat("en-US").format(_minimumStakeAmount / (10**18))
     },
 
     async fetchWalletBalance() {
