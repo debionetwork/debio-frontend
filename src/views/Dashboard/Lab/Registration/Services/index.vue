@@ -461,9 +461,7 @@ export default {
         this.isSubmiting = false
         this.dialogAlert = true
       }
-      
-      await this.$store.dispatch("substrate/getLabAccount");
-      this.$router.push({ name: "lab-dashboard" });
+      this.gotoDashboard()
     },
 
     async handleStakeLab() {
