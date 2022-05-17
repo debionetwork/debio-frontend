@@ -17,7 +17,7 @@ const labRoutes = [
         beforeEnter: (to, from, next) => {
           // Set drawer buttons here to make it dynamic :)
           if (!store.state.substrate.isServicesExist ||
-            store.state.substrate.labAccount.verificationStatus === "Unverified" ||
+            store.state.substrate.labAccount.verificationStatus === "Unverified" &&
             (store.state.substrate.labAccount.stakeStatus === "Unstaked" && store.state.substrate.labAccount.stakeAmount === "0")
           ) {
             to.meta.drawerButtons = [

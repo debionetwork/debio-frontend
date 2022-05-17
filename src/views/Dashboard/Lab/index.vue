@@ -24,8 +24,8 @@
 </style>
 
 <template>
-  <v-container :class="!isServicesExist || computeStakingStatus ? 'center-all' : ''">
-    <v-container v-if="!isServicesExist || computeStakingStatus">
+  <v-container :class="verificationStatus === 'Unverified' && computeStakingStatus ? 'center-all' : ''">
+    <v-container v-if="verificationStatus === 'Unverified' && computeStakingStatus">
       <h1 class="title-text-color">You don't have a lab account yet</h1>
       <v-btn color="primary" to="/lab/registration">
         {{ computeStakingStatus ? "Continue Registration" : "Register Now!" }}
@@ -39,7 +39,7 @@
               inline
               color="primary"
               :size="20"
-              v-if="labAccount && labAccount.verificationStatus == 'Verified'"
+              v-if="labAccount && verificationStatus == 'Verified'"
             >mdi-check-decagram</v-icon>
             <v-icon 
               inline
@@ -47,7 +47,7 @@
               :size="20"
               v-else
             >mdi-information</v-icon>
-            <b v-if="labAccount && labAccount.verificationStatus == 'Unverified'">Your verification submission is being reviewed by DAOGenics</b>
+            <b v-if="labAccount && verificationStatus == 'Unverified'">Your verification submission is being reviewed by DAOGenics</b>
             <b v-else>{{ computeVerificationStatus }}</b>
           </div>
         </v-card>
@@ -100,9 +100,12 @@ export default {
 
   computed: {
     ...mapState({
-      labAccount: (state) => state.substrate.labAccount,
-      isServicesExist: (state) => state.substrate.isServicesExist
+      labAccount: (state) => state.substrate.labAccount
     }),
+
+    verificationStatus() {
+      return this.labAccount?.verificationStatus
+    },
 
     computeVerificationStatus() {
       return this.labAccount?.verificationStatus
