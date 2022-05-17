@@ -38,7 +38,7 @@
       @status-wallet="({status, img}) => connectWalletResult(status, img)"
     ></WalletBinding>
 
-    <v-main class="main" v-if="(labAccount.verificationStatus === 'Unverified' && computeStakingStatus) && isLabDashboard">
+    <v-main class="main" v-if="(verificationStatus === 'Unverified' && computeStakingStatus) && isLabDashboard">
       <router-view />
     </v-main>
 
@@ -142,6 +142,10 @@ export default {
 
     computeStakingStatus() {
       return this.labAccount?.stakeStatus === "Unstaked" && this.labAccount.unstakeAt === "0"
+    },
+
+    verificationStatus() {
+      return this.labAccount?.verificationStatus
     }
   },
   watch: {
