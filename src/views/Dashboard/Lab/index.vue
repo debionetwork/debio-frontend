@@ -101,7 +101,6 @@ export default {
   computed: {
     ...mapState({
       labAccount: (state) => state.substrate.labAccount
-      // isServicesExist: (state) => state.substrate.isServicesExist
     }),
 
     computeVerificationStatus() {
