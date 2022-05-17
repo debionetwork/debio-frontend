@@ -256,7 +256,6 @@ import { createService, updateService, createServiceFee, updateServiceFee } from
 import { getCategories } from "@/lib/api"
 import List from "./List"
 import Stepper from "../Stepper"
-import { queryLabsById } from "@/lib/polkadotProvider/query/labs"
 import { stakeLab } from "@/lib/polkadotProvider/command/labs"
 import DialogAlert from "@/components/Dialog/DialogAlert"
 import DialogStake from "@/components/Dialog/DialogStake"
@@ -265,7 +264,6 @@ import { toEther } from "@/lib/balance-format"
 import { sendEmailRegisteredLab } from "@/lib/api/lab"
 import rulesHandler from "@/constants/rules"
 import { generalDebounce } from "@/utils"
-
 
 export default {
   name: "LabRegistrationServices",
@@ -420,7 +418,6 @@ export default {
   },
 
   methods: {
-
     async getServiceCategory() {
       const { data : data } = await getCategories()
       this.listCategories =  data
@@ -442,25 +439,26 @@ export default {
 
     async actionAlert() {
       this.isSubmiting = true
-      const currentLab = await queryLabsById(this.api, this.wallet.address)
-
-      if (this.isLabExist && currentLab.verificationStatus === "Unverified") {
+      const {labAccount} = await this.$store.dispatch("substrate/getLabAccount")
+      
+      if (this.isLabExist && labAccount.verificationStatus === "Unverified") {
         await sendEmailRegisteredLab(this.wallet.address)
 
-        this.$store.dispatch("substrate/addAnyNotification", {
+        await this.$store.dispatch("substrate/addAnyNotification", {
           address: this.wallet.address,
           dataAdd: {
             message: "Congrats! You have been submitted your account verification.",
-            data: currentLab,
+            data: labAccount,
             route: null,
             params: null
           },
           role: "lab"
         })
 
-        this.isSubmiting = false
         this.dialogAlert = true
+        this.isSubmiting = false
       }
+
       this.gotoDashboard()
     },
 
@@ -471,6 +469,8 @@ export default {
         await stakeLab(this.api, this.pair)
 
         this.actionAlert()
+        await this.$store.dispatch("substrate/getLabAccount")
+        this.gotoDashboard()
       } catch (error) {
         console.error(error)
       }
