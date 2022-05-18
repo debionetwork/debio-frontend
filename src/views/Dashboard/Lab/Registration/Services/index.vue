@@ -433,48 +433,39 @@ export default {
       }
     },
 
-    gotoDashboard() {
+    async gotoDashboard() {
+      await this.$store.dispatch("substrate/getLabAccount")
       this.$router.push({ name: "lab-dashboard" })
     },
 
-    async actionAlert() {
-      this.isSubmiting = true
-      const {labAccount} = await this.$store.dispatch("substrate/getLabAccount")
-      
-      if (this.isLabExist && labAccount.verificationStatus === "Unverified") {
-        await sendEmailRegisteredLab(this.wallet.address)
-
-        await this.$store.dispatch("substrate/addAnyNotification", {
-          address: this.wallet.address,
-          dataAdd: {
-            message: "Congrats! You have been submitted your account verification.",
-            data: labAccount,
-            route: null,
-            params: null
-          },
-          role: "lab"
-        })
-
-        this.dialogAlert = true
-        this.isSubmiting = false
-      }
-
-      this.gotoDashboard()
-    },
-
     async handleStakeLab() {
+      this.isSubmiting = true
       this.stakeLoading = true
 
       try {
         await stakeLab(this.api, this.pair)
+        const {labAccount} = await this.$store.dispatch("substrate/getLabAccount")
+        
+        if (this.isLabExist && labAccount.verificationStatus === "Unverified") {
+          await sendEmailRegisteredLab(this.wallet.address)
 
-        this.actionAlert()
-        await this.$store.dispatch("substrate/getLabAccount")
-        this.gotoDashboard()
+          this.$store.dispatch("substrate/addAnyNotification", {
+            address: this.wallet.address,
+            dataAdd: {
+              message: "Congrats! You have been submitted your account verification.",
+              data: labAccount,
+              route: null,
+              params: null
+            },
+            role: "lab"
+          })
+        }
+        this.dialogAlert = true
       } catch (error) {
         console.error(error)
       }
 
+      this.isSubmiting = false
       this.stakeLoading = false
     },
 
