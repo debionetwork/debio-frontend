@@ -128,7 +128,7 @@
                         outlined
                         label="Description"
                         v-model="rejectionDescription"
-                        :rules="[val => !!val || 'This field is required', val => (val && val.length <= 500) || 'This field only allows 500 characters']"
+                        :rules="rejectionDescRules"
                     ></v-textarea>
                 </v-form>
             </template>
