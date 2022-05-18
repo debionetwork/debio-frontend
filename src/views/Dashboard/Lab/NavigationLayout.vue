@@ -38,7 +38,6 @@
       @status-wallet="({status, img}) => connectWalletResult(status, img)"
     ></WalletBinding>
 
-    <!-- <v-main class="main" v-if="(!isServicesExist || ((labAccount && labAccount.verificationStatus == 'Unverified') && !computeStakingStatus)) && isLabDashboard"> -->
     <v-main class="main" v-if="!allowDashboard && isLabDashboard">
       <router-view />
     </v-main>
