@@ -209,6 +209,12 @@ export default {
       this.$emit("openList", false, country)
     },
 
+    koreaFilter(name) {
+      if (name === "Dem. Rep. Korea") return "North Korea"
+      else if (name === "Korea") return "South Korea"
+      else return name
+    },
+
     createTooltip({ country, totalValue = { dbio: 0 }, totalRequests }) {
       return `
         <h3 class="tooltip__header">${country}</h3>
@@ -315,9 +321,7 @@ export default {
       const countryColorScale = val => {
         let country
 
-        if (val.properties.name === "Dem. Rep. Korea") country = "North Korea"
-        else if (val.properties.name === "Korea") country = "South Korea"
-        else country = val.properties.name
+        country = context.koreaFilter(val.properties.name)
 
         let colorIndex = 0
         const colors = ["#FFFFFF", "#ACDFE3", "#5DC9CC", "#079DAB", "#FDD07D", "#F7C192", "#D9442C"]
@@ -358,9 +362,7 @@ export default {
             context.countries = countries.features.map(map => {
               let country
 
-              if (map.properties.name === "Dem. Rep. Korea") country = { name: "North Korea" }
-              else if (map.properties.name === "Korea") country = { name: "South Korea" }
-              else country = { name: map.properties.name }
+              country = { name: context.koreaFilter(map.properties.name) }
 
               const service = serviceRequestByCountry[country.name]
 
@@ -385,11 +387,7 @@ export default {
           .attr("class", "country")
           .attr("d", pathGenerator)
           .attr("fill", d => countryColorScale(d))
-          .attr("id", (d) => {
-            if (d.properties.name === "Dem. Rep. Korea") return convertSLug("North Korea")
-            if (d.properties.name === "Korea") return convertSLug("South Korea")
-            else return convertSLug(d.properties.name)
-          })
+          .attr("id", (d) => convertSLug(context.koreaFilter(d.properties.name)))
           .on("mouseenter", function(e) {
             d3.selectAll(".country")
               .transition()
@@ -402,9 +400,7 @@ export default {
 
             let country
 
-            if (e.target.__data__.properties.name === "Dem. Rep. Korea") country = "North Korea"
-            else if (e.target.__data__.properties.name === "Korea") country = "South Korea"
-            else country = e.target.__data__.properties.name
+            country = context.koreaFilter(e.target.__data__.properties.name)
 
             if (serviceRequestByCountry[country] != undefined) {
               const { totalRequests, totalValue } = serviceRequestByCountry[country]
@@ -437,9 +433,7 @@ export default {
               ? country.properties.name
               : null
 
-            if (country.properties.name === "Dem. Rep. Korea") context.searchQuery = "North Korea"
-            else if (country.properties.name === "Korea") context.searchQuery = "South Korea"
-            else context.searchQuery = country.properties.name
+            context.searchQuery = context.koreaFilter(country.properties.name)
 
             boxZoom(
               pathGenerator.bounds(country),
