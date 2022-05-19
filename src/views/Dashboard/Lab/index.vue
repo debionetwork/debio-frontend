@@ -24,8 +24,8 @@
 </style>
 
 <template>
-  <v-container :class="verificationStatus === 'Unverified' && computeStakingStatus ? 'center-all' : ''">
-    <v-container v-if="verificationStatus === 'Unverified' && computeStakingStatus">
+  <v-container :class="!allowDashboard ? 'center-all' : ''">
+    <v-container v-if="!allowDashboard">
       <h1 class="title-text-color">You don't have a lab account yet</h1>
       <v-btn color="primary" to="/lab/registration">
         {{ computeStakingStatus ? "Continue Registration" : "Register Now!" }}
@@ -39,7 +39,7 @@
               inline
               color="primary"
               :size="20"
-              v-if="labAccount && verificationStatus == 'Verified'"
+              v-if="labAccount && labAccount.verificationStatus == 'Verified'"
             >mdi-check-decagram</v-icon>
             <v-icon 
               inline
@@ -47,7 +47,7 @@
               :size="20"
               v-else
             >mdi-information</v-icon>
-            <b v-if="labAccount && verificationStatus == 'Unverified'">Your verification submission is being reviewed by DAOGenics</b>
+            <b v-if="labAccount && labAccount.verificationStatus == 'Unverified'">Your verification submission is being reviewed by DAOGenics</b>
             <b v-else>{{ computeVerificationStatus }}</b>
           </div>
         </v-card>
@@ -100,6 +100,7 @@ export default {
 
   computed: {
     ...mapState({
+      isServicesExist: (state) => state.substrate.isServicesExist,
       labAccount: (state) => state.substrate.labAccount
     }),
 
@@ -114,7 +115,14 @@ export default {
     },
 
     computeStakingStatus() {
-      return this.labAccount?.stakeStatus === "Unstaked" && this.labAccount.unstakeAt === "0"
+      return this.labAccount?.stakeStatus === "Unstaked"
+    },
+
+    allowDashboard() {
+      if (this.isServicesExist)
+        if (this.labAccount?.stakeStatus === "Unstaked" && this.labAccount?.verificationStatus === "Unverified") return false
+        else return true
+      else return false
     }
   }
 }
