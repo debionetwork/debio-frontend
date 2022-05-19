@@ -114,7 +114,8 @@ export default {
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
       metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
-      metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance
+      metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance,
+      lastEventData: (state) => state.substrate.lastEventData
     })
   },
   data: () => ({
@@ -140,8 +141,8 @@ export default {
       clearAuth: "auth/clearAuth"
     }),
 
-    async getBalance(balanceNummber) {
-      const balance = Number(await fromEther(balanceNummber)).toFixed(3)
+    async getBalance(balanceNumber) {
+      const balance = Number(await fromEther(balanceNumber)).toFixed(3)
       this.balance = balance.replace(/\.000/, "")
       if (this.balance == "0") {
         this.balance = "0"
@@ -150,9 +151,10 @@ export default {
 
     async fetchWalletBalance() {
       try {
-        const balanceNummber = await queryBalance(this.api, this.wallet.address)
-        this.getBalance(balanceNummber)
-        this.setWalletBalance(balanceNummber)
+        const balanceNumber = await queryBalance(this.api, this.wallet.address)
+        this.getBalance(balanceNumber)
+        this.setWalletBalance(balanceNumber)
+
       } catch (err) {
         console.error(err)
       }
@@ -206,16 +208,14 @@ export default {
   },
 
   watch: {
-    async wallet() {
-      await this.fetchWalletBalance()
-    },
+    lastEventData() {
+      if(this.lastEventData) {
+        this.fetchWalletBalance()
 
-    walletBalance() {
-      this.getBalance(this.walletBalance)
-    },
-
-    metamaskWalletAddress() {
-      this.checkMetamaskBalance()
+        if (this.metamaskWalletAddress) {
+          this.checkMetamaskBalance()
+        }
+      }
     }
   },
 
