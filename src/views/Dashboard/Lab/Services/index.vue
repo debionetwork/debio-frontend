@@ -56,7 +56,7 @@
                         <Button @click="showDialog = false" elevation="2" color="purple" dark>No</Button>
                      </v-col>
                      <v-col col="12" md="6">
-                        <Button @click="deleteService" elevation="2"  dark>Yes</Button>
+                        <Button @click="handleDeleteService" elevation="2"  dark>Yes</Button>
                      </v-col>
                   </template>
                </Dialog>
@@ -244,7 +244,7 @@ export default {
       this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
     },
 
-    async deleteService() {
+    async handleDeleteService() {
       try {
         this.isLoading = true
         await deleteService(
@@ -252,9 +252,11 @@ export default {
           this.pair,
           this.idItemDeleted
         )
+        this.showDialog = false
       } catch (error) {
         console.error(error.message)
         this.isLoading = false
+        this.showDialog = false
       }
     },
 
