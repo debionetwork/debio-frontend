@@ -3,6 +3,7 @@ import router from "./router"
 import store from "./store"
 import App from "./App.vue"
 import vuetify from "./plugins/vuetify";
+import "./plugins/debionetwork-ui-components"
 import { fmtSpecimenNumber } from "./lib/string-format"
 import { format, fromUnixTime } from "date-fns"
 import * as Sentry from "@sentry/vue"

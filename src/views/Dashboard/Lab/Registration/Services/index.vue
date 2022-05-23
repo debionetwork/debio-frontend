@@ -1,5 +1,11 @@
 <template>
   <div>
+    <ui-debio-error-dialog
+      :show="!!error"
+      :title="error ? error.title : ''"
+      :message="error ? error.message : ''"
+      @close="error = null"
+    />
     <v-container>
       <v-row>
         <v-col cols="7">
@@ -261,6 +267,7 @@ import DialogAlert from "@/components/Dialog/DialogAlert"
 import DialogStake from "@/components/Dialog/DialogStake"
 import serviceHandler from "@/mixins/serviceHandler"
 import { toEther } from "@/lib/balance-format"
+import { errorHandler } from "@/lib/error-handler"
 import { sendEmailRegisteredLab } from "@/lib/api/lab"
 import rulesHandler from "@/constants/rules"
 import { generalDebounce } from "@/utils"
@@ -280,6 +287,7 @@ export default {
   },
 
   data: () => ({
+    error: null,
     serviceId: "",
     document: {
       category: "",
@@ -461,8 +469,10 @@ export default {
           })
         }
         this.dialogAlert = true
-      } catch (error) {
-        console.error(error)
+      } catch (e) {
+        const error = errorHandler(e)
+        this.error = error
+        console.error(e)
       }
 
       this.isSubmiting = false
