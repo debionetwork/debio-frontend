@@ -106,6 +106,7 @@
             dense
             label="Title"
             placeholder="Title"
+            :disabled="isUploading || isLoading"
             outlined
             v-model="certificationInfo.title"
             :rules="titleRules"
@@ -114,6 +115,7 @@
             dense
             label="Issuer"
             placeholder="Issuer"
+            :disabled="isUploading || isLoading"
             outlined
             v-model="certificationInfo.issuer"
             :rules="issuerRules"
@@ -123,6 +125,7 @@
               <v-select
                 dense
                 label="Month"
+                :disabled="isUploading || isLoading"
                 :items="selectMonths"
                 outlined
                 v-model="certificationInfo.month"
@@ -134,6 +137,7 @@
                 dense
                 label="Year"
                 :items="selectYears"
+                :disabled="isUploading || isLoading"
                 outlined
                 v-model="certificationInfo.year"
                 :rules="yearRules"
@@ -143,15 +147,17 @@
           <v-textarea
             outlined
             label="Description"
+            :disabled="isUploading || isLoading"
             v-model="certificationInfo.description"
             :rules="descriptionRules"
           ></v-textarea>
           <v-file-input
-              dense
+            dense
             label="Supporting Document"
             placeholder="Supporting Document"
             prepend-icon="mdi-file-document"
             outlined
+            :disabled="isUploading || isLoading"
             @change="fileUploadEventListener"
             :rules="supportingDocumentsRules"
             show-size
@@ -373,12 +379,12 @@ export default {
 
       try {
         this.certificationInfo.supportingDocument = this.certSupportingDocumentsUrl
+        this.isLoading = true
         await this.dispatch(createCertification, this.api, this.pair, this.certificationInfo, () => {
           this.closeCertificationDialog()
         })
       } catch (error) {
         this.closeCertificationDialog()
-        this.isLoading = false
         if (error.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
           this.isShowError = true
         }
