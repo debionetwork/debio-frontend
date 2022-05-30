@@ -244,7 +244,7 @@
       :show="dialogStake" 
       @close="dialogStake = false" 
       @submit="handleStakeLab" 
-      :loading="stakeLoading" 
+      :loading="stakeLoading || isSubmiting" 
     />
   </div>
 </template>
@@ -256,7 +256,6 @@ import { createService, updateService, createServiceFee, updateServiceFee } from
 import { getCategories } from "@/lib/api"
 import List from "./List"
 import Stepper from "../Stepper"
-import { queryLabsById } from "@/lib/polkadotProvider/query/labs"
 import { stakeLab } from "@/lib/polkadotProvider/command/labs"
 import DialogAlert from "@/components/Dialog/DialogAlert"
 import DialogStake from "@/components/Dialog/DialogStake"
@@ -265,7 +264,6 @@ import { toEther } from "@/lib/balance-format"
 import { sendEmailRegisteredLab } from "@/lib/api/lab"
 import rulesHandler from "@/constants/rules"
 import { generalDebounce } from "@/utils"
-
 
 export default {
   name: "LabRegistrationServices",
@@ -420,7 +418,6 @@ export default {
   },
 
   methods: {
-
     async getServiceCategory() {
       const { data : data } = await getCategories()
       this.listCategories =  data
@@ -436,44 +433,39 @@ export default {
       }
     },
 
-    gotoDashboard() {
+    async gotoDashboard() {
+      await this.$store.dispatch("substrate/getLabAccount")
       this.$router.push({ name: "lab-dashboard" })
     },
 
-    async actionAlert() {
-      this.isSubmiting = true
-      const currentLab = await queryLabsById(this.api, this.wallet.address)
-
-      if (this.isLabExist && currentLab.verificationStatus === "Unverified") {
-        await sendEmailRegisteredLab(this.wallet.address)
-
-        this.$store.dispatch("substrate/addAnyNotification", {
-          address: this.wallet.address,
-          dataAdd: {
-            message: "Congrats! You have been submitted your account verification.",
-            data: currentLab,
-            route: null,
-            params: null
-          },
-          role: "lab"
-        })
-
-        this.isSubmiting = false
-        this.dialogAlert = true
-      }
-    },
-
     async handleStakeLab() {
+      this.isSubmiting = true
       this.stakeLoading = true
 
       try {
         await stakeLab(this.api, this.pair)
+        const {labAccount} = await this.$store.dispatch("substrate/getLabAccount")
+        
+        if (this.isLabExist && labAccount.verificationStatus === "Unverified") {
+          await sendEmailRegisteredLab(this.wallet.address)
 
-        this.actionAlert()
+          this.$store.dispatch("substrate/addAnyNotification", {
+            address: this.wallet.address,
+            dataAdd: {
+              message: "Congrats! You have been submitted your account verification.",
+              data: labAccount,
+              route: null,
+              params: null
+            },
+            role: "lab"
+          })
+        }
+        this.dialogAlert = true
       } catch (error) {
         console.error(error)
       }
 
+      this.isSubmiting = false
       this.stakeLoading = false
     },
 
