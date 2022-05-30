@@ -48,7 +48,7 @@ export default Object.freeze({
    */
   PASSWORD: (length = 0, includeChars) => {
     const message = `Password must have at least ${length} character`
-    if (includeChars) return message + `, that include at least ${includeChars}`
+    if (includeChars) return message + `, that include ${includeChars}`
 
     return message
   },

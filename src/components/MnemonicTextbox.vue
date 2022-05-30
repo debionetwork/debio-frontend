@@ -8,7 +8,7 @@
                 :class="mnemonic == ' ' ? 'mx-2 transparent' : 'mx-2'"
                 v-for="(mnemonic, y) in mnemonics"
                 :key="y"
-                @click="emitClick(y + (i * 4))"
+                @click="emitClick(y + (i * 4), mnemonic)"
             >{{ mnemonic }}</v-btn>
         </v-container>
     </v-container>
@@ -34,8 +34,8 @@ export default {
     }
   },
   methods: {
-    emitClick(idx) {
-      this.$emit("mnemonic-index-remove", { idx: idx })
+    emitClick(idx, mnemonic) {
+      this.$emit("mnemonic-index-remove", { idx: idx, mnemonic })
     }
   }
 }

@@ -11,8 +11,8 @@
                         color="primary"
                         class="mb-5"
                         @click="$router.push({name:'lab-dashboard-add-services'})"
-                    > 
-                        <v-icon 
+                    >
+                        <v-icon
                         inline
                         color="white"
                         :size="20"
@@ -20,7 +20,7 @@
                         Add Service
                     </v-btn>
                 </v-container>
-               
+
                <Dialog :show="showDialog" @close="showDialog = false" :width='400'>
                   <template v-slot:title>
                      <div></div>
@@ -83,44 +83,43 @@
                               {{ item.info.image }}
                            </v-icon>
                         </div>
-                        <v-img 
+                        <v-img
                            v-if="item.info.image"
-                           :src="item.info.image" 
-                           :alt="item.name" 
+                           :src="item.info.image"
+                           :alt="item.name"
                            max-height="70px"
                            max-width="70px"
                         ></v-img>
-                        <v-img 
+                        <v-img
                            v-else
-                           src="@/assets/debio-logo.png" 
-                           :alt="item.name" 
+                           src="@/assets/debio-logo.png"
+                           :alt="item.name"
                            max-height="70px"
                            max-width="70px"
                         ></v-img>
                      </v-container>
                   </template>
-                  
+
                   <template v-slot:[`item.info.price`]="{ item }">
                      <span> {{ formatPrice(item.info.price) }} </span>
                   </template>
-                   
 
                   <template v-slot:[`item.actions`]="{ item }">
-                     <v-container class="d-flex" justify-space-between>                        
-                        <v-icon 
+                     <v-container class="d-flex" justify-space-between>
+                        <v-icon
                            @click="gotoDetails(item)"
                            color="black"
                         >
                            mdi-pencil
                            </v-icon>
 
-                        <v-tooltip bottom :disabled="activeButton">
+                        <v-tooltip bottom :disabled="!computeButtonStatus">
                           <template v-slot:activator="{ on, attrs }">
                             <div v-bind="attrs" v-on="on">
-                              <v-icon 
+                              <v-icon
                                  @click="confirmDeleteService(item)"
                                  color="black"
-                                 :disabled="!activeButton"
+                                 :disabled="computeButtonStatus"
                               >
                                  mdi-delete
                               </v-icon>
@@ -170,8 +169,6 @@ export default {
     showDialog: false,
     showAlert: false,
     idItemDeleted: "",
-    activeButton: true,
-    serviceCount: 0,
     fee: 0
   }),
   computed:{
@@ -184,7 +181,11 @@ export default {
 
     ...mapState({
       lastEventData: (state) => state.substrate.lastEventData
-    })
+    }),
+
+    computeButtonStatus() {
+      return this.labAccount?.services?.length === 1 && this.labAccount?.verificationStatus === "Verified"
+    }
   },
 
   watch: {
@@ -194,14 +195,12 @@ export default {
         this.isLoading = false
         this.showDialog = false
         this.getServices()
-        this.checkServiceCount()
       }
     }
   },
 
   async created() {
     await this.getServices()
-    await this.checkServiceCount()
   },
 
   methods:{
@@ -229,13 +228,13 @@ export default {
       }
       return "https://ipfs.io/ipfs/QmaGr6N6vdcS13xBUT4hK8mr7uxCJc7k65Hp9tyTkvxfEr"
     },
-    
+
     formatPrice(price) {
       const priceAndCurrency = price.replaceAll(",", "").split(" ")
       const formatedPrice = this.web3.utils.fromWei(String(priceAndCurrency[0], "ether"))
       return `${formatedPrice} ${priceAndCurrency[1]}`
     },
-    
+
     isIcon(imageName) {
       return imageName && (imageName.startsWith("mdi") || imageName.startsWith("$dgi"))
     },
@@ -263,13 +262,6 @@ export default {
       this.idItemDeleted = item.id
       await this.getDeleteServiceFee()
       this.showDialog = true
-    },
-
-    async checkServiceCount() {
-      this.serviceCount = this.labAccount.services.length
-      if (this.serviceCount <= 1) {
-        this.activeButton = false
-      }
     }
   }
 }
