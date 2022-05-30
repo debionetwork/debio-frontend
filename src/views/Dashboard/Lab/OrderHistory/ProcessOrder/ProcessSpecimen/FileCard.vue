@@ -1,7 +1,7 @@
 <template>
   <v-card class="dg-card px-3 py-2 mb-2">
     <div class="d-flex align-center">
-      <div>{{ filename }}</div>
+      <div class="filename">{{ filename }}</div>
       <v-spacer />
       <div class="d-flex">
         <a :href="ipfsUrl" target="_blank" style="text-decoration: none;">
@@ -40,5 +40,10 @@ export default {
 </script>
 
 <style>
-
+.filename {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 500px;
+  white-space: nowrap;
+}
 </style>
