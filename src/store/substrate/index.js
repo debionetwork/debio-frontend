@@ -139,7 +139,7 @@ export default {
         commit("SET_LOADING_WALLET", true)
         commit("CLEAR_WALLET")
 
-        const { pair, json } = keyring.addUri(mnemonic, password)
+        const { pair, json } = keyring.addUri(mnemonic, password, { name: "accountName" })
         pair.unlock(password)
         localStorage.setKeystore(JSON.stringify(json))
         localStorage.setAddress(pair.address)
