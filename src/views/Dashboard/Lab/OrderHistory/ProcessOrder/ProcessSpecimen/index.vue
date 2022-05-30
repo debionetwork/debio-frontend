@@ -1,8 +1,9 @@
 <template>
   <div>
     <template>
-      <input
-        type="file"
+      <v-file-input
+        :rules="genomeFileRules"
+        @change="addFileUploadEventListener($event, 'genome')"
         style="display: none"
         ref="encryptUploadGenome"
         accept=".vcf"
@@ -65,6 +66,7 @@
           </template>
         </v-btn>
       </div>
+      <span class="primary--text small">{{hasGenomeError[0]}}</span>
       <v-progress-linear
         v-if="loading.genome"
         class="mt-2"
@@ -73,8 +75,9 @@
     </template>
 
     <template>
-      <input
-        type="file"
+      <v-file-input
+        :rules="reportFileRules"
+        @change="addFileUploadEventListener($event, 'report')"
         style="display: none"
         ref="encryptUploadReport"
         accept="application/pdf"
@@ -136,6 +139,7 @@
           </template>
         </v-btn>
       </div>
+      <span class="primary--text small">{{hasReportError[0]}}</span>
       <v-progress-linear
         v-if="loading.report"
         class="mt-2"
@@ -269,6 +273,8 @@ export default {
     identity: null,
     genomeSucceed: false,
     reportSucceed: false,
+    hasGenomeError: [],
+    hasReportError: [],
     genomeUploadSucceedDialog: false,
     reportUploadSucceedDialog: false,
     confirmationDialog: false,
@@ -302,10 +308,6 @@ export default {
 
   async mounted(){
     await this.getFee()
-
-    // Add file input event listener
-    this.addFileUploadEventListener(this.$refs.encryptUploadGenome, "genome")
-    this.addFileUploadEventListener(this.$refs.encryptUploadReport, "report")
 
     const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
     if(testResult) this.setUploadFields(testResult)
@@ -350,6 +352,19 @@ export default {
 
     sendReportButtonVisible() {
       return this.hasGenomeFile && this.hasReportFile && !this.submitted
+    },
+
+    genomeFileRules() {
+      return [
+        value => !value || value.type == "text/x-vcard" || "The files uploaded are not in the supported file formats (VCF)",
+        value => !value || value.size < 2000000 || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
+      ]
+    },
+    reportFileRules() {
+      return [
+        value => !value || value.type == "application/pdf" || "The files uploaded are not in the supported file formats (PDF)",
+        value => !value || value.size < 2000000 || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
+      ]
     }
   },
 
@@ -395,11 +410,11 @@ export default {
     },
 
     uploadGenome() {
-      this.$refs.encryptUploadGenome.click()
+      this.$refs.encryptUploadGenome.$refs.input.click()
     },
 
     uploadReport() {
-      this.$refs.encryptUploadReport.click()
+      this.$refs.encryptUploadReport.$refs.input.click()
     },
 
     async getFee() {
@@ -459,70 +474,80 @@ export default {
     },
 
     addFileUploadEventListener(fileInputRef, fileType) {
-      const context = this
-      fileInputRef.addEventListener("change", function(e) {
-        const target = e.target || e.srcElement
-        if (!target.value.length) return
+      this.hasGenomeError = []
+      this.hasReportError = []
 
-        context.loading[fileType] = true
-        const file = this.files[0]
-        file.fileType = fileType // attach fileType to file, because fileType is not accessible in fr.onload scope
-        const fr = new FileReader()
-        if (file.type === "application/pdf") fr.readAsDataURL(file)
-        fr.onload = async function() {
-          try {
-            // Encrypt
-            const encrypted = await context.encrypt({
-              text: fr.result,
-              fileType: file.fileType,
-              fileName: file.name
-            })
+      if (fileType === "genome") this.genomeFileRules.forEach(rule => {
+        const resultRule = rule.call(this, fileInputRef)
 
-            const { chunks, fileName: encFileName, fileType: encFileType } = encrypted
-            // Upload
-            const uploaded = await context.upload({
-              encryptedFileChunks: chunks,
-              fileName: encFileName,
-              documentType: encFileType,
-              type: file.type
-            })
-
-            // files is array, but currently only support storing 1 file for each type
-
-            if (context.files[fileType].length > 0) {
-              context.files[fileType][0] = { fileName: file.name, fileType, ipfsPath: uploaded }
-            } else {
-              context.files[fileType].push({ fileName: file.name, fileType, ipfsPath: uploaded })
-            }
-
-            context.loading[file.fileType] = false
-
-            // Emit finish
-            if(file.fileType == "genome") {
-              context.genomeSucceed = true
-              context.genomeUploadSucceedDialog = true
-              context.$emit("uploadGenome")
-
-              context.submitTestResultDocument(() => {
-                context.loading[file.fileType] = false
-              })
-            }
-            if(file.fileType == "report") {
-              context.reportSucceed = true
-              context.reportUploadSucceedDialog = true
-              context.$emit("uploadReport")
-
-              context.submitTestResultDocument(() => {
-                context.loading[file.fileType] = false
-                context.$emit("resultUploaded")
-              })
-            }
-          } catch (err) {
-            console.error(err)
-          }
-        }
-        fr.readAsText(file)
+        if (typeof resultRule === "string") this.hasGenomeError.push(resultRule)
       })
+      if (fileType === "report") this.reportFileRules.forEach(rule => {
+        const resultRule = rule.call(this, fileInputRef)
+
+        if (typeof resultRule === "string") this.hasReportError.push(resultRule)
+      });
+      const context = this
+
+      if (this.hasGenomeError.length && fileType === "genome" || this.hasReportError.length && fileType === "report") return
+
+      context.loading[fileType] = true
+      const file = fileInputRef
+      file.fileType = fileType // attach fileType to file, because fileType is not accessible in fr.onload scope
+      const fr = new FileReader()
+      fr.onload = async function() {
+        try {
+          // Encrypt
+          const encrypted = await context.encrypt({
+            text: fr.result,
+            fileType: file.fileType,
+            fileName: file.name
+          })
+
+          const { chunks, fileName: encFileName, fileType: encFileType } = encrypted
+          // Upload
+          const uploaded = await context.upload({
+            encryptedFileChunks: chunks,
+            fileName: encFileName,
+            documentType: encFileType,
+            type: file.type
+          })
+
+          // files is array, but currently only support storing 1 file for each type
+
+          if (context.files[fileType].length > 0) {
+            context.files[fileType][0] = { fileName: file.name, fileType, ipfsPath: uploaded }
+          } else {
+            context.files[fileType].push({ fileName: file.name, fileType, ipfsPath: uploaded })
+          }
+
+          context.loading[file.fileType] = false
+
+          // Emit finish
+          if(file.fileType == "genome") {
+            context.genomeSucceed = true
+            context.genomeUploadSucceedDialog = true
+            context.$emit("uploadGenome")
+
+            context.submitTestResultDocument(() => {
+              context.loading[file.fileType] = false
+            })
+          }
+          if(file.fileType == "report") {
+            context.reportSucceed = true
+            context.reportUploadSucceedDialog = true
+            context.$emit("uploadReport")
+
+            context.submitTestResultDocument(() => {
+              context.loading[file.fileType] = false
+              context.$emit("resultUploaded")
+            })
+          }
+        } catch (err) {
+          console.error(err)
+        }
+      }
+      fr.readAsArrayBuffer(file)
     },
 
     encrypt({ text, fileType, fileName }) {

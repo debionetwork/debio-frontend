@@ -18,7 +18,7 @@
                 placeholder="Email"
                 outlined
                 v-model="document.email"
-                :disabled="isLabAccountExist"
+                :disabled="isLabAccountExist || isLoading"
                 :rules="emailRules"
                 ></v-text-field>
               
@@ -28,7 +28,7 @@
                 placeholder="Lab Name"
                 outlined
                 v-model="document.name"
-                :disabled="isLabAccountExist"
+                :disabled="isLabAccountExist || isLoading"
                 :rules="nameRules"
                 ></v-text-field>
 
@@ -42,7 +42,7 @@
                 :label="computeCountryLabel"
                 outlined
                 v-model="document.country"
-                :disabled="isLabAccountExist"
+                :disabled="isLabAccountExist || isLoading"
                 :rules="[val => !!val || 'This field is required']"
               ></v-autocomplete>
 
@@ -53,7 +53,7 @@
                 item-value="state_code"
                 @change="onStateChange"
                 :label="computeStateLabel"
-                :disabled="!document.country || isLabAccountExist"
+                :disabled="!document.country || isLabAccountExist || isLoading"
                 outlined
                 v-model="document.region"
                 :rules="[val => !!val || 'This field is required']"
@@ -67,7 +67,7 @@
                 return-object
                 @change="onCityChange"
                 :label="computeCityLabel"
-                :disabled="!document.region || isLabAccountExist"
+                :disabled="!document.region || isLabAccountExist || isLoading"
                 outlined
                 v-model="document.city"
                 :rules="[val => !!val || 'This field is required']"
@@ -80,7 +80,7 @@
                 outlined
                 v-model="document.address"
                 :rules="addressRules"
-                :disabled="isLabAccountExist"
+                :disabled="isLabAccountExist || isLoading"
               ></v-text-field>
               <v-row>
                 <v-col md="3" class="pr-0">
@@ -94,7 +94,7 @@
                     label="Phone code"
                     outlined
                     v-model="document.phoneCode"
-                    :disabled="isLabAccountExist"
+                    :disabled="isLabAccountExist || isLoading"
                     :rules="[val => !!val || 'Phone code is Required']"
                   ></v-autocomplete>
                 </v-col>
@@ -106,7 +106,7 @@
                     outlined
                     v-model="document.phoneNumber"
                     :rules="phoneNumberRules"
-                    :disabled="isLabAccountExist"
+                    :disabled="isLabAccountExist || isLoading"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -118,7 +118,7 @@
                 outlined
                 v-model="document.website"
                 :rules="websiteRules"
-                :disabled="isLabAccountExist"
+                :disabled="isLabAccountExist || isLoading"
               ></v-text-field>
 
                 <v-file-input
@@ -129,7 +129,7 @@
                   outlined
                   v-model="files"
                   :rules="fileInputRules"
-                  :disabled="isLabAccountExist"
+                  :disabled="isLabAccountExist || isLoading"
                   show-size
                   accept="image/png, image/jpeg"
                 ></v-file-input>
@@ -172,7 +172,7 @@
           <Certification />
 
           <v-btn
-            :disabled="!isLabAccountExist"
+            :disabled="!isLabAccountExist || (isLabAccountExist && !labAccount.certifications.length)"
             color="primary"
             block
             large
