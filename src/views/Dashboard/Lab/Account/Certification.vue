@@ -14,100 +14,99 @@
                 <div v-if="labAccount.certifications.length == 0">
                 You don’t have any certifications
                 </div>
-                <div v-if="isLoading" class="mt-5">
-                <v-skeleton-loader 
-                    v-for="data in labAccount.certifications"
-                    :key="data.idx"
-                    type="list-item-three-line"
-                    min-width="200"
-                ></v-skeleton-loader>
-                </div>
-                <div v-if="labAccount.certifications.length > 0 && !isLoading" class="mt-5">
+                <div v-if="labAccount.certifications.length > 0" class="mt-5">
                 <div
-                    v-for="(cert, idx) in labAccount.certifications"
-                    :key="cert.id"
-                    :style="idx < (labAccount.certifications.length - 1) && 'border-bottom: 1px solid #555454;'"
-                    class="my-3"
+                  v-for="(cert, idx) in labAccount.certifications"
+                  :key="cert.id"
+                  :style="idx < (labAccount.certifications.length - 1) && 'border-bottom: 1px solid #555454;'"
+                  class="my-3"
                 >
-                    <div class="d-flex justify-space-between align-center" style="width: 100%;">
-                    <div class=""><b>{{ cert.info.title }}</b></div>
-                    <div class="d-flex">
-                      <DialogErrorBalance
-                        :show="isShowError"
-                        @close="closeDialog"
-                      />
+                    <v-skeleton-loader
+                      v-if="isLoading && certId === cert.id"
+                      type="list-item-three-line"
+                      min-width="200"
+                    ></v-skeleton-loader>
+                    <template v-else>
+                      <div class="d-flex justify-space-between align-center" style="width: 100%;">
+                        <div class=""><b>{{ cert.info.title }}</b></div>
+                        <div class="d-flex">
+                          <DialogErrorBalance
+                            :show="isShowError"
+                            @close="closeDialog"
+                          />
 
-                      <v-dialog v-model="showDeletePrompt" persistent width="477">
-                        <v-card class="d-flex flex-column px-15 py-13">
-                          <v-icon size="80" class="mx-auto" color="primary">mdi-information-outline</v-icon>
-                          <v-card-title class="text-center">Are you sure you want delete this certification?</v-card-title>
-                          <div class="ml-5 mr-5 pb-1 d-flex justify-space-between mt-5">
-                            <div>
-                              <span style="font-size: 12px"> Estimated Transaction Weight </span>
-                              <v-tooltip bottom>
-                                <template v-slot:activator="{ on, attrs }">
-                                  <v-icon
-                                    color="primary"
-                                    size="12"
-                                    v-bind="attrs"
-                                    v-on="on"
-                                  > mdi-alert-circle-outline
-                                  </v-icon>
-                                </template>
-                                <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
-                              </v-tooltip>
-                            </div>
-                            <div>
-                              <span style="font-size: 12px;">
-                                {{ Number(fee).toFixed(4) }} DBIO
-                              </span>
-                            </div>
-                          </div>
-                          <v-card-actions style="gap: 40px">
-                            <v-btn
-                              style="flex: 1"
-                              color="#BA8DBB"
-                              class="white--text"
-                              raised
-                              @click="showDeletePrompt = false"
-                            >
-                              No
-                            </v-btn>
-                            <v-btn
-                              style="flex: 1"
-                              color="primary"
-                              class="ml-0"
-                              raised
-                              @click="deleteCertification(cert)"
-                            >
-                              Yes
-                            </v-btn>
-                          </v-card-actions>
-                        </v-card>
-                      </v-dialog>
-                      <v-icon v-if="currentLoading !== cert.id" class="mx-1" small @click="editCertification(cert)">mdi-pencil</v-icon>
-                      <v-progress-circular
-                        v-if="currentLoading === cert.id"
-                        indeterminate
-                        size="15"
-                        width="2"
-                        color="warning"
-                      ></v-progress-circular>
-                      <v-icon class="mx-1" small @click="showDelete(cert)">mdi-delete</v-icon>
-                    </div>
-                    </div>
-                    <div>{{ cert.info.month }} {{ cert.info.year }} • {{ cert.info.issuer }}</div>
-                    <div class="mt-3 mb-3">{{ cert.info.description }}</div>
-                    <div class="mt-3 mb-3">
-                      <a :href="cert.info.supportingDocument" class="support-url" target="_blank">
-                        <span v-if="cert.info.supportingDocument">
-                          <v-icon class="mx-1" small>mdi-file-document</v-icon>
-                          {{ cert.info.documentName || "Supporting Documents" }}
-                        </span>
-                        <span v-else>No supporting document</span>
-                      </a>
-                    </div>
-                </div>
+                          <v-dialog v-model="showDeletePrompt" persistent width="477">
+                            <v-card class="d-flex flex-column px-15 py-13">
+                              <v-icon size="80" class="mx-auto" color="primary">mdi-information-outline</v-icon>
+                              <v-card-title class="text-center">Are you sure you want delete this certification?</v-card-title>
+                              <div class="ml-5 mr-5 pb-1 d-flex justify-space-between mt-5">
+                                <div>
+                                  <span style="font-size: 12px"> Estimated Transaction Weight </span>
+                                  <v-tooltip bottom>
+                                    <template v-slot:activator="{ on, attrs }">
+                                      <v-icon
+                                        color="primary"
+                                        size="12"
+                                        v-bind="attrs"
+                                        v-on="on"
+                                      > mdi-alert-circle-outline
+                                      </v-icon>
+                                    </template>
+                                    <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+                                  </v-tooltip>
+                                </div>
+                                <div>
+                                  <span style="font-size: 12px;">
+                                    {{ Number(fee).toFixed(4) }} DBIO
+                                  </span>
+                                </div>
+                              </div>
+                              <v-card-actions style="gap: 40px">
+                                <v-btn
+                                  style="flex: 1"
+                                  color="#BA8DBB"
+                                  class="white--text"
+                                  raised
+                                  @click="showDeletePrompt = false"
+                                >
+                                  No
+                                </v-btn>
+                                <v-btn
+                                  style="flex: 1"
+                                  color="primary"
+                                  class="ml-0"
+                                  raised
+                                  @click="deleteCertification(cert)"
+                                >
+                                  Yes
+                                </v-btn>
+                              </v-card-actions>
+                            </v-card>
+                          </v-dialog>
+                          <v-icon v-if="currentLoading !== cert.id" class="mx-1" small @click="editCertification(cert)">mdi-pencil</v-icon>
+                          <v-progress-circular
+                            v-if="currentLoading === cert.id"
+                            indeterminate
+                            size="15"
+                            width="2"
+                            color="warning"
+                          ></v-progress-circular>
+                          <v-icon class="mx-1" :disabled="labAccount.certifications.length === 1 && labAccount.verificationStatus === 'Verified'" small @click="showDelete(cert)">mdi-delete</v-icon>
+                        </div>
+                      </div>
+                      <div>{{ cert.info.month }} {{ cert.info.year }} • {{ cert.info.issuer }}</div>
+                      <div class="mt-3 mb-3">{{ cert.info.description }}</div>
+                      <div class="mt-3 mb-3">
+                        <a :href="cert.info.supportingDocument" class="support-url" target="_blank">
+                          <span v-if="cert.info.supportingDocument">
+                            <v-icon class="mx-1" small>mdi-file-document</v-icon>
+                            {{ cert.info.documentName || "Supporting Documents" }}
+                          </span>
+                          <span v-else>No supporting document</span>
+                        </a>
+                      </div>
+                    </template>
+                  </div>
                 </div>
             </v-card-text>
         </v-card>
@@ -409,14 +408,15 @@ export default {
 
     async editCertification(cert) {
       try {
+        this.currentLoading = null
         this.currentLoading = cert.id
-        const { title, issuer, month, year, description, supportingDocument, documentName, documentType } = cert.info
+        const { title, issuer, month, year, description, supportingDocument, documentName, documentType: type } = cert.info
         this.certId = cert.id
         this.certificationInfo = { title, issuer, month, year, description, supportingDocument }
 
         const res = await fetch(supportingDocument)
         const blob = await res.blob() // Gets the response and returns it as a blob
-        const file = new File([blob], documentName, { type: documentType })
+        const file = new File([blob], documentName, { type })
 
         this.files = file
         this.isEditCertificationDialog = true
@@ -445,6 +445,7 @@ export default {
     },
 
     async showDelete(cert) {
+      if (this.labAccount.certifications.length === 1 && this.labAccount.verificationStatus === "Verified") return
       this.certId = cert.id
       this.getDeleteCertificationFee()
       this.showDeletePrompt = true

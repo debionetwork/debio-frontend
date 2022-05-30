@@ -172,7 +172,7 @@
           <Certification />
 
           <v-btn
-            :disabled="!isLabAccountExist"
+            :disabled="!isLabAccountExist || (isLabAccountExist && !labAccount.certifications.length)"
             color="primary"
             block
             large

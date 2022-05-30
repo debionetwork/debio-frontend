@@ -24,8 +24,8 @@
 </style>
 
 <template>
-  <v-container :class="!isServicesExist || computeStakingStatus ? 'center-all' : ''">
-    <v-container v-if="!isServicesExist || computeStakingStatus">
+  <v-container :class="!allowDashboard ? 'center-all' : ''">
+    <v-container v-if="!allowDashboard">
       <h1 class="title-text-color">You don't have a lab account yet</h1>
       <v-btn color="primary" to="/lab/registration">
         {{ computeStakingStatus ? "Continue Registration" : "Register Now!" }}
@@ -100,9 +100,13 @@ export default {
 
   computed: {
     ...mapState({
-      labAccount: (state) => state.substrate.labAccount,
-      isServicesExist: (state) => state.substrate.isServicesExist
+      isServicesExist: (state) => state.substrate.isServicesExist,
+      labAccount: (state) => state.substrate.labAccount
     }),
+
+    verificationStatus() {
+      return this.labAccount?.verificationStatus
+    },
 
     computeVerificationStatus() {
       return this.labAccount?.verificationStatus
@@ -111,7 +115,14 @@ export default {
     },
 
     computeStakingStatus() {
-      return this.labAccount?.stakeStatus === "Unstaked" && this.labAccount.unstakeAt === "0"
+      return this.labAccount?.stakeStatus === "Unstaked"
+    },
+
+    allowDashboard() {
+      if (this.isServicesExist)
+        if (this.labAccount?.stakeStatus === "Unstaked" && this.labAccount?.verificationStatus === "Unverified") return false
+        else return true
+      else return false
     }
   }
 }
