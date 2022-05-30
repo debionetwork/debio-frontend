@@ -38,7 +38,7 @@
       @status-wallet="({status, img}) => connectWalletResult(status, img)"
     ></WalletBinding>
 
-    <v-main class="main" v-if="!isServicesExist && isLabDashboard">
+    <v-main class="main" v-if="!allowDashboard && isLabDashboard">
       <router-view />
     </v-main>
 
@@ -122,7 +122,8 @@ export default {
       isServicesExist: (state) => state.substrate.isServicesExist,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
-      lastEventData: (state) => state.substrate.lastEventData
+      lastEventData: (state) => state.substrate.lastEventData,
+      labAccount: (state) => state.substrate.labAccount
     }),
 
     isLab() {
@@ -137,6 +138,17 @@ export default {
       return this.$route.meta.pageHeader
         ? this.$route.meta.pageHeader
         : v.titleCase(this.$route.name)
+    },
+
+    computeStakingStatus() {
+      return this.labAccount?.stakeStatus === "Unstaked"
+    },
+
+    allowDashboard() {
+      if (this.isServicesExist)
+        if (this.labAccount?.stakeStatus === "Unstaked" && this.labAccount?.verificationStatus === "Unverified") return false
+        else return true
+      else return false
     }
   },
   watch: {
