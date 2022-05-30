@@ -305,8 +305,7 @@ export default {
     phoneNumberRules() {
       return [
         val => !!val || "This field is required",
-        val => /^\+?([0-9]{10,15})$/.test(val) || "This field can only contain number",
-        val => (val && val.length <= 12) || "This field only allows 12 characters"
+        val => /^\+?([0-9]{10,15})$/.test(val) || "This field can only contain number"
       ]
     },
 
