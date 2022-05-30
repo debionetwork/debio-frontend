@@ -33,7 +33,7 @@
                     label="Logo Image"
                     prepend-icon="mdi-image"
                     outlined
-                    :disabled="!isEditable"
+                    :disabled="!isEditable || isLoading || isUploading || unstakeLoading"
                     @change="fileUploadEventListener"
                     :rules="rules"
                     v-model="files"
@@ -47,7 +47,7 @@
                   placeholder="Email"
                   autocomplete="off"
                   outlined
-                  :disabled="!isEditable"
+                  :disabled="!isEditable || isLoading || isUploading || unstakeLoading"
                   :rules="emailRules"
                   v-model="document.email"
                 ></v-text-field>
@@ -58,7 +58,7 @@
                   placeholder="Lab Name"
                   autocomplete="off"
                   outlined
-                  :disabled="!isEditable"
+                  :disabled="!isEditable || isLoading || isUploading || unstakeLoading"
                   :rules="nameRules"
                   v-model="document.name"
                 ></v-text-field>
@@ -129,7 +129,7 @@
                       label="Phone code"
                       outlined
                       v-model="phoneCode"
-                      :disabled="!isEditable"
+                      :disabled="!isEditable || isLoading || isUploading || unstakeLoading"
                       :rules="[(val) => !!val || 'Phone code is Required']"
                     ></v-autocomplete>
                   </v-col>
@@ -141,7 +141,7 @@
                       outlined
                       v-model="document.phoneNumber"
                       :rules="phoneNumberRules"
-                      :disabled="!isEditable"
+                      :disabled="!isEditable || isLoading || isUploading || unstakeLoading"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -154,7 +154,7 @@
                   outlined
                   v-model="document.website"
                   :rules="websiteRules"
-                  :disabled="!isEditable"
+                  :disabled="!isEditable || isLoading || isUploading || unstakeLoading"
                 ></v-text-field>
 
                 <v-row>
@@ -166,7 +166,7 @@
                       autocomplete="off"
                       outlined
                       v-model="stakingAmount"
-                      :disabled="!isEditable"
+                      :disabled="!isEditable || isLoading || isUploading || unstakeLoading"
                     ></v-text-field>
                   </v-col>
                   <v-col md="3">
@@ -223,7 +223,9 @@
             </v-card-text>
           </v-card>
 
-          <Certification />
+          <Certification 
+            :loading="isLoading"
+          />
         </v-col>
       </v-row>
     </v-container>
