@@ -13,8 +13,8 @@ export const uploadFile = val => {
   const options = {
     pinataMetadata: {
       name: val.title,
-      required: process.env.VUE_APP_PINATA_REQUIRED_DOCUMENT,
       keyvalues: {
+        required: process.env.VUE_APP_PINATA_REQUIRED_DOCUMENT,
         type: val.type,
         date: +new Date()
       }
