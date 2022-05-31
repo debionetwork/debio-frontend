@@ -168,8 +168,6 @@ export default {
     cancelledOrderDialog: false,
     showRejectDialog: false,
     showResultDialog: false,
-    genomeFile: "",
-    reportFile: "",
     isSubmitted: false,
     stepperItems: [
       { name: "Received", selected: false },
@@ -189,7 +187,7 @@ export default {
     }
   },
 
-  async mounted() {
+  async created() {
     await this.prefillOrder()
   },
 
@@ -202,7 +200,7 @@ export default {
         }
         const order = await getOrdersDetail(this.api, this.orderId);
         const serviceInfo = await queryServicesById(this.api, order.serviceId);
-        const testResult = await queryDnaTestResults(this.api, this.specimenNumber);
+        const testResult = await queryDnaTestResults(this.api, order.dnaSampleTrackingId);
 
         this.dnaCollectionProcess = serviceInfo.info.dnaCollectionProcess;
         if (this.dnaCollectionProcess.includes("Covid")) {
@@ -248,7 +246,7 @@ export default {
         this.onQcCompleted();
       }
       
-      if (this.testResult) {
+      if (this.testResult?.reportLink && this.testResult?.resultLink) {
         this.setUploadFields(this.testResult);
       }
 
