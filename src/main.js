@@ -8,6 +8,7 @@ import { format, fromUnixTime } from "date-fns"
 import * as Sentry from "@sentry/vue"
 import { Integrations } from "@sentry/tracing"
 import VueMixpanel from "vue-mixpanel"
+import "./plugins/debionetwork-ui-components"
 
 Vue.use(VueMixpanel, {
   token: process.env.VUE_APP_MIXPANEL_TOKEN

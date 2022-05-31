@@ -43,6 +43,16 @@ const labRoutes = [
         }
       },
       {
+        path: "maintenance",
+        name: "maintenance",
+        meta: { pageHeader: "Maintenance" },
+        component: () => import(/* webpackChunkName */ "@/views/maintenancePageLayout"),
+        beforeEnter: (to, from, next) => {
+          if (from.path === "/") next({ name: "lab-dashboard" })
+          else next()
+        }
+      },
+      {
         path: "/lab/account",
         name: "lab-dashboard-account",
         meta: {
