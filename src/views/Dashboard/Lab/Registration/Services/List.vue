@@ -51,7 +51,7 @@
             <div v-if="service.info.testResultSample" class="mt-3 mb-3">
               <a :href="service.info.testResultSample" class="support-url" target="_blank">
                 <v-icon class="mx-1" small>mdi-file-document</v-icon>
-                {{ service.documentName }}
+                {{ service.documentName || `${service.info.name} Test result sample` }}
               </a>
             </div>
           </div>
@@ -110,7 +110,9 @@ export default {
       immediate: true,
       handler: async function (value) {
         const servicesTmp = []
-        for (const service of value?.services) {
+        if (!value?.services) return
+
+        for (const service of value.services) {
           const { rows } = await getIpfsMetaData(service.info.testResultSample.split("/").pop())
           servicesTmp.push({ ...service, documentName: rows[0].metadata.name })
         }
