@@ -110,7 +110,7 @@ export default {
       immediate: true,
       handler: async function (value) {
         const servicesTmp = []
-        for (const service of value.services) {
+        for (const service of value?.services) {
           const { rows } = await getIpfsMetaData(service.info.testResultSample.split("/").pop())
           servicesTmp.push({ ...service, documentName: rows[0].metadata.name })
         }
