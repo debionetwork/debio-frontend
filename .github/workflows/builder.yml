@@ -84,7 +84,6 @@ jobs:
           VUE_APP_DEBIO_SUBSTRATE_WS=${{ secrets.VUE_APP_DEBIO_SUBSTRATE_WS }}
           VUE_APP_WEB3_RPC=${{ secrets.VUE_APP_WEB3_RPC }}
           VUE_APP_BACKEND_API=${{ secrets.VUE_APP_BACKEND_API }}
-          VUE_APP_ETHERSCAN=${{ secrets.VUE_APP_ETHERSCAN }}
           VUE_APP_DEBIO_API_KEY=${{ secrets.VUE_APP_DEBIO_API_KEY }}
           VUE_APP_USERNAME=${{ secrets.VUE_APP_USERNAME }}
           VUE_APP_PASSWORD=${{ secrets.VUE_APP_PASSWORD }}
@@ -94,6 +93,7 @@ jobs:
           VUE_APP_PINATA_KEY=${{ secrets.VUE_APP_PINATA_KEY }}
           VUE_APP_PINATA_SECRET_KEY=${{ secrets.VUE_APP_PINATA_SECRET_KEY }}
           VUE_APP_PINATA_JWT_KEY=${{ secrets.VUE_APP_PINATA_JWT_KEY }}
+          VUE_APP_PINATA_REQUIRED_DOCUMENT=${{ secrets.VUE_APP_PINATA_REQUIRED_DOCUMENT }}
           EOF
       - name: create contract.json file
         if: ${{ needs.compute-build-info.outputs.environment == 'mainnet' }}
