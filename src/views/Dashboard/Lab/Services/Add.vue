@@ -48,6 +48,7 @@
                           prepend-icon="mdi-camera"
                           accept="image/*" 
                           ref="fileInput"
+                          :disabled="isLoading"
                           @change="imageUploadEventListener" />
                       </v-avatar>
 
@@ -59,7 +60,7 @@
                     v-model="document.category"
                     outlined
                     :items="listCategories"
-                    :disabled="hasServicePayload"
+                    :disabled="hasServicePayload || isLoading"
                     item-text="service_categories"
                     item-value="service_categories"
                     :rules="fieldRequiredRule"
@@ -74,6 +75,7 @@
                     :items="dnaCollectionProcessList"
                     item-text="dnaCollectionProcess"
                     item-value="dnaCollectionProcess"
+                    :disabled="isLoading"
                     :rules="fieldRequiredRule"
                     ></v-select>
 
@@ -83,6 +85,7 @@
                       placeholder="Service Name"
                       outlined
                       v-model="document.name"
+                      :disabled="isLoading"
                       :rules="[...fieldRequiredRule, ...serviceNameRules, ...fieldEnglishRules]"
                     ></v-text-field>
 
@@ -97,7 +100,7 @@
                           v-model="document.currency"
                           :items="currencyList"
                           :rules="fieldRequiredRule"
-                          :disabled="hasServicePayload"
+                          :disabled="hasServicePayload || isLoading"
                           ></v-select>
                         </v-col>
                         <v-col>
@@ -110,12 +113,13 @@
                             type="number"
                             min="0"
                             step=".001"
+                            :disabled="isLoading"
                             :rules="[...fieldRequiredRule, ...decimalRule]"
                           ></v-text-field>
                         </v-col>
                         <v-col>
                           <v-select
-                          :disabled="isBiomedical || hasServicePayload"
+                          :disabled="isBiomedical || hasServicePayload ||isLoading"
                           label="QC Currency"
                           outlined
                           dense
@@ -126,7 +130,7 @@
                         </v-col>
                         <v-col>
                           <v-text-field
-                            :disabled="isBiomedical"
+                            :disabled="isBiomedical || isLoading"
                             dense
                             label="QC Price"
                             placeholder="e.g. 20.005"
@@ -151,6 +155,7 @@
                       placeholder="Short Description"
                       outlined
                       v-model="document.description"
+                      :disabled="isLoading"
                       :rules="[...fieldRequiredRule, ...descriptionRules, ...fieldEnglishRules]"
                     ></v-text-field>
                     
@@ -165,6 +170,7 @@
                           outlined
                           type="number"
                           v-model="document.duration"
+                          :disabled="isLoading"
                           :rules="fieldRequiredRule"
                         ></v-text-field>
                       </v-col>
@@ -174,6 +180,7 @@
                           outlined
                           dense
                           v-model="document.durationType"
+                          :disabled="isLoading"
                           :items="listExpectedDuration"
                           :rules="fieldRequiredRule"
                         ></v-select>
@@ -186,10 +193,12 @@
                       placeholder="Long Description"
                       outlined
                       v-model="document.longDescription"
+                      :disabled="isLoading"
                       :rules="[...fieldRequiredRule, ...longDescriptionRules, ...fieldEnglishRules]"
                     ></v-textarea>
 
                     <v-file-input
+                      :disabled="isLoading"
                       :rules="fileInputRules"
                       accept=".pdf"
                       dense
