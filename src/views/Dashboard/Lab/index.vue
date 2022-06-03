@@ -66,11 +66,22 @@ export default {
   components: {
     OrderList
   },
+  
+  watch: {
+    async lastEventData(val) {
+      if (val !== null) {
+        if (val.method === "LabStakeSuccessful") return
+
+        await this.$store.dispatch("substrate/getLabAccount")
+      }
+    }
+  },
 
   computed: {
     ...mapState({
       isServicesExist: (state) => state.substrate.isServicesExist,
-      labAccount: (state) => state.substrate.labAccount
+      labAccount: (state) => state.substrate.labAccount,
+      lastEventData: (state) => state.substrate.lastEventData
     }),
 
     verificationStatus() {
