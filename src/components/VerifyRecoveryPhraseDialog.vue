@@ -107,7 +107,9 @@ export default {
       }
     },
     addMnemonicCollectionTextbox(mnemonic) {
-      this.shuffledMnemonic = this.shuffledMnemonic.filter(m => m !== mnemonic)
+      const index = this.shuffledMnemonic.indexOf(mnemonic)
+      this.shuffledMnemonic.splice(index, 1)
+
       if(this.mnemonicCollection.length < 12){
         this.mnemonicCollection.push(mnemonic)
 
