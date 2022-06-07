@@ -56,7 +56,7 @@
                         <Button @click="showDialog = false" elevation="2" color="purple" dark>No</Button>
                      </v-col>
                      <v-col col="12" md="6">
-                        <Button @click="deleteService" elevation="2"  dark>Yes</Button>
+                        <Button @click="handleDeleteService" elevation="2"  dark>Yes</Button>
                      </v-col>
                   </template>
                </Dialog>
@@ -101,7 +101,7 @@
                   </template>
 
                   <template v-slot:[`item.info.price`]="{ item }">
-                     <span> {{ formatPrice(item.info.price) }} </span>
+                     <span> {{ formatPrice(item.info.pricesByCurrency) }} </span>
                   </template>
 
                   <template v-slot:[`item.actions`]="{ item }">
@@ -230,9 +230,9 @@ export default {
     },
 
     formatPrice(price) {
-      const priceAndCurrency = price.replaceAll(",", "").split(" ")
-      const formatedPrice = this.web3.utils.fromWei(String(priceAndCurrency[0], "ether"))
-      return `${formatedPrice} ${priceAndCurrency[1]}`
+      const priceAndCurrency = price[0].totalPrice.replaceAll(",", "").split(" ")
+      const formatedPrice = this.web3.utils.fromWei(String(priceAndCurrency, "ether"))
+      return `${formatedPrice} ${price[0].currency}`
     },
 
     isIcon(imageName) {
@@ -244,7 +244,7 @@ export default {
       this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
     },
 
-    async deleteService() {
+    async handleDeleteService() {
       try {
         this.isLoading = true
         await deleteService(
@@ -252,9 +252,11 @@ export default {
           this.pair,
           this.idItemDeleted
         )
+        this.showDialog = false
       } catch (error) {
         console.error(error.message)
         this.isLoading = false
+        this.showDialog = false
       }
     },
 

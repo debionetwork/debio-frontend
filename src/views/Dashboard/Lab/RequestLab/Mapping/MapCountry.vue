@@ -209,6 +209,12 @@ export default {
       this.$emit("openList", false, country)
     },
 
+    koreaFilter(name) {
+      if (name === "Dem. Rep. Korea") return "North Korea"
+      else if (name === "Korea") return "South Korea"
+      else return name
+    },
+
     createTooltip({ country, totalValue = { dbio: 0 }, totalRequests }) {
       return `
         <h3 class="tooltip__header">${country}</h3>
@@ -313,7 +319,10 @@ export default {
       }
 
       const countryColorScale = val => {
-        const country = val.properties.name
+        let country
+
+        country = context.koreaFilter(val.properties.name)
+
         let colorIndex = 0
         const colors = ["#FFFFFF", "#ACDFE3", "#5DC9CC", "#079DAB", "#FDD07D", "#F7C192", "#D9442C"]
 
@@ -351,8 +360,11 @@ export default {
             });
 
             context.countries = countries.features.map(map => {
-              const country = { name: map.properties.name }
-              const service = serviceRequestByCountry[map.properties.name]
+              let country
+
+              country = { name: context.koreaFilter(map.properties.name) }
+
+              const service = serviceRequestByCountry[country.name]
 
               if (service !== undefined) country.services = service.services
 
@@ -375,7 +387,7 @@ export default {
           .attr("class", "country")
           .attr("d", pathGenerator)
           .attr("fill", d => countryColorScale(d))
-          .attr("id", (d) => convertSLug(d.properties.name))
+          .attr("id", (d) => convertSLug(context.koreaFilter(d.properties.name)))
           .on("mouseenter", function(e) {
             d3.selectAll(".country")
               .transition()
@@ -386,7 +398,10 @@ export default {
               .duration(200)
               .style("opacity", 1)
 
-            const country = e.target.__data__.properties.name
+            let country
+
+            country = context.koreaFilter(e.target.__data__.properties.name)
+
             if (serviceRequestByCountry[country] != undefined) {
               const { totalRequests, totalValue } = serviceRequestByCountry[country]
               return tooltip
@@ -418,7 +433,8 @@ export default {
               ? country.properties.name
               : null
 
-            context.searchQuery = country.properties.name
+            context.searchQuery = context.koreaFilter(country.properties.name)
+
             boxZoom(
               pathGenerator.bounds(country),
               pathGenerator.centroid(country),
