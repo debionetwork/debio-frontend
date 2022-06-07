@@ -362,10 +362,7 @@ export default {
     phoneNumberRules() {
       return [
         (val) => !!val || "This field is required",
-        englishAlphabet,
-        (val) =>
-          /^\+?([0-9]{2})\)?[-. ]?([0-9]{4})[-. ]?([0-9]{4})$/.test(val) ||
-          "This field can only contain number"
+        (val) => /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s./0-9]*$/.test(val) || "This field can only contain number"
       ]
     },
 

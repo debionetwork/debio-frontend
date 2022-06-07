@@ -62,8 +62,8 @@ export async function getBalanceETH(address) {
     const web3 = store.getters["metamask/getWeb3"]
     let balance = await web3.eth.getBalance(address);
     let ethBalance = web3.utils.fromWei(balance, "ether");
-    var decimalIndex = balance.indexOf(".") + 1;
-    var digits = 7;
+    let decimalIndex = balance.indexOf(".") + 1;
+    let digits = 7;
     ethBalance = ethBalance.substring(0, decimalIndex != -1 ? decimalIndex + digits : ethBalance.length);
 
     return ethBalance;
