@@ -287,10 +287,7 @@ export default {
     isLoading: false,
     showModalAlert: false,
     currencyList: ["DAI", "ETH"],
-    listExpectedDuration: [
-      {text: "Hours", value: "Hours"},
-      {text: "Days", value: "Days"}
-    ],
+    listExpectedDuration: ["WorkingDays", "Hours", "Days"],
     dnaCollectionProcessList: [
       "Blood Cells - Dried Blood Spot Collection Process",
       "Epithelial Cells - Buccal Swab Collection Process",
@@ -301,11 +298,6 @@ export default {
     isBiomedical: false,
     fee: 0
   }),
-
-  async mounted() {
-    this.prefillValues()
-    await this.getServiceCategory()
-  },
 
   computed: {
     ...mapState({
@@ -365,8 +357,10 @@ export default {
 
   },
 
-  created() {
+  async created() {
     this.validate()
+    this.prefillValues()
+    await this.getServiceCategory()
   },
 
   methods: {
@@ -468,11 +462,13 @@ export default {
       const {
         category,
         currency,
+        currencyType,
         serviceFlow
       } = this.servicePayload
 
+
       this.document.category = category
-      this.document.currency = currency
+      this.document.currency = currency || currencyType
       this.document.serviceFlow = serviceFlow
     },
 

@@ -28,7 +28,7 @@
               <div class="d-flex mb-8 justify-space-between">
                 <b class="secondary--text card-header">Order Detail</b>
                 <b class="secondary--text h6">
-                  {{ this.createdAt | timestampToDate }}
+                  {{ createdAt | timestampToDate }}
                 </b>
               </div>
               <div class="d-flex justify-space-between">
@@ -43,10 +43,10 @@
                   </div>
                   <div class="ml-5">
                     <div style="">
-                      <b>{{ this.serviceName }}</b>
+                      <b>{{ serviceName }}</b>
                     </div>
                     <div class="text-caption grey--text text--darken-1">
-                      {{ this.serviceDescription.substring(0, 60) }}...
+                      {{ serviceDescription.substring(0, 60) }}...
                     </div>
                   </div>
                 </div>
@@ -55,7 +55,7 @@
                     <b>Customer Account Number</b>
                   </div>
                   <div class="text-caption grey--text text--darken-1">
-                    {{ this.customerEthAddress }}
+                    {{ customerEthAddress }}
                   </div>
                 </div>
               </div>
@@ -65,7 +65,7 @@
                     <b>Specimen Number</b>
                   </div>
                   <div class="text-caption grey--text text--darken-1">
-                    {{ this.specimenNumber }}
+                    {{ specimenNumber }}
                   </div>
                 </div>
                 <div class="mt-2 ml-5" style="max-width: 50%;">
@@ -73,7 +73,7 @@
                     <b>Escrow Address</b>
                   </div>
                   <div class="text-caption grey--text text--darken-1">
-                    {{ this.configApp.escrowETHAddress }}
+                    {{ configApp.escrowETHAddress }}
                   </div>
                 </div>
               </div>
@@ -202,7 +202,7 @@ export default {
         }
         const order = await getOrdersDetail(this.api, this.orderId);
         const serviceInfo = await queryServicesById(this.api, order.serviceId);
-        const testResult = await queryDnaTestResults(this.api, this.specimenNumber);
+        const testResult = await queryDnaTestResults(this.api, order.dnaSampleTrackingId);
 
         this.dnaCollectionProcess = serviceInfo.info.dnaCollectionProcess;
         if (this.dnaCollectionProcess.includes("Covid")) {
@@ -224,6 +224,7 @@ export default {
         this.specimenNumber = order.dnaSampleTrackingId;
         this.specimenStatus = order.dna_sample_status;
         if (testResult) this.testResult = testResult;
+
         this.setCheckboxByDnaStatus();
 
       } catch (err) {

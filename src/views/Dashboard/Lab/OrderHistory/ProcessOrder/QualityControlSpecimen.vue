@@ -128,7 +128,7 @@
                         outlined
                         label="Description"
                         v-model="rejectionDescription"
-                        :rules="[val => !!val || 'This field is required', val => (val && val.length <= 500) || 'This field only allows 500 characters']"
+                        :rules="rejectionDescRules"
                     ></v-textarea>
                 </v-form>
             </template>
@@ -270,16 +270,15 @@ export default {
     }
   },
 
-  async mounted() {
+  async created() {
     await this.setStatus()
-    await this.getFee()
-    
+
     try {
       const dnaSample = await queryDnaSamples(this.api, this.specimenNumber)
-      if (dnaSample) {
-        this.rejectionTitle = dnaSample.rejected_title
-        this.rejectionDescription = dnaSample.rejected_description
-      }
+      if (dnaSample?.status !== "Rejected") await this.getFee()
+
+      this.rejectionTitle = dnaSample?.rejectedTitle
+      this.rejectionDescription = dnaSample?.rejectedDescription
     } catch (err) {
       console.log(err)
     }

@@ -21,7 +21,7 @@
         <b>Tap the words to put them next to each other in the correct order</b>
         <MnemonicTextbox
             :mnemonicCollection="mnemonicCollectionTextbox"
-            @mnemonic-index-remove="({ idx }) => removeMnemonicCollectionTextbox(idx)"
+            @mnemonic-index-remove="({ idx, mnemonic }) => removeMnemonicCollectionTextbox(idx, mnemonic)"
         ></MnemonicTextbox>
         <span style="color: #F92020" v-if="mnemonicError">{{ errorMessages.INCORRECT("mnemonic") }}</span>
         <MnemonicKeypad
@@ -98,7 +98,8 @@ export default {
     }
   },
   methods: {
-    removeMnemonicCollectionTextbox(idx) {
+    removeMnemonicCollectionTextbox(idx, mnemonic) {
+      if (mnemonic.trim() !== "") this.shuffledMnemonic.push(mnemonic)
       this.mnemonicCollection = removeArrayByIndex(this.mnemonicCollection, idx)
       this.mnemonicCollectionTextbox = []
       for(let i = 0; i < this.mnemonicCollection.length; i++){
@@ -106,6 +107,7 @@ export default {
       }
     },
     addMnemonicCollectionTextbox(mnemonic) {
+      this.shuffledMnemonic = this.shuffledMnemonic.filter(m => m !== mnemonic)
       if(this.mnemonicCollection.length < 12){
         this.mnemonicCollection.push(mnemonic)
 

@@ -11,7 +11,6 @@ describe("Dashboard Lab Index", () => {
   beforeEach(() => {
     localVue = createLocalVue()
     localVue.use(Vuex)
-    localVue.use(Vuetify)
   })
 
   afterEach(() => {
@@ -19,7 +18,6 @@ describe("Dashboard Lab Index", () => {
   })
 
   it("Should render", () => {
-    // Arrange
     const labDashboard = _.cloneDeep(Lab)
     labDashboard.created = jest.fn()
     labDashboard.mounted = jest.fn()

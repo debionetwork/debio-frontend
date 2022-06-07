@@ -365,9 +365,7 @@ export default {
         englishAlphabet,
         (val) =>
           /^\+?([0-9]{2})\)?[-. ]?([0-9]{4})[-. ]?([0-9]{4})$/.test(val) ||
-          "This field can only contain number",
-        (val) =>
-          (val && val.length <= 12) || "This field only allows 12 characters"
+          "This field can only contain number"
       ]
     },
 
