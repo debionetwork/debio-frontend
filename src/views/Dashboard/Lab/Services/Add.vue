@@ -287,10 +287,7 @@ export default {
     isLoading: false,
     showModalAlert: false,
     currencyList: ["DAI", "ETH"],
-    listExpectedDuration: [
-      {text: "Hours", value: "Hours"},
-      {text: "Days", value: "Days"}
-    ],
+    listExpectedDuration: ["WorkingDays", "Hours", "Days"],
     dnaCollectionProcessList: [
       "Blood Cells - Dried Blood Spot Collection Process",
       "Epithelial Cells - Buccal Swab Collection Process",
