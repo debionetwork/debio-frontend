@@ -434,6 +434,7 @@ export default {
         },
         callback
       )
+      this.$emit("resultUploaded")
     },
 
     async sendTestResult() {
@@ -540,7 +541,6 @@ export default {
 
             context.submitTestResultDocument(() => {
               context.loading[file.fileType] = false
-              context.$emit("resultUploaded")
             })
           }
         } catch (err) {

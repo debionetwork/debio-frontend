@@ -168,8 +168,6 @@ export default {
     cancelledOrderDialog: false,
     showRejectDialog: false,
     showResultDialog: false,
-    genomeFile: "",
-    reportFile: "",
     isSubmitted: false,
     stepperItems: [
       { name: "Received", selected: false },
@@ -189,7 +187,7 @@ export default {
     }
   },
 
-  async mounted() {
+  async created() {
     await this.prefillOrder()
   },
 
@@ -249,7 +247,7 @@ export default {
         this.onQcCompleted();
       }
       
-      if (this.testResult) {
+      if (this.testResult?.reportLink && this.testResult?.resultLink) {
         this.setUploadFields(this.testResult);
       }
 
