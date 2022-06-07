@@ -299,11 +299,6 @@ export default {
     fee: 0
   }),
 
-  async mounted() {
-    this.prefillValues()
-    await this.getServiceCategory()
-  },
-
   computed: {
     ...mapState({
       servicePayload: (state) => state.lab.providePayload,
@@ -362,8 +357,10 @@ export default {
 
   },
 
-  created() {
+  async created() {
     this.validate()
+    this.prefillValues()
+    await this.getServiceCategory()
   },
 
   methods: {
@@ -465,11 +462,13 @@ export default {
       const {
         category,
         currency,
+        currencyType,
         serviceFlow
       } = this.servicePayload
 
+
       this.document.category = category
-      this.document.currency = currency
+      this.document.currency = currency || currencyType
       this.document.serviceFlow = serviceFlow
     },
 
