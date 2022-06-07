@@ -128,18 +128,13 @@ export async function fetchOrderHistory(api, address) {
     if(orderDetail["status"] == "Cancelled") continue // Skip cancelled orders
 
     const dna = await queryDnaSamples(api, orderDetail.dnaSampleTrackingId)
-    if (dna) orderDetail["dna_sample_status"] = dna.status
-
     const service = await queryServicesById(api, orderDetail.serviceId)
+    const lab = await queryLabsById(api, orderDetail.sellerId)
+    orderDetail["dna_sample_status"] = dna?.status
     orderDetail["createdAt"] = parseInt(orderDetail.createdAt.replace(/,/g, ""))
-    
-    let lab = null
-    if (service) {
-      orderDetail["service_name"] = service.info.name
-      orderDetail["service_image"] = service.info.image
-      lab = await queryLabsById(api, service.ownerId)
-    }
-    if (lab) orderDetail["lab_name"] = lab.info.name
+    orderDetail["service_name"] = service?.info?.name
+    orderDetail["service_image"] = service?.info?.image
+    orderDetail["lab_name"] = lab?.info?.name || "Unknown Lab"
 
     orders.push(orderDetail)
   }

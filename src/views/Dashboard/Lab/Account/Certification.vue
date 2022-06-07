@@ -91,7 +91,14 @@
                             width="2"
                             color="warning"
                           ></v-progress-circular>
-                          <v-icon class="mx-1" :disabled="labAccount.certifications.length === 1 && labAccount.verificationStatus === 'Verified'" small @click="showDelete(cert)">mdi-delete</v-icon>
+                          <v-tooltip bottom>
+                          <template v-slot:activator="{ on, attrs }">
+                            <div v-bind="attrs" v-on="on">
+                              <v-icon class="mx-1" :disabled="labAccount.certifications.length === 1 && labAccount.verificationStatus === 'Verified'" small @click="showDelete(cert)">mdi-delete</v-icon>
+                             </div>
+                           </template>
+                           <span>You need to have at least 1 Certification</span>
+                        </v-tooltip>
                         </div>
                       </div>
                       <div>{{ cert.info.month }} {{ cert.info.year }} • {{ cert.info.issuer }}</div>
