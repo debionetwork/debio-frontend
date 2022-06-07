@@ -65,12 +65,20 @@ export default {
   computed: {
     ...mapState({
       walletBalance: (state) => state.substrate.walletBalance,
+      lastEventData: (state) => state.substrate.lastEventData,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet
     })
   },
-  mounted() {
-    this.getOrderHistory()
+  watch: {
+    lastEventData: async function (val) {
+      const dataEvent = JSON.parse(val.data.toString())
+
+      if (val.method === "OrderPaid" && dataEvent[0].sellerId === this.wallet.address) await this.getOrderHistory()
+    }
+  },
+  async created() {
+    await this.getOrderHistory()
   },
   data: () => ({
     orderHistory: [],
@@ -79,6 +87,7 @@ export default {
   }),
   methods: {
     async getOrderHistory() {
+      this.preparedOrderHistory = []
       this.isLoadingOrderHistory = true
       try {
         const address = this.wallet.address
