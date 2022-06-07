@@ -1,15 +1,6 @@
 <template>
   <v-dialog :value="_show" width="500" persistent>
     <v-card class="pb-5">
-      <v-app-bar flat dense color="white">
-        <v-toolbar-title class="title">
-          Connect To Your Wallet
-        </v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-btn icon @click="closeDialog">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </v-app-bar>
       <hr />
       <div v-if="loading">
         <div class="mt-10 mb-10" align="center">
@@ -205,13 +196,15 @@ export default {
         this.isLoading = false;
       }
     },
+
+    lastEventData() {
+      if(this.lastEventData) {
+        this.loading = false
+      }
+    }
   },
   mounted() {},
   methods: {
-    ...mapMutations({
-      setMetamaskAddress: "metamask/SET_WALLET_ADDRESS",
-    }),
-
     async setWalllet(walletName) {
       this.error = "";
       this.loading = true;
@@ -249,7 +242,6 @@ export default {
           }
           break;
       }
-      this.loading = false;
     },
     async setAccount(account) {
       this.selectAccount = account;
@@ -272,7 +264,6 @@ export default {
         const ethAddress = this.selectAccount.address
 
         await this.$store.dispatch("wallet/walletBinding", {accountId, ethAddress});
-        this.setMetamaskAddress(this.selectAccount.address);
         this.$emit("status-wallet", {
           status: true,
           img: "metamask-account-connected.png",
