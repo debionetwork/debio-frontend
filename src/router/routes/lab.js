@@ -50,7 +50,7 @@ const labRoutes = [
         },
         component: () => import(/* webpackChunkName */ "@/views/Dashboard/Lab/Registration"),
         beforeEnter: (to, from, next) => {
-          if(store.state.substrate.isLabAccountExist) next("/lab/registration/services")
+          if (store.state.substrate.isLabAccountExist && store.state.substrate.labAccount.certifications.length) next("/lab/registration/services")
           else next()
         }
       },
@@ -66,7 +66,7 @@ const labRoutes = [
         },
         component: () => import(/* webpackChunkName */ "@/views/Dashboard/Lab/Registration/Services"),
         beforeEnter: (to, from, next) => {
-          if(!store.state.substrate.isLabAccountExist) next("/lab/registration")
+          if (!store.state.substrate.isLabAccountExist || !store.state.substrate.labAccount.certifications.length) next("/lab/registration")
           else next()
         }
       },
