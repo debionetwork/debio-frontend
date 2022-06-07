@@ -21,7 +21,8 @@ const apiClientRequest = axios.create({
 })
 
 const responseValidation = (response) => {
-  if (String(response?.status)[0] === "4" || String(response?.status)[0] === "5") {
+  if (response?.status === 503) VueRouter.push({ name: "maintenance" })
+  else if (String(response?.status)[0] === "4" || String(response?.status)[0] === "5") {
     VueRouter.push({ query: { error: true } })
   }
 }
@@ -29,7 +30,7 @@ const responseValidation = (response) => {
 apiClientRequest.interceptors.response.use(
   response => {
     responseValidation(response)
-    
+
     return response;
   },
   error => {
