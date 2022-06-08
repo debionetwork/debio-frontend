@@ -271,7 +271,7 @@ export default {
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import "../../../../styles/variables.scss";
 
 .Sending {
@@ -290,4 +290,7 @@ export default {
   background-color: $color-status-reject !important;
 }
 
+.degenics-data-table tbody td * {
+  max-height: unset;
+}
 </style>
