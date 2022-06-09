@@ -226,7 +226,7 @@ export default {
               const balance = await getBalanceDAI(
                 this.ethAccount.accountList[x]
               );
-              var lastAddr = this.ethAccount.accountList[x].substr(
+              let lastAddr = this.ethAccount.accountList[x].substr(
                 this.ethAccount.accountList[x].length - 4
               );
               let isActive = false;

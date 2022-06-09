@@ -1,7 +1,7 @@
 export async function queryServicesById(api, serviceId){
   let res = (await api.query.services.services(serviceId))
     .toHuman()
-  res.info.price = `${res.info.pricesByCurrency[0].totalPrice} ${res.info.pricesByCurrency[0].currency}`
+
   return res
 }
 
