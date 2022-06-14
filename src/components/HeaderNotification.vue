@@ -83,7 +83,7 @@
 </template>
 
 <script>
-import { mapState, mapMutations, mapActions } from "vuex";
+import { mapState, mapActions } from "vuex";
 
 export default {
   name: "HeaderNotification",
@@ -106,9 +106,6 @@ export default {
     showDialog: false
   }),
   methods: {
-    ...mapMutations({
-      setMetamaskAddress: "metamask/SET_WALLET_ADDRESS"
-    }),
     ...mapActions({
       clearAuth: "auth/clearAuth"
     }),
