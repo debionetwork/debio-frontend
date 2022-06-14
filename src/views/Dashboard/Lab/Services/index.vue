@@ -292,7 +292,7 @@ export default {
 
     async confirmDeleteService(item) {
       const { data } = await getOrdersData(this.pair.address, null, null, null)
-      const hasActiveOrder = data?.some(order => order._source.status === "Paid")
+      const hasActiveOrder = data?.some(order => order._source.status === "Paid" && order._source.service_id === item.id)
       if (hasActiveOrder) {
         this.showActiveOrder = true
         return
