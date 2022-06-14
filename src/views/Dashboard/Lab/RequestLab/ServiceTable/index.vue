@@ -388,6 +388,14 @@ td:not(.v-data-table__expanded__content td):first-child {
   color: #363636 !important;
 }
 
+.degenics-data-table tbody td * {
+  max-height: unset;
+}
+
+.expanded > .degenics-data-table tbody tr:first-child > td {
+  padding-top: 1rem;
+}
+
 tr {
   cursor: pointer;
 }
