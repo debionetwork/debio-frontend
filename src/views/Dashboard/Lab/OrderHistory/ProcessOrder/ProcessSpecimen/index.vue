@@ -356,7 +356,7 @@ export default {
 
     genomeFileRules() {
       return [
-        value => !value || value.type == "text/x-vcard" || value.type == "text/vcard" || "The files uploaded are not in the supported file formats (VCF)",
+        value => !value || value.type == "text/x-vcard" || value.type == "text/vcard" || value.type == "text/directory" || "The files uploaded are not in the supported file formats (VCF)",
         value => !value || value.size < 2000000 || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
       ]
     },
