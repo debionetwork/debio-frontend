@@ -8,7 +8,7 @@
       <v-app-bar flat dense color="white">
         <v-toolbar-title class="title d-flex justify-space-between align-center" style="width: 100%;">
           <slot name="title"></slot>
-          <v-btn v-if="$listeners && $listeners.close" icon @click="closeDialog">
+          <v-btn v-if="showClose && $listeners && $listeners.close" icon @click="closeDialog">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-toolbar-title>
@@ -29,6 +29,7 @@ export default {
   name: "Dialog",
   props: {
     show: Boolean,
+    showClose: { type: Boolean, default: true },
     width: Number
   },
   methods: {
