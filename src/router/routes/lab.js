@@ -17,29 +17,16 @@ const labRoutes = [
             { text: "Orders", disabled: true }
           ]
         },
-        component: () => import(/* webpackChunkName */ "@/views/Dashboard/Lab"),
+        component: () => import(/* webpackChunkName */ "@/views/Dashboard/Lab")
+      },
+      {
+        path: "maintenance",
+        name: "maintenance",
+        meta: { pageHeader: "Maintenance" },
+        component: () => import(/* webpackChunkName */ "@/views/maintenancePageLayout"),
         beforeEnter: (to, from, next) => {
-          // Set drawer buttons here to make it dynamic :)
-          if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified"
-          ) {
-            to.meta.drawerButtons = [
-              { text: "Dashboard", active: true, disabled: false, route: { name: "lab-dashboard" } },
-              { text: "Account" },
-              { text: "Services" },
-              { text: "Order" },
-              { text: "Customer Care", href: "https://docs.debio.network/" }
-            ]
-          }
-          else{
-            to.meta.drawerButtons = [
-              { text: "Dashboard", active: true, disabled: false, route: { name: "lab-dashboard" } },
-              { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
-              { text: "Services", disabled: false, route: { name: "lab-dashboard-services" } },
-              { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
-              { text: "Customer Care", href: "https://docs.debio.network/" }
-            ]
-          }
-          next()
+          if (from.path === "/") next({ name: "lab-dashboard" })
+          else next()
         }
       },
       {
@@ -50,17 +37,10 @@ const labRoutes = [
           breadcrumbs: [
             { text: "Lab", href: "/lab" },
             { text: "Account", disabled: true }
-          ],
-          drawerButtons: [
-            { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
-            { text: "Account", active: true, disabled: false, route: { name: "lab-dashboard-account" } },
-            { text: "Services", disabled: false, route: { name: "lab-dashboard-services" } },
-            { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
-            { text: "Customer Care", href: "https://docs.debio.network/" }
           ]
         },
         beforeEnter: (to, from, next) => {
-          if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
+          if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus !== "Verified") {
             next("/lab")
           }
 
@@ -76,18 +56,11 @@ const labRoutes = [
           breadcrumbs: [
             { text: "Lab", href: "/lab" },
             { text: "Registration", disabled: true }
-          ],
-          drawerButtons: [
-            { text: "Dashboard", active: true, disabled: false, route: { name: "lab-dashboard" } },
-            { text: "Account" },
-            { text: "Services" },
-            { text: "Order" },
-            { text: "Customer Care", href: "https://docs.debio.network/" }
           ]
         },
         component: () => import(/* webpackChunkName */ "@/views/Dashboard/Lab/Registration"),
         beforeEnter: (to, from, next) => {
-          if(store.state.substrate.isLabAccountExist) next("/lab/registration/services")
+          if (store.state.substrate.isLabAccountExist && store.state.substrate.labAccount.certifications.length) next("/lab/registration/services")
           else next()
         }
       },
@@ -99,43 +72,14 @@ const labRoutes = [
           breadcrumbs: [
             { text: "Lab", href: "/lab" },
             { text: "Registration", disabled: true }
-          ],
-          drawerButtons: [
-            { text: "Dashboard", active: true, disabled: false, route: { name: "lab-dashboard" } },
-            { text: "Account" },
-            { text: "Services" },
-            { text: "Order" },
-            { text: "Customer Care", href: "https://docs.debio.network/" }
           ]
         },
         component: () => import(/* webpackChunkName */ "@/views/Dashboard/Lab/Registration/Services"),
         beforeEnter: (to, from, next) => {
-          if(!store.state.substrate.isLabAccountExist) next("/lab/registration")
+          if (!store.state.substrate.isLabAccountExist || !store.state.substrate.labAccount.certifications.length) next("/lab/registration")
           else next()
         }
       },
-      // {
-      //     path: '/lab/registration/verification',
-      //     name: 'lab-registration-verification',
-      //     meta: {
-      //         pageHeader: 'Lab Verification',
-      //         breadcrumbs: [
-      //             { text: 'Lab', href: '/lab' },
-      //             { text: 'Registration', disabled: true }
-      //         ],
-      //         drawerButtons: [
-      //           { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
-      //           { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
-      //           { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-services" } },
-      //           { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
-      //           { text: "Dashboard", active: true, disabled: false, route: { name: "lab-dashboard" } },
-      //           { text: "Account" },
-      //           { text: "Services" },
-      //           { text: "Order" },
-      //         ]
-      //     },
-      //     component: () => import(/* webpackChunkName */ '@/views/Dashboard/Lab/Registration/Verification')
-      // },
       {
         path: "/lab/services",
         name: "lab-dashboard-services",
@@ -144,17 +88,10 @@ const labRoutes = [
           breadcrumbs: [
             { text: "Lab", href: "/lab" },
             { text: "Services", disabled: true }
-          ],
-          drawerButtons: [
-            { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
-            { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
-            { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-services" } },
-            { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
-            { text: "Customer Care", href: "https://docs.debio.network/" }
           ]
         },
         beforeEnter: (to, from, next) => {
-          if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
+          if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus !== "Verified") {
             next("/lab")
           }
 
@@ -171,17 +108,10 @@ const labRoutes = [
             { text: "Lab", href: "/lab" },
             { text: "Services", href: "/lab/services" },
             { text: "Add Services", disabled: true }
-          ],
-          drawerButtons: [
-            { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
-            { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
-            { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-services" } },
-            { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
-            { text: "Customer Care", href: "https://docs.debio.network/" }
           ]
         },
         beforeEnter: (to, from, next) => {
-          if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
+          if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus !== "Verified") {
             next("/lab")
           }
 
@@ -198,17 +128,10 @@ const labRoutes = [
             { text: "Lab", href: "/lab" },
             { text: "Services", href: "/lab/services" },
             { text: "Services Detail", disabled: true }
-          ],
-          drawerButtons: [
-            { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
-            { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
-            { text: "Services", active: true, disabled: false, route: { name: "lab-dashboard-services" } },
-            { text: "Order", disabled: false, route: { name: "lab-dashboard-order-history" } },
-            { text: "Customer Care", href: "https://docs.debio.network/" }
           ]
         },
         beforeEnter: (to, from, next) => {
-          if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
+          if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus !== "Verified") {
             next("/lab")
           }
 
@@ -224,17 +147,10 @@ const labRoutes = [
           breadcrumbs: [
             { text: "Lab", href: "/lab" },
             { text: "Orders", disabled: true }
-          ],
-          drawerButtons: [
-            { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
-            { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
-            { text: "Services", disabled: false, route: { name: "lab-dashboard-services" } },
-            { text: "Order", active: true, disabled: false, route: { name: "lab-dashboard-order-history" } },
-            { text: "Customer Care", href: "https://docs.debio.network/" }
           ]
         },
         beforeEnter: (to, from, next) => {
-          if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
+          if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus !== "Verified") {
             next("/lab")
           }
 
@@ -251,17 +167,10 @@ const labRoutes = [
             { text: "Lab", href: "/lab" },
             { text: "Orders", href: "/lab/orders" },
             { text: "Process Order", disabled: true }
-          ],
-          drawerButtons: [
-            { text: "Dashboard", disabled: false, route: { name: "lab-dashboard" } },
-            { text: "Account", disabled: false, route: { name: "lab-dashboard-account" } },
-            { text: "Services", disabled: false, route: { name: "lab-dashboard-services" } },
-            { text: "Order", active: true, disabled: false, route: { name: "lab-dashboard-order-history" } },
-            { text: "Customer Care", href: "https://docs.debio.network/" }
           ]
         },
         beforeEnter: (to, from, next) => {
-          if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus === "Unverified") {
+          if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus !== "Verified") {
             next("/lab")
           }
 

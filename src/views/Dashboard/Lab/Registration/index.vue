@@ -309,7 +309,7 @@ export default {
     phoneNumberRules() {
       return [
         val => !!val || "This field is required",
-        val => /^\+?([0-9]{10,15})$/.test(val) || "This field can only contain number"
+        val => /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s./0-9]*$/.test(val) || "This field can only contain number"
       ]
     },
 

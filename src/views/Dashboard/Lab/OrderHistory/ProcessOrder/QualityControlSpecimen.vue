@@ -270,16 +270,15 @@ export default {
     }
   },
 
-  async mounted() {
+  async created() {
     await this.setStatus()
-    await this.getFee()
-    
+
     try {
       const dnaSample = await queryDnaSamples(this.api, this.specimenNumber)
-      if (dnaSample) {
-        this.rejectionTitle = dnaSample.rejected_title
-        this.rejectionDescription = dnaSample.rejected_description
-      }
+      if (dnaSample?.status !== "Rejected") await this.getFee()
+
+      this.rejectionTitle = dnaSample?.rejectedTitle
+      this.rejectionDescription = dnaSample?.rejectedDescription
     } catch (err) {
       console.log(err)
     }
