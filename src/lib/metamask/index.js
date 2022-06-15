@@ -21,6 +21,7 @@ export async function connectToMetamask() {
     let currentAccount = await handleAccountsChanged(accounts, null)
 
     window.ethereum.on("accountsChanged", (accounts) => {
+      store.commit("metamask/SET_WALLET_ADDRESS", { currentAccount: currentAccount, accountList: accounts })
       handleAccountsChanged(accounts, null)
     })
     window.ethereum.on("chainChanged", handleChainChanged)
