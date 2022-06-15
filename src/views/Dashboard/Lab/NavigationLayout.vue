@@ -69,7 +69,7 @@
 
 <script>
 import v from "voca"
-import {mapState, mapGetters, mapActions} from "vuex"
+import {mapState, mapActions} from "vuex"
 import Breadcrumbs from "@/views/Dashboard/Breadcrumbs"
 // import MenuChangeRole from "@/components/MenuChangeRole";
 import HeaderUserInfo from "@/components/HeaderUserInfo"
@@ -110,20 +110,19 @@ export default {
   }),
 
   async mounted() {
-    this.show = this.pair.isLocked
+    if (!this.mnemonicData) {
+      this.show = true
+    }
   },
 
   computed: {
-    ...mapGetters({
-      pair: "substrate/wallet"
-    }),
-
     ...mapState({
       isServicesExist: (state) => state.substrate.isServicesExist,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
       lastEventData: (state) => state.substrate.lastEventData,
-      labAccount: (state) => state.substrate.labAccount
+      labAccount: (state) => state.substrate.labAccount,
+      mnemonicData: (state) => state.substrate.mnemonicData
     }),
 
     isLab() {
