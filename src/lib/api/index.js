@@ -8,6 +8,7 @@ export * from "./location"
 export * from "./orders"
 export * from "./service-request"
 export * from "./services"
+export * from "./conversion"
 
 // AXIOS INSTANCE EXPORT BY DEFAULT
 // PLEASE DISCUSS BEFORE YOU WANT TO EDIT THIS SCRIPT
