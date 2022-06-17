@@ -126,14 +126,6 @@ export default {
         this.$router.push({ name: "lab-registration"})
       }
     }
-  },
-
-  watch: {
-    lastEventData() {
-      if(this.lastEventData) {
-        this.$router.push({ name: "lab-registration"})
-      }
-    }
   }
 }
 </script>

@@ -189,7 +189,6 @@ export default {
       if (val) {
         this.password = "";
         this.error = "";
-        this.loading = false;
         this.putAccount = false;
         this.putWallet = true;
         this.inputPassword = false;
@@ -199,44 +198,44 @@ export default {
 
     lastEventData() {
       if(this.lastEventData) {
-        this.loading = false
+        this.isLoading = false
       }
     }
   },
-  mounted() {},
+
   methods: {
     async setWalllet(walletName) {
       this.error = "";
-      this.loading = true;
       switch (walletName) {
         case "metamask":
           this.ethAccount = await startApp();
           if (this.ethAccount.currentAccount == "no_install") {
             this.error = "Please install MetaMask!";
-          } else {
-            this.accountList = [];
-            for (let x = 0; x < this.ethAccount.accountList.length; x++) {
-              const balance = await getBalanceDAI(
-                this.ethAccount.accountList[x]
-              );
-              let lastAddr = this.ethAccount.accountList[x].substr(
-                this.ethAccount.accountList[x].length - 4
-              );
-              let isActive = false;
-              if (
-                this.metamaskWalletAddress == this.ethAccount.accountList[x]
-              ) {
-                isActive = true;
-              }
-              this.accountList.push({
-                address: this.ethAccount.accountList[x],
-                lastAddr: lastAddr,
-                name: "Account " + (x + 1),
-                balance: parseFloat(balance).toFixed(2),
-                active: isActive,
-              });
+            return
+          }
+
+          this.accountList = [];
+          for (let x = 0; x < this.ethAccount.accountList.length; x++) {
+            const balance = await getBalanceDAI(
+              this.ethAccount.accountList[x]
+            );
+            let lastAddr = this.ethAccount.accountList[x].substr(
+              this.ethAccount.accountList[x].length - 4
+            );
+            let isActive = false;
+            if (
+              this.metamaskWalletAddress == this.ethAccount.accountList[x]
+            ) {
+              isActive = true;
             }
-            
+            this.accountList.push({
+              address: this.ethAccount.accountList[x],
+              lastAddr: lastAddr,
+              name: "Account " + (x + 1),
+              balance: parseFloat(balance).toFixed(2),
+              active: isActive,
+            })
+
             this.putWallet = false;
             this.putAccount = true;
           }
@@ -244,6 +243,7 @@ export default {
       }
     },
     async setAccount(account) {
+      this.loading = true
       this.selectAccount = account;
       this.putAccount = false;
       if (this.wallet.isLocked) {
@@ -252,8 +252,8 @@ export default {
         this.onSubmit();
       }
     },
+    
     async onSubmit() {
-      this.isLoading = true;
       this.error = "";
       try {
         if (this.wallet.isLocked) {
@@ -268,11 +268,10 @@ export default {
           status: true,
           img: "metamask-account-connected.png",
         });
-        this.isLoading = false;
+        this.loading = false;
         this.closeDialog();
       } catch (err) {
-        console.log(err.message);
-        this.isLoading = false;
+        this.loading = false;
         this.password = "";
         this.error = err.message;
       }

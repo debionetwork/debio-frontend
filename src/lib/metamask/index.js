@@ -24,9 +24,11 @@ export async function connectToMetamask() {
       store.commit("metamask/SET_WALLET_ADDRESS", { currentAccount: currentAccount, accountList: accounts })
       handleAccountsChanged(accounts, null)
     })
+
+    let network = await window.ethereum.request({ method: "eth_chainId"})
     window.ethereum.on("chainChanged", handleChainChanged)
 
-    return { currentAccount: currentAccount, accountList: accounts }
+    return { currentAccount: currentAccount, accountList: accounts, network }
   }
   catch (err) {
     if (err.code === 4001) {
@@ -34,6 +36,13 @@ export async function connectToMetamask() {
     }
     throw err
   }
+}
+
+export async function handleSwitchChain(id) {
+  await window.ethereum.request({
+    method: "wallet_switchEthereumChain",
+    params: [{ chainId: id }]
+  });
 }
 
 export async function startApp() {
