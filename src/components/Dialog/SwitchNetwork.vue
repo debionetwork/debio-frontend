@@ -3,9 +3,9 @@
     <v-card class=" pa-6">
       <h3 class="text-center"> Wrong Network </h3>
       <p class="text-center mt-5" > You need to connect your Metamask to 
-        <b> {{ networkName }} </b>
+        <strong> {{ networkName }} </strong>
         to use this app, currently you are connected to 
-        <b> {{ currentNetwork }} </b>
+        <strong> {{ currentNetwork }} </strong>
       </p>
 
       <Button
