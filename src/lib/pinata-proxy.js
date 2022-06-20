@@ -16,6 +16,7 @@ export const uploadFile = val => {
       keyvalues: {
         required: process.env.VUE_APP_PINATA_REQUIRED_DOCUMENT,
         type: val.type,
+        fileSize: val.size,
         date: +new Date()
       }
     },

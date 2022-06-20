@@ -284,7 +284,7 @@ export default {
       const payload = {
         category: item.services[idx].category,
         country: {
-          code: item.countryId,
+          code: item.services[idx].countryCode,
           name: item.country
         },
         city: {
