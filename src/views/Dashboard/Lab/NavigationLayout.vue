@@ -62,6 +62,13 @@
       <router-view />
     </v-main>
 
+    <SwitchNetwork
+      :show="showSwitchNetwork"
+      :networkName="networkName"
+      :currentNetwork="currentNetwork"
+      @click="switchChain"
+    ></SwitchNetwork>
+
     <UnlockWalletDialog :show="show" @toggle="toggle()"></UnlockWalletDialog>
     <ErrorConnectionDialog :show="showError" @action="onCloseError()" />
   </v-app>
@@ -83,6 +90,9 @@ import HeaderWallet from "@/components/HeaderWallet"
 import VueRouter from "@/router"
 import localStorage from "@/lib/local-storage";
 
+import SwitchNetwork from "@/components/Dialog/SwitchNetwork"
+import { startApp, handleSwitchChain } from "@/lib/metamask";
+
 export default {
   name: "Dashboard",
   components: {
@@ -95,7 +105,8 @@ export default {
     WalletBinding,
     DialogAlert,
     ErrorConnectionDialog,
-    HeaderWallet
+    HeaderWallet,
+    SwitchNetwork
   },
 
   data: () => ({
@@ -106,13 +117,22 @@ export default {
     alertTextBtn: "Continue",
     alertImgPath: "warning.png",
     alertTextAlert: "",
-    imgWidth: "270"
+    imgWidth: "270",
+    showSwitchNetwork: false,
+    networkName: "",
+    currentNetwork: "",
+    network: {
+      "Ethereum Mainnet": "0x1",
+      "Rinkeby Test Network": "0x4"
+    }
+
   }),
 
   async mounted() {
     if (!this.mnemonicData) {
       this.show = true
     }
+    await this.checkMetamask()
   },
 
   computed: {
@@ -180,6 +200,22 @@ export default {
 
     openWalletBinding(status) {
       this.showWalletBinding = status
+    },
+
+    async checkMetamask() {
+      const metamask = await startApp()
+      const role = process.env.VUE_APP_ROLE
+
+      if (role === "development") {
+        this.networkName = "Rinkeby Test Network"
+        if (metamask.network === this.network[this.networkName]) return
+        this.showSwitchNetwork = true
+        metamask?.network === "0x1" ? this.currentNetwork = "Ethereum Mainnet" : this.currentNetwork = "other Network"
+      }
+    },
+
+    async switchChain() {
+      await handleSwitchChain("0x4")
     },
 
     connectWalletResult(status, img) {
