@@ -2,7 +2,7 @@
   <v-dialog :value="_show" width="500" persistent>
     <v-card class="pb-5">
       <hr />
-      <div v-if="loading">
+      <div v-if="isLoading">
         <div class="mt-10 mb-10" align="center">
           <v-progress-circular
             indeterminate
@@ -10,7 +10,7 @@
           ></v-progress-circular>
         </div>
       </div>
-      <div v-if="!loading">
+      <div v-if="!isLoading">
         <v-card
           class="ml-10 mb-10 mr-10 dg-card pb-2 pt-2 mt-10"
           style="background: #eeeeee"
@@ -163,7 +163,6 @@ export default {
     error: "",
     putWallet: true,
     putAccount: false,
-    loading: false,
     ethAccount: null,
     accountList: [],
     inputPassword: false,
@@ -243,7 +242,7 @@ export default {
       }
     },
     async setAccount(account) {
-      this.loading = true
+      this.isLoading = true
       this.selectAccount = account;
       this.putAccount = false;
       if (this.wallet.isLocked) {
@@ -268,10 +267,10 @@ export default {
           status: true,
           img: "metamask-account-connected.png",
         });
-        this.loading = false;
+        this.isLoading = false;
         this.closeDialog();
       } catch (err) {
-        this.loading = false;
+        this.isLoading = false;
         this.password = "";
         this.error = err.message;
       }
@@ -280,7 +279,7 @@ export default {
       this._show = false;
       this.password = "";
       this.error = "";
-      this.loading = false;
+      this.isLoading = false;
       this.putAccount = false;
       this.putWallet = true;
       this.inputPassword = false;
