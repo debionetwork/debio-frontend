@@ -2,7 +2,7 @@
   <v-dialog :value="_show" width="500" persistent>
     <v-card class="pb-5">
       <hr />
-      <div v-if="loading">
+      <div v-if="isLoading">
         <div class="mt-10 mb-10" align="center">
           <v-progress-circular
             indeterminate
@@ -10,7 +10,7 @@
           ></v-progress-circular>
         </div>
       </div>
-      <div v-if="!loading">
+      <div v-if="!isLoading">
         <v-card
           class="ml-10 mb-10 mr-10 dg-card pb-2 pt-2 mt-10"
           style="background: #eeeeee"
@@ -163,7 +163,6 @@ export default {
     error: "",
     putWallet: true,
     putAccount: false,
-    loading: false,
     ethAccount: null,
     accountList: [],
     inputPassword: false,
@@ -189,7 +188,6 @@ export default {
       if (val) {
         this.password = "";
         this.error = "";
-        this.loading = false;
         this.putAccount = false;
         this.putWallet = true;
         this.inputPassword = false;
@@ -199,44 +197,44 @@ export default {
 
     lastEventData() {
       if(this.lastEventData) {
-        this.loading = false
+        this.isLoading = false
       }
     }
   },
-  mounted() {},
+
   methods: {
     async setWalllet(walletName) {
       this.error = "";
-      this.loading = true;
       switch (walletName) {
         case "metamask":
           this.ethAccount = await startApp();
           if (this.ethAccount.currentAccount == "no_install") {
             this.error = "Please install MetaMask!";
-          } else {
-            this.accountList = [];
-            for (let x = 0; x < this.ethAccount.accountList.length; x++) {
-              const balance = await getBalanceDAI(
-                this.ethAccount.accountList[x]
-              );
-              let lastAddr = this.ethAccount.accountList[x].substr(
-                this.ethAccount.accountList[x].length - 4
-              );
-              let isActive = false;
-              if (
-                this.metamaskWalletAddress == this.ethAccount.accountList[x]
-              ) {
-                isActive = true;
-              }
-              this.accountList.push({
-                address: this.ethAccount.accountList[x],
-                lastAddr: lastAddr,
-                name: "Account " + (x + 1),
-                balance: parseFloat(balance).toFixed(2),
-                active: isActive,
-              });
+            return
+          }
+
+          this.accountList = [];
+          for (let x = 0; x < this.ethAccount.accountList.length; x++) {
+            const balance = await getBalanceDAI(
+              this.ethAccount.accountList[x]
+            );
+            let lastAddr = this.ethAccount.accountList[x].substr(
+              this.ethAccount.accountList[x].length - 4
+            );
+            let isActive = false;
+            if (
+              this.metamaskWalletAddress == this.ethAccount.accountList[x]
+            ) {
+              isActive = true;
             }
-            
+            this.accountList.push({
+              address: this.ethAccount.accountList[x],
+              lastAddr: lastAddr,
+              name: "Account " + (x + 1),
+              balance: parseFloat(balance).toFixed(2),
+              active: isActive,
+            })
+
             this.putWallet = false;
             this.putAccount = true;
           }
@@ -244,6 +242,7 @@ export default {
       }
     },
     async setAccount(account) {
+      this.isLoading = true
       this.selectAccount = account;
       this.putAccount = false;
       if (this.wallet.isLocked) {
@@ -252,8 +251,8 @@ export default {
         this.onSubmit();
       }
     },
+    
     async onSubmit() {
-      this.isLoading = true;
       this.error = "";
       try {
         if (this.wallet.isLocked) {
@@ -271,7 +270,6 @@ export default {
         this.isLoading = false;
         this.closeDialog();
       } catch (err) {
-        console.log(err.message);
         this.isLoading = false;
         this.password = "";
         this.error = err.message;
@@ -281,7 +279,7 @@ export default {
       this._show = false;
       this.password = "";
       this.error = "";
-      this.loading = false;
+      this.isLoading = false;
       this.putAccount = false;
       this.putWallet = true;
       this.inputPassword = false;
