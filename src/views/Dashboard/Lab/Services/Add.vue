@@ -577,6 +577,7 @@ export default {
         const result = await uploadFile({
           title: dataFile.name,
           type: dataFile.type,
+          size: dataFile.size,
           file: dataFile
         })
 
@@ -616,6 +617,7 @@ export default {
         const result = await uploadFile({
           title: dataFile.name,
           type: dataFile.type,
+          size: dataFile.size,
           file: dataFile
         })
 
