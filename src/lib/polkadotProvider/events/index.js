@@ -38,7 +38,7 @@ export async function processEvent(state, address, event, role) {
       message = res.wording
     }
 
-    if (res.data[identity] == address) {
+    if (res.data[identity] === address || res.data[1][identity] === address) {
       statusAdd = true
       message = state.configEvent["role"][role][event.section][event.method].message + " " + res.wording
     }
