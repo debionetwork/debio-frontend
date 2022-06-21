@@ -86,6 +86,7 @@
                           step=".001"
                           outlined
                           v-model.number="document.price"
+                          :hint="priceHint"
                           :disabled="isLoading || isUploading"
                           :rules="priceRules"
                         ></v-text-field>
@@ -111,6 +112,7 @@
                           step=".001"
                           outlined
                           :disabled="isLoading || isUploading"
+                          :hint="qcPriceHint"
                           v-model.number="document.qcPrice"
                           :rules="cqPriceRules"
                         ></v-text-field>
@@ -266,7 +268,7 @@
 import { mapState, mapGetters } from "vuex"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import { createService, updateService, createServiceFee, updateServiceFee } from "@/lib/polkadotProvider/command/services"
-import { getCategories } from "@/lib/api"
+import { getCategories, getConversionCache } from "@/lib/api"
 import List from "./List"
 import Stepper from "../Stepper"
 import { stakeLab } from "@/lib/polkadotProvider/command/labs"
@@ -294,6 +296,7 @@ export default {
 
   data: () => ({
     serviceId: "",
+    currentDAIprice: 0,
     document: {
       category: "",
       dnaCollectionProcess: "",
@@ -340,8 +343,10 @@ export default {
     stakeLoading: false
   }),
 
-  async mounted() {
+  async created() {
     await this.getServiceCategory()
+    const { daiToUsd } = await getConversionCache()
+    this.currentDAIprice = daiToUsd ?? 1
   },
 
   computed: {
@@ -356,6 +361,14 @@ export default {
     ...mapGetters({
       pair: "substrate/wallet"
     }),
+
+    priceHint() {
+      return `${this.document.price} ${this.document.currency} = ${(this.currentDAIprice * this.document.price).toFixed(4)} USD`
+    },
+
+    qcPriceHint() {
+      return `${this.document.qcPrice} ${this.document.currency} = ${(this.currentDAIprice * this.document.qcPrice).toFixed(4)} USD`
+    },
 
     fieldRequiredRule() {
       return [
