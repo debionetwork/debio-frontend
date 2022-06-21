@@ -74,8 +74,8 @@
                       v-model="document.dnaCollectionProcess"
                       outlined
                       :items="dnaCollectionProcessList"
-                      item-text="dnaCollectionProcess"
-                      item-value="dnaCollectionProcess"
+                      item-text="name"
+                      item-value="collectionProcess"
                       :disabled="isLoading"
                       :rules="fieldRequiredRule"
                     />
@@ -260,7 +260,7 @@ import { mapState } from "vuex"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import { createService, createServiceFee, claimRequestService } from "@/lib/polkadotProvider/command/services"
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
-import { getProvideRequestService, getCategories, getConversionCache } from "@/lib/api";
+import { getProvideRequestService, getCategories, getConversionCache, getDNACollectionProcess } from "@/lib/api";
 import { toEther } from "@/lib/balance-format"
 import { generalDebounce } from "@/utils"
 
@@ -294,13 +294,7 @@ export default {
     showModalAlert: false,
     currencyList: ["DAI"],
     listExpectedDuration: ["WorkingDays", "Hours", "Days"],
-    dnaCollectionProcessList: [
-      "Blood Cells - Dried Blood Spot Collection Process",
-      "Epithelial Cells - Buccal Swab Collection Process",
-      "Fecal Matters - Stool Collection Process",
-      "Saliva - Saliva Collection Process",
-      "Urine - Clean Catch Urine Collection Process"
-    ],
+    dnaCollectionProcessList: [],
     isBiomedical: false,
     fee: 0
   }),
@@ -369,6 +363,10 @@ export default {
       ]
     }
 
+  },
+
+  async mounted() {
+    this.dnaCollectionProcessList = (await getDNACollectionProcess()).data
   },
 
   async created() {
