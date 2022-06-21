@@ -95,6 +95,7 @@
                             type="number"
                             min="0"
                             step=".001"
+                            :hint="priceHint"
                             v-model.number="document.price"
                             :disabled="isLoading || isUploading"
                             :rules="[...fieldRequiredRule, ...decimalRule]"
@@ -121,6 +122,7 @@
                             type="number"
                             min="0"
                             step=".001"
+                            :hint="qcPriceHint"
                             v-model.number="document.qcPrice"
                             :rules="[...fieldRequiredRule, ...decimalRule]"
                           ></v-text-field>
@@ -229,7 +231,7 @@
 <script>
 import { mapGetters, mapState } from "vuex"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
-import { getCategories } from "@/lib/api"
+import { getCategories, getConversionCache } from "@/lib/api"
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { fromEther, toEther } from "@/lib/balance-format"
 import { updateService, updateServiceFee } from "@/lib/polkadotProvider/command/services"
@@ -258,8 +260,9 @@ export default {
     files: [],
     testResultSampleFile:[],
     isLoading: false,
+    currentDAIprice: 0,
     isUploading: false,
-    currencyList: ["DAI", "Ethereum"],
+    currencyList: ["DAI"],
     currencyType: "",
     listExpectedDuration: ["WorkingDays", "Hours", "Days"],
     listCategories: [],
@@ -275,10 +278,12 @@ export default {
     fee: 0
   }),
 
-  async mounted(){
+  async created(){
     this.id = this.$route.params.id
     await this.getServiceCategory()
     await this.getService()
+    const { daiToUsd } = await getConversionCache()
+    this.currentDAIprice = daiToUsd ?? 1
   },
 
   computed: {
@@ -290,6 +295,14 @@ export default {
       api: "substrate/getAPI",
       pair: "substrate/wallet"
     }),
+
+    priceHint() {
+      return `${this.document.price} ${this.document.currency} = ${(this.currentDAIprice * this.document.price).toFixed(4)} USD`
+    },
+
+    qcPriceHint() {
+      return `${this.document.qcPrice} ${this.document.currency} = ${(this.currentDAIprice * this.document.qcPrice).toFixed(4)} USD`
+    },
 
     fieldRequiredRule() {
       return [
