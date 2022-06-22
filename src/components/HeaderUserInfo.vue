@@ -34,7 +34,7 @@ export default {
   }),
 
   created() {
-    this.name = this.labAccount.info.name
+    this.name = this.labAccount.info.name ?? ""
   }
 };
 </script>
