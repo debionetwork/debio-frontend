@@ -69,11 +69,10 @@ export default {
   
   watch: {
     async lastEventData(val) {
-      if (val !== null) {
-        if (val.method === "LabStakeSuccessful") return
-
-        await this.$store.dispatch("substrate/getLabAccount")
-      }
+      if (val === null) return
+      if (val.method === "LabStakeSuccessful") return
+      
+      await this.$store.dispatch("substrate/getLabAccount")
     }
   },
 
