@@ -283,7 +283,7 @@ export default {
     },
     imageUrl: "",
     testResultSampleUrl: "",
-    currentDAIprice: "",
+    currentDAIprice: 0,
     statusLab: null,
     messageWarning: {},
     serviceFlow: "RequestTest",
