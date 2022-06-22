@@ -15,7 +15,7 @@
         </div>
         <div v-if="isLoading" class="mt-5">
         <v-skeleton-loader 
-          v-for="data in labAccount.services"
+          v-for="data in services"
           :key="data.idx"
           type="list-item-three-line"
           min-width="200"
@@ -23,7 +23,7 @@
         </div>
         <div v-if="labAccount && labAccount.services.length > 0 && !isLoading" class="mt-5">
           <div
-            v-for="(service, idx) in labAccount.services"
+            v-for="(service, idx) in services"
             :key="service.id"
             :style="idx < (labAccount.services.length - 1) && 'border-bottom: 1px solid #555454;'"
             class="my-3"
@@ -51,7 +51,7 @@
             <div v-if="service.info.testResultSample" class="mt-3 mb-3">
               <a :href="service.info.testResultSample" class="support-url" target="_blank">
                 <v-icon class="mx-1" small>mdi-file-document</v-icon>
-                {{ service.info.name }} Test result sample
+                {{ service.documentName || `${service.info.name} Test result sample` }}
               </a>
             </div>
           </div>
@@ -73,6 +73,7 @@ import { mapGetters, mapState } from "vuex"
 import serviceHandler from "@/mixins/serviceHandler"
 import { deleteService, deleteServiceFee } from "@/lib/polkadotProvider/command/services"
 import DialogDelete from "@/components/Dialog/DialogDeleteConfirmation"
+import { getIpfsMetaData } from "@/lib/pinata-proxy"
 
 export default {
   name: "Service",
@@ -86,6 +87,7 @@ export default {
   data: () => ({
     deleteConfirmation: false,
     service: null,
+    services: null,
     fee: 0
   }),
 
@@ -100,6 +102,24 @@ export default {
     ...mapState({
       web3: state => state.metamask.web3
     })
+  },
+
+  watch: {
+    labAccount: {
+      deep: true,
+      immediate: true,
+      handler: async function (value) {
+        const servicesTmp = []
+        if (!value?.services) return
+
+        for (const service of value.services) {
+          const { rows } = await getIpfsMetaData(service.info.testResultSample.split("/").pop())
+          servicesTmp.push({ ...service, documentName: rows[0].metadata.name })
+        }
+
+        this.services = servicesTmp
+      }
+    }
   },
 
   methods: {

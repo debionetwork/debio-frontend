@@ -240,6 +240,10 @@ export default {
     cities: [],
     states: [],
     phoneCode: "",
+    countryName: "",
+    stateName: "",
+    noState: false,
+    noCity: false,
     files: null,
     isLoading: false,
     isUploading: false,
@@ -305,7 +309,7 @@ export default {
     phoneNumberRules() {
       return [
         val => !!val || "This field is required",
-        val => /^\+?([0-9]{10,15})$/.test(val) || "This field can only contain number"
+        val => /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s./0-9]*$/.test(val) || "This field can only contain number"
       ]
     },
 
@@ -398,16 +402,30 @@ export default {
     },
 
     async onCountryChange(selectedCountry) {
+      this.states= []
+      this.cities = []
+      
       this.document.region = ""
       this.document.city = ""
+      this.phoneCode = ""
 
       const { data:
         { data }
       } = await this.dispatch(getStates, selectedCountry?.iso2 ?? selectedCountry)
 
+      if (data.length < 1) {
+        this.states.push(selectedCountry.name)
+        this.noState = true
+        this.countryName = selectedCountry.name
+        this.document.country = selectedCountry
+        this.phoneCode = selectedCountry.phobe_code ?? null
+        return
+      }
+
       this.states = data;
       this.document.country = selectedCountry?.iso2 ?? selectedCountry;
       this.document.phoneCode = selectedCountry?.phone_code ?? null;
+      this.noState = false
     },
 
     async onPhoneCodeChange(selectedCountry) {
@@ -415,17 +433,44 @@ export default {
     },
 
     async onStateChange(selectedState) {
+      this.document.region = ""
       this.document.city = ""
+      this.noCity = false
+      if (this.noState) {
+        this.document.region = this.countryName
+        this.cities.push(this.countryName)
+      }
+
 
       const { data:
         { data }
       } = await this.dispatch(getCities, this.document.country, selectedState)
+
+      if (data.length < 1) {
+        this.noCity = true
+        const stateName = this.states.find(state => state.state_code === selectedState).name
+        this.cities.push(stateName)
+        this.document.region = selectedState
+        return
+      }
+
 
       this.cities = data;
       this.document.region = selectedState;
     },
 
     onCityChange({ name }) {
+      this.document.city = ""
+      if (this.noState) {
+        this.document.city = this.countryName
+        return
+      }
+
+      if (this.noCity) {
+        this.document.city = this.cities[0]
+        return
+      }
+
       this.document.city = name;
     },
 
@@ -497,6 +542,7 @@ export default {
         const result = await uploadFile({
           title: dataFile.name,
           type: dataFile.type,
+          size: dataFile.size,
           file: dataFile
         })
 
@@ -527,7 +573,7 @@ export default {
     },
 
     validating() {
-      if (this.document.name == "" || this.document.email == "" || this.document.address == "" || this.document.country == "" || this.document.city == "" || this.document.state == "" || this.files == null) {
+      if (this.document.name == "" || this.document.email == "" || this.document.address == "" || this.document.country == "" || this.document.city == "" || this.document.region == "" || this.files == null) {
         this.$refs.labForm.validate()
         return false
       }

@@ -22,7 +22,7 @@
       <v-flex>
         <v-container
           class="pt-1 pb-1"
-          v-for="(item, key) in drawerButtons" :key="key"
+          v-for="(item, key) in computeDisabledCondition" :key="key"
         >
           <v-btn
             v-if="item.href"
@@ -35,7 +35,7 @@
             :class="item.active ? 'font-weight-bold sidebar-text primary--text' : 'font-weight-bold sidebar-text'"
             text
             @click="goLink(item.route)"
-            :disabled="item.disabled != false"
+            :disabled="!item.auth"
           >
             <span class="text-left">
               {{ item.text }}
@@ -49,10 +49,27 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 export default {
   name: "NavigationDrawer",
   props: {
     width: String
+  },
+
+  data: () => ({
+    drawerButtons: [
+      { text: "Dashboard", auth: true, route: { name: "lab-dashboard" } },
+      { text: "Account", auth: false, route: { name: "lab-dashboard-account" } },
+      { text: "Services", auth: false, route: { name: "lab-dashboard-services" } },
+      { text: "Order", auth: false, route: { name: "lab-dashboard-order-history" } },
+      { text: "Customer Care", auth: true, href: "https://docs.debio.network/" }
+    ]
+  }),
+
+  watch: {
+    $route(val) {
+      this.setActiveMenu(val.name)
+    }
   },
 
   methods: {
@@ -64,15 +81,34 @@ export default {
 
     openHref(href){
       window.open(href, "_blank").focus();
+    },
+
+    setActiveMenu(value) {
+      this.drawerButtons = this.drawerButtons.map(btn => ({
+        ...btn, active: btn.route?.name === value
+      }))
     }
   },
 
+  created() {
+    this.setActiveMenu(this.$route.name)
+  },
+
   computed: {
-    drawerButtons() {
-      if (this.$route.meta && this.$route.meta.drawerButtons) {
-        return this.$route.meta.drawerButtons
-      }
-      return []
+    ...mapState({
+      labAccount: (state) => state.substrate.labAccount
+    }),
+
+    computeDisabledCondition() {
+      return this.drawerButtons.map(btn => {
+        if (btn.text === "Dashboard" || btn.text === "Customer Care") return { ...btn }
+        return {
+          ...btn,
+          auth: this.labAccount?.verificationStatus === "Verified"
+            ? true
+            : false
+        }
+      })
     }
   }
 }

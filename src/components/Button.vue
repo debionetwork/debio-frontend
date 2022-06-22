@@ -8,6 +8,7 @@
     width="100%"
     :elevation="elevation"
     :loading="loading"
+    :to="to"
     @click="onClick"
   >
     <slot></slot>
@@ -22,6 +23,10 @@ export default {
     color: {
       type: String,
       default: "primary"
+    },
+    to: {
+      type: [String, Object],
+      default: null
     },
     elevation: String,
     dark: {

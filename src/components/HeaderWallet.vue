@@ -54,9 +54,9 @@
               </div>
               <strong class="notification-subtitle">Metamask</strong>
             </div>
-            <div class="disconnect-text" v-if="metamaskAddress" @click="disconnectWallet">Disconnect</div>
+            <div class="disconnect-text" v-if="isConnected" @click="disconnectWallet">Disconnect</div>
           </div>
-          <div v-if="metamaskAddress">
+          <div v-if="isConnected">
             <div class="text-content">Address</div>
             <div class="d-flex justify-space-between address-wrapper">
               <div class="address-text">
@@ -105,6 +105,8 @@ import {queryBalance} from "@/lib/polkadotProvider/query/balance"
 import {getBalanceDAI} from "@/lib/metamask/wallet.js"
 import {fromEther} from "@/lib/balance-format"
 import Button from "@/components/Button"
+import { startApp } from "@/lib/metamask";
+
 
 export default {
   name: "HeaderUserInfo",
@@ -122,7 +124,9 @@ export default {
     balance: 0,
     polkadotAddress: "",
     metamaskAddress: "",
-    metamaskBalance: 0
+    metamaskBalance: 0,
+    ethRegisterAddress: null,
+    isConnected: false
   }),
 
   components: {
@@ -132,9 +136,7 @@ export default {
   methods: {
     ...mapMutations({
       setWalletBalance: "substrate/SET_WALLET_BALANCE",
-      clearWallet: "metamask/CLEAR_WALLET",
-      setMetamaskAddress: "metamask/SET_WALLET_ADDRESS",
-      setMetamaskBalance: "metamask/SET_WALLET_BALANCE"
+      clearWallet: "metamask/CLEAR_WALLET"
     }),
 
     ...mapActions({
@@ -164,24 +166,14 @@ export default {
       this.$emit("showWalletBinding", true)
     },
 
-    async checkMetamaskBalance() {
-      this.metamaskAddress = this.metamaskWalletAddress
-      let address = ""
-      if (this.metamaskWalletAddress == "") {
-        const ethRegisterAddress = await ethAddressByAccountId(
-          this.api,
-          this.wallet.address
-        )
-        address = ethRegisterAddress
-      } else {
-        address = this.metamaskWalletAddress
-      }
-
-      if (address != "") {
-        const balance = await getBalanceDAI(address)
-
-        this.setMetamaskBalance(balance)
-        this.metamaskBalance = balance
+    async checkMetamask() {
+      this.isConnected = false
+      this.ethRegisterAddress = await ethAddressByAccountId(this.api, this.wallet.address)
+      const metamaskAccount = await startApp()
+      if (metamaskAccount.accountList[0] === this.ethRegisterAddress) {
+        this.metamaskAddress = this.ethRegisterAddress
+        this.metamaskBalance = await getBalanceDAI(this.ethRegisterAddress)
+        this.isConnected = true
       }
     },
 
@@ -210,16 +202,22 @@ export default {
   watch: {
     lastEventData() {
       if(this.lastEventData) {
+        this.checkMetamask()
         this.fetchWalletBalance()
-
-        if (this.metamaskWalletAddress) {
-          this.checkMetamaskBalance()
-        }
       }
+    },
+
+    metamaskWalletAddress() {
+      if (this.ethRegisterAddress !== this.metamaskWalletAddress.accounts[0]) {
+        this.isConnected = false
+        return
+      }
+      this.checkMetamask() 
     }
   },
 
   async mounted() {
+    this.checkMetamask()
     this.polkadotAddress = this.wallet.address
 
     await this.fetchWalletBalance()

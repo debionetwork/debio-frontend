@@ -356,7 +356,7 @@ export default {
 
     genomeFileRules() {
       return [
-        value => !value || value.type == "text/x-vcard" || "The files uploaded are not in the supported file formats (VCF)",
+        value => !value || value.type == "text/x-vcard" || value.type == "text/vcard" || value.type == "text/directory" || "The files uploaded are not in the supported file formats (VCF)",
         value => !value || value.size < 2000000 || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
       ]
     },
@@ -434,6 +434,7 @@ export default {
         },
         callback
       )
+      this.$emit("resultUploaded")
     },
 
     async sendTestResult() {
@@ -501,16 +502,18 @@ export default {
           const encrypted = await context.encrypt({
             text: fr.result,
             fileType: file.fileType,
-            fileName: file.name
+            fileName: file.name,
+            fileSize: file.size
           })
 
-          const { chunks, fileName: encFileName, fileType: encFileType } = encrypted
+          const { chunks, fileName: encFileName, fileType: encFileType, fileSize } = encrypted
           // Upload
           const uploaded = await context.upload({
             encryptedFileChunks: chunks,
             fileName: encFileName,
             documentType: encFileType,
-            type: file.type
+            type: file.type,
+            fileSize
           })
 
           // files is array, but currently only support storing 1 file for each type
@@ -540,7 +543,6 @@ export default {
 
             context.submitTestResultDocument(() => {
               context.loading[file.fileType] = false
-              context.$emit("resultUploaded")
             })
           }
         } catch (err) {
@@ -560,6 +562,7 @@ export default {
             secretKey: u8aToHex(context.identity.boxKeyPair.secretKey),
             publicKey: context.publicKey // Customer's box publicKey
           }
+
           const arrChunks = []
           let chunksAmount
           cryptWorker.workerEncrypt.postMessage({ pair, text }) // Access this object in e.data in worker
@@ -591,7 +594,7 @@ export default {
       })
     },
 
-    async upload({ encryptedFileChunks, fileName, documentType, type }) {
+    async upload({ encryptedFileChunks, fileName, documentType, type, fileSize }) {
       this.loadingStatus[documentType] = "Uploading"
       const data = JSON.stringify(encryptedFileChunks)
       const blob = new Blob([ data ], { type })
@@ -599,6 +602,7 @@ export default {
       const result = await uploadFile({
         title: fileName,
         type: type,
+        size: fileSize,
         file: blob
       })
 

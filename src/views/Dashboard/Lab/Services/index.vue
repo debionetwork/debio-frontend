@@ -56,8 +56,36 @@
                         <Button @click="showDialog = false" elevation="2" color="purple" dark>No</Button>
                      </v-col>
                      <v-col col="12" md="6">
-                        <Button @click="deleteService" elevation="2"  dark>Yes</Button>
+                        <Button @click="handleDeleteService" elevation="2"  dark>Yes</Button>
                      </v-col>
+                  </template>
+               </Dialog>
+               <Dialog :show="showActiveOrder" :showClose="false" :width='330'>
+                  <template v-slot:body>
+                    <div class="text-center">
+                      <h2 class="mb-8">Unfinished Order</h2>
+                      <v-icon
+                        class="mb-8"
+                        inline
+                        color="primary"
+                        :size="100"
+                      >
+                        mdi-alert-circle-outline
+                      </v-icon>
+                    </div>
+                    <p>
+                      You still have active orders to complete. Resume any pending orders before continuing with this process.
+                    </p>
+                  </template>
+                  <template v-slot:actions>
+                    <Button
+                      elevation="2"
+                      color="primary"
+                      :to="{ name: 'lab-dashboard' }"
+                      dark
+                    >
+                      Go to Dashboard
+                    </Button>
                   </template>
                </Dialog>
 
@@ -101,7 +129,7 @@
                   </template>
 
                   <template v-slot:[`item.info.price`]="{ item }">
-                     <span> {{ formatPrice(item.info.price) }} </span>
+                     <span> {{ formatPrice(item.info.pricesByCurrency) }} </span>
                   </template>
 
                   <template v-slot:[`item.actions`]="{ item }">
@@ -144,6 +172,7 @@ import DataTable from "@/components/DataTable"
 import SearchBar from "@/components/DataTable/SearchBar"
 import { deleteService, deleteServiceFee } from "@/lib/polkadotProvider/command/services"
 import { mapGetters, mapState } from "vuex"
+import { getOrdersData } from "@/lib/api"
 import Dialog from "@/components/Dialog"
 import Button from "@/components/Button"
 
@@ -167,6 +196,7 @@ export default {
     services: [],
     isLoading: false,
     showDialog: false,
+    showActiveOrder: false,
     showAlert: false,
     idItemDeleted: "",
     fee: 0
@@ -230,9 +260,9 @@ export default {
     },
 
     formatPrice(price) {
-      const priceAndCurrency = price.replaceAll(",", "").split(" ")
-      const formatedPrice = this.web3.utils.fromWei(String(priceAndCurrency[0], "ether"))
-      return `${formatedPrice} ${priceAndCurrency[1]}`
+      const priceAndCurrency = price[0].totalPrice.replaceAll(",", "").split(" ")
+      const formatedPrice = this.web3.utils.fromWei(String(priceAndCurrency, "ether"))
+      return `${formatedPrice} ${price[0].currency}`
     },
 
     isIcon(imageName) {
@@ -244,7 +274,7 @@ export default {
       this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
     },
 
-    async deleteService() {
+    async handleDeleteService() {
       try {
         this.isLoading = true
         await deleteService(
@@ -252,13 +282,22 @@ export default {
           this.pair,
           this.idItemDeleted
         )
+        this.showDialog = false
       } catch (error) {
         console.error(error.message)
         this.isLoading = false
+        this.showDialog = false
       }
     },
 
     async confirmDeleteService(item) {
+      const { data } = await getOrdersData(this.pair.address, null, null, null)
+      const hasActiveOrder = data?.some(order => order._source.status === "Paid" && order._source.service_id === item.id)
+      if (hasActiveOrder) {
+        this.showActiveOrder = true
+        return
+      }
+
       this.idItemDeleted = item.id
       await this.getDeleteServiceFee()
       this.showDialog = true
@@ -269,7 +308,7 @@ export default {
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import "../../../../styles/variables.scss";
 
 .Sending {
@@ -288,4 +327,7 @@ export default {
   background-color: $color-status-reject !important;
 }
 
+.degenics-data-table tbody td * {
+  max-height: unset;
+}
 </style>
