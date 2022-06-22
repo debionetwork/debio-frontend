@@ -42,42 +42,43 @@
                       >
                         <v-img v-if="!imageUrl" src="@/assets/add-image-placeholder.png" alt="image"></v-img>
                         <v-img v-else :src="imageUrl" alt="image"></v-img>
-                        <v-file-input 
+                        <v-file-input
                           style="display: none"
                           hide-input
                           prepend-icon="mdi-camera"
-                          accept="image/*" 
+                          accept="image/*"
                           ref="fileInput"
                           :disabled="isLoading"
-                          @change="imageUploadEventListener" />
+                          @change="imageUploadEventListener"
+                        />
                       </v-avatar>
 
                   </div>
                     <v-select
-                    dense
-                    label="Service Category"
-                    placeholder="Service Category"
-                    v-model="document.category"
-                    outlined
-                    :items="listCategories"
-                    :disabled="hasServicePayload || isLoading"
-                    item-text="service_categories"
-                    item-value="service_categories"
-                    :rules="fieldRequiredRule"
-                    ></v-select>
-                    
+                      dense
+                      label="Service Category"
+                      placeholder="Service Category"
+                      v-model="document.category"
+                      outlined
+                      :items="listCategories"
+                      :disabled="hasServicePayload || isLoading"
+                      item-text="service_categories"
+                      item-value="service_categories"
+                      :rules="fieldRequiredRule"
+                    />
+
                     <v-select
-                    dense
-                    label="Type of Biological Sample"
-                    placeholder="Type of Biological Sample"
-                    v-model="document.dnaCollectionProcess"
-                    outlined
-                    :items="dnaCollectionProcessList"
-                    item-text="dnaCollectionProcess"
-                    item-value="dnaCollectionProcess"
-                    :disabled="isLoading"
-                    :rules="fieldRequiredRule"
-                    ></v-select>
+                      dense
+                      label="Type of Biological Sample"
+                      placeholder="Type of Biological Sample"
+                      v-model="document.dnaCollectionProcess"
+                      outlined
+                      :items="dnaCollectionProcessList"
+                      item-text="dnaCollectionProcess"
+                      item-value="dnaCollectionProcess"
+                      :disabled="isLoading"
+                      :rules="fieldRequiredRule"
+                    />
 
                     <v-text-field
                       dense
@@ -87,21 +88,21 @@
                       v-model="document.name"
                       :disabled="isLoading"
                       :rules="[...fieldRequiredRule, ...serviceNameRules, ...fieldEnglishRules]"
-                    ></v-text-field>
+                    />
 
                     <div class="d-flex">
                       <v-row>
                         <v-col>
                           <v-select
-                          label="Currency"
-                          outlined
-                          dense
-                          max="30"
-                          v-model="document.currency"
-                          :items="currencyList"
-                          :rules="fieldRequiredRule"
-                          :disabled="hasServicePayload || isLoading"
-                          ></v-select>
+                            label="Currency"
+                            outlined
+                            dense
+                            max="30"
+                            v-model="document.currency"
+                            :items="currencyList"
+                            :rules="fieldRequiredRule"
+                            :disabled="hasServicePayload || isLoading"
+                          />
                         </v-col>
                         <v-col>
                           <v-text-field
@@ -114,19 +115,20 @@
                             min="0"
                             step=".001"
                             :disabled="isLoading"
+                            :hint="priceHint"
                             :rules="[...fieldRequiredRule, ...decimalRule]"
-                          ></v-text-field>
+                          />
                         </v-col>
                         <v-col>
                           <v-select
-                          :disabled="isBiomedical || hasServicePayload ||isLoading"
-                          label="QC Currency"
-                          outlined
-                          dense
-                          v-model="document.currency"
-                          :items="currencyList"
-                          :rules="fieldRequiredRule"
-                          ></v-select>
+                            :disabled="isBiomedical || hasServicePayload ||isLoading"
+                            label="QC Currency"
+                            outlined
+                            dense
+                            v-model="document.currency"
+                            :items="currencyList"
+                            :rules="fieldRequiredRule"
+                          />
                         </v-col>
                         <v-col>
                           <v-text-field
@@ -139,8 +141,9 @@
                             type="number"
                             min="0"
                             step=".001"
+                            :hint="qcPriceHint"
                             :rules="[...fieldRequiredRule, ...decimalRule]"
-                          ></v-text-field>
+                          />
                         </v-col>
                       </v-row>
                     </div>
@@ -157,8 +160,8 @@
                       v-model="document.description"
                       :disabled="isLoading"
                       :rules="[...fieldRequiredRule, ...descriptionRules, ...fieldEnglishRules]"
-                    ></v-text-field>
-                    
+                    />
+
                     <v-row >
                       <v-col cols="8">
                         <v-text-field
@@ -172,9 +175,9 @@
                           v-model="document.duration"
                           :disabled="isLoading"
                           :rules="fieldRequiredRule"
-                        ></v-text-field>
+                        />
                       </v-col>
-                      <v-col cols="4">
+                      <v-col cols="4" style="position: relative">
                         <v-select
                           label="Duration Type"
                           outlined
@@ -183,7 +186,7 @@
                           :disabled="isLoading"
                           :items="listExpectedDuration"
                           :rules="fieldRequiredRule"
-                        ></v-select>
+                        />
                       </v-col>
                     </v-row>
 
@@ -195,7 +198,7 @@
                       v-model="document.longDescription"
                       :disabled="isLoading"
                       :rules="[...fieldRequiredRule, ...longDescriptionRules, ...fieldEnglishRules]"
-                    ></v-textarea>
+                    />
 
                     <v-file-input
                       :disabled="isLoading"
@@ -208,7 +211,7 @@
                       outlined
                       v-model="testResultSampleFile"
                       @change="fileUploadEventListener"
-                    ></v-file-input>
+                    />
 
                     <div class= "d-flex justify-space-between" >
                       <div class="mb-5">
@@ -232,7 +235,7 @@
                         {{ fee }}
                       </span>
                     </div>
-                    
+
                     <v-btn
                       color="primary"
                       block
@@ -240,7 +243,9 @@
                       :disabled="isLoading"
                       :loading="isLoading"
                       @click="handleCreateService"
-                    >Submit</v-btn>
+                    >
+                      Submit
+                    </v-btn>
                 </v-card-text>
               </v-form>
             </v-card>
@@ -255,7 +260,7 @@ import { mapState } from "vuex"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import { createService, createServiceFee, claimRequestService } from "@/lib/polkadotProvider/command/services"
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
-import { getProvideRequestService, getCategories } from "@/lib/api";
+import { getProvideRequestService, getCategories, getConversionCache } from "@/lib/api";
 import { toEther } from "@/lib/balance-format"
 import { generalDebounce } from "@/utils"
 
@@ -278,6 +283,7 @@ export default {
     },
     imageUrl: "",
     testResultSampleUrl: "",
+    currentDAIprice: 0,
     statusLab: null,
     messageWarning: {},
     serviceFlow: "RequestTest",
@@ -286,7 +292,7 @@ export default {
     listCategories:[],
     isLoading: false,
     showModalAlert: false,
-    currencyList: ["DAI", "ETH"],
+    currencyList: ["DAI"],
     listExpectedDuration: ["WorkingDays", "Hours", "Days"],
     dnaCollectionProcessList: [
       "Blood Cells - Dried Blood Spot Collection Process",
@@ -308,6 +314,14 @@ export default {
       web3: (state) => state.metamask.web3,
       lastEventData: (state) => state.substrate.lastEventData
     }),
+
+    priceHint() {
+      return `${this.document.price} ${this.document.currency} = ${(this.currentDAIprice * this.document.price).toFixed(4)} USD`
+    },
+
+    qcPriceHint() {
+      return `${this.document.qcPrice} ${this.document.currency} = ${(this.currentDAIprice * this.document.qcPrice).toFixed(4)} USD`
+    },
 
     hasServicePayload() {
       return Boolean(Object.keys(this.servicePayload).length)
@@ -361,6 +375,8 @@ export default {
     this.validate()
     this.prefillValues()
     await this.getServiceCategory()
+    const { daiToUsd } = await getConversionCache()
+    this.currentDAIprice = daiToUsd ?? 1
   },
 
   methods: {
@@ -434,6 +450,8 @@ export default {
           this.showModalAlert = true
 
           this.messageWarning = MESSAGE["CITY_NOT_MATCH"]
+
+          await this.$store.dispatch("lab/setProvideService", {})
 
           return
         }
@@ -559,6 +577,7 @@ export default {
         const result = await uploadFile({
           title: dataFile.name,
           type: dataFile.type,
+          size: dataFile.size,
           file: dataFile
         })
 
@@ -598,6 +617,7 @@ export default {
         const result = await uploadFile({
           title: dataFile.name,
           type: dataFile.type,
+          size: dataFile.size,
           file: dataFile
         })
 

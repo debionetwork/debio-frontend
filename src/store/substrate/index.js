@@ -44,6 +44,7 @@ export default {
   state: {
     ...defaultState
   },
+
   mutations: {
     SET_API(state, api) {
       state.api = api
@@ -104,6 +105,7 @@ export default {
       state.mnemonicData = event
     }
   },
+  
   actions: {
     async connect({ commit }) {
       try {
@@ -118,7 +120,7 @@ export default {
         api.query.system.events((events) => {
           events.forEach((record) => {
             const { event } = record;
-            if (event.section === "rewards" || event.section === "serviceRequest" || event.section === "services" || event.section === "labs" || event.section === "orders" || event.section === "geneticTesting" || event.section === "electronicMedicalRecord" || event.section === "certifications" || event.section === "balances") {
+            if (event.section === "rewards" || event.section === "serviceRequest" || event.section === "services" || event.section === "labs" || event.section === "orders" || event.section === "geneticTesting" || event.section === "electronicMedicalRecord" || event.section === "certifications" || event.section === "balances" || event.section === "userProfile") {
               if (event.method === "OrderPaid") localStorage.removeLocalStorageByName("lastOrderStatus")
               commit("SET_LAST_EVENT", event);
             }
@@ -157,6 +159,7 @@ export default {
         return { success: false, error: err.message }
       }
     },
+
     async restoreAccountKeystore({ commit }, { file, password }) {
       try {
         if (Array.isArray(file)) {
@@ -191,12 +194,14 @@ export default {
         return { success: false, error: err.message }
       }
     },
+
     getEncryptedAccountData({ commit }, { password }) {
       const encryptedMnemonic = localStorage.getLocalStorageByName("mnemonic_data");
       if (encryptedMnemonic != null) {
         commit("SET_MNEMONIC_DATA", CryptoJS.AES.decrypt(encryptedMnemonic, password));
       }
     },
+
     async getAllAccounts({ commit, state }, { address }) {
       try {
         commit("SET_LOADING_WALLET", true)
@@ -241,6 +246,7 @@ export default {
         return { success: false, error: err.message }
       }
     },
+
     async getLabAccount({ commit, state }) {
       try {
         commit("SET_LAB_ACCOUNT", null)
@@ -262,6 +268,7 @@ export default {
         return { success: false, error: err.message }
       }
     },
+
     async getDoctorAccount({ commit, state }) {
       try {
         commit("SET_DOCTOR_ACCOUNT", null)
@@ -278,6 +285,7 @@ export default {
         return { success: false, error: err.message }
       }
     },
+
     async getHospitalAccount({ commit, state }) {
       try {
         commit("SET_HOSPITAL_ACCOUNT", null)
@@ -294,6 +302,7 @@ export default {
         return { success: false, error: err.message }
       }
     },
+
     async checkMnemonicSomeAddress({ commit }, { mnemonic, accountAddress }) {
       try {
         const keyringX = new Keyring({ type: "ed25519", ss58Format: 42 });
@@ -309,6 +318,7 @@ export default {
         return { success: false }
       }
     },
+
     async getListNotification({ commit }, { address, role }) {
       try {
         //localStorage.removeLocalStorageByName("LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role, null);
@@ -324,6 +334,7 @@ export default {
         console.error(err);
       }
     },
+    
     async addListNotification({ commit, state }, { address, event, role }) {
       try {
         const storageName = "LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role;
@@ -369,6 +380,7 @@ export default {
         console.error(err);
       }
     },
+
     async updateDataListNotification({ commit }, { address, data, role }) {
       try {
         if (data != null && data != "") {
@@ -381,6 +393,7 @@ export default {
         console.error(err);
       }
     },
+
     async addAnyNotification({ commit }, { address, dataAdd, role }) {
       try {
         const storageName = "LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role;
@@ -421,6 +434,7 @@ export default {
       }
     }
   },
+  
   getters: {
     wallet(state) {
       return state.wallet

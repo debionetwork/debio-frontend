@@ -59,12 +59,18 @@ export default {
   data: () => ({
     drawerButtons: [
       { text: "Dashboard", auth: true, route: { name: "lab-dashboard" } },
-      { text: "Account", auth: false, active: true, route: { name: "lab-dashboard-account" } },
+      { text: "Account", auth: false, route: { name: "lab-dashboard-account" } },
       { text: "Services", auth: false, route: { name: "lab-dashboard-services" } },
       { text: "Order", auth: false, route: { name: "lab-dashboard-order-history" } },
       { text: "Customer Care", auth: true, href: "https://docs.debio.network/" }
     ]
   }),
+
+  watch: {
+    $route(val) {
+      this.setActiveMenu(val.name)
+    }
+  },
 
   methods: {
     goLink(route){
@@ -75,13 +81,24 @@ export default {
 
     openHref(href){
       window.open(href, "_blank").focus();
+    },
+
+    setActiveMenu(value) {
+      this.drawerButtons = this.drawerButtons.map(btn => ({
+        ...btn, active: btn.route?.name === value
+      }))
     }
+  },
+
+  created() {
+    this.setActiveMenu(this.$route.name)
   },
 
   computed: {
     ...mapState({
       labAccount: (state) => state.substrate.labAccount
     }),
+
     computeDisabledCondition() {
       return this.drawerButtons.map(btn => {
         if (btn.text === "Dashboard" || btn.text === "Customer Care") return { ...btn }

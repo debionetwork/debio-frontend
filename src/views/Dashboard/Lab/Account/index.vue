@@ -1,6 +1,34 @@
 <template>
   <div>
     <v-container>
+      <Dialog :show="showActiveOrder" :showClose="false" :width='330'>
+        <template v-slot:body>
+          <div class="text-center">
+            <h2 class="mb-8">Unfinished Order</h2>
+            <v-icon
+              class="mb-8"
+              inline
+              color="primary"
+              :size="100"
+            >
+              mdi-alert-circle-outline
+            </v-icon>
+          </div>
+          <p>
+            You still have active orders to complete. Resume any pending orders before continuing with this process.
+          </p>
+        </template>
+        <template v-slot:actions>
+          <Button
+            elevation="2"
+            color="primary"
+            :to="{ name: 'lab-dashboard' }"
+            dark
+          >
+            Go to Dashboard
+          </Button>
+        </template>
+      </Dialog>
       <v-row>
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
           <v-card class="dg-card" elevation="0" outlined>
@@ -174,10 +202,12 @@
                       color="primary"
                       block
                       large
-                      @click="unstakeDialog = true"
+                      @click="handleShowUnstake"
                       :disabled="stakeStatus !== 'Staked'"
                       :loading="unstakeLoading"
-                      >Unstake</v-btn
+                    >
+                      Unstake
+                    </v-btn
                     >
                   </v-col>
                 </v-row>
@@ -241,7 +271,7 @@
 <script>
 import { mapState, mapGetters } from "vuex"
 import { updateLab, updateLabFee, unstakeLab, unstakeLabFee } from "@/lib/polkadotProvider/command/labs"
-import { getLocations, getStates, getCities } from "@/lib/api"
+import { getLocations, getStates, getCities, getOrdersData } from "@/lib/api"
 import Kilt from "@kiltprotocol/sdk-js"
 import CryptoJS from "crypto-js"
 import { u8aToHex } from "@polkadot/util"
@@ -250,6 +280,8 @@ import {uploadFile, getFileUrl} from "@/lib/pinata-proxy"
 import serviceHandler from "@/lib/metamask/mixins/serviceHandler"
 import DialogUnstake from "@/components/Dialog/DialogUnstake"
 import { generalDebounce } from "@/utils"
+import Dialog from "@/components/Dialog"
+import Button from "@/components/Button"
 
 const englishAlphabet = (val) =>
   (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) ||
@@ -259,7 +291,7 @@ export default {
   name: "LabAccount",
   mixins: [serviceHandler],
 
-  components: {Certification, DialogUnstake},
+  components: { Certification, DialogUnstake, Dialog, Button },
 
   data: () => ({
     document: {
@@ -280,6 +312,7 @@ export default {
     files: [],
     isEditable: false,
     isUploading: false,
+    showActiveOrder: false,
     stakeStatus: "",
     unstakeAt: "",
     stakingAmount: "",
@@ -513,6 +546,14 @@ export default {
       this.unstakeFee = Number(this.web3.utils.fromWei(String(fee.partialFee), "ether"))
     },
 
+    async handleShowUnstake() {
+      const { data } = await getOrdersData(this.pair.address, null, null, null)
+      const hasActiveOrder = data?.some(order => order._source.status === "Paid")
+
+      if (hasActiveOrder) this.showActiveOrder = true
+      else this.unstakeDialog = true
+    },
+
     async updateLab(){
       if (!this.$refs.form.validate()) {
         return
@@ -551,6 +592,7 @@ export default {
         const result = await uploadFile({
           title: dataFile.name,
           type: dataFile.type,
+          size: dataFile.size,
           file: dataFile
         })
 

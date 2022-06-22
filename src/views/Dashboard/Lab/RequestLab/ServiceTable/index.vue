@@ -284,7 +284,7 @@ export default {
       const payload = {
         category: item.services[idx].category,
         country: {
-          code: item.countryId,
+          code: item.services[idx].countryCode,
           name: item.country
         },
         city: {
@@ -386,6 +386,14 @@ td:not(.v-data-table__expanded__content td):first-child {
 }
 .degenics-data-table thead th * {
   color: #363636 !important;
+}
+
+.degenics-data-table tbody td * {
+  max-height: unset;
+}
+
+.expanded > .degenics-data-table tbody tr:first-child > td {
+  padding-top: 1rem;
 }
 
 tr {
