@@ -15,15 +15,6 @@
         </p>
         <v-form v-model="passwordsValid" ref="passwordForm">
           <v-text-field
-            outlined
-            :type="'text'"
-            v-model="accountName"
-            label="Type in account name"
-            :disabled="isLoading"
-            :rules="nameRules"
-          >
-          </v-text-field>
-          <v-text-field
             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
             @click:append="showPassword = !showPassword"
             outlined
@@ -110,8 +101,7 @@ export default {
     showPasswordConfirm: false,
     passwordConfirmRule: (password) => (val) =>
       (!!password && password == val) || "Passwords must match.",
-    recaptchaVerified: false,
-    accountName: ""
+    recaptchaVerified: false
   }),
   computed: {
     _show: {
@@ -129,9 +119,6 @@ export default {
       substrateApi: (state) => state.substrate.api,
       isLoading: (state) => state.substrate.isLoadingWallet
     }),
-    nameRules() {
-      return [rulesHandler.FIELD_REQUIRED, rulesHandler.MAX_CHARACTER(100)]
-    },
     passwordRules() {
       return [
         rulesHandler.FIELD_REQUIRED,
@@ -163,14 +150,10 @@ export default {
     async onPasswordSet() {
       try {
         if (this.secretType == "mnemonic") {
-          if (this.accountName == "") {
-            this.accountName = "Account Name"
-          }
           this.setIsLoading(true)
           const result = await this.registerMnemonic({
             mnemonic: this.secret,
-            password: this.password,
-            accountName: this.accountName
+            password: this.password
           })
           if (result.success) {
             this._show = false

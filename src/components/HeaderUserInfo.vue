@@ -32,9 +32,9 @@ export default {
   data: () => ({
     name: ""
   }),
-  
-  async mounted() {
-    this.name = this.wallet.meta.name;
+
+  created() {
+    this.name = this.labAccount.info.name ?? ""
   }
 };
 </script>
