@@ -47,8 +47,8 @@
                     outlined
                     :disabled="isLoading || isUploading"
                     :items="dnaCollectionProcessList"
-                    item-text="dnaCollectionProcess"
-                    item-value="dnaCollectionProcess"
+                    item-text="name"
+                    item-value="collectionProcess"
                     :rules="fieldRequiredRule"
                   ></v-select>
                   
@@ -268,7 +268,7 @@
 import { mapState, mapGetters } from "vuex"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import { createService, updateService, createServiceFee, updateServiceFee } from "@/lib/polkadotProvider/command/services"
-import { getCategories, getConversionCache } from "@/lib/api"
+import { getCategories, getConversionCache, getDNACollectionProcess } from "@/lib/api"
 import List from "./List"
 import Stepper from "../Stepper"
 import { stakeLab } from "@/lib/polkadotProvider/command/labs"
@@ -330,13 +330,7 @@ export default {
       { name: "Lab Services", selected: false}
     ],
     dialogAlert: false,
-    dnaCollectionProcessList: [
-      "Blood Cells - Dried Blood Spot Collection Process",
-      "Epithelial Cells - Buccal Swab Collection Process",
-      "Fecal Matters - Stool Collection Process",
-      "Saliva - Saliva Collection Process",
-      "Urine - Clean Catch Urine Collection Process"
-    ],
+    dnaCollectionProcessList: [],
     isBiomedical: false,
     fee: 0,
     dialogStake: false,
@@ -344,6 +338,7 @@ export default {
   }),
 
   async created() {
+    this.dnaCollectionProcessList = (await getDNACollectionProcess()).data
     await this.getServiceCategory()
     const { daiToUsd } = await getConversionCache()
     this.currentDAIprice = daiToUsd ?? 1

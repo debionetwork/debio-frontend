@@ -57,8 +57,8 @@
                     outlined
                     :disabled="isLoading || isUploading"
                     :items="dnaCollectionProcessList"
-                    item-text="dnaCollectionProcess"
-                    item-value="dnaCollectionProcess"
+                    item-text="name"
+                    item-value="collectionProcess"
                     :rules="fieldRequiredRule"
                     ></v-select>
 
@@ -231,7 +231,7 @@
 <script>
 import { mapGetters, mapState } from "vuex"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
-import { getCategories, getConversionCache } from "@/lib/api"
+import { getCategories, getConversionCache, getDNACollectionProcess } from "@/lib/api"
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { fromEther, toEther } from "@/lib/balance-format"
 import { updateService, updateServiceFee } from "@/lib/polkadotProvider/command/services"
@@ -267,18 +267,13 @@ export default {
     listExpectedDuration: ["WorkingDays", "Hours", "Days"],
     listCategories: [],
     selectExpectedDuration: "",
-    dnaCollectionProcessList: [
-      "Blood Cells - Dried Blood Spot Collection Process",
-      "Epithelial Cells - Buccal Swab Collection Process",
-      "Fecal Matters - Stool Collection Process",
-      "Saliva - Saliva Collection Process",
-      "Urine - Clean Catch Urine Collection Process"
-    ],
+    dnaCollectionProcessList: [],
     isBiomedical: false,
     fee: 0
   }),
 
   async created(){
+    this.dnaCollectionProcessList = (await getDNACollectionProcess()).data
     this.id = this.$route.params.id
     await this.getServiceCategory()
     await this.getService()
