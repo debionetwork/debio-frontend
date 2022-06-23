@@ -105,14 +105,6 @@
     },
     "lab": {
       "labs": {
-        "LabRegistered": {
-          "message": "You've successfully submitted your account verification.",
-          "value": 0,
-          "value_message": "",
-          "route": "",
-          "params": "",
-          "identity": 1
-        },
         "LabUpdateVerificationStatus": {
           "message": "",
           "value": 0,
