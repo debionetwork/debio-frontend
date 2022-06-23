@@ -179,7 +179,7 @@ export default {
 
     lastEventData(val) {
       if (val !== null) {
-        if (val.method === "LabRegistered") return
+        if (val.method === "LabStakeSuccessful") return
 
         this.$store.dispatch("substrate/addListNotification", {
           address: this.wallet.address,
