@@ -33,6 +33,12 @@ export default {
     name: ""
   }),
 
+  watch: {
+    labAccount(val) {
+      this.name = val.info.name ?? ""
+    }
+  },
+
   created() {
     this.name = this.labAccount.info.name ?? ""
   }
