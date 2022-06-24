@@ -87,7 +87,6 @@ import HeaderNotification from "@/components/HeaderNotification"
 import WalletBinding from "@/components/WalletBinding"
 import DialogAlert from "@/components/Dialog/DialogAlert"
 import HeaderWallet from "@/components/HeaderWallet"
-import VueRouter from "@/router"
 import localStorage from "@/lib/local-storage";
 
 import SwitchNetwork from "@/components/Dialog/SwitchNetwork"
@@ -171,10 +170,8 @@ export default {
     }
   },
   watch: {
-    $route() {
-      const query = VueRouter?.history?.current?.query
-
-      if (query?.error) this.showError = true
+    $route(val) {
+      if (val?.query?.error) this.showError = true
     },
 
     lastEventData(val) {
