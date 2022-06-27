@@ -115,12 +115,26 @@ export default {
         const api = await ApiPromise.create({
           provider: wsProvider
         })
+
+        const allowedSections = [
+          "rewards",
+          "serviceRequest",
+          "services",
+          "labs",
+          "orders",
+          "geneticTesting",
+          "electronicMedicalRecord",
+          "certifications",
+          "balances",
+          "userProfile"
+        ]
         
         // Example of how to subscribe to events via storage
         api.query.system.events((events) => {
           events.forEach((record) => {
             const { event } = record;
-            if (event.section === "rewards" || event.section === "serviceRequest" || event.section === "services" || event.section === "labs" || event.section === "orders" || event.section === "geneticTesting" || event.section === "electronicMedicalRecord" || event.section === "certifications" || event.section === "balances" || event.section === "userProfile") {
+            
+            if (allowedSections.includes(event.section)) {
               if (event.method === "OrderPaid") localStorage.removeLocalStorageByName("lastOrderStatus")
               commit("SET_LAST_EVENT", event);
             }

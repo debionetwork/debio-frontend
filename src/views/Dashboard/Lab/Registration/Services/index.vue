@@ -473,7 +473,7 @@ export default {
           this.$store.dispatch("substrate/addAnyNotification", {
             address: this.wallet.address,
             dataAdd: {
-              message: "You've have been submitted your account verification.",
+              message: "You've successfully submitted your account verification.",
               data: labAccount,
               route: null,
               params: null
