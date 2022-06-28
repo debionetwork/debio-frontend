@@ -27,7 +27,7 @@ export async function processEvent(state, address, event, role) {
     const valueMessage = state.configEvent["role"][role][event.section][event.method].value_message
     const identity = state.configEvent["role"][role][event.section][event.method].identity
 
-    const res = await handler(dataEvent, value, valueMessage)
+    const res = await handler(dataEvent, value, valueMessage, { section: event.section, method: event.method })
 
     // Hardcode condition for LabUpdateVerificationStatus
     if (

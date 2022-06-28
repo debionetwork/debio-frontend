@@ -135,7 +135,7 @@
         }
       },
       "geneticTesting": {
-        "DnaSampleRejected": {
+        "DnaSampleQualityControlled": {
           "message": "",
           "value": "orderId",
           "value_message": "You’ve received ",
@@ -166,7 +166,7 @@
         "ServiceCreated": {
           "message": "",
           "value": "id",
-          "value_message": "You've successfully added your new service",
+          "value_message": "You've successfully added your new service -",
           "route": "lab-dashboard-services-detail",
           "params": "id",
           "identity": "ownerId"
