@@ -1,5 +1,5 @@
 import { toFormatDebioCoin } from "@/lib/polkadotProvider/index"
-// import localStorage from "@/lib/local-storage"
+import localStorage from "@/lib/local-storage"
 import store from "@/store"
 
 const defaultHandler = {
