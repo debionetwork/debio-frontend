@@ -1,6 +1,10 @@
 
 <template>
    <div>
+      <DialogErrorBalance
+        :show="isShowError"
+        @close="closeDialog"
+      />
       <v-container>
          <v-row>
             <v-col>
@@ -175,6 +179,7 @@ import { mapGetters, mapState } from "vuex"
 import { getOrdersData } from "@/lib/api"
 import Dialog from "@/components/Dialog"
 import Button from "@/components/Button"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 export default {
   name: "LabServices",
@@ -182,6 +187,7 @@ export default {
     DataTable,
     SearchBar,
     Dialog,
+    DialogErrorBalance,
     Button
   },
   data: () => ({
@@ -196,6 +202,7 @@ export default {
     services: [],
     isLoading: false,
     showDialog: false,
+    isShowError: false,
     showActiveOrder: false,
     showAlert: false,
     idItemDeleted: "",
@@ -284,10 +291,17 @@ export default {
         )
         this.showDialog = false
       } catch (error) {
+        if (error.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
+        }
         console.error(error.message)
         this.isLoading = false
         this.showDialog = false
       }
+    },
+
+    closeDialog() {
+      this.isShowError = false
     },
 
     async confirmDeleteService(item) {

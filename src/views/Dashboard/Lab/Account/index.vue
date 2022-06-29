@@ -1,6 +1,10 @@
 <template>
   <div>
     <v-container>
+      <DialogErrorBalance
+        :show="isShowError"
+        @close="closeDialog"
+      />
       <Dialog :show="showActiveOrder" :showClose="false" :width='330'>
         <template v-slot:body>
           <div class="text-center">
@@ -282,6 +286,7 @@ import DialogUnstake from "@/components/Dialog/DialogUnstake"
 import { generalDebounce } from "@/utils"
 import Dialog from "@/components/Dialog"
 import Button from "@/components/Button"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 const englishAlphabet = (val) =>
   (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) ||
@@ -291,7 +296,7 @@ export default {
   name: "LabAccount",
   mixins: [serviceHandler],
 
-  components: { Certification, DialogUnstake, Dialog, Button },
+  components: { Certification, DialogUnstake, Dialog, Button, DialogErrorBalance },
 
   data: () => ({
     document: {
@@ -321,6 +326,7 @@ export default {
     unstakeFee: 0,
     verificationStatus: "",
     isVerify: false,
+    isShowError: false,
     fee: 0
   }),
 
@@ -571,6 +577,9 @@ export default {
           }
         )
       } catch (err) {
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
+        }
         console.error(err)
       }
     },
@@ -628,9 +637,17 @@ export default {
         await unstakeLab(this.api, this.pair)
       }
       catch(err) {
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
+        }
         console.error(err)
       }
       this.unstakeLoading = false
+    },
+
+    closeDialog() {
+      this.isShowError = false
+      this.isUploading = false
     }
   }
 }
