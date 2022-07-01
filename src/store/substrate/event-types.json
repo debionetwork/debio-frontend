@@ -107,11 +107,11 @@
       "labs": {
         "LabUpdateVerificationStatus": {
           "message": "",
-          "value": 0,
+          "value": "accountId",
           "value_message": "Your account has been",
           "route": "",
           "params": "",
-          "identity": 1
+          "identity": "accountId"
         }
       },
       "orders": {
