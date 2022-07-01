@@ -15,18 +15,24 @@ const defaultHandler = {
 }
 
 const handler = {
-  labs: async (dataEvent, value, valueMessage) => {
-    const data = dataEvent;
+  labs: async (dataEvent, value, valueMessage, event) => {
+    const data = dataEvent[0];
     const id = data[value];
-    const params = { number: id };
+    const params = { id: id };
     let wording = valueMessage
-
-    if (data[2] == "LabUpdateVerificationStatus") {
+    const notifications = JSON.parse(localStorage.getLocalStorageByName(
+      `LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_lab`
+    ))
+    
+    if (event.method === "LabUpdateVerificationStatus") {
       store.dispatch("substrate/getLabAccount")
-      if (data[0].verificationStatus == "Verified") {
+      if (data.verificationStatus === "Verified") {
         wording = `Congrats! ${wording}`
       }
-      wording = `${wording} ${data[0].verificationStatus.toLowerCase()}`
+      wording = `${wording} ${data.verificationStatus.toLowerCase()}`
+
+      const isExist = notifications?.find(notif => notif.params.id === id && (notif.data.verificationStatus === data.verificationStatus))
+      if (isExist) return
     }
 
     return { data, id, params, wording }
@@ -55,7 +61,7 @@ const handler = {
     const params = null;
     const finalText = await toFormatDebioCoin(data[valueMessage])
     const coin = web3.utils.fromWei(finalText, "ether")
-    const wording = `${coin} DBIO from ${coin === 2 ? "account verification" : "wallet binding"}`;
+    const wording = `${coin} DBIO from ${Number(coin) === 2 ? "account verification" : "wallet binding"}`;
     return { data, id, params, wording }
   },
   geneticTesting: async (dataEvent, value, valueMessage, event) => {
