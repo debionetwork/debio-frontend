@@ -64,26 +64,29 @@ const handler = {
     const wording = `${coin} DBIO from ${Number(coin) === 2 ? "account verification" : "wallet binding"}`;
     return { data, id, params, wording }
   },
-  geneticTesting: async (dataEvent, value, valueMessage) => {
+  geneticTesting: async (dataEvent, value, valueMessage, event) => {
     const data = dataEvent[0];
     const id = data[value];
     const params = { orderId: id };
     const formatedHash = `${id.substr(0, 4)}...${id.substr(id.length - 4)}`
-    const wording = `${valueMessage} DAI as quality control fees for ${formatedHash}.`;
+    
+    const wording = `${valueMessage} DAI ${event.method === "DnaSampleResultReady" ? "for completeing the requested test" : "as quality control fees"} for ${formatedHash}.`;
     return { data, id, params, wording }
   },
   services: async (dataEvent, value, valueMessage) => {
     const data = dataEvent[0];
     const id = data[value];
     const params = { id: id };
-    const wording = valueMessage;
+    const formatedHash = `${id.substr(0, 4)}...${id.substr(id.length - 4)}`
+    const wording = `${valueMessage} ${formatedHash}`;
+
     const notifications = JSON.parse(localStorage.getLocalStorageByName(
       `LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_lab`
     ))
     const isExist = notifications?.find(notif => notif.params.id === id)
 
     if (isExist) return
-
+    
     return { data, id, params, wording }
   }
 }
