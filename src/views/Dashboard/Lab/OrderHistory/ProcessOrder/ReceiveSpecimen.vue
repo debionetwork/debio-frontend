@@ -1,5 +1,9 @@
 <template>
   <v-card class="dg-card mt-5" elevation="0" outlined>
+    <DialogErrorBalance
+      :show="isShowError"
+      @close="closeDialog"
+    />
     <div class="px-8 mt-5">
       <div class= "d-flex justify-space-between" >
         <div class="mb-5">
@@ -65,11 +69,13 @@
 import { mapGetters, mapState } from "vuex"
 import { processDnaSample, processDnaSampleFee } from "@/lib/polkadotProvider/command/geneticTesting"
 import DialogAlert from "@/components/Dialog/DialogAlert"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 export default {
   name: "ReceiveSpecimen",
   components: {
-    DialogAlert
+    DialogAlert,
+    DialogErrorBalance
   },
 
   props: {
@@ -78,6 +84,7 @@ export default {
   },
 
   data: () => ({
+    isShowError: false,
     isLoading: false,
     valid: false,
     confirmSpecimenNumber: "",
@@ -117,17 +124,27 @@ export default {
     },
 
     async receiveDnaSample() {
-      this.isLoading = true
-      await processDnaSample(
-        this.api,
-        this.pair,
-        this.specimenNumber,
-        this.nextStatus,
-        () => {
-          this.isLoading = false
-          this.specimenAlertDialog = true
+      try {
+        this.isLoading = true
+        await processDnaSample(
+          this.api,
+          this.pair,
+          this.specimenNumber,
+          this.nextStatus,
+          () => {
+            this.isLoading = false
+            this.specimenAlertDialog = true
+          }
+        )
+      } catch (err) {
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
         }
-      )
+      }
+    },
+
+    closeDialog() {
+      this.isShowError = false
     },
 
     async getProcessDnaSampleFee() {
