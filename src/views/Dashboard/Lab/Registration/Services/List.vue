@@ -1,5 +1,9 @@
 <template>
   <div>
+    <DialogErrorBalance
+      :show="isShowError"
+      @close="closeDialog"
+    />
     <v-card class="dg-card mt-5" elevation="0" outlined>
       <v-card-text class="px-8 mt-5">
         <div class="d-flex justify-space-between align-center">
@@ -74,6 +78,7 @@ import serviceHandler from "@/mixins/serviceHandler"
 import { deleteService, deleteServiceFee } from "@/lib/polkadotProvider/command/services"
 import DialogDelete from "@/components/Dialog/DialogDeleteConfirmation"
 import { getIpfsMetaData } from "@/lib/pinata-proxy"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 export default {
   name: "Service",
@@ -81,6 +86,7 @@ export default {
   mixins: [serviceHandler],
 
   components: {
+    DialogErrorBalance,
     DialogDelete
   },
 
@@ -88,6 +94,7 @@ export default {
     deleteConfirmation: false,
     service: null,
     services: null,
+    isShowError: false,
     fee: 0
   }),
 
@@ -148,17 +155,27 @@ export default {
       this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
     },
 
+    closeDialog() {
+      this.isShowError = false
+    },
+
     async deleteService() {
       const service = this.service
-      
-      this.$emit("delete-service", true)
-      await this.dispatch(deleteService, this.api, this.pair, service.id, () => {
-        if(this.labAccount.services.length == 0) {
-          this.$store.state.substrate.isServicesExist = false
-          this.$emit("delete-service", false)
+
+      try {
+        this.$emit("delete-service", true)
+        await this.dispatch(deleteService, this.api, this.pair, service.id, () => {
+          if(this.labAccount.services.length == 0) {
+            this.$store.state.substrate.isServicesExist = false
+            this.$emit("delete-service", false)
+          }
+        })
+        this.$emit("delete-service", false)
+      } catch (err) {
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
         }
-      })
-      this.$emit("delete-service", false)
+      }
     }
   }
 }

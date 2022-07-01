@@ -1,6 +1,10 @@
 <template>
   <div>
     <template>
+      <DialogErrorBalance
+        :show="isShowError"
+        @close="closeDialog"
+      />
       <v-file-input
         :rules="genomeFileRules"
         @change="addFileUploadEventListener($event, 'genome')"
@@ -247,6 +251,7 @@ import { uploadFile, getFileUrl, getIpfsMetaData } from "@/lib/pinata-proxy"
 import { submitTestResult, processDnaSample, submitTestResultFee, processDnaSampleFee } from "@/lib/polkadotProvider/command/geneticTesting"
 import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting"
 import localStorage from "@/lib/local-storage"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 
 export default {
@@ -256,6 +261,7 @@ export default {
     FileCard,
     DialogAlert,
     Dialog,
+    DialogErrorBalance,
     Button
   },
 
@@ -284,6 +290,7 @@ export default {
     resultLink: "",
     submitted: false,
     isProcessed: false,
+    isShowError: false,
     files: {
       genome: [],
       report: []
@@ -423,31 +430,44 @@ export default {
     },
 
     async submitTestResultDocument(callback = () => {}) {
-      await submitTestResult(
-        this.api,
-        this.pair,
-        this.specimenNumber,
-        {
-          comment: this.comment,
-          reportLink: this.files.report[0]?.ipfsPath || "",
-          resultLink: this.files.genome[0]?.ipfsPath || ""
-        },
-        callback
-      )
-      this.$emit("resultUploaded")
+      try {
+        await submitTestResult(
+          this.api,
+          this.pair,
+          this.specimenNumber,
+          {
+            comment: this.comment,
+            reportLink: this.files.report[0]?.ipfsPath || "",
+            resultLink: this.files.genome[0]?.ipfsPath || ""
+          },
+          callback
+        )
+        this.$emit("resultUploaded")
+      } catch (err) {
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
+        }
+      }
     },
 
     async sendTestResult() {
-      this.isLoading = true
-      await processDnaSample(
-        this.api,
-        this.pair,
-        this.specimenNumber,
-        "ResultReady",
-        async () => {
-          await this.resultReady()
+      try {
+        this.isLoading = true
+        await processDnaSample(
+          this.api,
+          this.pair,
+          this.specimenNumber,
+          "ResultReady",
+          async () => {
+            await this.resultReady()
+          }
+        )
+      } catch (err) {
+        this.isLoading = false
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
         }
-      )
+      }
     },
 
     async showConfirmationDialog() {
@@ -629,6 +649,11 @@ export default {
         this.reportSucceed = false
         this.$refs.encryptUploadReport.value = null
       }
+    },
+
+    closeDialog() {
+      this.isShowError = false
+      this.isLoading = false
     },
 
     sendingNotification() {

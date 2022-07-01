@@ -13,6 +13,10 @@
 
 <template>
   <div>
+    <DialogErrorBalance
+      :show="isShowError"
+      @close="closeDialog"
+    />
     <v-container>
       <v-dialog v-if="messageWarning" v-model="showModalAlert" persistent width="450">
         <v-card>
@@ -263,11 +267,13 @@ import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { getProvideRequestService, getCategories, getConversionCache, getDNACollectionProcess } from "@/lib/api";
 import { toEther } from "@/lib/balance-format"
 import { generalDebounce } from "@/utils"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
 export default {
   name: "AddLabServices",
+  components: { DialogErrorBalance },
   data: () => ({
     document: {
       category: "",
@@ -296,6 +302,7 @@ export default {
     listExpectedDuration: ["WorkingDays", "Hours", "Days"],
     dnaCollectionProcessList: [],
     isBiomedical: false,
+    isShowError: false,
     fee: 0
   }),
 
@@ -557,10 +564,17 @@ export default {
           newService,
           this.serviceFlow
         )
-      } catch (error) {
+      } catch (err) {
         this.isLoading = false
-        console.error(error)
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
+        }
+        console.error(err)
       }
+    },
+
+    closeDialog() {
+      this.isShowError = false
     },
 
     async imageUploadEventListener(file) {
@@ -646,8 +660,11 @@ export default {
           this.isLoading = true
           await this.handleProcessClaim(requests)
         }
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
+        }
+        console.error(err);
         this.isLoading = false
       }
     },

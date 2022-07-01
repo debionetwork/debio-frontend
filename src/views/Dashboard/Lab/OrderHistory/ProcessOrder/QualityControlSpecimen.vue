@@ -1,5 +1,9 @@
 <template>
     <div class="mt-5">
+        <DialogErrorBalance
+          :show="isShowError"
+          @close="closeDialog"
+        />
         <v-btn v-if="specimenStatus != 'Rejected'"
             color="primary"
             block
@@ -212,6 +216,7 @@ import { queryDnaSamples } from "@/lib/polkadotProvider/query/geneticTesting"
 import Dialog from "@/components/Dialog"
 import DialogAlert from "@/components/Dialog/DialogAlert"
 import Button from "@/components/Button"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
@@ -220,6 +225,7 @@ export default {
   components: {
     Dialog,
     DialogAlert,
+    DialogErrorBalance,
     Button
   },
 
@@ -230,6 +236,7 @@ export default {
 
   data: () => ({
     isLoading: false,
+    isShowError: false,
     qcDialog: false,
     qcCompletionDialog: false,
     rejectionDialog: false,
@@ -304,19 +311,29 @@ export default {
       this.qcCompletionDialog = true
     },
 
+    closeDialog() {
+      this.isShowError = false
+    },
+
     async closeQcCompletionDialogProceed(){
-      this.isLoading = true
-      await processDnaSample(
-        this.api,
-        this.pair,
-        this.specimenNumber,
-        "QualityControlled",
-        () => {
-          this.isLoading = false
-          this.qcCompletionDialog = false
-          this.$emit("qualityControlPassed")
+      try {
+        this.isLoading = true
+        await processDnaSample(
+          this.api,
+          this.pair,
+          this.specimenNumber,
+          "QualityControlled",
+          () => {
+            this.isLoading = false
+            this.qcCompletionDialog = false
+            this.$emit("qualityControlPassed")
+          }
+        )
+      } catch (err) {
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
         }
-      )
+      }
     },
 
     closeQcCompletionDialogReject(){
@@ -346,23 +363,30 @@ export default {
       if (!this.$refs.rejectForm.validate()) {
         return
       }
-      this.isLoading = true
-      await rejectDnaSample(
-        this.api,
-        this.pair,
-        {
-          trackingId: this.specimenNumber,
-          rejected_title: this.rejectionTitle,
-          rejected_description: this.rejectionDescription
-        },
-        () => {
-          this.isLoading = false
-          this.rejectionConfirmationDialog = false
-          this.rejectionAlertDialog = true
-          this.$emit("rejectSpecimen")
+
+      try {
+        this.isLoading = true
+        await rejectDnaSample(
+          this.api,
+          this.pair,
+          {
+            trackingId: this.specimenNumber,
+            rejected_title: this.rejectionTitle,
+            rejected_description: this.rejectionDescription
+          },
+          () => {
+            this.isLoading = false
+            this.rejectionConfirmationDialog = false
+            this.rejectionAlertDialog = true
+            this.$emit("rejectSpecimen")
+          }
+        )
+        this.processDnaSample()
+      } catch (err) {
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
         }
-      )
-      this.processDnaSample()
+      }
     },
 
     async processDnaSample() {
