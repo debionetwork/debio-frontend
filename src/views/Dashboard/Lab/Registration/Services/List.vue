@@ -84,18 +84,16 @@
             </div>
             <div class="mt-3 mb-3">{{ service.info.description }}</div>
             <div v-if="service.info.testResultSample" class="mt-3 mb-3">
-              <a
-                :href="service.info.testResultSample"
+              <button
                 class="support-url"
-                target="_blank"
-                rel="noreferrer noopener nofollow"
+                @click="handleOpenResultSample(service.info.testResultSample)"
               >
                 <v-icon class="mx-1" small>mdi-file-document</v-icon>
                 {{
                   service.documentName ||
                   `${service.info.name} Test result sample`
                 }}
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -180,6 +178,14 @@ export default {
 
     editService(service) {
       this.$emit("edit-service", service)
+    },
+
+    handleOpenResultSample(link) {
+      const a = document.createElement("a")
+      a.target = "_blank"
+      a.rel = "noreferrer noopener nofollow"
+      a.href = link
+      a.click()
     },
 
     async toggleDelete(service) {
