@@ -36,7 +36,7 @@
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
             <v-card class="dg-card" elevation="0" outlined>
               <v-form ref="addServiceForm">
-                <v-card-text class="px-8 pb-8 pt-10">              
+                <v-card-text class="px-8 pb-8 pt-10">
                   <div class="mt-5 mb-12 justify-space-evenly" align="center">
                       <v-avatar
                         size="125"
@@ -397,7 +397,7 @@ export default {
           actionTitle: "Close",
           title: "Your verification process is still under review",
           subtitle: `
-            We're sorry to say that you cannot provide a service until you are verified. 
+            We're sorry to say that you cannot provide a service until you are verified.
             Please ${gitbookLink} for more infomation
           `
         },
@@ -478,7 +478,7 @@ export default {
       this.listCategories =  data
     },
 
-    prefillValues() {      
+    prefillValues() {
       const checkQuery = Object.keys(this.servicePayload).length
       if (!checkQuery) return
 
@@ -644,21 +644,19 @@ export default {
         if (Object.keys(this.servicePayload).length) {
           const dataRequestServices = await getProvideRequestService(this.servicePayload)
 
-          const requests = []
-
+          this.isLoading = true
           for (let i=0; i < dataRequestServices.length; i++) {
-            requests.push(
-              claimRequestService(this.api, this.wallet, {
-                id,
-                hash: dataRequestServices[i].request.hash,
-                testing_price: await toEther(this.document.price),
-                qc_price: await toEther(this.document.qcPrice)
-              })
-            )
+            await claimRequestService(this.api, this.wallet, {
+              id,
+              hash: dataRequestServices[i].request.hash,
+              testing_price: await toEther(this.document.price),
+              qc_price: await toEther(this.document.qcPrice)
+            })
           }
 
-          this.isLoading = true
-          await this.handleProcessClaim(requests)
+          this.isLoading = false
+          this.$router.push("/lab/services")
+          this.$store.dispatch("lab/setProvideService", {})
         }
       } catch (err) {
         if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
@@ -666,19 +664,6 @@ export default {
         }
         console.error(err);
         this.isLoading = false
-      }
-    },
-
-    async handleProcessClaim(requests) {
-      try {
-        await Promise.all(requests)
-        this.isLoading = false
-
-        this.$router.push("/lab/services")
-        this.$store.dispatch("lab/setProvideService", {})
-      } catch (error) {
-        this.isLoading = false
-        console.error(error)
       }
     },
 
@@ -716,7 +701,7 @@ export default {
       this.$refs.fileInput.$refs.input.click()
     }
   },
-  
+
   watch: {
     category() {
       if (this.document.category == "Covid-19") {
@@ -731,10 +716,7 @@ export default {
       if (val === null) return
       const dataEvent = JSON.parse(val.data.toString())
       if (val.method === "ServiceCreated") {
-        if (
-          dataEvent[1] === this.wallet.address &&
-          Object.keys(this.servicePayload).length
-        ) this.handleClaimRequest(dataEvent[0].id)
+        if (dataEvent[1] === this.wallet.address && Object.keys(this.servicePayload).length) this.handleClaimRequest(dataEvent[0].id)
 
         else this.$router.push("/lab/services")
       }
