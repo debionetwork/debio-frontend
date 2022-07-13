@@ -412,6 +412,7 @@ export default {
     longDescriptionRules() {
       return [
         rulesHandler.FIELD_REQUIRED,
+        rulesHandler.ENGLISH_ALPHABET,
         rulesHandler.MAX_CHARACTER(500)
 
       ]
