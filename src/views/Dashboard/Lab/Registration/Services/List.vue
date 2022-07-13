@@ -99,10 +99,7 @@
 <script>
 import { mapGetters, mapState } from "vuex"
 import serviceHandler from "@/mixins/serviceHandler"
-import {
-  deleteService,
-  deleteServiceFee
-} from "@/lib/polkadotProvider/command/services"
+import { deleteService, deleteServiceFee } from "@/lib/polkadotProvider/command/services"
 import DialogDelete from "@/components/Dialog/DialogDeleteConfirmation"
 import { getIpfsMetaData } from "@/lib/pinata-proxy"
 import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
@@ -147,9 +144,7 @@ export default {
         if (!value?.services) return
 
         for (const service of value.services) {
-          const { rows } = await getIpfsMetaData(
-            service.info.testResultSample.split("/").pop()
-          )
+          const { rows } = await getIpfsMetaData(service.info.testResultSample.split("/").pop())
           servicesTmp.push({ ...service, documentName: rows[0].metadata.name })
         }
 
@@ -201,20 +196,14 @@ export default {
 
       try {
         this.$emit("delete-service", true)
-        await this.dispatch(
-          deleteService,
-          this.api,
-          this.pair,
-          service.id,
-          () => {
-            this.isLoading = false
-            this.deleteConfirmation = false
-            if (this.labAccount.services.length == 0) {
-              this.$store.state.substrate.isServicesExist = false
-              this.$emit("delete-service", false)
-            }
+        await this.dispatch(deleteService, this.api, this.pair, service.id, () => {
+          this.isLoading = false
+          this.deleteConfirmation = false
+          if (this.labAccount.services.length == 0) {
+            this.$store.state.substrate.isServicesExist = false
+            this.$emit("delete-service", false)
           }
-        )
+        })
         this.$emit("delete-service", false)
       } catch (err) {
         if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
