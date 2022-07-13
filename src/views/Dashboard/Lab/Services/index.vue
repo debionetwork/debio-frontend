@@ -245,7 +245,7 @@ export default {
       const { labAccount: { services } } = await this.$store.dispatch("substrate/getLabAccount")
 
       this.services = services.reduce((filtered, service) => {
-        if (!filtered.find(v => v.id === service.id)) filtered.push(service)
+        if (service && !filtered.find(v => v.id === service.id)) filtered.push(service)
 
         return filtered
       }, [])
