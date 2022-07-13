@@ -358,6 +358,7 @@ export default {
 
     longDescriptionRules() {
       return [
+        englishAlphabet,
         val => (val && val.length <= 500) || "This field only allows 500 characters."
       ]
     },
