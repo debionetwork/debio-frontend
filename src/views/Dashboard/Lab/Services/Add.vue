@@ -494,6 +494,7 @@ export default {
       this.document.category = category
       this.document.currency = currency || currencyType
       this.document.serviceFlow = serviceFlow
+      this.serviceFlow = serviceFlow
     },
 
     async getCreateServiceFee() {
