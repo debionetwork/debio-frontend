@@ -37,10 +37,7 @@
           <div
             v-for="(service, idx) in services"
             :key="service.id"
-            :style="
-              idx < labAccount.services.length - 1 &&
-              'border-bottom: 1px solid #555454;'
-            "
+            :style="idx < labAccount.services.length - 1 && 'border-bottom: 1px solid #555454'"
             class="my-3"
           >
             <div
@@ -61,18 +58,8 @@
             </div>
             <div>
               <span>
-                Price :
-                {{
-                  web3.utils.fromWei(
-                    String(
-                      service.info.pricesByCurrency[0].totalPrice.replaceAll(
-                        ",",
-                        ""
-                      )
-                    ),
-                    "ether"
-                  )
-                }}
+                Price : 
+                {{ web3.utils.fromWei(String(service.info.pricesByCurrency[0].totalPrice.replaceAll(",","")), "ether") }} 
                 {{ service.info.pricesByCurrency[0].currency }}
               </span>
             </div>
@@ -230,10 +217,7 @@ export default {
         )
         this.$emit("delete-service", false)
       } catch (err) {
-        if (
-          err.message ===
-          "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low"
-        ) {
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
           this.isShowError = true
         }
       }
