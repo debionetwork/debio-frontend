@@ -22,8 +22,6 @@ export default {
   data: () => ({
     address: ""
   }),
-  async mounted() {
-  },
   methods: {
     ...mapActions({
       initWeb3: "metamask/initWeb3",
