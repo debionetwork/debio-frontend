@@ -28,13 +28,13 @@ const handler = {
       store.dispatch("substrate/getLabAccount")
       if (data.verificationStatus === "Verified") {
         wording = `Congrats! ${wording}`
+
+        const isExist = notifications?.find(notif => (notif.params.id === id) && (notif.data.verificationStatus === data.verificationStatus))
+        if (isExist) return
       }
       wording = `${wording} ${data.verificationStatus.toLowerCase()}`
-
-      const isExist = notifications?.find(notif => notif.params.id === id && (notif.data.verificationStatus === data.verificationStatus))
-      if (isExist) return
     }
-
+    
     return { data, id, params, wording }
   },
   balances: async (dataEvent, value, valueMessage) => {
