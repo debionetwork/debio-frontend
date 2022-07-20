@@ -261,6 +261,7 @@ export default {
 
         const accountId = localStorage.getAddress();
         const ethAddress = this.selectAccount.address
+        localStorage.setWalletAddress(ethAddress);
 
         await this.$store.dispatch("wallet/walletBinding", {accountId, ethAddress});
         this.$emit("status-wallet", {
