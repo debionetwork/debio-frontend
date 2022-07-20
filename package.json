@@ -1,6 +1,6 @@
 {
   "name": "debio-dashboard",
-  "version": "0.1.0",
+  "version": "2.0.5",
   "private": true,
   "scripts": {
     "install:hooks": ".maintain/install-hooks.sh",
