@@ -52,12 +52,18 @@ const handler = {
     const id = data[value];
     const params = { orderId: id }
     const formatedHash = `${id.substr(0, 4)}...${id.substr(id.length - 4)}`
+    const notifications = JSON.parse(localStorage.getLocalStorageByName(
+      `LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_lab`
+    ))
     let wording = `${valueMessage} ${formatedHash} is awaiting process.`
     
     if (event.method === "OrderRefunded" || event.method === "OrderFulfilled") {
       const coin = data?.additionalPrices[0]?.value.replaceAll(",", "")
       wording = `${web3.utils.fromWei(coin)} ${data?.currency} ${valueMessage} ${formatedHash}`
     }
+
+    const isExist = notifications?.find(notif => notif.params.orderId === id && (notif.data.status === data.status))
+    if (isExist) return
 
     return { data, id, params, wording }
   },
