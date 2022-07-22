@@ -337,7 +337,7 @@ export default {
 
     longDescriptionRules() {
       return [
-        val => (val && val.length <= 255) || "This field only allows 255 characters."
+        val => (val && val.length <= 500) || "This field only allows 500 characters."
       ]
     },
 
