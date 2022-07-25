@@ -1,7 +1,14 @@
 {
-  "name": "debio-dashboard",
+  "name": "debio-frontend",
   "version": "2.0.5",
   "private": true,
+  "license": "AGPL-3.0",
+  "author": "DeBio Dev Team <debio_dev@blocksphere.id>",
+  "homepage": "https://www.debio.network",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/debionetwork/debio-frontend.git"
+  },
   "scripts": {
     "install:hooks": ".maintain/install-hooks.sh",
     "demo": "NODE_ENV=demo vue-cli-service serve",
