@@ -62,6 +62,13 @@
       <router-view />
     </v-main>
 
+    <InstallMetamask
+      :show="showInstall"
+      :button="buttonMessage"
+      :title="titleText"
+      @close="showInstall = false"
+    ></InstallMetamask>
+
     <SwitchNetwork
       :show="showSwitchNetwork"
       :networkName="networkName"
@@ -92,6 +99,7 @@ import localStorage from "@/lib/local-storage";
 
 import SwitchNetwork from "@/components/Dialog/SwitchNetwork"
 import { startApp, handleSwitchChain } from "@/lib/metamask";
+import InstallMetamask from "@/components/InstallMetamask"
 
 export default {
   name: "Dashboard",
@@ -106,7 +114,8 @@ export default {
     DialogAlert,
     ErrorConnectionDialog,
     HeaderWallet,
-    SwitchNetwork
+    SwitchNetwork,
+    InstallMetamask
   },
 
   data: () => ({
@@ -124,8 +133,10 @@ export default {
     network: {
       "Ethereum Mainnet": "0x1",
       "Rinkeby Test Network": "0x4"
-    }
-
+    },
+    showInstall: false,
+    buttonMessage: "",
+    titleText: ""
   }),
 
   async mounted() {
@@ -204,9 +215,17 @@ export default {
 
     async checkMetamask() {
       const metamask = await startApp()
-      const role = process.env.VUE_APP_ROLE
 
-      if (role === "development") {
+      console.log(metamask)
+
+      if(metamask?.currentAccount === "no_install"){
+        this.showInstall = true
+        this.buttonMessage = "Install"
+        this.titleText = "Metamask Not Found!"
+        return
+      }
+
+      if (process.env.VUE_APP_ROLE === "development") {
         this.networkName = "Rinkeby Test Network"
         if (metamask.network === this.network[this.networkName]) return
         this.showSwitchNetwork = true
