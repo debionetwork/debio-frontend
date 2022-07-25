@@ -119,7 +119,7 @@ export default {
       { text: "Dashboard", auth: true, route: { name: "lab-dashboard" } },
       { text: "Account", auth: false, route: { name: "lab-dashboard-account" } },
       { text: "Services", auth: false, route: { name: "lab-dashboard-services" } },
-      { text: "Order", auth: false, route: { name: "lab-dashboard-order-history" } }
+      { text: "Order History", auth: false, route: { name: "lab-dashboard-order-history" } }
     ]
   }),
 
