@@ -144,7 +144,7 @@ const labRoutes = [
           pageHeader: "Order History",
           breadcrumbs: [
             { text: "Lab", href: "/lab" },
-            { text: "Orders", disabled: true }
+            { text: "Order History", disabled: true }
           ]
         },
         beforeEnter: (to, from, next) => {
