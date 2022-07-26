@@ -38,7 +38,7 @@ apiClientRequest.interceptors.response.use(
   error => {
     Sentry.captureException(error);
 
-    responseValidation(error)
+    responseValidation(error.response)
 
     return Promise.reject(error);
   }

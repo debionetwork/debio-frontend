@@ -10,6 +10,10 @@
 
 <template>
   <div>
+    <DialogErrorBalance
+      :show="isShowError"
+      @close="closeDialog"
+    />
     <v-container>
       <v-row>
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
@@ -236,11 +240,14 @@ import { queryServicesById } from "@/lib/polkadotProvider/query/services";
 import { fromEther, toEther } from "@/lib/balance-format"
 import { updateService, updateServiceFee } from "@/lib/polkadotProvider/command/services"
 import { generalDebounce } from "@/utils"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
 export default {
   name: "EditLabServices",
+
+  components: { DialogErrorBalance },
 
   data: () => ({
     document: {
@@ -269,6 +276,7 @@ export default {
     selectExpectedDuration: "",
     dnaCollectionProcessList: [],
     isBiomedical: false,
+    isShowError: false,
     fee: 0
   }),
 
@@ -329,7 +337,7 @@ export default {
 
     longDescriptionRules() {
       return [
-        val => (val && val.length <= 255) || "This field only allows 255 characters."
+        val => (val && val.length <= 500) || "This field only allows 500 characters."
       ]
     },
 
@@ -410,6 +418,10 @@ export default {
       this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
     },
 
+    closeDialog() {
+      this.isShowError = false
+    },
+
     async updateService() {
       if(this.isLoading) return // If function already running return.
       if (!this.$refs.addServiceForm.validate()) {
@@ -438,16 +450,22 @@ export default {
         testResultSample: this.testResultSampleUrl
       }
 
-      await updateService(
-        this.api,
-        this.pair,
-        this.id,
-        service,
-        () => {
-          this.$router.push("/lab/services")
-          this.isLoading = false
+      try {
+        await updateService(
+          this.api,
+          this.pair,
+          this.id,
+          service,
+          () => {
+            this.$router.push("/lab/services")
+            this.isLoading = false
+          }
+        )
+      } catch (err) {
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
         }
-      )
+      }
     },
 
     async imageUploadEventListener(file) {

@@ -1,7 +1,7 @@
 import store from "@/store"
 import globalFunctions from "@/lib/functions"
 
-const labRoutes = [ 
+const labRoutes = [
   {
     path: "/lab",
     component: () => import(/* webpackChunkName */ "@/views/Dashboard/Lab/NavigationLayout"),
@@ -111,10 +111,8 @@ const labRoutes = [
           ]
         },
         beforeEnter: (to, from, next) => {
-          if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus !== "Verified") {
-            next("/lab")
-          }
-
+          if (from.name === "request-lab" && !store.state.substrate.labAccount) next("/lab/registration")
+          else if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus !== "Verified") next("/lab")
           else next()
         },
         component: () => import(/* webpackChunkName */ "@/views/Dashboard/Lab/Services/Add")
@@ -146,7 +144,7 @@ const labRoutes = [
           pageHeader: "Order History",
           breadcrumbs: [
             { text: "Lab", href: "/lab" },
-            { text: "Orders", disabled: true }
+            { text: "Order History", disabled: true }
           ]
         },
         beforeEnter: (to, from, next) => {

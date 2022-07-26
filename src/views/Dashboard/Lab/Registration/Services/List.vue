@@ -1,67 +1,95 @@
 <template>
   <div>
+    <DialogErrorBalance :show="isShowError" @close="closeDialog" />
     <v-card class="dg-card mt-5" elevation="0" outlined>
       <v-card-text class="px-8 mt-5">
         <div class="d-flex justify-space-between align-center">
-        <div class="secondary--text text-h6">
-          <strong>Services Added</strong>
-        </div>
-        <v-btn :disabled="!isLabAccountExist" small :dark="isLabAccountExist" color="#75DEE4" fab style="border-radius:10px;" @click="addService">
-          <v-icon>mdi-plus</v-icon>
-        </v-btn>
+          <div class="secondary--text text-h6">
+            <strong>Services Added</strong>
+          </div>
+          <v-btn
+            :disabled="!isLabAccountExist"
+            small
+            :dark="isLabAccountExist"
+            color="#75DEE4"
+            fab
+            style="border-radius: 10px"
+            @click="addService"
+          >
+            <v-icon>mdi-plus</v-icon>
+          </v-btn>
         </div>
         <div v-if="!labAccount || labAccount.services.length == 0">
           You don’t have any services
         </div>
         <div v-if="isLoading" class="mt-5">
-        <v-skeleton-loader 
-          v-for="data in services"
-          :key="data.idx"
-          type="list-item-three-line"
-          min-width="200"
-        ></v-skeleton-loader>
+          <v-skeleton-loader
+            v-for="data in services"
+            :key="data.idx"
+            type="list-item-three-line"
+            min-width="200"
+          ></v-skeleton-loader>
         </div>
-        <div v-if="labAccount && labAccount.services.length > 0 && !isLoading" class="mt-5">
+        <div
+          v-if="labAccount && labAccount.services.length > 0 && !isLoading"
+          class="mt-5"
+        >
           <div
             v-for="(service, idx) in services"
             :key="service.id"
-            :style="idx < (labAccount.services.length - 1) && 'border-bottom: 1px solid #555454;'"
+            :style="idx < labAccount.services.length - 1 && 'border-bottom: 1px solid #555454'"
             class="my-3"
           >
-            <div class="d-flex justify-space-between align-center" style="width: 100%;">
-              <div class=""><strong>{{ service.info.name }}</strong></div>
+            <div
+              class="d-flex justify-space-between align-center"
+              style="width: 100%"
+            >
+              <div class="">
+                <strong>{{ service.info.name }}</strong>
+              </div>
               <div class="d-flex">
-                <v-icon class="mx-1" small @click="editService(service)">mdi-pencil</v-icon>
-                <v-icon class="mx-1" small @click="toggleDelete(service)">mdi-delete</v-icon>
+                <v-icon class="mx-1" small @click="editService(service)"
+                  >mdi-pencil</v-icon
+                >
+                <v-icon class="mx-1" small @click="toggleDelete(service)"
+                  >mdi-delete</v-icon
+                >
               </div>
             </div>
             <div>
               <span>
-                Price     : 
-                {{ web3.utils.fromWei(String(service.info.pricesByCurrency[0].totalPrice.replaceAll(",", "")), "ether") }} 
+                Price : 
+                {{ web3.utils.fromWei(String(service.info.pricesByCurrency[0].totalPrice.replaceAll(",","")), "ether") }} 
                 {{ service.info.pricesByCurrency[0].currency }}
               </span>
             </div>
             <div>
               <span>
-                Duration  : {{ service.info.expectedDuration.duration }} {{ service.info.expectedDuration.durationType }}
+                Duration : {{ service.info.expectedDuration.duration }}
+                {{ service.info.expectedDuration.durationType }}
               </span>
             </div>
             <div class="mt-3 mb-3">{{ service.info.description }}</div>
             <div v-if="service.info.testResultSample" class="mt-3 mb-3">
-              <a :href="service.info.testResultSample" class="support-url" target="_blank">
+              <button
+                class="support-url"
+                @click="handleOpenResultSample(service.info.testResultSample)"
+              >
                 <v-icon class="mx-1" small>mdi-file-document</v-icon>
-                {{ service.documentName || `${service.info.name} Test result sample` }}
-              </a>
+                {{
+                  service.documentName ||
+                  `${service.info.name} Test result sample`
+                }}
+              </button>
             </div>
           </div>
         </div>
       </v-card-text>
     </v-card>
-    <DialogDelete 
+    <DialogDelete
       :fee="fee"
-      :show="deleteConfirmation" 
-      type="service" 
+      :show="deleteConfirmation"
+      type="service"
       @close="toggleDelete"
       @submit="deleteService"
     />
@@ -74,13 +102,15 @@ import serviceHandler from "@/mixins/serviceHandler"
 import { deleteService, deleteServiceFee } from "@/lib/polkadotProvider/command/services"
 import DialogDelete from "@/components/Dialog/DialogDeleteConfirmation"
 import { getIpfsMetaData } from "@/lib/pinata-proxy"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 export default {
   name: "Service",
-  
+
   mixins: [serviceHandler],
 
   components: {
+    DialogErrorBalance,
     DialogDelete
   },
 
@@ -88,6 +118,7 @@ export default {
     deleteConfirmation: false,
     service: null,
     services: null,
+    isShowError: false,
     fee: 0
   }),
 
@@ -100,7 +131,7 @@ export default {
     }),
 
     ...mapState({
-      web3: state => state.metamask.web3
+      web3: (state) => state.metamask.web3
     })
   },
 
@@ -131,6 +162,14 @@ export default {
       this.$emit("edit-service", service)
     },
 
+    handleOpenResultSample(link) {
+      const a = document.createElement("a")
+      a.target = "_blank"
+      a.rel = "noreferrer noopener nofollow"
+      a.href = link
+      a.click()
+    },
+
     async toggleDelete(service) {
       if (service) {
         this.service = service
@@ -148,17 +187,29 @@ export default {
       this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
     },
 
+    closeDialog() {
+      this.isShowError = false
+    },
+
     async deleteService() {
       const service = this.service
-      
-      this.$emit("delete-service", true)
-      await this.dispatch(deleteService, this.api, this.pair, service.id, () => {
-        if(this.labAccount.services.length == 0) {
-          this.$store.state.substrate.isServicesExist = false
-          this.$emit("delete-service", false)
+
+      try {
+        this.$emit("delete-service", true)
+        await this.dispatch(deleteService, this.api, this.pair, service.id, () => {
+          this.isLoading = false
+          this.deleteConfirmation = false
+          if (this.labAccount.services.length == 0) {
+            this.$store.state.substrate.isServicesExist = false
+            this.$emit("delete-service", false)
+          }
+        })
+        this.$emit("delete-service", false)
+      } catch (err) {
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
         }
-      })
-      this.$emit("delete-service", false)
+      }
     }
   }
 }
@@ -168,7 +219,7 @@ export default {
 .on-hover {
   cursor: pointer;
 }
-.support-url{
+.support-url {
   text-decoration: none;
   color: gray;
 }

@@ -105,21 +105,13 @@
     },
     "lab": {
       "labs": {
-        "LabRegistered": {
-          "message": "You've successfully submitted your account verification.",
-          "value": 0,
-          "value_message": "",
-          "route": "",
-          "params": "",
-          "identity": 1
-        },
         "LabUpdateVerificationStatus": {
           "message": "",
-          "value": 0,
+          "value": "accountId",
           "value_message": "Your account has been",
           "route": "",
           "params": "",
-          "identity": 1
+          "identity": "accountId"
         }
       },
       "orders": {
@@ -127,6 +119,22 @@
           "message": "",
           "value": "id",
           "value_message": "A new order",
+          "route": "lab-dashboard-process-order",
+          "params": "orderId",
+          "identity": "sellerId"
+        },
+        "OrderRefunded": {
+          "message": "You’ve received ",
+          "value": "id",
+          "value_message": "as quality control fees for",
+          "route": "lab-dashboard-process-order",
+          "params": "orderId",
+          "identity": "sellerId"
+        },
+        "OrderFulfilled": {
+          "message": "You’ve received ",
+          "value": "id",
+          "value_message": "for completeing the requested test for",
           "route": "lab-dashboard-process-order",
           "params": "orderId",
           "identity": "sellerId"
@@ -143,21 +151,13 @@
         }
       },
       "geneticTesting": {
-        "DnaSampleRejected": {
-          "message": "",
-          "value": "orderId",
-          "value_message": "You’ve received ",
-          "route": "lab-dashboard-process-order",
-          "params": "orderId",
-          "identity": "labId"
-        },
         "DnaSampleResultReady": {
-          "message": "",
+          "message": "You’ve received",
           "value": "orderId",
-          "value_message": "You’ve received ",
+          "value_message": "for completeing the requested test",
           "route": "lab-dashboard-process-order",
           "params": "orderId",
-          "identity": "labId"
+          "identity": "ownerId"
         }
       },
       "rewards": {
@@ -174,7 +174,7 @@
         "ServiceCreated": {
           "message": "",
           "value": "id",
-          "value_message": "You've successfully added your new service",
+          "value_message": "You've successfully added your new service -",
           "route": "lab-dashboard-services-detail",
           "params": "id",
           "identity": "ownerId"

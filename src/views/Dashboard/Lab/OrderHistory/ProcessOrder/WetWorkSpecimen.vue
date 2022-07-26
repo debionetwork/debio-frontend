@@ -1,5 +1,9 @@
 <template>
     <div class="mt-5">
+        <DialogErrorBalance
+          :show="isShowError"
+          @close="closeDialog"
+        />
         <v-btn 
             color="primary"
             block
@@ -67,12 +71,14 @@ import Dialog from "@/components/Dialog"
 import DialogAlert from "@/components/Dialog/DialogAlert"
 import Button from "@/components/Button"
 import { processDnaSample, processDnaSampleFee } from "@/lib/polkadotProvider/command/geneticTesting"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 export default {
   name: "WetWork",
   components: {
     Dialog,
     DialogAlert,
+    DialogErrorBalance,
     Button
   },
 
@@ -82,6 +88,7 @@ export default {
   
   data: () => ({
     isProcessing: false,
+    isShowError: false,
     wetWorkDialog: false,
     wetWorkAlertDialog: false,
     nextStatus: "WetWork",
@@ -105,18 +112,28 @@ export default {
 
   methods:{
     async processDnaSample() {
-      this.isProcessing = true
-      await processDnaSample(
-        this.api,
-        this.pair,
-        this.specimenNumber,
-        this.nextStatus,
-        () => {
-          this.isProcessing = false
-          this.wetWorkDialog = false
-          this.wetWorkAlertDialog = true
+      try {
+        this.isProcessing = true
+        await processDnaSample(
+          this.api,
+          this.pair,
+          this.specimenNumber,
+          this.nextStatus,
+          () => {
+            this.isProcessing = false
+            this.wetWorkDialog = false
+            this.wetWorkAlertDialog = true
+          }
+        )
+      } catch (err) {
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
         }
-      )
+      }
+    },
+
+    closeDialog() {
+      this.isShowError = false
     },
 
     closeWetWorkAlertDialog () {

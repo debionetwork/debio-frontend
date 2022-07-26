@@ -15,20 +15,26 @@ const defaultHandler = {
 }
 
 const handler = {
-  labs: async (dataEvent, value, valueMessage) => {
-    const data = dataEvent;
+  labs: async (dataEvent, value, valueMessage, event) => {
+    const data = dataEvent[0];
     const id = data[value];
-    const params = { number: id };
+    const params = { id: id };
     let wording = valueMessage
-
-    if (data[2] == "LabUpdateVerificationStatus") {
+    const notifications = JSON.parse(localStorage.getLocalStorageByName(
+      `LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_lab`
+    ))
+    
+    if (event.method === "LabUpdateVerificationStatus") {
       store.dispatch("substrate/getLabAccount")
-      if (data[0].verificationStatus == "Verified") {
+      if (data.verificationStatus === "Verified") {
         wording = `Congrats! ${wording}`
-      }
-      wording = `${wording} ${data[0].verificationStatus.toLowerCase()}`
-    }
 
+        const isExist = notifications?.find(notif => (notif.params.id === id) && (notif.data.verificationStatus === data.verificationStatus))
+        if (isExist) return
+      }
+      wording = `${wording} ${data.verificationStatus.toLowerCase()}`
+    }
+    
     return { data, id, params, wording }
   },
   balances: async (dataEvent, value, valueMessage) => {
@@ -40,12 +46,25 @@ const handler = {
     const wording = web3.utils.fromWei(finalText, "ether") + " DBIO!"
     return { data, id, params, wording }
   },
-  orders: async (dataEvent, value, valueMessage) => {
+  orders: async (dataEvent, value, valueMessage, event) => {
+    const web3 = store.getters["metamask/getWeb3"]
     const data = dataEvent[0];
     const id = data[value];
     const params = { orderId: id }
     const formatedHash = `${id.substr(0, 4)}...${id.substr(id.length - 4)}`
-    const wording = `${valueMessage} ${formatedHash} is awaiting process.`
+    const notifications = JSON.parse(localStorage.getLocalStorageByName(
+      `LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_lab`
+    ))
+    let wording = `${valueMessage} ${formatedHash} is awaiting process.`
+    
+    if (event.method === "OrderRefunded" || event.method === "OrderFulfilled") {
+      const coin = data?.additionalPrices[0]?.value.replaceAll(",", "")
+      wording = `${web3.utils.fromWei(coin)} ${data?.currency} ${valueMessage} ${formatedHash}`
+    }
+
+    const isExist = notifications?.find(notif => notif.params.orderId === id && (notif.data.status === data.status))
+    if (isExist) return
+
     return { data, id, params, wording }
   },
   rewards: async (dataEvent, value, valueMessage) => {
@@ -55,29 +74,34 @@ const handler = {
     const params = null;
     const finalText = await toFormatDebioCoin(data[valueMessage])
     const coin = web3.utils.fromWei(finalText, "ether")
-    const wording = `${coin} DBIO from account verification`;
+    const wording = `${coin} DBIO from ${Number(coin) === 2 ? "account verification" : "wallet binding"}`;
     return { data, id, params, wording }
   },
   geneticTesting: async (dataEvent, value, valueMessage) => {
+    const web3 = store.getters["metamask/getWeb3"]
     const data = dataEvent[0];
     const id = data[value];
     const params = { orderId: id };
     const formatedHash = `${id.substr(0, 4)}...${id.substr(id.length - 4)}`
-    const wording = `${valueMessage} DAI as quality control fees for ${formatedHash}.`;
+    const coin = data?.prices[0]?.value.replaceAll(",", "")
+    const wording = `${web3.utils.fromWei(coin)} ${data?.currency} ${valueMessage} for ${formatedHash}`
+    
     return { data, id, params, wording }
   },
   services: async (dataEvent, value, valueMessage) => {
     const data = dataEvent[0];
     const id = data[value];
     const params = { id: id };
-    const wording = valueMessage;
+    const formatedHash = `${id.substr(0, 4)}...${id.substr(id.length - 4)}`
+    const wording = `${valueMessage} ${formatedHash}`;
+
     const notifications = JSON.parse(localStorage.getLocalStorageByName(
       `LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_lab`
     ))
     const isExist = notifications?.find(notif => notif.params.id === id)
 
     if (isExist) return
-
+    
     return { data, id, params, wording }
   }
 }

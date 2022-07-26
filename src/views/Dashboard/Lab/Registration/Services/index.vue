@@ -1,5 +1,9 @@
 <template>
   <div>
+    <DialogErrorBalance
+      :show="isShowError"
+      @close="closeDialog"
+    />
     <v-container>
       <v-row>
         <v-col cols="7">
@@ -279,6 +283,7 @@ import { toEther } from "@/lib/balance-format"
 import { sendEmailRegisteredLab } from "@/lib/api/lab"
 import rulesHandler from "@/constants/rules"
 import { generalDebounce } from "@/utils"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 export default {
   name: "LabRegistrationServices",
@@ -291,6 +296,7 @@ export default {
     List,
     Stepper,
     DialogAlert,
+    DialogErrorBalance,
     DialogStake
   },
 
@@ -333,6 +339,7 @@ export default {
     dnaCollectionProcessList: [],
     isBiomedical: false,
     fee: 0,
+    isShowError: false,
     dialogStake: false,
     stakeLoading: false
   }),
@@ -383,14 +390,14 @@ export default {
       return [
         rulesHandler.FIELD_REQUIRED,
         val => (val && val != 0) || "Value on this field cannot 0",
-        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || "This field only allows 3 decimal characters."
+        val => /^\d*(\.\d{0,4})?$/.test(val) || this.isBiomedical || "This field only allows 4 decimal characters."
       ]
     },
     
     cqPriceRules() {
       return [
         rulesHandler.FIELD_REQUIRED,
-        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || "This field only allows 3 decimal characters."
+        val => /^\d*(\.\d{0,4})?$/.test(val) || this.isBiomedical || "This field only allows 4 decimal characters."
       ]
     },
 
@@ -406,7 +413,7 @@ export default {
       return [
         rulesHandler.FIELD_REQUIRED,
         rulesHandler.ENGLISH_ALPHABET,
-        rulesHandler.MAX_CHARACTER(255)
+        rulesHandler.MAX_CHARACTER(500)
 
       ]
     },
@@ -473,7 +480,7 @@ export default {
           this.$store.dispatch("substrate/addAnyNotification", {
             address: this.wallet.address,
             dataAdd: {
-              message: "Congrats! You have been submitted your account verification.",
+              message: "You've successfully submitted your account verification.",
               data: labAccount,
               route: null,
               params: null
@@ -555,7 +562,7 @@ export default {
         return
       }
       this.isLoading = true
-      
+
       if(this.isEdit) {
         await this.updateService()
         this.isEdit = false
@@ -620,18 +627,28 @@ export default {
         image: this.imageUrl,
         testResultSample: this.testResultSampleUrl
       }
-      await this.dispatch(
-        createService, this.api, this.wallet, newService, flow, () => {
-          this.setServices()
-          this.clearServicesForm()
+      try {
+        await this.dispatch(
+          createService, this.api, this.wallet, newService, flow, () => {
+            this.setServices()
+            this.clearServicesForm()
 
-          this.isLoading = false
-          this.stepperItems = [
-            { name: "Lab Information", selected: true},
-            { name: "Lab Services", selected: true}
-          ]
+            this.isLoading = false
+            this.stepperItems = [
+              { name: "Lab Information", selected: true},
+              { name: "Lab Services", selected: true}
+            ]
+          }
+        )
+      } catch (err) {
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
         }
-      )
+      }
+    },
+
+    closeDialog() {
+      this.isShowError = false
     },
 
     async updateService() {

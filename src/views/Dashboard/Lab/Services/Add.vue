@@ -13,6 +13,10 @@
 
 <template>
   <div>
+    <DialogErrorBalance
+      :show="isShowError"
+      @close="closeDialog"
+    />
     <v-container>
       <v-dialog v-if="messageWarning" v-model="showModalAlert" persistent width="450">
         <v-card>
@@ -32,7 +36,7 @@
         <v-col cols="12" xl="8" lg="8" md="8" order-md="1" order="2">
             <v-card class="dg-card" elevation="0" outlined>
               <v-form ref="addServiceForm">
-                <v-card-text class="px-8 pb-8 pt-10">              
+                <v-card-text class="px-8 pb-8 pt-10">
                   <div class="mt-5 mb-12 justify-space-evenly" align="center">
                       <v-avatar
                         size="125"
@@ -197,7 +201,7 @@
                       outlined
                       v-model="document.longDescription"
                       :disabled="isLoading"
-                      :rules="[...fieldRequiredRule, ...longDescriptionRules, ...fieldEnglishRules]"
+                      :rules="[...fieldRequiredRule, ...longDescriptionRules]"
                     />
 
                     <v-file-input
@@ -263,11 +267,13 @@ import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { getProvideRequestService, getCategories, getConversionCache, getDNACollectionProcess } from "@/lib/api";
 import { toEther } from "@/lib/balance-format"
 import { generalDebounce } from "@/utils"
+import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
 export default {
   name: "AddLabServices",
+  components: { DialogErrorBalance },
   data: () => ({
     document: {
       category: "",
@@ -296,6 +302,7 @@ export default {
     listExpectedDuration: ["WorkingDays", "Hours", "Days"],
     dnaCollectionProcessList: [],
     isBiomedical: false,
+    isShowError: false,
     fee: 0
   }),
 
@@ -335,7 +342,7 @@ export default {
 
     decimalRule() {
       return [
-        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || "This field only allows 3 decimal characters."
+        val => /^\d*(\.\d{0,4})?$/.test(val) || this.isBiomedical || "This field only allows 4 decimal characters."
       ]
     },
 
@@ -351,7 +358,8 @@ export default {
 
     longDescriptionRules() {
       return [
-        val => (val && val.length <= 255) || "This field only allows 255 characters."
+        englishAlphabet,
+        val => (val && val.length <= 500) || "This field only allows 500 characters."
       ]
     },
 
@@ -390,7 +398,7 @@ export default {
           actionTitle: "Close",
           title: "Your verification process is still under review",
           subtitle: `
-            We're sorry to say that you cannot provide a service until you are verified. 
+            We're sorry to say that you cannot provide a service until you are verified.
             Please ${gitbookLink} for more infomation
           `
         },
@@ -471,7 +479,7 @@ export default {
       this.listCategories =  data
     },
 
-    prefillValues() {      
+    prefillValues() {
       const checkQuery = Object.keys(this.servicePayload).length
       if (!checkQuery) return
 
@@ -486,6 +494,7 @@ export default {
       this.document.category = category
       this.document.currency = currency || currencyType
       this.document.serviceFlow = serviceFlow
+      this.serviceFlow = serviceFlow
     },
 
     async getCreateServiceFee() {
@@ -557,10 +566,17 @@ export default {
           newService,
           this.serviceFlow
         )
-      } catch (error) {
+      } catch (err) {
         this.isLoading = false
-        console.error(error)
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
+        }
+        console.error(err)
       }
+    },
+
+    closeDialog() {
+      this.isShowError = false
     },
 
     async imageUploadEventListener(file) {
@@ -630,38 +646,26 @@ export default {
         if (Object.keys(this.servicePayload).length) {
           const dataRequestServices = await getProvideRequestService(this.servicePayload)
 
-          const requests = []
-
+          this.isLoading = true
           for (let i=0; i < dataRequestServices.length; i++) {
-            requests.push(
-              claimRequestService(this.api, this.wallet, {
-                id,
-                hash: dataRequestServices[i].request.hash,
-                testing_price: await toEther(this.document.price),
-                qc_price: await toEther(this.document.qcPrice)
-              })
-            )
+            await claimRequestService(this.api, this.wallet, {
+              id,
+              hash: dataRequestServices[i].request.hash,
+              testing_price: await toEther(this.document.price),
+              qc_price: await toEther(this.document.qcPrice)
+            })
           }
 
-          this.isLoading = true
-          await this.handleProcessClaim(requests)
+          this.isLoading = false
+          this.$router.push("/lab/services")
+          this.$store.dispatch("lab/setProvideService", {})
         }
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        if (err.message === "1010: Invalid Transaction: Inability to pay some fees , e.g. account balance too low") {
+          this.isShowError = true
+        }
+        console.error(err);
         this.isLoading = false
-      }
-    },
-
-    async handleProcessClaim(requests) {
-      try {
-        await Promise.all(requests)
-        this.isLoading = false
-
-        this.$router.push("/lab/services")
-        this.$store.dispatch("lab/setProvideService", {})
-      } catch (error) {
-        this.isLoading = false
-        console.error(error)
       }
     },
 
@@ -699,7 +703,7 @@ export default {
       this.$refs.fileInput.$refs.input.click()
     }
   },
-  
+
   watch: {
     category() {
       if (this.document.category == "Covid-19") {
@@ -714,10 +718,7 @@ export default {
       if (val === null) return
       const dataEvent = JSON.parse(val.data.toString())
       if (val.method === "ServiceCreated") {
-        if (
-          dataEvent[1] === this.wallet.address &&
-          Object.keys(this.servicePayload).length
-        ) this.handleClaimRequest(dataEvent[0].id)
+        if (dataEvent[1] === this.wallet.address && Object.keys(this.servicePayload).length) this.handleClaimRequest(dataEvent[0].id)
 
         else this.$router.push("/lab/services")
       }
