@@ -176,7 +176,7 @@
                           max="30"
                           outlined
                           type="number"
-                          v-model="document.duration"
+                          v-model.number="document.duration"
                           :disabled="isLoading"
                           :rules="fieldRequiredRule"
                         />
