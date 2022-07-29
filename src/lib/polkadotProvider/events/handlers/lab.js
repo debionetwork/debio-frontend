@@ -46,12 +46,25 @@ const handler = {
     const wording = web3.utils.fromWei(finalText, "ether") + " DBIO!"
     return { data, id, params, wording }
   },
-  orders: async (dataEvent, value, valueMessage) => {
+  orders: async (dataEvent, value, valueMessage, event) => {
+    const web3 = store.getters["metamask/getWeb3"]
     const data = dataEvent[0];
     const id = data[value];
     const params = { orderId: id }
     const formatedHash = `${id.substr(0, 4)}...${id.substr(id.length - 4)}`
-    const wording = `${valueMessage} ${formatedHash} is awaiting process.`
+    const notifications = JSON.parse(localStorage.getLocalStorageByName(
+      `LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_lab`
+    ))
+    let wording = `${valueMessage} ${formatedHash} is awaiting process.`
+    
+    if (event.method === "OrderRefunded" || event.method === "OrderFulfilled") {
+      const coin = data?.additionalPrices[0]?.value.replaceAll(",", "")
+      wording = `${web3.utils.fromWei(coin)} ${data?.currency} ${valueMessage} ${formatedHash}`
+    }
+
+    const isExist = notifications?.find(notif => notif.params.orderId === id && (notif.data.status === data.status))
+    if (isExist) return
+
     return { data, id, params, wording }
   },
   rewards: async (dataEvent, value, valueMessage) => {
@@ -64,13 +77,15 @@ const handler = {
     const wording = `${coin} DBIO from ${Number(coin) === 2 ? "account verification" : "wallet binding"}`;
     return { data, id, params, wording }
   },
-  geneticTesting: async (dataEvent, value, valueMessage, event) => {
+  geneticTesting: async (dataEvent, value, valueMessage) => {
+    const web3 = store.getters["metamask/getWeb3"]
     const data = dataEvent[0];
     const id = data[value];
     const params = { orderId: id };
     const formatedHash = `${id.substr(0, 4)}...${id.substr(id.length - 4)}`
+    const coin = data?.prices[0]?.value.replaceAll(",", "")
+    const wording = `${web3.utils.fromWei(coin)} ${data?.currency} ${valueMessage} for ${formatedHash}`
     
-    const wording = `${valueMessage} DAI ${event.method === "DnaSampleResultReady" ? "for completeing the requested test" : "as quality control fees"} for ${formatedHash}.`;
     return { data, id, params, wording }
   },
   services: async (dataEvent, value, valueMessage) => {

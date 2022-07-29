@@ -122,6 +122,22 @@
           "route": "lab-dashboard-process-order",
           "params": "orderId",
           "identity": "sellerId"
+        },
+        "OrderRefunded": {
+          "message": "You’ve received ",
+          "value": "id",
+          "value_message": "as quality control fees for",
+          "route": "lab-dashboard-process-order",
+          "params": "orderId",
+          "identity": "sellerId"
+        },
+        "OrderFulfilled": {
+          "message": "You’ve received ",
+          "value": "id",
+          "value_message": "for completeing the requested test for",
+          "route": "lab-dashboard-process-order",
+          "params": "orderId",
+          "identity": "sellerId"
         }
       },
       "serviceRequest": {
@@ -135,21 +151,13 @@
         }
       },
       "geneticTesting": {
-        "DnaSampleQualityControlled": {
-          "message": "",
-          "value": "orderId",
-          "value_message": "You’ve received ",
-          "route": "lab-dashboard-process-order",
-          "params": "orderId",
-          "identity": "labId"
-        },
         "DnaSampleResultReady": {
-          "message": "",
+          "message": "You’ve received",
           "value": "orderId",
-          "value_message": "You’ve received ",
+          "value_message": "for completeing the requested test",
           "route": "lab-dashboard-process-order",
           "params": "orderId",
-          "identity": "labId"
+          "identity": "ownerId"
         }
       },
       "rewards": {

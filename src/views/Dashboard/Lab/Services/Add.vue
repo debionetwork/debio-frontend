@@ -342,7 +342,7 @@ export default {
 
     decimalRule() {
       return [
-        val => /^\d*(\.\d{0,3})?$/.test(val) || this.isBiomedical || "This field only allows 3 decimal characters."
+        val => /^\d*(\.\d{0,4})?$/.test(val) || this.isBiomedical || "This field only allows 4 decimal characters."
       ]
     },
 
