@@ -6,6 +6,7 @@ const localStorage = {
   DEBIO_RPC_URL: "DEBIO_RPC_URL",
   DEBIO_CONFIG: "DEBIO_CONFIG",
   DEBIO_ADDRESS_LOGIN: "DEBIO_ADDRESS_LOGIN",
+  DEBIO_ADDRESS_WALLET: "DEBIO_ADDRESS_WALLET",
   /**
    * getter setters
    */
@@ -45,6 +46,15 @@ const localStorage = {
   },
   removeAddress() {
     window.localStorage.removeItem(this.DEBIO_ADDRESS_LOGIN)
+  },
+  setWalletAddress(address) {
+    window.localStorage.setItem(this.DEBIO_ADDRESS_WALLET, address)
+  },
+  getWalletAddress() {
+    return window.localStorage.getItem(this.DEBIO_ADDRESS_WALLET)
+  },
+  removeWalletAddress() {
+    window.localStorage.removeItem(this.DEBIO_ADDRESS_WALLET)
   },
   setLocalStorageByName(name, data) {
     window.localStorage.setItem(name, data)
