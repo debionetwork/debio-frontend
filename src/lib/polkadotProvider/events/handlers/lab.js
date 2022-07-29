@@ -15,26 +15,23 @@ const defaultHandler = {
 }
 
 const handler = {
-  labs: async (dataEvent, value, valueMessage, event) => {
+  labs: async (dataEvent, value, valueMessage) => {
     const data = dataEvent[0];
     const id = data[value];
-    const params = { id: id };
-    let wording = valueMessage
+    const params = { notifId: id };
+    let wording = `${valueMessage} ${data.verificationStatus.toLowerCase()}`
     const notifications = JSON.parse(localStorage.getLocalStorageByName(
       `LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_lab`
     ))
-    
-    if (event.method === "LabUpdateVerificationStatus") {
-      store.dispatch("substrate/getLabAccount")
-      if (data.verificationStatus === "Verified") {
-        wording = `Congrats! ${wording}`
 
-        const isExist = notifications?.find(notif => (notif.params.id === id) && (notif.data.verificationStatus === data.verificationStatus))
-        if (isExist) return
-      }
-      wording = `${wording} ${data.verificationStatus.toLowerCase()}`
+    if (data?.verificationStatus === "Verified") {
+      wording = `Congrats! ${wording}`
     }
-    
+    store.dispatch("substrate/getLabAccount")
+
+    const isExist = notifications?.find(notif => notif?.params?.notifId === id && notif?.data?.verificationStatus === data?.verificationStatus)
+    if (isExist) return
+
     return { data, id, params, wording }
   },
   balances: async (dataEvent, value, valueMessage) => {
@@ -85,7 +82,7 @@ const handler = {
     const formatedHash = `${id.substr(0, 4)}...${id.substr(id.length - 4)}`
     const coin = data?.prices[0]?.value.replaceAll(",", "")
     const wording = `${web3.utils.fromWei(coin)} ${data?.currency} ${valueMessage} for ${formatedHash}`
-    
+
     return { data, id, params, wording }
   },
   services: async (dataEvent, value, valueMessage) => {
@@ -101,7 +98,7 @@ const handler = {
     const isExist = notifications?.find(notif => notif.params.id === id)
 
     if (isExist) return
-    
+
     return { data, id, params, wording }
   }
 }
