@@ -106,6 +106,7 @@ import {getBalanceDAI} from "@/lib/metamask/wallet.js"
 import {fromEther} from "@/lib/balance-format"
 import Button from "@/components/Button"
 import { startApp } from "@/lib/metamask";
+import localStorage from "@/lib/local-storage"
 
 
 export default {
@@ -167,12 +168,16 @@ export default {
     },
 
     async checkMetamask() {
+      const ethAddress = localStorage.getWalletAddress()
       this.isConnected = false
-      this.ethRegisterAddress = await ethAddressByAccountId(this.api, this.wallet.address)
+      const ethRegisterAddress = await ethAddressByAccountId(this.api, this.wallet.address)
       const metamaskAccount = await startApp()
-      if (metamaskAccount.accountList[0] === this.ethRegisterAddress) {
-        this.metamaskAddress = this.ethRegisterAddress
-        this.metamaskBalance = await getBalanceDAI(this.ethRegisterAddress)
+      if (metamaskAccount.accountList[0] === ethRegisterAddress) {
+        this.metamaskAddress = ethRegisterAddress
+        this.metamaskBalance = await getBalanceDAI(ethRegisterAddress)
+      }
+
+      if (ethAddress) {
         this.isConnected = true
       }
     },
@@ -196,6 +201,8 @@ export default {
     disconnectWallet() {
       this.metamaskAddress = ""
       this.clearWallet()
+      this.isConnected = false
+      localStorage.removeWalletAddress()
     }
   },
 
