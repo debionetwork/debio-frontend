@@ -58,8 +58,14 @@ const handler = {
     let wording = `${valueMessage} ${formatedHash} is awaiting process.`
     
     if (event.method === "OrderRefunded" || event.method === "OrderFulfilled") {
-      const coin = data?.additionalPrices[0]?.value.replaceAll(",", "")
+      const qcPrice = data?.additionalPrices[0]?.value.replaceAll(",", "")
+      const testingPrice = data?.prices[0]?.value.replaceAll(",", "")
+      const coin = event.method === "OrderRefunded" ? qcPrice : testingPrice
+
       wording = `${web3.utils.fromWei(coin)} ${data?.currency} ${valueMessage} ${formatedHash}`
+      if (event.method === "OrderFulfilled" && data.orderFlow === "RequestTest") {
+        wording = `${wording} from the service requested.`
+      }
     }
 
     const isExist = notifications?.find(notif => notif.params.orderId === id && (notif.data.status === data.status))
