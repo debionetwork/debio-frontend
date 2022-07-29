@@ -213,8 +213,6 @@ export default {
     async checkMetamask() {
       const metamask = await startApp()
 
-      console.log(metamask)
-
       if(metamask?.currentAccount === "no_install"){
         this.showInstall = true
         this.buttonMessage = "Install"
