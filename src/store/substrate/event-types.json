@@ -19,17 +19,15 @@
           "identity": "sellerId"
         },
         "OrderRefunded": {
-          "message": "You’ve received ",
           "value": "id",
-          "value_message": "as quality control fees for",
+          "value_message": "You’ve received [] as quality control fees for",
           "route": "lab-dashboard-process-order",
           "params": "orderId",
           "identity": "sellerId"
         },
         "OrderFulfilled": {
-          "message": "You’ve received ",
           "value": "id",
-          "value_message": "for completeing the requested test for",
+          "value_message": "You’ve received [] for completeing the requested test for",
           "route": "lab-dashboard-process-order",
           "params": "orderId",
           "identity": "sellerId"
@@ -37,9 +35,8 @@
       },
       "serviceRequest": {
         "ServiceRequestClaimed": {
-          "message": "Congrats! Your requested service is available now. See your stake service.",
           "value": "serviceId",
-          "value_message": "",
+          "value_message": "Congrats! Your requested service is available now. See your stake service.",
           "route": "my-test",
           "params": "1",
           "identity": 0
@@ -47,9 +44,8 @@
       },
       "geneticTesting": {
         "DnaSampleResultReady": {
-          "message": "You’ve received",
           "value": "orderId",
-          "value_message": "for completeing the requested test",
+          "value_message": "You’ve received [] for completeing the requested test",
           "route": "lab-dashboard-process-order",
           "params": "orderId",
           "identity": "ownerId"
@@ -57,9 +53,8 @@
       },
       "rewards": {
         "RewardFunds": {
-          "message": "Congrats! You’ve received ",
           "value": 0,
-          "value_message": 1,
+          "value_message": "Congrats! You’ve received ",
           "route": "",
           "params": "",
           "identity": 0
@@ -67,7 +62,6 @@
       },
       "services": {
         "ServiceCreated": {
-          "message": "",
           "value": "id",
           "value_message": "You've successfully added your new service -",
           "route": "lab-dashboard-services-detail",
