@@ -1,8 +1,6 @@
-import { customerHandler } from "@/lib/polkadotProvider/events/handlers/customer"
 import { labHandler } from "@/lib/polkadotProvider/events/handlers/lab"
 
 const handlers = {
-  customer: customerHandler,
   lab: labHandler
 }
 

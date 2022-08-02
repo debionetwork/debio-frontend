@@ -150,6 +150,7 @@ export default {
         commit("SET_LOADING_API", false)
       }
     },
+    
     async registerMnemonic({ commit }, { mnemonic, password }) {
       try {
         commit("SET_LOADING_WALLET", true)

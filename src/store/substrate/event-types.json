@@ -1,112 +1,8 @@
 {
   "role": {
-    "customer": {
-      "orders": {
-        "OrderPaid": {
-          "message": "Payment Success",
-          "value": "id",
-          "value_message": "dna_sample_tracking_id",
-          "route": "order-history-detail",
-          "params": "number",
-          "identity": "customer_id"
-        },
-        "OrderCancelled": {
-          "message": "New order cancelled",
-          "value": "id",
-          "value_message": "dna_sample_tracking_id",
-          "route": "order-history-detail",
-          "params": "number",
-          "identity": "customer_id"
-        },
-        "OrderCreated": {
-          "message": "New order created",
-          "value": "id",
-          "value_message": "dna_sample_tracking_id",
-          "route": "order-history-detail",
-          "params": "number",
-          "identity": "customer_id"
-        },
-        "OrderSuccess": {
-          "message": "Order completed",
-          "value": "id",
-          "value_message": "dna_sample_tracking_id",
-          "route": "order-history-detail",
-          "params": "number",
-          "identity": "customer_id"
-        },
-        "OrderRefunded": {
-          "message": "Order rejected or returned",
-          "value": "id",
-          "value_message": "dna_sample_tracking_id",
-          "route": "order-history-detail",
-          "params": "number",
-          "identity": "customer_id"
-        },
-        "OrderFailed": {
-          "message": "Order failed to create",
-          "value": "id",
-          "value_message": "dna_sample_tracking_id",
-          "route": "order-history-detail",
-          "params": "number",
-          "identity": "customer_id"
-        }
-      },
-      "geneticTesting": {
-        "DnaSampleProcessed": {
-          "message": "Dna Sample Processed",
-          "value": "tracking_id",
-          "value_message": "tracking_id",
-          "route": "result-test",
-          "params": "number",
-          "identity": "owner_id"
-        },
-        "DnaSampleReceived": {
-          "message": "Dna Sample Received",
-          "value": "tracking_id",
-          "value_message": "tracking_id",
-          "route": "result-test",
-          "params": "number",
-          "identity": "owner_id"
-        },
-        "DnaSampleProcessing": {
-          "message": "Dna Sample Processing",
-          "value": "tracking_id",
-          "value_message": "tracking_id",
-          "route": "result-test",
-          "params": "number",
-          "identity": "owner_id"
-        },
-        "DnaSampleCreated": {
-          "message": "Dna Sample Created",
-          "value": "tracking_id",
-          "value_message": "tracking_id",
-          "route": "result-test",
-          "params": "number",
-          "identity": "owner_id"
-        },
-        "DnaSampleRejected": {
-          "message": "Dna Sample Rejected",
-          "value": "tracking_id",
-          "value_message": "tracking_id",
-          "route": "result-test",
-          "params": "number",
-          "identity": "owner_id"
-        },
-        "DnaTestResultSubmitted": {
-          "message": "Dna Test Result Submitted",
-          "value": "tracking_id",
-          "value_message": "tracking_id",
-          "route": "result-test",
-          "params": "number",
-          "identity": "owner_id"
-        }
-      },
-      "electronicMedicalRecord": null
-    },
     "lab": {
       "labs": {
         "LabUpdateVerificationStatus": {
-          "message": "",
           "value": "accountId",
           "value_message": "Your account has been",
           "route": "",
@@ -116,7 +12,6 @@
       },
       "orders": {
         "OrderPaid": {
-          "message": "",
           "value": "id",
           "value_message": "A new order",
           "route": "lab-dashboard-process-order",
