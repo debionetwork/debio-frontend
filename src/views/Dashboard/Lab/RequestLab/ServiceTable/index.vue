@@ -274,7 +274,7 @@ export default {
 
       item.services = item.services.sort(function(a, b) {
         if (a.city < b.city) return -1
-        if (b.city > a.city) return 1
+        if (a.city > b.city) return 1
 
         return 0
       })

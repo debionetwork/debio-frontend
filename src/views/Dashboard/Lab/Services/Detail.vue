@@ -152,7 +152,8 @@
                           placeholder="Expected Duration"
                           max="30"
                           outlined
-                          v-model="document.duration"
+                          type="number"
+                          v-model.number="document.duration"
                           :disabled="isLoading || isUploading"
                           :rules="fieldRequiredRule"
                         ></v-text-field>
