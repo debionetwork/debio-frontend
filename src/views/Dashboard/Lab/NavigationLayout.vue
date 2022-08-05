@@ -176,7 +176,6 @@ export default {
 
     lastEventData(val) {
       if (val !== null) {
-        console.log("method", val.method)
         if (val.method === "LabStakeSuccessful") return
 
         this.$store.dispatch("substrate/addListNotification", {
