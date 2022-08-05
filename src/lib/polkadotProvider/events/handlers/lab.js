@@ -61,9 +61,10 @@ const handler = {
       const qcPrice = data?.additionalPrices[0]?.value.replaceAll(",", "")
       const testingPrice = data?.prices[0]?.value.replaceAll(",", "")
       const coin = event.method === "OrderRefunded" ? qcPrice : testingPrice
+      const currency = data.orderFlow === "StakingRequestService" ? "DBIO" : data?.currency
 
-      wording = `${web3.utils.fromWei(coin)} ${data?.currency} ${valueMessage} ${formatedHash}`
-      if (event.method === "OrderFulfilled" && data.orderFlow === "RequestTest") {
+      wording = `${web3.utils.fromWei(coin)} ${currency} ${valueMessage} ${formatedHash}`
+      if (event.method === "OrderFulfilled" && data.orderFlow === "StakingRequestService") {
         wording = `${wording} from the service requested.`
       }
     }
