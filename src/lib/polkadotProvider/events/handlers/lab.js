@@ -55,8 +55,15 @@ const handler = {
     let wording = `${valueMessage} ${formatedHash} is awaiting process.`
     
     if (event.method === "OrderRefunded" || event.method === "OrderFulfilled") {
-      const coin = data?.additionalPrices[0]?.value.replaceAll(",", "")
-      wording = `${web3.utils.fromWei(coin)} ${data?.currency} ${valueMessage} ${formatedHash}`
+      const qcPrice = data?.additionalPrices[0]?.value.replaceAll(",", "")
+      const testingPrice = data?.prices[0]?.value.replaceAll(",", "")
+      const coin = event.method === "OrderRefunded" ? qcPrice : testingPrice
+      const currency = data.orderFlow === "StakingRequestService" ? "DBIO" : data?.currency
+
+      wording = `${web3.utils.fromWei(coin)} ${currency} ${valueMessage} ${formatedHash}`
+      if (event.method === "OrderFulfilled" && data.orderFlow === "StakingRequestService") {
+        wording = `${wording} from the service requested.`
+      }
     }
 
     const isExist = notifications?.find(notif => notif.params.orderId === id && (notif.data.status === data.status))
