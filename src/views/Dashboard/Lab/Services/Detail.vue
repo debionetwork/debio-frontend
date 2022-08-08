@@ -283,9 +283,8 @@ export default {
 
   async created(){
     this.dnaCollectionProcessList = (await getDNACollectionProcess()).data
-    this.id = this.$route.params.id
     await this.getServiceCategory()
-    await this.getService()
+    await this.getService(this.$route.params.id)
     const { daiToUsd } = await getConversionCache()
     this.currentDAIprice = daiToUsd ?? 1
   },
@@ -351,9 +350,36 @@ export default {
     }
   },
 
+  watch: {
+    category() {
+      if (this.document.category == "Covid-19") {
+        this.isBiomedical = true
+        this.document.qcPrice = "0"
+      } else {
+        this.isBiomedical = false
+      }
+    },
+
+    $route: {
+      deep: true,
+      immediate: true,
+      handler: async function (val) {
+        await this.getService(val.params.id)
+      }
+    },
+
+    document: {
+      deep: true,
+      immediate: true,
+      handler: generalDebounce( async function() {
+        await this.getUpdateServiceFee()
+      }, 500)
+    }
+  },
+
   methods: {
-    async getService() {
-      const detailService = await queryServicesById(this.api,this.id)
+    async getService(sid) {
+      const detailService = await queryServicesById(this.api, sid)
       const { category, description, dnaCollectionProcess, expectedDuration, image, longDescription, name, pricesByCurrency, testResultSample } = detailService.info
 
       this.document = {
@@ -455,7 +481,7 @@ export default {
         await updateService(
           this.api,
           this.pair,
-          this.id,
+          this.$route.params.id,
           service,
           () => {
             this.$router.push("/lab/services")
@@ -539,25 +565,6 @@ export default {
       this.$refs.fileInput.$refs.input.click()
     }
 
-  },
-
-  watch: {
-    category() {
-      if (this.document.category == "Covid-19") {
-        this.isBiomedical = true
-        this.document.qcPrice = "0"
-      } else {
-        this.isBiomedical = false
-      }
-    },
-
-    document: {
-      deep: true,
-      immediate: true,
-      handler: generalDebounce( async function() {
-        await this.getUpdateServiceFee()
-      }, 500)
-    }
   }
 }
 </script>
