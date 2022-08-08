@@ -152,7 +152,8 @@ export default {
       wallet: (state) => state.substrate.wallet,
       lastEventData: (state) => state.substrate.lastEventData,
       labAccount: (state) => state.substrate.labAccount,
-      mnemonicData: (state) => state.substrate.mnemonicData
+      mnemonicData: (state) => state.substrate.mnemonicData,
+      lastBlockData: (state) => state.substrate.lastBlockData
     }),
 
     isLab() {
@@ -192,6 +193,7 @@ export default {
         this.$store.dispatch("substrate/addListNotification", {
           address: this.wallet.address,
           event: val,
+          block: this.lastBlockData,
           role: "lab"
         })
       }

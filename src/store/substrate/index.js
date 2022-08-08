@@ -36,7 +36,8 @@ const defaultState = {
   lastEventData: null,
   localListNotification: [],
   configEvent: null,
-  mnemonicData: null
+  mnemonicData: null,
+  lastBlockData: null
 }
 
 export default {
@@ -95,6 +96,9 @@ export default {
     SET_LAST_EVENT(state, event) {
       state.lastEventData = event
     },
+    SET_LAST_BLOCK(state, event) {
+      state.lastBlockData = event
+    },
     SET_LIST_NOTIFICATION(state, event) {
       state.localListNotification = event
     },
@@ -128,6 +132,9 @@ export default {
           "balances",
           "userProfile"
         ]
+
+        const block =  await api.rpc.chain.getBlock()
+        const lastBlockData = block.toHuman()
         
         // Example of how to subscribe to events via storage
         api.query.system.events((events) => {
@@ -136,7 +143,8 @@ export default {
             
             if (allowedSections.includes(event.section)) {
               if (event.method === "OrderPaid") localStorage.removeLocalStorageByName("lastOrderStatus")
-              commit("SET_LAST_EVENT", event);
+              commit("SET_LAST_EVENT", event)
+              commit("SET_LAST_BLOCK", lastBlockData)
             }
           })
         })
@@ -150,6 +158,7 @@ export default {
         commit("SET_LOADING_API", false)
       }
     },
+
     async registerMnemonic({ commit }, { mnemonic, password }) {
       try {
         commit("SET_LOADING_WALLET", true)
@@ -349,7 +358,7 @@ export default {
       }
     },
     
-    async addListNotification({ commit, state }, { address, event, role }) {
+    async addListNotification({ commit, state }, { address, event, block, role }) {
       try {
         const storageName = "LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role;
         const listNotificationJson = localStorage.getLocalStorageByName(storageName);
@@ -381,6 +390,7 @@ export default {
               data: data,
               route: route,
               params: params,
+              block: block.header.number,
               read: false,
               notifDate: notifDate
             });

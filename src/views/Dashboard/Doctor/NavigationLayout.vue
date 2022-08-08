@@ -108,7 +108,8 @@ export default {
     ...mapState({
       isDoctorAccountExist: (state) => state.substrate.isDoctorAccountExist,
       wallet: (state) => state.substrate.wallet,
-      lastEventData: (state) => state.substrate.lastEventData
+      lastEventData: (state) => state.substrate.lastEventData,
+      lastBlockData: (state) => state.substrate.lastBlockData
     }),
 
     isDoctor() {
@@ -131,6 +132,7 @@ export default {
         this.$store.dispatch("substrate/addListNotification", {
           address: this.wallet.address,
           event: this.lastEventData,
+          block: this.lastBlockData,
           role: "doctor"
         });
       }
