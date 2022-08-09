@@ -186,13 +186,13 @@ export default {
       deep: true,
       immediate: true,
       handler: async function (val) {
-        await this.prefillOrder(val?.params?.id)
+        await this.prefillOrder(val?.params?.orderId)
       }
     }
   },
 
   async created() {
-    await this.prefillOrder(this.$route.params.id)
+    await this.prefillOrder(this.$route.params.orderId)
   },
 
   methods: {
