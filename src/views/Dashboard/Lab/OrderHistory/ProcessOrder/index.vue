@@ -186,7 +186,7 @@ export default {
       deep: true,
       immediate: true,
       handler: async function (val) {
-        await this.prefillOrder(val.params.id)
+        await this.prefillOrder(val?.params?.id)
       }
     }
   },

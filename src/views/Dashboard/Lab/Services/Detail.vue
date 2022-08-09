@@ -364,7 +364,7 @@ export default {
       deep: true,
       immediate: true,
       handler: async function (val) {
-        await this.getService(val.params.id)
+        await this.getService(val?.params?.id)
       }
     },
 
