@@ -404,9 +404,9 @@ export default {
             this.files.push(new File([blob], this.imageUrl.substring(21)))
           });
       }
-      
+
       if(this.testResultSampleUrl){
-        fetch(this.testResultSampleUrl)
+        await fetch(this.testResultSampleUrl)
           .then(res => res.blob()) // Gets the response and returns it as a blob
           .then(blob => {
             const fileName = this.testResultSampleUrl.split("/").pop()
