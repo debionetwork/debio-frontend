@@ -53,6 +53,10 @@ export default {
       //this.clearWallet()
       localStorage.clear()
       this.$router.push("/login")
+      const accounts = Object.keys(window.localStorage).filter((v) =>
+        /account:/.test(v)
+      )
+      window.localStorage.removeItem(accounts[0])
     },
     downloadKeystore() {
       const keystore = localStorage.getKeystore()

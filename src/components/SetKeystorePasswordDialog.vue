@@ -159,6 +159,11 @@ export default {
             this._show = false
             this.$emit("key-store-set")
             this.setIsLoading(false)
+            const accounts = Object.keys(window.localStorage).filter((v) =>
+              /account:/.test(v)
+            )
+        
+            if (accounts.length > 1) window.localStorage.removeItem(accounts[0])
             return
           }
         }

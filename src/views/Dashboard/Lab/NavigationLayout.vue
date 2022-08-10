@@ -254,6 +254,10 @@ export default {
       this.$store.dispatch("lab/setProvideService", {})
       this.$store.commit("substrate/SET_IS_SERVICES_EXIST", false)
       this.$router.push("/login");
+      const accounts = Object.keys(window.localStorage).filter((v) =>
+        /account:/.test(v)
+      )
+      window.localStorage.removeItem(accounts[0])
     }
   }
 }
