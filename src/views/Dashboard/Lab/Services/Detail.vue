@@ -281,15 +281,6 @@ export default {
     fee: 0
   }),
 
-  async created(){
-    this.dnaCollectionProcessList = (await getDNACollectionProcess()).data
-    this.id = this.$route.params.id
-    await this.getServiceCategory()
-    await this.getService()
-    const { daiToUsd } = await getConversionCache()
-    this.currentDAIprice = daiToUsd ?? 1
-  },
-
   computed: {
     ...mapState({
       web3: (state) => state.metamask.web3
@@ -351,9 +342,45 @@ export default {
     }
   },
 
+  watch: {
+    category() {
+      if (this.document.category == "Covid-19") {
+        this.isBiomedical = true
+        this.document.qcPrice = "0"
+      } else {
+        this.isBiomedical = false
+      }
+    },
+
+    document: {
+      deep: true,
+      immediate: true,
+      handler: generalDebounce( async function() {
+        await this.getUpdateServiceFee()
+      }, 500)
+    },
+
+    $route: {
+      deep: true,
+      immediate: true,
+      handler: async function (val) {
+        await this.getService(val.params.id)
+      }
+    }
+  },
+
+  async created(){
+    this.dnaCollectionProcessList = (await getDNACollectionProcess()).data
+    this.id = this.$route.params.id
+    await this.getServiceCategory()
+    await this.getService(this.$route.params.id)
+    const { daiToUsd } = await getConversionCache()
+    this.currentDAIprice = daiToUsd ?? 1
+  },
+
   methods: {
-    async getService() {
-      const detailService = await queryServicesById(this.api,this.id)
+    async getService(sid) {
+      const detailService = await queryServicesById(this.api, sid)
       const { category, description, dnaCollectionProcess, expectedDuration, image, longDescription, name, pricesByCurrency, testResultSample } = detailService.info
 
       this.document = {
@@ -378,9 +405,9 @@ export default {
             this.files.push(new File([blob], this.imageUrl.substring(21)))
           });
       }
-      
+
       if(this.testResultSampleUrl){
-        fetch(this.testResultSampleUrl)
+        await fetch(this.testResultSampleUrl)
           .then(res => res.blob()) // Gets the response and returns it as a blob
           .then(blob => {
             const fileName = this.testResultSampleUrl.split("/").pop()
@@ -455,7 +482,7 @@ export default {
         await updateService(
           this.api,
           this.pair,
-          this.id,
+          this.$route.params.id,
           service,
           () => {
             this.$router.push("/lab/services")
@@ -537,26 +564,6 @@ export default {
 
     selectPicture() {
       this.$refs.fileInput.$refs.input.click()
-    }
-
-  },
-
-  watch: {
-    category() {
-      if (this.document.category == "Covid-19") {
-        this.isBiomedical = true
-        this.document.qcPrice = "0"
-      } else {
-        this.isBiomedical = false
-      }
-    },
-
-    document: {
-      deep: true,
-      immediate: true,
-      handler: generalDebounce( async function() {
-        await this.getUpdateServiceFee()
-      }, 500)
     }
   }
 }
