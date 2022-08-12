@@ -181,24 +181,100 @@ export default {
     testResult: null
   }),
 
+  computed: {
+    ...mapState({
+      genome: (state) => state.testResult.genome,
+      report: (state) => state.testResult.report,
+      configApp: (state) => state.auth.configApp
+    }),
+
+    ...mapGetters({
+      api: "substrate/getAPI",
+      pair: "substrate/wallet"
+    }),
+
+    orderId() {
+      return this.$route.params.orderId ? this.$route.params.orderId : "";
+    },
+
+    showReceiveDialog() {
+      return this.stepperItems.some(
+        (item) => item.name == "Received" && item.selected == false
+      );
+    },
+
+    showQualityControlDialog() {
+      return (
+        (this.stepperItems.some(
+          (item) => item.name == "Received" && item.selected == true
+        ) &&
+          this.stepperItems.some(
+            (item) => item.name == "Quality Control" && item.selected == false
+          )) ||
+        this.specimenStatus == "Rejected"
+      );
+    },
+
+    showWetWorkDialog() {
+      return (
+        this.stepperItems.some(
+          (item) => item.name == "Quality Control" && item.selected == true
+        ) &&
+        this.stepperItems.some(
+          (item) => item.name == "Analyzed" && item.selected == false
+        ) &&
+        this.specimenStatus != "Rejected"
+      );
+    },
+
+    showGenomeReportDialog() {
+      return (
+        (this.stepperItems.some(
+          (item) => item.name == "Analyzed" && item.selected == true
+        ) &&
+          this.stepperItems.some(
+            (item) => item.name == "Upload Result" && item.selected == false
+          )) ||
+        (this.stepperItems.some(
+          (item) => item.name == "Upload Result" && item.selected == true
+        ) &&
+          this.stepperItems.some(
+            (item) => item.name == "Results Ready" && item.selected == false
+          ) &&
+          this.specimenStatus != "Rejected")
+      );
+    },
+
+    _icon() {
+      return this.serviceImage &&
+        (this.serviceImage.startsWith("mdi") ||
+          this.serviceImage.startsWith("$"))
+        ? this.serviceImage
+        : false;
+    }
+  },
+
   watch: {
-    orderId(val) {
-      if (val) this.prefillOrder()
+    $route: {
+      deep: true,
+      immediate: true,
+      handler: async function (val) {
+        await this.prefillOrder(val.params.orderId)
+      }
     }
   },
 
   async created() {
-    await this.prefillOrder()
+    await this.prefillOrder(this.$route.params.orderId)
   },
 
   methods: {
-    async prefillOrder() {
+    async prefillOrder(oid) {
       try {
         // If no order id redirect to Payment History list
-        if (!this.orderId) {
-          this.$router.push({ name: "lab-dashboard-order-history" });
-        }
-        const order = await getOrdersDetail(this.api, this.orderId);
+        if (!oid) this.$router.push({ name: "lab-dashboard-order-history" })
+
+        const order = await getOrdersDetail(this.api, oid);
         const serviceInfo = await queryServicesById(this.api, order.serviceId);
         const testResult = await queryDnaTestResults(this.api, order.dnaSampleTrackingId);
 
@@ -319,78 +395,6 @@ export default {
         }
         return { ...item };
       });
-    }
-  },
-  computed: {
-    ...mapState({
-      genome: (state) => state.testResult.genome,
-      report: (state) => state.testResult.report,
-      configApp: (state) => state.auth.configApp
-    }),
-
-    ...mapGetters({
-      api: "substrate/getAPI",
-      pair: "substrate/wallet"
-    }),
-
-    orderId() {
-      return this.$route.params.orderId ? this.$route.params.orderId : "";
-    },
-
-    showReceiveDialog() {
-      return this.stepperItems.some(
-        (item) => item.name == "Received" && item.selected == false
-      );
-    },
-
-    showQualityControlDialog() {
-      return (
-        (this.stepperItems.some(
-          (item) => item.name == "Received" && item.selected == true
-        ) &&
-          this.stepperItems.some(
-            (item) => item.name == "Quality Control" && item.selected == false
-          )) ||
-        this.specimenStatus == "Rejected"
-      );
-    },
-
-    showWetWorkDialog() {
-      return (
-        this.stepperItems.some(
-          (item) => item.name == "Quality Control" && item.selected == true
-        ) &&
-        this.stepperItems.some(
-          (item) => item.name == "Analyzed" && item.selected == false
-        ) &&
-        this.specimenStatus != "Rejected"
-      );
-    },
-
-    showGenomeReportDialog() {
-      return (
-        (this.stepperItems.some(
-          (item) => item.name == "Analyzed" && item.selected == true
-        ) &&
-          this.stepperItems.some(
-            (item) => item.name == "Upload Result" && item.selected == false
-          )) ||
-        (this.stepperItems.some(
-          (item) => item.name == "Upload Result" && item.selected == true
-        ) &&
-          this.stepperItems.some(
-            (item) => item.name == "Results Ready" && item.selected == false
-          ) &&
-          this.specimenStatus != "Rejected")
-      );
-    },
-
-    _icon() {
-      return this.serviceImage &&
-        (this.serviceImage.startsWith("mdi") ||
-          this.serviceImage.startsWith("$"))
-        ? this.serviceImage
-        : false;
     }
   }
 };
