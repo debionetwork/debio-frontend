@@ -95,7 +95,7 @@ const handler = {
     const notifications = JSON.parse(localStorage.getLocalStorageByName(
       `LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_lab`
     ))
-    const isExist = notifications?.find(notif => notif.params.id === id)
+    const isExist = notifications?.find(notif => notif.params?.id === id)
 
     if (isExist) return
 
