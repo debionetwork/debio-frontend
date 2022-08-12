@@ -418,7 +418,8 @@ export default {
         this.noState = true
         this.countryName = selectedCountry.name
         this.document.country = selectedCountry
-        this.phoneCode = selectedCountry.phobe_code ?? null
+        this.phoneCode = selectedCountry.phone_code ?? null
+        this.document.phoneCode = selectedCountry?.phone_code ?? null;
         return
       }
 
