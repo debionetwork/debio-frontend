@@ -162,8 +162,12 @@ export default {
             const accounts = Object.keys(window.localStorage).filter((v) =>
               /account:/.test(v)
             )
-        
-            if (accounts.length > 1) window.localStorage.removeItem(accounts[0])
+            accounts.forEach((a) => {
+              const detail = JSON.parse(window.localStorage.getItem(a))
+              if (detail.address !== this.wallet.address) {
+                window.localStorage.removeItem(a)
+              }
+            })
             return
           }
         }
