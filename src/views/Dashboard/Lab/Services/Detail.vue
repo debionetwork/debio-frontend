@@ -364,7 +364,11 @@ export default {
       deep: true,
       immediate: true,
       handler: async function (val) {
-        await this.getService(val.params.id)
+        try {
+          await this.getService(val.params.id)
+        } catch (err) {
+          console.error(err)
+        }
       }
     }
   },
