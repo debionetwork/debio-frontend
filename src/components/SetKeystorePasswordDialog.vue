@@ -117,7 +117,8 @@ export default {
     },
     ...mapState({
       substrateApi: (state) => state.substrate.api,
-      isLoading: (state) => state.substrate.isLoadingWallet
+      isLoading: (state) => state.substrate.isLoadingWallet,
+      wallet: (state) => state.substrate.wallet
     }),
     passwordRules() {
       return [
