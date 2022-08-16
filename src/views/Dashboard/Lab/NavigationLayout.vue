@@ -254,6 +254,15 @@ export default {
       this.$store.dispatch("lab/setProvideService", {})
       this.$store.commit("substrate/SET_IS_SERVICES_EXIST", false)
       this.$router.push("/login");
+      const accounts = Object.keys(window.localStorage).filter((v) =>
+        /account:/.test(v)
+      )
+      accounts.forEach((a) => {
+        const detail = JSON.parse(window.localStorage.getItem(a))
+        if (detail.address !== this.wallet.address) {
+          window.localStorage.removeItem(a)
+        }
+      })
     }
   }
 }

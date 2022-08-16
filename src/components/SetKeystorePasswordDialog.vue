@@ -159,6 +159,15 @@ export default {
             this._show = false
             this.$emit("key-store-set")
             this.setIsLoading(false)
+            const accounts = Object.keys(window.localStorage).filter((v) =>
+              /account:/.test(v)
+            )
+            accounts.forEach((a) => {
+              const detail = JSON.parse(window.localStorage.getItem(a))
+              if (detail.address !== this.wallet.address) {
+                window.localStorage.removeItem(a)
+              }
+            })
             return
           }
         }
