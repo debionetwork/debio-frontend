@@ -186,7 +186,11 @@ export default {
       deep: true,
       immediate: true,
       handler: async function (val) {
-        await this.prefillOrder(val?.params?.orderId)
+        try {
+          await this.prefillOrder(val.params.orderId)
+        } catch (err) {
+          console.error(err);
+        }
       }
     }
   },
