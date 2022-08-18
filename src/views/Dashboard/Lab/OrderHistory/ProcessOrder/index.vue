@@ -182,23 +182,30 @@ export default {
   }),
 
   watch: {
-    orderId(val) {
-      if (val) this.prefillOrder()
+    $route: {
+      deep: true,
+      immediate: true,
+      handler: async function (val) {
+        try {
+          await this.prefillOrder(val.params.orderId)
+        } catch (err) {
+          console.error(err);
+        }
+      }
     }
   },
 
   async created() {
-    await this.prefillOrder()
+    await this.prefillOrder(this.$route.params.orderId)
   },
 
   methods: {
-    async prefillOrder() {
+    async prefillOrder(oid) {
       try {
         // If no order id redirect to Payment History list
-        if (!this.orderId) {
-          this.$router.push({ name: "lab-dashboard-order-history" });
-        }
-        const order = await getOrdersDetail(this.api, this.orderId);
+        if (!oid) this.$router.push({ name: "lab-dashboard-order-history" });
+
+        const order = await getOrdersDetail(this.api, oid);
         const serviceInfo = await queryServicesById(this.api, order.serviceId);
         const testResult = await queryDnaTestResults(this.api, order.dnaSampleTrackingId);
 
