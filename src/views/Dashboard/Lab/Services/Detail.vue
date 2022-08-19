@@ -281,14 +281,6 @@ export default {
     fee: 0
   }),
 
-  async created(){
-    this.dnaCollectionProcessList = (await getDNACollectionProcess()).data
-    await this.getServiceCategory()
-    await this.getService(this.$route.params.id)
-    const { daiToUsd } = await getConversionCache()
-    this.currentDAIprice = daiToUsd ?? 1
-  },
-
   computed: {
     ...mapState({
       web3: (state) => state.metamask.web3
@@ -360,6 +352,14 @@ export default {
       }
     },
 
+    document: {
+      deep: true,
+      immediate: true,
+      handler: generalDebounce( async function() {
+        await this.getUpdateServiceFee()
+      }, 500)
+    },
+    
     $route: {
       deep: true,
       immediate: true,
@@ -370,15 +370,16 @@ export default {
           console.error(err)
         }
       }
-    },
-
-    document: {
-      deep: true,
-      immediate: true,
-      handler: generalDebounce( async function() {
-        await this.getUpdateServiceFee()
-      }, 500)
     }
+  },
+
+  async created(){
+    this.dnaCollectionProcessList = (await getDNACollectionProcess()).data
+    this.id = this.$route.params.id
+    await this.getServiceCategory()
+    await this.getService(this.$route.params.id)
+    const { daiToUsd } = await getConversionCache()
+    this.currentDAIprice = daiToUsd ?? 1
   },
 
   methods: {
@@ -568,7 +569,6 @@ export default {
     selectPicture() {
       this.$refs.fileInput.$refs.input.click()
     }
-
   }
 }
 </script>

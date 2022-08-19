@@ -215,7 +215,7 @@ export default {
       else return name
     },
 
-    createTooltip({ country, totalValue = { dbio: 0 }, totalRequests }) {
+    createTooltip({ country, totalValue, totalRequests }) {
       return `
         <h3 class="tooltip__header">${country}</h3>
         <div class="tooltip__content">
@@ -225,7 +225,7 @@ export default {
           </div>
           <div class="tooltip__field d-flex justify-between">
             <p class="tooltip__field-title mb-0 mr-8">Value staked</p>
-            <b class="tooltip__field-desc mb-0">${totalValue.dbio.toFixed(3)}</b>
+            <b class="tooltip__field-desc mb-0">${totalValue?.toFixed(3)}</b>
           </div>
         </div>
       `
@@ -330,7 +330,7 @@ export default {
 
         const request = serviceRequestByCountry[country]?.totalRequests
 
-        if (request <= 5) colorIndex = 1
+        if (request !== 0 && request <= 5) colorIndex = 1
         if (request > 5) colorIndex = 2
         if (request > 10) colorIndex = 3
         if (request > 20) colorIndex = 4
@@ -448,7 +448,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .search-bar {
     &__wrapper {
       position: absolute;
@@ -555,37 +555,6 @@ export default {
     &__result-action {
       margin-top: 18px;
     }
-  }
-
-  .v-menu__content {
-    top: 239px !important;
-    border: 1px solid #7D4180;
-    border-radius: 4px;
-
-    &::-webkit-scrollbar-track {
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-      border-radius: 10px;
-      background-color: #D3C9D1;
-    }
-
-    &::-webkit-scrollbar {
-      width: 5px;
-      background-color: #D3C9D1;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      border-radius: 10px;
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-      background: #7D4180;
-    }
-  }
-
-  .v-list-group__header__append-icon {
-    display: none;
-  }
-
-  .v-ripple__container {
-    display: none !important;
   }
 
   #map-container {
