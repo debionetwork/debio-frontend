@@ -294,6 +294,7 @@ export default {
     messageWarning: {},
     serviceFlow: "RequestTest",
     files: [],
+    lab: null,
     testResultSampleFile:[],
     listCategories:[],
     isLoading: false,
@@ -388,7 +389,7 @@ export default {
   methods: {
 
     async validate () {
-      const currentLab = await queryLabsById(this.api, this.wallet.address)
+      this.lab = await queryLabsById(this.api, this.wallet.address)
 
       const gitbookLink = `<a href="https://t.me/debionetwork" target="_blank">contact us</a>`
 
@@ -440,19 +441,17 @@ export default {
         }
       })
 
-      if (!currentLab) {
+      if (!this.lab) {
         this.showModalAlert = true
 
         this.messageWarning = MESSAGE["UNEXPECTED"]
       }
 
-      if (Object.keys(this.servicePayload).length) {
+      if (this.lab?.verificationStatus === "Verified" && Object.keys(this.servicePayload).length) {
         if (
-          currentLab.verificationStatus === "Verified" &&
-          currentLab.info?.country !== this.servicePayload.countryCode ||
-          currentLab.info?.region !== this.servicePayload.cityCode
+          this.lab.info?.country !== this.servicePayload.countryCode ||
+          this.lab.info?.region !== this.servicePayload.cityCode
         ) {
-
           this.showModalAlert = true
 
           this.messageWarning = MESSAGE["CITY_NOT_MATCH"]
@@ -463,11 +462,11 @@ export default {
         }
       }
 
-      this.statusLab = currentLab.verificationStatus
+      this.statusLab = this.lab?.verificationStatus
 
       if (this.statusLab === "Verified") return
 
-      const compute = !this.exist ? "NOT_EXIST" : currentLab.verificationStatus.toUpperCase()
+      const compute = !this.exist || (this.lab?.verificationStatus === "Unverified" && !this.lab?.services?.length) ? "NOT_EXIST" : this.lab?.verificationStatus.toUpperCase()
 
       this.messageWarning = MESSAGE[compute]
 
@@ -694,7 +693,7 @@ export default {
         return
       }
 
-      const compute = !this.exist ? "NOT_EXIST" : this.statusLab.toUpperCase()
+      const compute = !this.exist || (this.lab?.verificationStatus === "Unverified" && !this.lab?.services?.length) ? "NOT_EXIST" : this.lab?.verificationStatus.toUpperCase()
 
       this.$router.push(REDIRECT_TO[compute])
     },
