@@ -359,7 +359,7 @@ export default {
         await this.getUpdateServiceFee()
       }, 500)
     },
-
+    
     $route: {
       deep: true,
       immediate: true,
