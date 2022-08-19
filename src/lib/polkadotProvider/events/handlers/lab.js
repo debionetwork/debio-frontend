@@ -34,6 +34,7 @@ const handler = {
 
     return { data, id, params, wording }
   },
+
   balances: async (dataEvent, value, valueMessage) => {
     const web3 = store.getters["metamask/getWeb3"]
     const data = dataEvent;
@@ -43,6 +44,7 @@ const handler = {
     const wording = web3.utils.fromWei(finalText, "ether") + " DBIO!"
     return { data, id, params, wording }
   },
+
   orders: async (dataEvent, value, valueMessage, event) => {
     const web3 = store.getters["metamask/getWeb3"]
     const data = dataEvent[0];
@@ -52,7 +54,7 @@ const handler = {
     const notifications = JSON.parse(localStorage.getLocalStorageByName(
       `LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_lab`
     ))
-    let wording = `${valueMessage} ${formatedHash} is awaiting process.`
+    let wording = `${valueMessage(formatedHash)}`
     
     if (event.method === "OrderRefunded" || event.method === "OrderFulfilled") {
       const qcPrice = data?.additionalPrices[0]?.value.replaceAll(",", "")
@@ -60,9 +62,10 @@ const handler = {
       const coin = event.method === "OrderRefunded" ? qcPrice : testingPrice
       const currency = data.orderFlow === "StakingRequestService" ? "DBIO" : data?.currency
 
-      wording = `${web3.utils.fromWei(coin)} ${currency} ${valueMessage} ${formatedHash}`
+      wording = `${valueMessage(web3.utils.fromWei(coin) + currency, formatedHash)}`
+
       if (event.method === "OrderFulfilled" && data.orderFlow === "StakingRequestService") {
-        wording = `${wording} from the service requested.`
+        wording = `${valueMessage(web3.utils.fromWei(coin) + currency, formatedHash)}`
       }
     }
 
@@ -71,6 +74,7 @@ const handler = {
 
     return { data, id, params, wording }
   },
+
   rewards: async (dataEvent, value, valueMessage) => {
     const web3 = store.getters["metamask/getWeb3"]
     const data = dataEvent;
@@ -88,10 +92,11 @@ const handler = {
     const params = { orderId: id };
     const formatedHash = `${id.substr(0, 4)}...${id.substr(id.length - 4)}`
     const coin = data?.prices[0]?.value.replaceAll(",", "")
-    const wording = `${web3.utils.fromWei(coin)} ${data?.currency} ${valueMessage} for ${formatedHash}`
+    const wording = `${valueMessage(web3.utils.fromWei(coin) + data?.currency, formatedHash)}`
 
     return { data, id, params, wording }
   },
+
   services: async (dataEvent, value, valueMessage) => {
     const data = dataEvent[0];
     const id = data[value];

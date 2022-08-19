@@ -4,7 +4,7 @@ import { u8aToHex } from "@polkadot/util" // u8aToString, stringToU8a
 import keyring from "@polkadot/ui-keyring"
 import { Keyring } from "@polkadot/keyring"
 import localStorage from "@/lib/local-storage"
-import masterConfigEvent from "./event-types.json"
+import { masterConfigEvent } from "./event-types.js"
 import { ApiPromise, WsProvider } from "@polkadot/api"
 import { processEvent } from "@/lib/polkadotProvider/events"
 import { queryEntireLabDataById } from "@/lib/polkadotProvider/query/labs"
