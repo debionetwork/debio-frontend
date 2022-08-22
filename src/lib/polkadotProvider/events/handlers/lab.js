@@ -66,7 +66,7 @@ const handler = {
       }
     }
 
-    const isExist = notifications?.find(notif => notif.params.orderId === id && (notif.data.status === data.status))
+    const isExist = notifications?.find(notif => notif.params?.orderId === id && (notif.data.status === data.status))
     if (isExist) return
 
     return { data, id, params, wording }

@@ -21,7 +21,7 @@
         expand
         :page-size="size"
         :expanded-value="prefillValue"
-        itemKey="countryId"
+        itemKey="country"
         @onExpanded="handleExpanded"
         :total-item-length="filteredRegions.length"
       >
@@ -284,7 +284,7 @@ export default {
       const payload = {
         category: item.services[idx].category,
         country: {
-          code: item.services[idx].countryCode,
+          code: item.services[idx].countryId,
           name: item.country
         },
         city: {

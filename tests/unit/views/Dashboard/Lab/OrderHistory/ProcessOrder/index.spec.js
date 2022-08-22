@@ -2,7 +2,7 @@ import { createLocalVue, shallowMount } from "@vue/test-utils"
 import ProcessOrder from "@/views/Dashboard/Lab/OrderHistory/ProcessOrder"
 import Vuex from "vuex"
 import Vuetify from "vuetify"
-import _ from "lodash"
+
 
 describe("Dashboard Lab Order History Process Order Index", () => {
   let container
@@ -19,13 +19,7 @@ describe("Dashboard Lab Order History Process Order Index", () => {
   })
 
   it("Should render", () => {
-    // Arrange
-    const processOrder = _.cloneDeep(ProcessOrder)
-    processOrder.computed.orderId = jest.fn()
-    processOrder.created = jest.fn()
-    processOrder.mounted = jest.fn()
-
-    container = shallowMount(processOrder, {
+    container = shallowMount(ProcessOrder, {
       localVue,
       vuetify: new Vuetify(),
       store: new Vuex.Store({
