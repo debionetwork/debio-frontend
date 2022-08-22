@@ -193,7 +193,7 @@ export default {
         this.$store.dispatch("substrate/addListNotification", {
           address: this.wallet.address,
           event: val,
-          block: this.lastBlockData,
+          block: this.lastBlockData?.block.header.number,
           role: "lab"
         })
       }

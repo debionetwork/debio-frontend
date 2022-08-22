@@ -10,6 +10,7 @@ import { processEvent } from "@/lib/polkadotProvider/events"
 import { queryEntireLabDataById } from "@/lib/polkadotProvider/query/labs"
 import { queryEntireDoctorDataById } from "@/lib/polkadotProvider/query/doctors"
 import { queryEntireHospitalDataById } from "@/lib/polkadotProvider/query/hospitals"
+import { getUnlistedNotification } from "@/lib/notification.js"
 
 const {
   cryptoWaitReady
@@ -37,7 +38,8 @@ const defaultState = {
   localListNotification: [],
   configEvent: null,
   mnemonicData: null,
-  lastBlockData: null
+  lastBlockData: null,
+  blockNumber: null
 }
 
 export default {
@@ -107,6 +109,9 @@ export default {
     },
     SET_LAST_BLOCK(state, event) {
       state.lastBlockData = event
+    },
+    SET_BLOCK_NUMBER(state, event) {
+      state.blockNumber = event
     }
   },
   
@@ -133,8 +138,25 @@ export default {
           "userProfile"
         ]
 
+        const role = window.location.pathname.split("/")[1]
         const block =  await api.rpc.chain.getBlock()
         const lastBlockData = block.toHuman()
+        const notifications = JSON.parse(localStorage.getLocalStorageByName(
+          `LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_${role}`
+        ))
+       
+        let newBlock = parseInt((lastBlockData.block.header.number).replaceAll(",", ""))
+        let lastBlock
+        
+        if(notifications) {
+          lastBlock = parseInt((notifications[notifications.length-1].block).replaceAll(",", ""))
+        } else {
+          lastBlock = 0
+        }
+
+        if (newBlock > lastBlock) {
+          await getUnlistedNotification(role, newBlock, lastBlock)
+        }
         
         // Example of how to subscribe to events via storage
         api.query.system.events((events) => {
@@ -390,7 +412,7 @@ export default {
               data: data,
               route: route,
               params: params,
-              block: block.header.number,
+              block: block,
               read: false,
               notifDate: notifDate
             });
@@ -418,7 +440,7 @@ export default {
       }
     },
 
-    async addAnyNotification({ commit }, { address, dataAdd, role }) {
+    async addAnyNotification({ commit }, { address, dataAdd, block, role }) {
       try {
         const storageName = "LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role;
         const listNotificationJson = localStorage.getLocalStorageByName(storageName);
@@ -445,6 +467,7 @@ export default {
             data: dataAdd.data,
             route: dataAdd.route,
             params: dataAdd.params,
+            block: block,
             read: false,
             notifDate: notifDate
           });
