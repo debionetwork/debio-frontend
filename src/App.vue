@@ -19,9 +19,11 @@ export default {
       web3: (state) => state.metamask.web3
     })
   },
+
   data: () => ({
     address: ""
   }),
+
   methods: {
     ...mapActions({
       initWeb3: "metamask/initWeb3",
