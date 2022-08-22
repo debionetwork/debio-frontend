@@ -66,7 +66,7 @@ export default {
   data: () => ({
     headers: [
       { text: "Date", value: "_source.created_at" },
-      { text: "Product Name", value: "_source.service_info.name" },
+      { text: "Service Name", value: "_source.service_info.name" },
       { text: "Specimen Number", value: "_source.dna_sample_tracking_id" },
       { text: "Status", value: "status" },
       { text: "Actions", value: "actions", sortable: false, align: "center", width: "5%" }
