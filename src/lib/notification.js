@@ -1,7 +1,5 @@
 import localStorage from "@/lib/local-storage"
 import { getNotification } from "@/lib/api"
-// import { processEvent } from "@/lib/polkadotProvider/events"
-
 import store from "../store"
 
 const routes = {
