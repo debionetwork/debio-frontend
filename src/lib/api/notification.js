@@ -12,3 +12,15 @@ export const getNotification = async (toId, startBlock, endBlock, role, from) =>
   })
   return data
 } 
+
+export const setReadNotification = async (id) => {
+  const { data } = await apiClientRequest.put(`/notification/set-read/${id}`)
+
+  return data
+}
+
+export const setBulkReadNotification = async (toId) => {
+  const { data } = await apiClientRequest.put(`/notification/set-read/${toId}`)
+
+  return data
+}

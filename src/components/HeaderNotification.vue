@@ -84,6 +84,9 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import { setReadNotification } from "@/lib/api"
+
+let timeout
 
 export default {
   name: "HeaderNotification",
@@ -94,21 +97,26 @@ export default {
       localListNotification: (state) => state.substrate.localListNotification
     })
   },
+
   props: {
     role: String
   },
+
   data: () => ({
     isLoading: false,
     balance: 0,
     name: "",
     listNotif: [],
     notifLength: 0,
-    showDialog: false
+    showDialog: false,
+    notifReads: []
   }),
+
   methods: {
     ...mapActions({
       clearAuth: "auth/clearAuth"
     }),
+
     openNotif() {
       if (this.showDialog) {
         this.showDialog = false;
@@ -116,6 +124,7 @@ export default {
         this.showDialog = true;
       }
     },
+
     async getListNotification() {
       await this.$store.dispatch("substrate/getListNotification", {
         address: this.wallet.address,
@@ -123,13 +132,22 @@ export default {
       });
       this.setData();
     },
+
     setData() {
       this.listNotif = this.localListNotification;
       this.notifLength = this.listNotif.filter((x) => x.read == false).length;
     },
-    gotoRoute(notif, index) {
+    
+    async gotoRoute(notif, index) {
       if (this.listNotif[index].read == false) {
+        clearTimeout(timeout)
         this.listNotif[index].read = true;
+        this.notifReads.push(notif.id)
+
+        timeout = setTimeout(async () => {
+          await setReadNotification(this.notifReads)
+        }, 2000)
+
         this.$store.dispatch("substrate/updateDataListNotification", {
           address: this.wallet.address,
           role: this.role,
@@ -145,11 +163,13 @@ export default {
       });
     }
   },
+
   watch: {
     localListNotification() {
       this.setData();
     }
   },
+
   async mounted() {
     const inst = this;
     document.addEventListener("click", function (e) {
