@@ -225,7 +225,7 @@ export default {
           </div>
           <div class="tooltip__field d-flex justify-between">
             <p class="tooltip__field-title mb-0 mr-8">Value staked</p>
-            <b class="tooltip__field-desc mb-0">${totalValue?.toFixed(3)}</b>
+            <b class="tooltip__field-desc mb-0">${totalValue?.dbio?.toFixed(3)}</b>
           </div>
         </div>
       `

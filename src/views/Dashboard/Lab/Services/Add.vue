@@ -291,6 +291,7 @@ export default {
     testResultSampleUrl: "",
     currentDAIprice: 0,
     statusLab: null,
+    labInfo: null,
     messageWarning: {},
     serviceFlow: "RequestTest",
     files: [],
@@ -388,7 +389,7 @@ export default {
   methods: {
 
     async validate () {
-      const currentLab = await queryLabsById(this.api, this.wallet.address)
+      this.labInfo = await queryLabsById(this.api, this.wallet.address)
 
       const gitbookLink = `<a href="https://t.me/debionetwork" target="_blank">contact us</a>`
 
@@ -431,26 +432,19 @@ export default {
           actionTitle: "Close",
           title: "Add service failed",
           subtitle: "Your location is not match with the requested service!"
-        },
-        UNEXPECTED: {
-          type: "UNEXPECTED",
-          actionTitle: "OK",
-          title: "Oh no! Someting went wrong.",
-          subtitle: "Please try again later"
         }
       })
 
-      if (!currentLab) {
+      if (!this.labInfo) {
         this.showModalAlert = true
 
-        this.messageWarning = MESSAGE["UNEXPECTED"]
+        this.messageWarning = MESSAGE["NOT_EXIST"]
       }
 
-      if (Object.keys(this.servicePayload).length) {
+      if (this.labInfo?.verificationStatus === "Verified" && Object.keys(this.servicePayload).length) {
         if (
-          currentLab.verificationStatus === "Verified" &&
-          currentLab.info?.country !== this.servicePayload.countryCode ||
-          currentLab.info?.region !== this.servicePayload.cityCode
+          this.labInfo.info?.country !== this.servicePayload.countryCode ||
+          this.labInfo.info?.region !== this.servicePayload.cityCode
         ) {
 
           this.showModalAlert = true
@@ -463,11 +457,13 @@ export default {
         }
       }
 
-      this.statusLab = currentLab.verificationStatus
+      this.statusLab = this.labInfo.verificationStatus
 
       if (this.statusLab === "Verified") return
 
-      const compute = !this.exist ? "NOT_EXIST" : currentLab.verificationStatus.toUpperCase()
+      const notExist = !this.exist || !this.labInfo.certifications.length || !this.labInfo.services.length
+
+      const compute = notExist ? "NOT_EXIST" : this.labInfo.verificationStatus.toUpperCase()
 
       this.messageWarning = MESSAGE[compute]
 
@@ -694,7 +690,9 @@ export default {
         return
       }
 
-      const compute = !this.exist ? "NOT_EXIST" : this.statusLab.toUpperCase()
+      const notExist = !this.exist || !this.labInfo.certifications.length || !this.labInfo.services.length
+
+      const compute = notExist ? "NOT_EXIST" : this.statusLab.toUpperCase()
 
       this.$router.push(REDIRECT_TO[compute])
     },

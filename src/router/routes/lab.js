@@ -111,8 +111,7 @@ const labRoutes = [
           ]
         },
         beforeEnter: (to, from, next) => {
-          if (from.name === "request-lab" && !store.state.substrate.labAccount) next("/lab/registration")
-          else if (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus !== "Verified") next("/lab")
+          if (from.name !== "request-lab" && (!store.state.substrate.isServicesExist || store.state.substrate.labAccount.verificationStatus !== "Verified")) next("/lab")
           else next()
         },
         component: () => import(/* webpackChunkName */ "@/views/Dashboard/Lab/Services/Add")
