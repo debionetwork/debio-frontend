@@ -32,8 +32,8 @@
                 </div>
                   <v-select
                   dense
-                  label="Service Category"
-                  placeholder="Service Category"
+                  label="Test Category"
+                  placeholder="Genome Sequencing"
                   v-model="document.category"
                   outlined
                   :items="listCategories"
@@ -46,7 +46,7 @@
                   <v-select
                     dense
                     label="Type of Biological Sample"
-                    placeholder="Type of Biological Sample"
+                    placeholder="SALIVA - SALIVA COLLECTION PROCESS"
                     v-model="document.dnaCollectionProcess"
                     outlined
                     :disabled="isLoading || isUploading"
@@ -142,8 +142,8 @@
                     <v-col cols="8">
                       <v-text-field
                         dense
-                        label="Expected Duration"
-                        placeholder="Expected Duration"
+                        label="Maximum Duration"
+                        placeholder="Maximum Duration"
                         min="0"
                         max="30"
                         outlined
@@ -412,10 +412,7 @@ export default {
 
     longDescriptionRules() {
       return [
-        rulesHandler.FIELD_REQUIRED,
-        rulesHandler.ENGLISH_ALPHABET,
-        rulesHandler.MAX_CHARACTER(500)
-
+        rulesHandler.FIELD_REQUIRED
       ]
     },
 

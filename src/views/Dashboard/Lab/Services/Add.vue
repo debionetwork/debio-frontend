@@ -60,8 +60,8 @@
                   </div>
                     <v-select
                       dense
-                      label="Service Category"
-                      placeholder="Service Category"
+                      label="Test Category"
+                      placeholder="Genome Sequencing"
                       v-model="document.category"
                       outlined
                       :items="listCategories"
@@ -74,7 +74,7 @@
                     <v-select
                       dense
                       label="Type of Biological Sample"
-                      placeholder="Type of Biological Sample"
+                      placeholder="SALIVA - SALIVA COLLECTION PROCESS"
                       v-model="document.dnaCollectionProcess"
                       outlined
                       :items="dnaCollectionProcessList"
@@ -87,7 +87,7 @@
                     <v-text-field
                       dense
                       label="Service Name"
-                      placeholder="Service Name"
+                      placeholder="BRCA Gene Test"
                       outlined
                       v-model="document.name"
                       :disabled="isLoading"
@@ -99,6 +99,7 @@
                         <v-col>
                           <v-select
                             label="Currency"
+                            placeholder="USDT"
                             outlined
                             dense
                             max="30"
@@ -112,7 +113,7 @@
                           <v-text-field
                             dense
                             label="Price"
-                            placeholder="e.g. 20.005"
+                            placeholder="20.005"
                             outlined
                             v-model.number="document.price"
                             type="number"
@@ -127,6 +128,7 @@
                           <v-select
                             :disabled="isBiomedical || hasServicePayload ||isLoading"
                             label="QC Currency"
+                            placeholder="USDT"
                             outlined
                             dense
                             v-model="document.currency"
@@ -139,7 +141,7 @@
                             :disabled="isBiomedical || isLoading"
                             dense
                             label="QC Price"
-                            placeholder="e.g. 20.005"
+                            placeholder="20.005"
                             outlined
                             v-model.number="document.qcPrice"
                             type="number"
@@ -159,7 +161,7 @@
                     <v-text-field
                       dense
                       label="Short Description"
-                      placeholder="Short Description"
+                      placeholder="BRCA gene test for breast and ovarian cancer risk"
                       outlined
                       v-model="document.description"
                       :disabled="isLoading"
@@ -170,8 +172,8 @@
                       <v-col cols="8">
                         <v-text-field
                           dense
-                          label="Expected Duration"
-                          placeholder="Expected Duration"
+                          label="Maximum Duration"
+                          placeholder="14"
                           min="0"
                           max="30"
                           outlined
@@ -184,6 +186,7 @@
                       <v-col cols="4" style="position: relative">
                         <v-select
                           label="Duration Type"
+                          placeholder="Days"
                           outlined
                           dense
                           v-model="document.durationType"
@@ -197,12 +200,27 @@
 
                     <v-textarea
                       label="Long Description"
-                      placeholder="Long Description"
+                      placeholder="The BRCA gene test is a genetic test that uses DNA analysis to identify harmful changes (mutations) in either one of the two breast cancer susceptibility genes — BRCA1 and BRCA2."
                       outlined
                       v-model="document.longDescription"
                       :disabled="isLoading"
-                      :rules="[...fieldRequiredRule, ...longDescriptionRules]"
+                      :rules="[...fieldRequiredRule]"
                     />
+
+                    <v-radio-group v-model="radio">
+                      <v-radio label="Yes" value=true></v-radio>
+                      <v-radio label="No" value=false></v-radio>
+                    </v-radio-group>
+
+                    <v-text-field
+                      :disabled="!radio"
+                      dense
+                      label="Link to Purchase Kit"
+                      placeholder="kithub.com/collection/genome-sequencing/"
+                      outlined
+                      v-model="kitPurchaseLink"
+                    />
+                    
 
                     <v-file-input
                       :disabled="isLoading"
@@ -300,11 +318,13 @@ export default {
     isLoading: false,
     showModalAlert: false,
     currencyList: ["DAI"],
-    listExpectedDuration: ["WorkingDays", "Hours", "Days"],
+    listExpectedDuration: ["Hours", "Days"],
     dnaCollectionProcessList: [],
     isBiomedical: false,
     isShowError: false,
-    fee: 0
+    fee: 0,
+    radio: null,
+    kitPurchaseLink: null
   }),
 
   computed: {
@@ -354,13 +374,6 @@ export default {
     descriptionRules() {
       return [
         val => (val && val.length <= 100) || "This field only allows 100 characters."
-      ]
-    },
-
-    longDescriptionRules() {
-      return [
-        englishAlphabet,
-        val => (val && val.length <= 500) || "This field only allows 500 characters."
       ]
     },
 
@@ -536,6 +549,11 @@ export default {
       this.isLoading = true
       try {
         const { category, dnaCollectionProcess, name, currency, price, qcPrice, description, longDescription, duration, durationType } = this.document
+        
+        if (this.radio && this.kitPurchaseLink) {
+          this.longDescription = this.longDescription + "||" + this.kitPurchaseLink
+        }
+
         const newService = {
           name,
           pricesByCurrency: [{

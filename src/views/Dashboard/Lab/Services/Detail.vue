@@ -42,8 +42,8 @@
                   </div>
                     <v-select
                     dense
-                    label="Service Category"
-                    placeholder="Service Category"
+                    label="Test Category"
+                    placeholder="Genome Sequencing"
                     v-model="document.category"
                     outlined
                     :disabled="isLoading || isUploading"
@@ -56,7 +56,7 @@
                     <v-select
                     dense
                     label="Type of Biological Sample"
-                    placeholder="Type of Biological Sample"
+                    placeholder="SALIVA - SALIVA COLLECTION PROCESS"
                     v-model="document.dnaCollectionProcess"
                     outlined
                     :disabled="isLoading || isUploading"
@@ -69,7 +69,7 @@
                     <v-text-field
                       dense
                       label="Service Name"
-                      placeholder="Service Name"
+                      placeholder="BRCA Gene Test"
                       outlined
                       v-model="document.name"
                       :disabled="isLoading || isUploading"
@@ -81,6 +81,7 @@
                         <v-col>
                           <v-select
                           label="Currency"
+                          placeholder="USDT"
                           outlined
                           dense
                           max="30"
@@ -94,7 +95,7 @@
                           <v-text-field
                             dense
                             label="Price"
-                            placeholder="Price"
+                            placeholder="20.005"
                             outlined
                             type="number"
                             min="0"
@@ -109,6 +110,7 @@
                           <v-select
                           :disabled="isBiomedical || isLoading || isUploading"
                           label="QC Currency"
+                          placeholder="USDT"
                           outlined
                           dense
                           v-model="document.currency"
@@ -121,7 +123,7 @@
                             :disabled="isBiomedical || isLoading || isUploading"
                             dense
                             label="QC Price"
-                            placeholder="QC Price"
+                            placeholder="20.005"
                             outlined
                             type="number"
                             min="0"
@@ -137,7 +139,7 @@
                     <v-text-field
                       dense
                       label="Short Description"
-                      placeholder="Short Description"
+                      placeholder="BRCA gene test for breast and ovarian cancer risk"
                       outlined
                       v-model="document.description"
                       :disabled="isLoading || isUploading"
@@ -148,8 +150,8 @@
                       <v-col cols="8">
                         <v-text-field
                           dense
-                          label="Expected Duration"
-                          placeholder="Expected Duration"
+                          label="Maximum Duration"
+                          placeholder="Maximum Duration"
                           max="30"
                           outlined
                           type="number"
@@ -173,12 +175,28 @@
 
                     <v-textarea
                       label="Long Description"
-                      placeholder="Long Description"
+                      placeholder="The BRCA gene test is a genetic test that uses DNA analysis to identify harmful changes (mutations) in either one of the two breast cancer susceptibility genes — BRCA1 and BRCA2."
                       outlined
                       v-model="document.longDescription"
                       :disabled="isLoading || isUploading"
-                      :rules="[...fieldRequiredRule, ...longDescriptionRules, ...fieldEnglishRules]"
+                      :rules="fieldRequiredRule"
                     ></v-textarea>
+
+                    <v-radio-group v-model="radio">
+                      <v-radio label="Yes" value=true></v-radio>
+                      <v-radio label="No" value=false></v-radio>
+                    </v-radio-group>
+
+                    <v-file-input
+                      :disabled="!radio"
+                      accept=".pdf"
+                      dense
+                      label="Link to Purchase Kit"
+                      placeholder="kithub.com/collection/genome-sequencing/"
+                      prepend-icon="mdi-file-document"
+                      outlined
+                      v-model="kitPurchaseLink"
+                    />
 
                     <v-file-input
                       :disabled="isLoading || isUploading"
@@ -272,13 +290,15 @@ export default {
     isUploading: false,
     currencyList: ["DAI"],
     currencyType: "",
-    listExpectedDuration: ["WorkingDays", "Hours", "Days"],
+    listExpectedDuration: ["Hours", "Days"],
     listCategories: [],
     selectExpectedDuration: "",
     dnaCollectionProcessList: [],
     isBiomedical: false,
     isShowError: false,
-    fee: 0
+    fee: 0,
+    radio: null,
+    kitPurchaseLink: null
   }),
 
   computed: {
@@ -324,12 +344,6 @@ export default {
     descriptionRules() {
       return [
         val => (val && val.length <= 100) || "This field only allows 100 characters."
-      ]
-    },
-
-    longDescriptionRules() {
-      return [
-        val => (val && val.length <= 500) || "This field only allows 500 characters."
       ]
     },
 
