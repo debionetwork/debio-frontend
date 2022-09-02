@@ -357,7 +357,8 @@ export default {
       wallet: (state) => state.substrate.wallet,
       web3: (state) => state.metamask.web3,
       isLabExist: state => state.substrate.isLabAccountExist,
-      isServicesExist: state => state.substrate.isServicesExist
+      isServicesExist: state => state.substrate.isServicesExist,
+      lastBlockData: (state) => state.substrate.lastBlockData
     }),
 
     ...mapGetters({
@@ -485,6 +486,7 @@ export default {
               route: null,
               params: null
             },
+            block: this.lastBlockData?.block.header.number,
             role: "lab"
           })
         }

@@ -1,8 +1,6 @@
-import { customerHandler } from "@/lib/polkadotProvider/events/handlers/customer"
 import { labHandler } from "@/lib/polkadotProvider/events/handlers/lab"
 
 const handlers = {
-  customer: customerHandler,
   lab: labHandler
 }
 
@@ -32,7 +30,7 @@ export async function processEvent(state, address, event, role) {
     if (res.data[identity] === address || res.data[1][identity] === address) {
       statusAdd = true
       
-      message = state.configEvent["role"][role][event.section][event.method].message + " " + res.wording
+      message = res.wording
     }
 
     data = res.data

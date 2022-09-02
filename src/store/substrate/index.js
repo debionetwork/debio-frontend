@@ -4,12 +4,13 @@ import { u8aToHex } from "@polkadot/util" // u8aToString, stringToU8a
 import keyring from "@polkadot/ui-keyring"
 import { Keyring } from "@polkadot/keyring"
 import localStorage from "@/lib/local-storage"
-import masterConfigEvent from "./event-types.json"
+import { masterConfigEvent } from "./event-types.js"
 import { ApiPromise, WsProvider } from "@polkadot/api"
 import { processEvent } from "@/lib/polkadotProvider/events"
 import { queryEntireLabDataById } from "@/lib/polkadotProvider/query/labs"
 import { queryEntireDoctorDataById } from "@/lib/polkadotProvider/query/doctors"
 import { queryEntireHospitalDataById } from "@/lib/polkadotProvider/query/hospitals"
+import { getUnlistedNotification } from "@/lib/notification.js"
 
 const {
   cryptoWaitReady
@@ -36,7 +37,9 @@ const defaultState = {
   lastEventData: null,
   localListNotification: [],
   configEvent: null,
-  mnemonicData: null
+  mnemonicData: null,
+  lastBlockData: null,
+  blockNumber: null
 }
 
 export default {
@@ -103,6 +106,12 @@ export default {
     },
     SET_MNEMONIC_DATA(state, event) {
       state.mnemonicData = event
+    },
+    SET_LAST_BLOCK(state, event) {
+      state.lastBlockData = event
+    },
+    SET_BLOCK_NUMBER(state, event) {
+      state.blockNumber = event
     }
   },
   
@@ -128,6 +137,26 @@ export default {
           "balances",
           "userProfile"
         ]
+
+        const role = window.location.pathname.split("/")[1]
+        const block =  await api.rpc.chain.getBlock()
+        const lastBlockData = block.toHuman()
+        const notifications = JSON.parse(localStorage.getLocalStorageByName(
+          `LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_${role}`
+        ))
+       
+        let newBlock = parseInt((lastBlockData.block.header.number).replaceAll(",", ""))
+        let lastBlock
+        
+        if(notifications) {
+          lastBlock = parseInt((notifications[notifications.length-1].block).replaceAll(",", ""))
+        } else {
+          lastBlock = 0
+        }
+
+        if (newBlock > lastBlock) {
+          await getUnlistedNotification(role, newBlock, lastBlock)
+        }
         
         // Example of how to subscribe to events via storage
         api.query.system.events((events) => {
@@ -137,6 +166,7 @@ export default {
             if (allowedSections.includes(event.section)) {
               if (event.method === "OrderPaid") localStorage.removeLocalStorageByName("lastOrderStatus")
               commit("SET_LAST_EVENT", event);
+              commit("SET_LAST_BLOCK", lastBlockData)
             }
           })
         })
@@ -150,6 +180,7 @@ export default {
         commit("SET_LOADING_API", false)
       }
     },
+
     async registerMnemonic({ commit }, { mnemonic, password }) {
       try {
         commit("SET_LOADING_WALLET", true)
@@ -349,7 +380,7 @@ export default {
       }
     },
     
-    async addListNotification({ commit, state }, { address, event, role }) {
+    async addListNotification({ commit, state }, { address, event, block, role }) {
       try {
         const storageName = "LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role;
         const listNotificationJson = localStorage.getLocalStorageByName(storageName);
@@ -381,6 +412,7 @@ export default {
               data: data,
               route: route,
               params: params,
+              block: block,
               read: false,
               notifDate: notifDate
             });
@@ -408,7 +440,7 @@ export default {
       }
     },
 
-    async addAnyNotification({ commit }, { address, dataAdd, role }) {
+    async addAnyNotification({ commit }, { address, dataAdd, block, role }) {
       try {
         const storageName = "LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role;
         const listNotificationJson = localStorage.getLocalStorageByName(storageName);
@@ -435,6 +467,7 @@ export default {
             data: dataAdd.data,
             route: dataAdd.route,
             params: dataAdd.params,
+            block: block,
             read: false,
             notifDate: notifDate
           });
