@@ -73,10 +73,10 @@
                   ></v-file-input>
                 </v-container>
 
+                <label style="font-size: 12px;"> Email </label>
                 <v-text-field
                   dense
-                  label="Email"
-                  placeholder="Email"
+                  placeholder="team@genomicyarsi.id"
                   autocomplete="off"
                   outlined
                   :disabled="!isEditable || isLoading || isUploading || unstakeLoading"
@@ -84,10 +84,10 @@
                   v-model="document.email"
                 ></v-text-field>
 
+                <label style="font-size: 12px;"> Lab Name </label>
                 <v-text-field
                   dense
-                  label="Lab Name"
-                  placeholder="Lab Name"
+                  placeholder="Genomic Yarsi"
                   autocomplete="off"
                   outlined
                   :disabled="!isEditable || isLoading || isUploading || unstakeLoading"
@@ -95,6 +95,7 @@
                   v-model="document.name"
                 ></v-text-field>
 
+                <label style="font-size: 12px;"> Country </label>
                 <v-autocomplete
                   dense
                   :items="countries"
@@ -102,7 +103,7 @@
                   item-value="iso2"
                   @change="onCountryChange"
                   return-object
-                  :label="computeCountryLabel"
+                  placeholder="Select Country"
                   autocomplete="off"
                   v-model="document.country"
                   disabled
@@ -110,13 +111,14 @@
                   outlined
                 ></v-autocomplete>
 
+                <label style="font-size: 12px;"> State/Province </label>
                 <v-autocomplete
                   dense
                   :items="states"
                   item-text="name"
                   item-value="state_code"
                   @change="onStateChange"
-                  :label="computeStateLabel"
+                  placeholder="Select State/Province"
                   disabled
                   :rules="isRequired"
                   autocomplete="off"
@@ -124,6 +126,7 @@
                   outlined
                 ></v-autocomplete>
 
+                <label style="font-size: 12px;"> City </label>
                 <v-autocomplete
                   dense
                   :items="cities"
@@ -131,7 +134,7 @@
                   item-value="name"
                   return-object
                   @change="onCityChange"
-                  :label="computeCityLabel"
+                  placeholder="Select City"
                   disabled
                   :rules="isRequired"
                   autocomplete="off"
@@ -139,10 +142,10 @@
                   outlined
                 ></v-autocomplete>
 
+                <label style="font-size: 12px;"> Address </label>
                 <v-text-field
                   dense
-                  label="Address"
-                  placeholder="Address"
+                  placeholder="Menara Yarsi, Jl. Letjend Suprapto No.Kav. 13, RT.10/RW.5, Cemp. Putih"
                   autocomplete="off"
                   outlined
                   v-model="document.address"
@@ -152,13 +155,14 @@
 
                 <v-row>
                   <v-col md="3" class="pr-0">
+                    <label style="font-size: 12px;"> Phone Code </label>
                     <v-autocomplete
                       dense
                       return-object
                       :items="countries"
                       item-text="phone_code"
                       item-value="phone_code"
-                      label="Phone code"
+                      placeholder="+62"
                       outlined
                       v-model="phoneCode"
                       :disabled="!isEditable || isLoading || isUploading || unstakeLoading"
@@ -168,8 +172,7 @@
                   <v-col>
                     <v-text-field
                       dense
-                      label="Phone Number"
-                      placeholder="Phone Number"
+                      placeholder="001"
                       outlined
                       v-model="document.phoneNumber"
                       :rules="phoneNumberRules"
@@ -178,10 +181,10 @@
                   </v-col>
                 </v-row>
 
+                <label style="font-size: 12px;"> Website </label>
                 <v-text-field
                   dense
-                  label="Website"
-                  placeholder="Website"
+                  placeholder="https://genomicyarsi.id"
                   autocomplete="off"
                   outlined
                   v-model="document.website"
@@ -416,18 +419,6 @@ export default {
         (val) =>
           (val && val.length <= 255) || "This field only allows 255 characters"
       ]
-    },
-
-    computeCountryLabel() {
-      return !this.document.country && this.isLoading ? this.loadingPlaceholder : "Select Country"
-    },
-
-    computeStateLabel() {
-      return !this.document.region && this.isLoading ? this.loadingPlaceholder : "Select State"
-    },
-
-    computeCityLabel() {
-      return !this.document.city && this.isLoading ? this.loadingPlaceholder : "Select City"
     },
 
     computeUnstakeDate() {

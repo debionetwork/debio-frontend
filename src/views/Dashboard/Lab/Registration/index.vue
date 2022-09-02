@@ -12,26 +12,28 @@
               <v-form
                 lazy-validation
                 ref="labForm">
+
+              <label style="font-size: 12px;"> Email </label>
               <v-text-field
                 dense
-                label="Email on registration"
-                placeholder="Email"
+                placeholder="team@genomicyarsi.id"
                 outlined
                 v-model="document.email"
                 :disabled="isLabAccountExist || isLoading"
                 :rules="emailRules"
                 ></v-text-field>
               
+              <label style="font-size: 12px;"> Lab Name </label>
               <v-text-field
                 dense
-                label="Lab Name"
-                placeholder="Lab Name"
+                placeholder="Genomic Yarsi"
                 outlined
                 v-model="document.name"
                 :disabled="isLabAccountExist || isLoading"
                 :rules="nameRules"
                 ></v-text-field>
 
+              <label style="font-size: 12px;"> Country </label>
               <v-autocomplete
                 dense
                 :items="countries"
@@ -39,26 +41,28 @@
                 item-value="iso2"
                 @change="onCountryChange"
                 return-object
-                :label="computeCountryLabel"
+                placeholder="Select Country"
                 outlined
                 v-model="document.country"
                 :disabled="isLabAccountExist || isLoading"
                 :rules="[val => !!val || 'This field is required']"
               ></v-autocomplete>
 
+              <label style="font-size: 12px;"> State/Province </label>
               <v-autocomplete
                 dense
                 :items="states"
                 item-text="name"
                 item-value="state_code"
                 @change="onStateChange"
-                :label="computeStateLabel"
+                placeholder="Select State/Province"
                 :disabled="!document.country || isLabAccountExist || isLoading"
                 outlined
                 v-model="document.region"
                 :rules="[val => !!val || 'This field is required']"
               ></v-autocomplete>
 
+              <label style="font-size: 12px;"> City </label>
               <v-autocomplete
                 dense
                 :items="cities"
@@ -66,17 +70,17 @@
                 item-value="name"
                 return-object
                 @change="onCityChange"
-                :label="computeCityLabel"
+                placeholder="Select City"
                 :disabled="!document.region || isLabAccountExist || isLoading"
                 outlined
                 v-model="document.city"
                 :rules="[val => !!val || 'This field is required']"
               ></v-autocomplete>
 
+              <label style="font-size: 12px;"> Address </label>
               <v-text-field
                 dense
-                label="Address"
-                placeholder="Address"
+                placeholder="Menara Yarsi, Jl. Letjend Suprapto No.Kav. 13, RT.10/RW.5, Cemp. Putih"
                 outlined
                 v-model="document.address"
                 :rules="addressRules"
@@ -84,6 +88,7 @@
               ></v-text-field>
               <v-row>
                 <v-col md="3" class="pr-0">
+                  <label style="font-size: 12px;"> Phone Code </label>
                   <v-autocomplete
                     dense
                     @change="onPhoneCodeChange"
@@ -91,18 +96,19 @@
                     :items="countries"
                     item-text="phone_code"
                     item-value="phone_code"
-                    label="Phone code"
                     outlined
+                    placeholder="+62"
                     v-model="document.phoneCode"
                     :disabled="isLabAccountExist || isLoading"
                     :rules="[val => !!val || 'Phone code is Required']"
                   ></v-autocomplete>
                 </v-col>
+         
                 <v-col>
+                  <label style="font-size: 12px;"> Phone No </label>
                   <v-text-field
                     dense
-                    label="Phone Number"
-                    placeholder="Phone Number"
+                    placeholder="001"
                     outlined
                     v-model="document.phoneNumber"
                     :rules="phoneNumberRules"
@@ -111,20 +117,20 @@
                 </v-col>
               </v-row>
 
+              <label style="font-size: 12px;"> Website </label>
               <v-text-field
                 dense
-                label="Website"
-                placeholder="Website"
+                placeholder="https://genomicyarsi.id"
                 outlined
                 v-model="document.website"
                 :rules="websiteRules"
                 :disabled="isLabAccountExist || isLoading"
               ></v-text-field>
 
+                <label style="font-size: 12px;"> Logo Image </label>
                 <v-file-input
                   dense
-                  label="Profile Image"
-                  placeholder="Profile Image"
+                  placeholder="Genomicyarsi.png"
                   prepend-icon="mdi-image"
                   outlined
                   v-model="files"
@@ -327,18 +333,6 @@ export default {
         value => !!value || "This field is required",
         value => (value && value.size < 2000000) || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
       ]
-    },
-
-    computeCountryLabel() {
-      return !this.document.country && this.isLoading ? this.loadingPlaceholder : "Select Country"
-    },
-
-    computeStateLabel() {
-      return !this.document.region && this.isLoading ? this.loadingPlaceholder : "Select State/Province"
-    },
-
-    computeCityLabel() {
-      return !this.document.city && this.isLoading ? this.loadingPlaceholder : "Select City"
     }
   },
 
