@@ -309,6 +309,7 @@ export default {
       durationType: "Days",
       linkKit: null
     },
+    kitPurchaseLink: null,
     imageUrl: "",
     testResultSampleUrl: "",
     currentDAIprice: 0,
@@ -552,10 +553,6 @@ export default {
       try {
         const { category, dnaCollectionProcess, name, currency, price, qcPrice, description, longDescription, duration, durationType } = this.document
         
-        if (this.radio && this.kitPurchaseLink) {
-          this.longDescription = this.longDescription + "||" + this.kitPurchaseLink
-        }
-
         const newService = {
           name,
           pricesByCurrency: [{
@@ -571,7 +568,9 @@ export default {
             }]
           }],
           expectedDuration: { duration, durationType },
-          category, description, longDescription, dnaCollectionProcess,
+          category, description, 
+          longDescription: this.web3.utils.utf8ToHex(this.document.linkKit === "yes" ? longDescription + "||" + this.kitPurchaseLink : longDescription),
+          dnaCollectionProcess,
           image: this.imageUrl,
           testResultSample: this.testResultSampleUrl
         }

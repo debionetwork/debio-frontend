@@ -332,6 +332,7 @@ export default {
       durationType: "Days",
       linkKit: null
     },
+    kitPurchaseLink: null,
     imageUrl: "",
     testResultSampleUrl: "",
     files: [],
@@ -526,9 +527,11 @@ export default {
         price: 0,
         qcPrice: 0,
         description: "",
-        longDescription: "",
+        longDescription: null,
         duration: "",
-        durationType: "Days"
+        durationType: "Days",
+        linkKit: null,
+        kitPurchaseLink: null
       },
       this.testResultSampleFile = ""
       this.imageUrl = ""
@@ -553,7 +556,7 @@ export default {
         dnaCollectionProcess, 
         name, 
         description, 
-        longDescription,
+        longDescription: this.web3.utils.hexToUtf8(longDescription),
         currency: pricesByCurrency[0].currency,
         price: formatPrice(pricesByCurrency[0].priceComponents[0].value),
         qcPrice: formatPrice(pricesByCurrency[0].additionalPrices[0].value),
@@ -638,7 +641,9 @@ export default {
           }]
         }],
         expectedDuration: { duration, durationType },
-        category, description, longDescription, dnaCollectionProcess,
+        category, description, 
+        longDescription: this.web3.utils.utf8ToHex(this.document.linkKit === "yes" ? longDescription + "||" + this.kitPurchaseLink : longDescription),
+        dnaCollectionProcess,
         image: this.imageUrl,
         testResultSample: this.testResultSampleUrl
       }
@@ -683,7 +688,9 @@ export default {
           }]
         }],
         expectedDuration: { duration, durationType },
-        category, description, longDescription, dnaCollectionProcess,
+        category, description, 
+        longDescription: this.web3.utils.utf8ToHex(this.document.linkKit === "yes" ? longDescription + "||" + this.kitPurchaseLink : longDescription),
+        dnaCollectionProcess,
         image: this.imageUrl,
         testResultSample: this.testResultSampleUrl
       }

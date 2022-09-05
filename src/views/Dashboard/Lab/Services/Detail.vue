@@ -287,6 +287,7 @@ export default {
       durationType: "",
       linkKit: null
     },
+    kitPurchaseLink: null,
     imageUrl: "",
     testResultSampleUrl: "",
     files: [],
@@ -410,7 +411,8 @@ export default {
         dnaCollectionProcess,
         name,
         description,
-        longDescription,
+        longDescription: longDescription.split("||")[0],
+        linkKit: longDescription.split("||")[1],
         currency: pricesByCurrency[0].currency,
         price: Number(await fromEther(pricesByCurrency[0].priceComponents[0].value.replaceAll(",", ""))),
         qcPrice: Number(await fromEther(pricesByCurrency[0].additionalPrices[0].value.replaceAll(",", ""))),
@@ -495,7 +497,9 @@ export default {
           }]
         }],
         expectedDuration: { duration, durationType },
-        category, description, longDescription, dnaCollectionProcess,
+        category, description,
+        longDescription: this.document.linkKit === "yes" ? longDescription + "||" + this.kitPurchaseLink : longDescription,
+        dnaCollectionProcess,
         image: this.imageUrl,
         testResultSample: this.testResultSampleUrl
       }
