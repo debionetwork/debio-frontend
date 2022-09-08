@@ -58,10 +58,10 @@
                       </v-avatar>
 
                   </div>
+                    <label style="font-size: 12px;"> Test Category </label>
                     <v-select
                       dense
-                      label="Service Category"
-                      placeholder="Service Category"
+                      placeholder="Choose Category"
                       v-model="document.category"
                       outlined
                       :items="listCategories"
@@ -71,10 +71,10 @@
                       :rules="fieldRequiredRule"
                     />
 
+                    <label style="font-size: 12px;"> Type of Biological Sample </label>
                     <v-select
                       dense
-                      label="Type of Biological Sample"
-                      placeholder="Type of Biological Sample"
+                      placeholder="Choose type of Biological Sample"
                       v-model="document.dnaCollectionProcess"
                       outlined
                       :items="dnaCollectionProcessList"
@@ -84,10 +84,10 @@
                       :rules="fieldRequiredRule"
                     />
 
+                    <label style="font-size: 12px;"> Service Name </label>  
                     <v-text-field
                       dense
-                      label="Service Name"
-                      placeholder="Service Name"
+                      placeholder="Example: BRCA Gene Test"
                       outlined
                       v-model="document.name"
                       :disabled="isLoading"
@@ -97,10 +97,11 @@
                     <div class="d-flex">
                       <v-row>
                         <v-col>
+                          <label style="font-size: 12px;"> Price </label>
                           <v-select
-                            label="Currency"
                             outlined
                             dense
+                            placeholder="USDT"
                             max="30"
                             v-model="document.currency"
                             :items="currencyList"
@@ -108,25 +109,27 @@
                             :disabled="hasServicePayload || isLoading"
                           />
                         </v-col>
+
                         <v-col>
                           <v-text-field
+                            class="mt-6"
                             dense
-                            label="Price"
-                            placeholder="e.g. 20.005"
-                            outlined
-                            v-model.number="document.price"
                             type="number"
                             min="0"
                             step=".001"
-                            :disabled="isLoading"
+                            outlined
+                            v-model.number="document.price"
                             :hint="priceHint"
+                            :disabled="isLoading"
                             :rules="[...fieldRequiredRule, ...decimalRule]"
                           />
                         </v-col>
+
                         <v-col>
+                          <label style="font-size: 12px;"> QC Price </label>
                           <v-select
                             :disabled="isBiomedical || hasServicePayload ||isLoading"
-                            label="QC Currency"
+                            placeholder="USDT"
                             outlined
                             dense
                             v-model="document.currency"
@@ -134,12 +137,12 @@
                             :rules="fieldRequiredRule"
                           />
                         </v-col>
+
                         <v-col>
                           <v-text-field
+                            class="mt-6"
                             :disabled="isBiomedical || isLoading"
                             dense
-                            label="QC Price"
-                            placeholder="e.g. 20.005"
                             outlined
                             v-model.number="document.qcPrice"
                             type="number"
@@ -156,10 +159,10 @@
                       *Every transaction fee includes a 5% service charge.
                     </div>
 
+                    <label style="font-size: 12px;"> Short Description </label>
                     <v-text-field
                       dense
-                      label="Short Description"
-                      placeholder="Short Description"
+                      placeholder="BRCA gene test for breast and ovarian cancer risk"
                       outlined
                       v-model="document.description"
                       :disabled="isLoading"
@@ -168,10 +171,11 @@
 
                     <v-row >
                       <v-col cols="8">
+                        <label style="font-size: 12px;"> Maximum Duration </label>
                         <v-text-field
                           dense
-                          label="Expected Duration"
-                          placeholder="Expected Duration"
+                          label="Maximum Duration"
+                          placeholder="14"
                           min="0"
                           max="30"
                           outlined
@@ -181,9 +185,11 @@
                           :rules="fieldRequiredRule"
                         />
                       </v-col>
+
                       <v-col cols="4" style="position: relative">
+                        <label style="font-size: 12px;"> Duration Type </label>
+                        
                         <v-select
-                          label="Duration Type"
                           outlined
                           dense
                           v-model="document.durationType"
@@ -194,27 +200,42 @@
                       </v-col>
                     </v-row>
 
-
+                    <label style="font-size: 12px;"> Long Description </label>
                     <v-textarea
-                      label="Long Description"
-                      placeholder="Long Description"
+                      placeholder="Example: The BRCA gene test is a genetic test that uses DNA analysis to identify harmful changes (mutations) in either one of the two breast cancer susceptibility genes — BRCA1 and BRCA2."
                       outlined
                       v-model="document.longDescription"
                       :disabled="isLoading"
-                      :rules="[...fieldRequiredRule, ...longDescriptionRules]"
+                      :rules="[...fieldRequiredRule]"
                     />
 
+                    <label style="font-size: 12px;"> Does your lab provide test kit that can be purchased separately for this service? </label>
+                    <v-radio-group v-model="document.linkKit">
+                      <v-radio label="Yes" value="yes"></v-radio>
+                      <v-radio label="No" value="no"></v-radio>
+                    </v-radio-group>
+
+                    <label v-if="document.linkKit === 'yes'" style="font-size: 12px;"> Link to Purchase Kit </label>
+                    <v-text-field
+                      v-if="document.linkKit === 'yes'"
+                      dense
+                      :disabled="isLoading"
+                      placeholder="kithub.com/collection/genome-sequencing/"
+                      outlined
+                      v-model="kitPurchaseLink"
+                    />
+                    
+                    <label style="font-size: 12px;"> Test Result Sample </label>
                     <v-file-input
                       :disabled="isLoading"
                       :rules="fileInputRules"
                       accept=".pdf"
                       dense
-                      label="Test Result Sample"
-                      placeholder="Test Result Sample"
                       prepend-icon="mdi-file-document"
                       outlined
                       v-model="testResultSampleFile"
                       @change="fileUploadEventListener"
+                      show-size
                     />
 
                     <div class= "d-flex justify-space-between" >
@@ -279,14 +300,16 @@ export default {
       category: "",
       dnaCollectionProcess: "",
       name: "",
-      currency: "DAI",
+      currency: "",
       price: 0,
       qcPrice: 0,
       description: "",
       longDescription: "",
       duration: "",
-      durationType: "Days"
+      durationType: "Days",
+      linkKit: null
     },
+    kitPurchaseLink: null,
     imageUrl: "",
     testResultSampleUrl: "",
     currentDAIprice: 0,
@@ -299,8 +322,8 @@ export default {
     listCategories:[],
     isLoading: false,
     showModalAlert: false,
-    currencyList: ["DAI"],
-    listExpectedDuration: ["WorkingDays", "Hours", "Days"],
+    currencyList: ["DAI", "Ethereum", "USN", "USDT"],
+    listExpectedDuration: ["Hours", "Days"],
     dnaCollectionProcessList: [],
     isBiomedical: false,
     isShowError: false,
@@ -354,13 +377,6 @@ export default {
     descriptionRules() {
       return [
         val => (val && val.length <= 100) || "This field only allows 100 characters."
-      ]
-    },
-
-    longDescriptionRules() {
-      return [
-        englishAlphabet,
-        val => (val && val.length <= 500) || "This field only allows 500 characters."
       ]
     },
 
@@ -536,6 +552,7 @@ export default {
       this.isLoading = true
       try {
         const { category, dnaCollectionProcess, name, currency, price, qcPrice, description, longDescription, duration, durationType } = this.document
+        
         const newService = {
           name,
           pricesByCurrency: [{
@@ -551,7 +568,9 @@ export default {
             }]
           }],
           expectedDuration: { duration, durationType },
-          category, description, longDescription, dnaCollectionProcess,
+          category, description, 
+          longDescription: this.web3.utils.utf8ToHex(this.document.linkKit === "yes" ? longDescription + "||" + this.kitPurchaseLink : longDescription),
+          dnaCollectionProcess,
           image: this.imageUrl,
           testResultSample: this.testResultSampleUrl
         }

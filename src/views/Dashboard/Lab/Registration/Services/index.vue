@@ -30,10 +30,10 @@
                     </v-avatar>
 
                 </div>
+                  <label style="font-size: 12px;"> Test Category </label>
                   <v-select
                   dense
-                  label="Service Category"
-                  placeholder="Service Category"
+                  placeholder="Choose Category"
                   v-model="document.category"
                   outlined
                   :items="listCategories"
@@ -43,10 +43,10 @@
                   :rules="fieldRequiredRule"
                   ></v-select>
 
+                  <label style="font-size: 12px;"> Type of Biological Sample </label>
                   <v-select
                     dense
-                    label="Type of Biological Sample"
-                    placeholder="Type of Biological Sample"
+                    placeholder="Choose type of Biological Sample"
                     v-model="document.dnaCollectionProcess"
                     outlined
                     :disabled="isLoading || isUploading"
@@ -56,10 +56,10 @@
                     :rules="fieldRequiredRule"
                   ></v-select>
                   
+                  <label style="font-size: 12px;"> Service Name </label>
                   <v-text-field
                     dense
-                    label="Service Name"
-                    placeholder="Service Name"
+                    placeholder="Example: BRCA Gene Test"
                     :disabled="isLoading || isUploading"
                     outlined
                     v-model="document.name"
@@ -69,10 +69,11 @@
                   <div class="d-flex">
                     <v-row>
                       <v-col>
+                        <label style="font-size: 12px;"> Price </label>
                         <v-select
-                        label="Currency"
                         outlined
                         dense
+                        placeholder="USDT"
                         max="30"
                         :disabled="isLoading || isUploading"
                         v-model="document.currency"
@@ -80,11 +81,11 @@
                         :rules="fieldRequiredRule"
                         ></v-select>
                       </v-col>
+                  
                       <v-col>
                         <v-text-field
+                          class="mt-6"
                           dense
-                          label="Price"
-                          placeholder="e.g. 20.005"
                           type="number"
                           min="0"
                           step=".001"
@@ -95,22 +96,23 @@
                           :rules="priceRules"
                         ></v-text-field>
                       </v-col>
+
                       <v-col>
+                        <label style="font-size: 12px;"> QC Price </label>
                         <v-select
-                        label="QC Currency"
-                        outlined
-                        dense
-                        v-model="document.currency"
-                        :disabled="isLoading || isUploading"
-                        :items="currencyList"
-                        :rules="fieldRequiredRule"
+                          outlined
+                          placeholder="USDT"
+                          dense
+                          v-model="document.currency"
+                          :disabled="isLoading || isUploading"
+                          :items="currencyList"
+                          :rules="fieldRequiredRule"
                         ></v-select>
                       </v-col>
                       <v-col>
                         <v-text-field
+                          class="mt-6"
                           dense
-                          label="QC Price"
-                          placeholder="e.g. 20.005"
                           type="number"
                           min="0"
                           step=".001"
@@ -128,10 +130,10 @@
                     *Every transaction fee includes a 5% service charge.
                   </div>
 
+                  <label style="font-size: 12px;"> Short Description </label>
                   <v-text-field
                     dense
-                    label="Short Description"
-                    placeholder="Short Description"
+                    placeholder="BRCA gene test for breast and ovarian cancer risk"
                     outlined
                     v-model="document.description"
                     :disabled="isLoading || isUploading"
@@ -140,10 +142,10 @@
                   
                   <v-row >
                     <v-col cols="8">
+                      <label style="font-size: 12px;"> Maximum Duration </label>
                       <v-text-field
                         dense
-                        label="Expected Duration"
-                        placeholder="Expected Duration"
+                        placeholder="10"
                         min="0"
                         max="30"
                         outlined
@@ -154,8 +156,8 @@
                       ></v-text-field>
                     </v-col>
                     <v-col cols="4">
+                      <label style="font-size: 12px;"> Duration Type </label>
                       <v-select
-                        label="Duration Type"
                         outlined
                         dense
                         v-model="document.durationType"
@@ -166,23 +168,37 @@
                     </v-col>
                   </v-row>
 
-
+                  <label style="font-size: 12px;"> Long Description </label>
                   <v-textarea
-                    label="Long Description"
-                    placeholder="Long Description"
+                    placeholder="Example: The BRCA gene test is a genetic test that uses DNA analysis to identify harmful changes (mutations) in either one of the two breast cancer susceptibility genes — BRCA1 and BRCA2."
                     outlined
                     v-model="document.longDescription"
                     :disabled="isLoading || isUploading"
                     :rules="longDescriptionRules"
                   ></v-textarea>
 
+                  <label style="font-size: 12px;"> Does your lab provide test kit that can be purchased separately for this service? </label>
+                  <v-radio-group v-model="document.linkKit" row>
+                    <v-radio label="Yes" value="yes"></v-radio>
+                    <v-radio label="No" value="no"></v-radio>
+                  </v-radio-group>
+
+                  <label v-if="document.linkKit === 'yes'" style="font-size: 12px;"> Link to Purchase Kit </label>
+                  <v-text-field
+                    v-if="document.linkKit === 'yes'"
+                    :disabled="isLoading"
+                    dense
+                    placeholder="kithub.com/collection/genome-sequencing/"
+                    outlined
+                    v-model="kitPurchaseLink"
+                  />
+
+                  <label style="font-size: 12px;"> Test Result Sample </label>
                   <v-file-input
                     :rules="fileInputRules"
                     :disabled="isLoading || isUploading"
                     accept="image/png, image/jpeg, image/bmp, application/pdf"
                     dense
-                    label="Test Result Sample"
-                    placeholder="Test Result Sample"
                     prepend-icon="mdi-file-document"
                     outlined
                     v-model="testResultSampleFile"
@@ -307,14 +323,16 @@ export default {
       category: "",
       dnaCollectionProcess: "",
       name: "",
-      currency: "DAI",
+      currency: "",
       price: 0,
       qcPrice: 0,
       description: "",
       longDescription: "",
       duration: "",
-      durationType: "Days"
+      durationType: "Days",
+      linkKit: null
     },
+    kitPurchaseLink: null,
     imageUrl: "",
     testResultSampleUrl: "",
     files: [],
@@ -324,9 +342,8 @@ export default {
     isLoading: false,
     isSubmiting: false,
     isUploading: false,
-    currencyList: ["DAI", "Ethereum"],
+    currencyList: ["DAI", "Ethereum", "USN", "USDT"],
     listExpectedDuration: [
-      { text: "Working Days", value: "WorkingDays" },
       { text: "Hours", value: "Hours" },
       { text: "Days", value: "Days" }
     ],
@@ -412,10 +429,7 @@ export default {
 
     longDescriptionRules() {
       return [
-        rulesHandler.FIELD_REQUIRED,
-        rulesHandler.ENGLISH_ALPHABET,
-        rulesHandler.MAX_CHARACTER(500)
-
+        rulesHandler.FIELD_REQUIRED
       ]
     },
 
@@ -513,9 +527,11 @@ export default {
         price: 0,
         qcPrice: 0,
         description: "",
-        longDescription: "",
+        longDescription: null,
         duration: "",
-        durationType: "Days"
+        durationType: "Days",
+        linkKit: null,
+        kitPurchaseLink: null
       },
       this.testResultSampleFile = ""
       this.imageUrl = ""
@@ -540,7 +556,7 @@ export default {
         dnaCollectionProcess, 
         name, 
         description, 
-        longDescription,
+        longDescription: this.web3.utils.hexToUtf8(longDescription),
         currency: pricesByCurrency[0].currency,
         price: formatPrice(pricesByCurrency[0].priceComponents[0].value),
         qcPrice: formatPrice(pricesByCurrency[0].additionalPrices[0].value),
@@ -625,7 +641,9 @@ export default {
           }]
         }],
         expectedDuration: { duration, durationType },
-        category, description, longDescription, dnaCollectionProcess,
+        category, description, 
+        longDescription: this.web3.utils.utf8ToHex(this.document.linkKit === "yes" ? longDescription + "||" + this.kitPurchaseLink : longDescription),
+        dnaCollectionProcess,
         image: this.imageUrl,
         testResultSample: this.testResultSampleUrl
       }
@@ -670,7 +688,9 @@ export default {
           }]
         }],
         expectedDuration: { duration, durationType },
-        category, description, longDescription, dnaCollectionProcess,
+        category, description, 
+        longDescription: this.web3.utils.utf8ToHex(this.document.linkKit === "yes" ? longDescription + "||" + this.kitPurchaseLink : longDescription),
+        dnaCollectionProcess,
         image: this.imageUrl,
         testResultSample: this.testResultSampleUrl
       }

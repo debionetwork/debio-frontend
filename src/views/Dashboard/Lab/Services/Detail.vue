@@ -40,10 +40,10 @@
                       </v-avatar>
 
                   </div>
+                    <label style="font-size: 12px;"> Test Category </label>
                     <v-select
                     dense
-                    label="Service Category"
-                    placeholder="Service Category"
+                    placeholder="Choose Category"
                     v-model="document.category"
                     outlined
                     :disabled="isLoading || isUploading"
@@ -53,10 +53,10 @@
                     :rules="fieldRequiredRule"
                     ></v-select>
 
+                    <label style="font-size: 12px;"> Type of Biological Sample </label>
                     <v-select
                     dense
-                    label="Type of Biological Sample"
-                    placeholder="Type of Biological Sample"
+                    placeholder="Choose type of Biological Sample"
                     v-model="document.dnaCollectionProcess"
                     outlined
                     :disabled="isLoading || isUploading"
@@ -66,10 +66,10 @@
                     :rules="fieldRequiredRule"
                     ></v-select>
 
+                    <label style="font-size: 12px;"> Service Name </label>  
                     <v-text-field
                       dense
-                      label="Service Name"
-                      placeholder="Service Name"
+                      placeholder="Example: BRCA Gene Test"
                       outlined
                       v-model="document.name"
                       :disabled="isLoading || isUploading"
@@ -79,8 +79,9 @@
                     <div class="d-flex">
                       <v-row>
                         <v-col>
+                          <label style="font-size: 12px;"> Price </label>
                           <v-select
-                          label="Currency"
+                          placeholder="USDT"
                           outlined
                           dense
                           max="30"
@@ -90,11 +91,11 @@
                           :rules="fieldRequiredRule"
                           ></v-select>
                         </v-col>
+
                         <v-col>
                           <v-text-field
+                            class="mt-6"
                             dense
-                            label="Price"
-                            placeholder="Price"
                             outlined
                             type="number"
                             min="0"
@@ -105,10 +106,12 @@
                             :rules="[...fieldRequiredRule, ...decimalRule]"
                           ></v-text-field>
                         </v-col>
+
                         <v-col>
+                          <label style="font-size: 12px;"> QC Price </label>
                           <v-select
                           :disabled="isBiomedical || isLoading || isUploading"
-                          label="QC Currency"
+                          placeholder="USDT"
                           outlined
                           dense
                           v-model="document.currency"
@@ -116,12 +119,12 @@
                           :rules="fieldRequiredRule"
                           ></v-select>
                         </v-col>
+
                         <v-col>
                           <v-text-field
+                            class="mt-6"
                             :disabled="isBiomedical || isLoading || isUploading"
                             dense
-                            label="QC Price"
-                            placeholder="QC Price"
                             outlined
                             type="number"
                             min="0"
@@ -134,10 +137,11 @@
                       </v-row>
                     </div>
 
+                    <label style="font-size: 12px;"> Short Description </label>
                     <v-text-field
                       dense
                       label="Short Description"
-                      placeholder="Short Description"
+                      placeholder="BRCA gene test for breast and ovarian cancer risk"
                       outlined
                       v-model="document.description"
                       :disabled="isLoading || isUploading"
@@ -146,10 +150,10 @@
                     
                     <v-row >
                       <v-col cols="8">
+                        <label style="font-size: 12px;"> Maximum Duration </label>
                         <v-text-field
                           dense
-                          label="Expected Duration"
-                          placeholder="Expected Duration"
+                          placeholder="14"
                           max="30"
                           outlined
                           type="number"
@@ -158,7 +162,9 @@
                           :rules="fieldRequiredRule"
                         ></v-text-field>
                       </v-col>
+
                       <v-col cols="4">
+                        <label style="font-size: 12px;"> Duration Type </label>
                         <v-select
                           outlined
                           dense
@@ -170,16 +176,33 @@
                       </v-col>
                     </v-row>
 
-
+                    <label style="font-size: 12px;"> Long Description </label>
                     <v-textarea
                       label="Long Description"
-                      placeholder="Long Description"
+                      placeholder="Example: The BRCA gene test is a genetic test that uses DNA analysis to identify harmful changes (mutations) in either one of the two breast cancer susceptibility genes — BRCA1 and BRCA2."
                       outlined
                       v-model="document.longDescription"
                       :disabled="isLoading || isUploading"
-                      :rules="[...fieldRequiredRule, ...longDescriptionRules, ...fieldEnglishRules]"
+                      :rules="fieldRequiredRule"
                     ></v-textarea>
 
+                    <v-radio-group v-model="document.linkKit">
+                      <v-radio label="Yes" value="yes"></v-radio>
+                      <v-radio label="No" value="no"></v-radio>
+                    </v-radio-group>
+
+                    <label v-if="document.linkKit === 'yes'" style="font-size: 12px;"> Link to Purchase Kit </label>
+                    <v-text-field
+                      v-if="document.linkKit === 'yes'"
+                      dense
+                      :disabled="isLoading || isUploading"
+                      placeholder="kithub.com/collection/genome-sequencing/"
+                      prepend-icon="mdi-file-document"
+                      outlined
+                      v-model="kitPurchaseLink"
+                    />
+
+                    <label style="font-size: 12px;"> Test Result Sample </label>
                     <v-file-input
                       :disabled="isLoading || isUploading"
                       :rules="[...fieldRequiredRule, ...fileInputRules]"
@@ -261,8 +284,10 @@ export default {
       description: "",
       longDescription: "",
       duration: "",
-      durationType: ""
+      durationType: "",
+      linkKit: null
     },
+    kitPurchaseLink: null,
     imageUrl: "",
     testResultSampleUrl: "",
     files: [],
@@ -270,9 +295,9 @@ export default {
     isLoading: false,
     currentDAIprice: 0,
     isUploading: false,
-    currencyList: ["DAI"],
+    currencyList: ["DAI", "Ethereum", "USN", "USDT"],
     currencyType: "",
-    listExpectedDuration: ["WorkingDays", "Hours", "Days"],
+    listExpectedDuration: ["Hours", "Days"],
     listCategories: [],
     selectExpectedDuration: "",
     dnaCollectionProcessList: [],
@@ -324,12 +349,6 @@ export default {
     descriptionRules() {
       return [
         val => (val && val.length <= 100) || "This field only allows 100 characters."
-      ]
-    },
-
-    longDescriptionRules() {
-      return [
-        val => (val && val.length <= 500) || "This field only allows 500 characters."
       ]
     },
 
@@ -392,7 +411,8 @@ export default {
         dnaCollectionProcess,
         name,
         description,
-        longDescription,
+        longDescription: longDescription.split("||")[0],
+        linkKit: longDescription.split("||")[1],
         currency: pricesByCurrency[0].currency,
         price: Number(await fromEther(pricesByCurrency[0].priceComponents[0].value.replaceAll(",", ""))),
         qcPrice: Number(await fromEther(pricesByCurrency[0].additionalPrices[0].value.replaceAll(",", ""))),
@@ -477,7 +497,9 @@ export default {
           }]
         }],
         expectedDuration: { duration, durationType },
-        category, description, longDescription, dnaCollectionProcess,
+        category, description,
+        longDescription: this.document.linkKit === "yes" ? longDescription + "||" + this.kitPurchaseLink : longDescription,
+        dnaCollectionProcess,
         image: this.imageUrl,
         testResultSample: this.testResultSampleUrl
       }
