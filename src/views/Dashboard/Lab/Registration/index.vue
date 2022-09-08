@@ -16,7 +16,7 @@
               <label style="font-size: 12px;"> Email </label>
               <v-text-field
                 dense
-                placeholder="team@genomicyarsi.id"
+                placeholder="hello@edison.com"
                 outlined
                 v-model="document.email"
                 :disabled="isLabAccountExist || isLoading"
@@ -26,7 +26,7 @@
               <label style="font-size: 12px;"> Lab Name </label>
               <v-text-field
                 dense
-                placeholder="Genomic Yarsi"
+                placeholder="Edison Lab"
                 outlined
                 v-model="document.name"
                 :disabled="isLabAccountExist || isLoading"
@@ -80,7 +80,7 @@
               <label style="font-size: 12px;"> Address </label>
               <v-text-field
                 dense
-                placeholder="Menara Yarsi, Jl. Letjend Suprapto No.Kav. 13, RT.10/RW.5, Cemp. Putih"
+                placeholder="3430 East Russell Road, Las Vegas, NV 89120"
                 outlined
                 v-model="document.address"
                 :rules="addressRules"
@@ -97,7 +97,7 @@
                     item-text="phone_code"
                     item-value="phone_code"
                     outlined
-                    placeholder="+62"
+                    placeholder="+1"
                     v-model="document.phoneCode"
                     :disabled="isLabAccountExist || isLoading"
                     :rules="[val => !!val || 'Phone code is Required']"
@@ -108,7 +108,7 @@
                   <label style="font-size: 12px;"> Phone No </label>
                   <v-text-field
                     dense
-                    placeholder="001"
+                    placeholder="4155552671"
                     outlined
                     v-model="document.phoneNumber"
                     :rules="phoneNumberRules"
@@ -120,7 +120,7 @@
               <label style="font-size: 12px;"> Website </label>
               <v-text-field
                 dense
-                placeholder="https://genomicyarsi.id"
+                placeholder="https://edisonslab.com"
                 outlined
                 v-model="document.website"
                 :rules="websiteRules"
