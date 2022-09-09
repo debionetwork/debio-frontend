@@ -300,7 +300,7 @@ export default {
       category: "",
       dnaCollectionProcess: "",
       name: "",
-      currency: "",
+      currency: "DAI",
       price: 0,
       qcPrice: 0,
       description: "",
