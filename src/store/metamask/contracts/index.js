@@ -1,3 +1,5 @@
+import getEnv from "../../../utils/env"
+
 const ERC20Interface = require("./abi/ERC20Interface.json")
 
 const defaultState = {
@@ -18,7 +20,7 @@ export default {
     initContracts({ commit, rootState }) {
       const { web3 } = rootState.metamask
       let ERC20InterfaceContract;
-      let contractAddress = process.env.VUE_APP_DEBIO_DAI_TOKEN_ADDRESS;
+      let contractAddress = getEnv("VUE_APP_DEBIO_DAI_TOKEN_ADDRESS");
       ERC20InterfaceContract = new web3.eth.Contract(ERC20Interface, contractAddress);
 
       commit("SET_CONTRACT_ERC20Interface", ERC20InterfaceContract)

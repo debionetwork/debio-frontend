@@ -54,6 +54,7 @@ import UserAccountMenu from "@/components/UserAccountMenu"
 import SettingsMenu from "@/components/SettingsMenu"
 import WalletBalance from "@/components/WalletBalance"
 import Breadcrumbs from "./Breadcrumbs"
+import getEnv from "@/utils/env"
 
 export default {
   name: "Dashboard",
@@ -69,7 +70,7 @@ export default {
       return this.$route.path.indexOf("lab") > 0
     },
     isDevEnv() {
-      return process.env.NODE_ENV == "development"
+      return getEnv("NODE_ENV") == "development"
     },
     pageHeader() {
       return this.$route.meta.pageHeader

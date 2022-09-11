@@ -6,6 +6,7 @@ import labRoutes from "./routes/lab"
 import doctorRoutes from "./routes/doctor"
 import hospitalRoutes from "./routes/hospital"
 import requestServiceRoute from "./routes/requestService"
+import getEnv from "../utils/env"
 
 Vue.use(VueRouter)
 
@@ -20,7 +21,7 @@ const routes = [
 
 const router = new VueRouter({
   mode: "history",
-  base: process.env.BASE_URL,
+  base: getEnv("BASE_URL"),
   routes,
   scrollBehavior() {
     return { x: 0, y: 0 }
