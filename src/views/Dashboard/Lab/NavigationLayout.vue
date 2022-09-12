@@ -99,6 +99,7 @@ import localStorage from "@/lib/local-storage";
 import SwitchNetwork from "@/components/Dialog/SwitchNetwork"
 import { startApp, handleSwitchChain } from "@/lib/metamask";
 import InstallMetamask from "@/components/InstallMetamask"
+import getEnv from "@/utils/env"
 
 export default {
   name: "Dashboard",
@@ -222,7 +223,7 @@ export default {
         return
       }
 
-      if (process.env.VUE_APP_ROLE === "development") {
+      if (getEnv("VUE_APP_ROLE") === "development") {
         this.networkName = "Rinkeby Test Network"
         if (metamask.network === this.network[this.networkName]) return
         this.showSwitchNetwork = true

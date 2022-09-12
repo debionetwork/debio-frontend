@@ -82,6 +82,7 @@ import {mapActions, mapState, mapMutations} from "vuex"
 import VueRecaptcha from "vue-recaptcha"
 import apiClientRequest from "@/lib/api"
 import rulesHandler from "@/constants/rules"
+import getEnv from "@/utils/env"
 
 export default {
   name: "SetKeystorePasswordDialog",
@@ -113,7 +114,7 @@ export default {
       }
     },
     sitekey() {
-      return process.env.VUE_APP_RECAPTCHA_SITE_KEY
+      return getEnv("VUE_APP_RECAPTCHA_SITE_KEY")
     },
     ...mapState({
       substrateApi: (state) => state.substrate.api,

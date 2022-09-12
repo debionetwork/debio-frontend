@@ -32,6 +32,7 @@
 <script>
 import { mapActions } from "vuex";
 import DialogSelectRole from "@/components/Dialog/DialogSelectRole";
+import getEnv from "@/utils/env"
 
 export default {
   name: "SelectRoleGroup",
@@ -40,7 +41,7 @@ export default {
   },
   computed: {
     isDevEnv() {
-      return process.env.NODE_ENV == "development";
+      return getEnv("NODE_ENV") == "development";
     }
   },
   data: () => ({

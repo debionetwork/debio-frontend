@@ -1,6 +1,7 @@
 import store from "../../store"
 // import appConfig from '@/lib/app-config'
 import BigNumber from "bignumber.js"
+import getEnv from "../../utils/env"
 
 export async function getWalletAddress() {
   const accounts = await window.ethereum.request({ method: "eth_requestAccounts" })
@@ -38,7 +39,7 @@ export async function addTokenDAI() {
       params: {
         type: "ERC20", // Initially only supports ERC20, but eventually more!
         options: {
-          address: process.env.VUE_APP_DEBIO_DAI_TOKEN_ADDRESS, // The address that the token is at.
+          address: getEnv("VUE_APP_DEBIO_DAI_TOKEN_ADDRESS"), // The address that the token is at.
           symbol: "DAI", // A ticker symbol or shorthand, up to 5 chars.
           decimals: 18, // The number of decimals in the token
           image: "https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png" // A string url of the token logo
@@ -144,7 +145,7 @@ export async function transfer(data) {
 
   let receipt;
   let contractAddress;
-  contractAddress = process.env.VUE_APP_DEBIO_DAI_TOKEN_ADDRESS;
+  contractAddress = getEnv("VUE_APP_DEBIO_DAI_TOKEN_ADDRESS");
   receipt = await sendTransaction(contractAddress, raw, data.from);
 
   return { data, receipt }
