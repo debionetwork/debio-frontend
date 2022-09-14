@@ -148,7 +148,7 @@ export default {
         let newBlock = parseInt((lastBlockData.block.header.number).replaceAll(",", ""))
         let lastBlock
         
-        if(notifications.length > 0) {
+        if(notifications && notifications.length > 0) {
           lastBlock = parseInt((notifications[notifications.length-1].block).replaceAll(",", ""))
         } else {
           lastBlock = 0
