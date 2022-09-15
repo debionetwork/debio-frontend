@@ -1,17 +1,11 @@
 import localStorage from "@/lib/local-storage"
 import { getNotification } from "@/lib/api"
 import store from "../store"
+import referenceFormater from "@/utils/referenceFormater"
 
 const routes = {
   "New Order": "lab-dashboard-process-order",
   "Add service": "lab-dashboard-services-detail"
-}
-
-function referenceFormater(id) {
-  if (id?.includes("0x")) {
-    return `${id.slice(0, 4)}...${id.slice(-4)}`
-  }
-  return id
 }
 
 export async function getUnlistedNotification (roles, newBlock, lastBlock) {
@@ -42,7 +36,9 @@ export async function getUnlistedNotification (roles, newBlock, lastBlock) {
       minute: "numeric"
     });
 
-    const message = event.description.replace("[]", referenceFormater(event.reference_id))
+    const message = event.description.replace("[]", 
+      event?.reference_id?.includes("0x") ? referenceFormater(event.reference_id) : event.reference_id
+    )
     
     listNotification.push({
       message,
