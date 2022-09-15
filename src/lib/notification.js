@@ -1,7 +1,7 @@
 import localStorage from "@/lib/local-storage"
 import { getNotification } from "@/lib/api"
 import store from "../store"
-import referenceFormater from "@/utils/referenceFormater"
+import { fmtReferenceFromHex } from "@/lib/string-format"
 
 const routes = {
   "New Order": "lab-dashboard-process-order",
@@ -37,7 +37,7 @@ export async function getUnlistedNotification (roles, newBlock, lastBlock) {
     });
 
     const message = event.description.replace("[]", 
-      event?.reference_id?.includes("0x") ? referenceFormater(event.reference_id) : event.reference_id
+      event?.reference_id?.includes("0x") ? fmtReferenceFromHex(event.reference_id) : event.reference_id
     )
     
     listNotification.push({
