@@ -138,20 +138,20 @@ export default {
           "userProfile"
         ]
 
-        const role = window.location.pathname.split("/")[1]
+        const role = "lab"
+
         const block =  await api.rpc.chain.getBlock()
         const lastBlockData = block.toHuman()
         const notifications = JSON.parse(localStorage.getLocalStorageByName(
           `LOCAL_NOTIFICATION_BY_ADDRESS_${localStorage.getAddress()}_${role}`
         ))
-       
+
         let newBlock = parseInt((lastBlockData.block.header.number).replaceAll(",", ""))
-        let lastBlock
+        let lastBlock = 0
+
         
         if(notifications && notifications.length > 0) {
           lastBlock = parseInt((notifications[notifications.length-1].block).replaceAll(",", ""))
-        } else {
-          lastBlock = 0
         }
 
         if (newBlock > lastBlock) {

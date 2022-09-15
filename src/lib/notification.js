@@ -1,6 +1,7 @@
 import localStorage from "@/lib/local-storage"
 import { getNotification } from "@/lib/api"
 import store from "../store"
+import { fmtReferenceFromHex } from "@/lib/string-format"
 
 const routes = {
   "New Order": "lab-dashboard-process-order",
@@ -20,37 +21,40 @@ export async function getUnlistedNotification (roles, newBlock, lastBlock) {
   if (listNotificationJson) {
     listNotification = JSON.parse(listNotificationJson)    
   }
+
+  if(lastBlock >= parseInt(data[data.length-1].block_number)) return
   
   data.forEach(event => {
-    if(lastBlock !== parseInt(event.block_number)){
-      const dateSet = new Date(event.created_at)
-      const timestamp = dateSet.getTime().toString()
-      const notifDate = dateSet.toLocaleString("en-US", {
-        weekday: "short", // long, short, narrow
-        day: "numeric", // numeric, 2-digit
-        year: "numeric", // numeric, 2-digit
-        month: "long", // numeric, 2-digit, long, short, narrow
-        hour: "numeric", // numeric, 2-digit
-        minute: "numeric"
-      });
-  
-      const message = event.description.replace("[]", event.reference_id)
-      
-      listNotification.push({
-        message,
-        timestamp,
-        route: routes[event.entity],
-        params: event.reference_id,
-        block: event.block_number,
-        read: false,
-        notifDate
-      })
-  
-      localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotification));
-      listNotification.reverse();
-  
-      store.dispatch("substrate/SET_LIST_NOTIFICATION", listNotification)  
-    }
+    const dateSet = new Date(event.created_at)
+    const timestamp = dateSet.getTime().toString()
+    const notifDate = dateSet.toLocaleString("en-US", {
+      weekday: "short", // long, short, narrow
+      day: "numeric", // numeric, 2-digit
+      year: "numeric", // numeric, 2-digit
+      month: "long", // numeric, 2-digit, long, short, narrow
+      hour: "numeric", // numeric, 2-digit
+      minute: "numeric"
+    });
+
+    const message = event.description.replace("[]", 
+      event?.reference_id?.includes("0x") ? fmtReferenceFromHex(event.reference_id) : event.reference_id
+    )
+    
+    listNotification.push({
+      message,
+      timestamp,
+      route: routes[event.entity],
+      params: event.reference_id,
+      block: event.block_number,
+      read: false,
+      notifDate
+    })
+
+    localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotification));
+    listNotification.reverse();
+
+    store.dispatch("substrate/SET_LIST_NOTIFICATION", listNotification)
+    
   });
 }
 
