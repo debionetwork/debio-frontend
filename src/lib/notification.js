@@ -5,7 +5,8 @@ import { fmtReferenceFromHex } from "@/lib/string-format"
 
 const routes = {
   "New Order": "lab-dashboard-process-order",
-  "Add service": "lab-dashboard-services-detail"
+  "Add service": "lab-dashboard-services",
+  "Account Verified": "lab-dashboard-account"
 }
 
 export async function getUnlistedNotification (roles, newBlock, lastBlock) {
@@ -15,16 +16,18 @@ export async function getUnlistedNotification (roles, newBlock, lastBlock) {
   const toId = localStorage.getAddress()
   const { data } = await getNotification(toId, lastBlock, newBlock, role, from)
   const storageName = "LOCAL_NOTIFICATION_BY_ADDRESS_" + toId + "_" + roles;
+  const reverse = data.reverse()
 
   let listNotification = []
   const listNotificationJson = localStorage.getLocalStorageByName(storageName);
-  if (listNotificationJson) {
-    listNotification = JSON.parse(listNotificationJson)    
-  }
+  if (!listNotificationJson) return
+
+  listNotification = JSON.parse(listNotificationJson)
+  
 
   if(lastBlock >= parseInt(data[data.length-1].block_number)) return
   
-  data.forEach(event => {
+  reverse.forEach(event => {
     const dateSet = new Date(event.created_at)
     const timestamp = dateSet.getTime().toString()
     const notifDate = dateSet.toLocaleString("en-US", {
@@ -44,17 +47,15 @@ export async function getUnlistedNotification (roles, newBlock, lastBlock) {
       message,
       timestamp,
       route: routes[event.entity],
-      params: event.reference_id,
+      params: {orderId: event.reference_id},
       block: event.block_number,
-      read: false,
+      read: event.read,
+      notifId: event.id,
       notifDate
     })
-
-    localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotification));
-    listNotification.reverse();
-
-    store.dispatch("substrate/SET_LIST_NOTIFICATION", listNotification)
-    
   });
+  
+  localStorage.setLocalStorageByName(storageName, JSON.stringify(listNotification));
+  store.commit("substrate/SET_LIST_NOTIFICATION", listNotification)
 }
 
