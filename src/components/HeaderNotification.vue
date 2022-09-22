@@ -108,8 +108,7 @@ export default {
     name: "",
     listNotif: [],
     notifLength: 0,
-    showDialog: false,
-    notifReads: []
+    showDialog: false
   }),
 
   methods: {
@@ -141,11 +140,10 @@ export default {
     async gotoRoute(notif, index) {
       if (this.listNotif[index].read == false) {
         clearTimeout(timeout)
-        this.listNotif[index].read = true;
-        this.notifReads.push(notif.id)
+        this.listNotif[index].read = true
 
         timeout = setTimeout(async () => {
-          await setReadNotification(this.notifReads)
+          await setReadNotification(notif.notifId)
         }, 2000)
 
         this.$store.dispatch("substrate/updateDataListNotification", {
