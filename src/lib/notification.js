@@ -3,6 +3,7 @@ import { getNotification } from "@/lib/api"
 import store from "../store"
 import { fmtReferenceFromHex } from "@/lib/string-format"
 
+//TODO: move every route name to global
 const routes = {
   "New Order": "lab-dashboard-process-order",
   "Add service": "lab-dashboard-services",
