@@ -21,10 +21,9 @@ export async function getUnlistedNotification (roles, newBlock, lastBlock) {
 
   let listNotification = []
   const listNotificationJson = localStorage.getLocalStorageByName(storageName);
-  if (!listNotificationJson) return
-
-  listNotification = JSON.parse(listNotificationJson)
-  
+  if (listNotificationJson) {
+    listNotification = JSON.parse(listNotificationJson)
+  }
 
   if(lastBlock >= parseInt(data[data.length-1].block_number)) return
   
