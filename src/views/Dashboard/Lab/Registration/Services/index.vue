@@ -596,14 +596,14 @@ export default {
         name,
         pricesByCurrency: [{
           currency,
-          totalPrice: await toEther(price + qcPrice),
+          totalPrice: await toEther(price + qcPrice, currency),
           priceComponents: [{
             component: "testing_price",
-            value: await toEther(price)
+            value: await toEther(price, currency)
           }],
           additionalPrices: [{
             component: "qc_price",
-            value: await toEther(qcPrice)
+            value: await toEther(qcPrice, currency)
           }]
         }],
         expectedDuration: { duration, durationType },
@@ -633,11 +633,11 @@ export default {
           totalPrice: await toEther(price + qcPrice),
           priceComponents: [{
             component: "testing_price",
-            value: await toEther(price)
+            value: await toEther(price, currency)
           }],
           additionalPrices: [{
             component: "qc_price",
-            value: await toEther(qcPrice)
+            value: await toEther(qcPrice, currency)
           }]
         }],
         expectedDuration: { duration, durationType },
@@ -680,11 +680,11 @@ export default {
           totalPrice: await toEther(price + qcPrice),
           priceComponents: [{
             component: "testing_price",
-            value: await toEther(price)
+            value: await toEther(price, currency)
           }],
           additionalPrices: [{
             component: "qc_price",
-            value: await toEther(qcPrice)
+            value: await toEther(qcPrice, currency)
           }]
         }],
         expectedDuration: { duration, durationType },

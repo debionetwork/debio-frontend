@@ -414,8 +414,8 @@ export default {
         longDescription: longDescription.split("||")[0],
         linkKit: longDescription.split("||")[1],
         currency: pricesByCurrency[0].currency,
-        price: Number(await fromEther(pricesByCurrency[0].priceComponents[0].value.replaceAll(",", ""))),
-        qcPrice: Number(await fromEther(pricesByCurrency[0].additionalPrices[0].value.replaceAll(",", ""))),
+        price: Number(await fromEther(pricesByCurrency[0].priceComponents[0].value.replaceAll(",", ""), pricesByCurrency[0].currency)),
+        qcPrice: Number(await fromEther(pricesByCurrency[0].additionalPrices[0].value.replaceAll(",", ""), pricesByCurrency[0].currency)),
         duration: expectedDuration.duration,
         durationType: expectedDuration.durationType
       }
@@ -451,14 +451,14 @@ export default {
         name,
         pricesByCurrency: [{
           currency,
-          totalPrice: await toEther(price + qcPrice),
+          totalPrice: await toEther(price + qcPrice, currency),
           priceComponents: [{
             component: "testing_price",
-            value: await toEther(price)
+            value: await toEther(price, currency)
           }],
           additionalPrices: [{
             component: "qc_price",
-            value: await toEther(qcPrice)
+            value: await toEther(qcPrice, currency)
           }]
         }],
         expectedDuration: { duration, durationType },
@@ -486,14 +486,14 @@ export default {
         name,
         pricesByCurrency: [{
           currency,
-          totalPrice: await toEther(price + qcPrice),
+          totalPrice: await toEther(price + qcPrice, currency),
           priceComponents: [{
             component: "testing_price",
-            value: await toEther(price)
+            value: await toEther(price, currency)
           }],
           additionalPrices: [{
             component: "qc_price",
-            value: await toEther(qcPrice)
+            value: await toEther(qcPrice, currency)
           }]
         }],
         expectedDuration: { duration, durationType },

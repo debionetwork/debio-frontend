@@ -177,6 +177,7 @@ import SearchBar from "@/components/DataTable/SearchBar"
 import { deleteService, deleteServiceFee } from "@/lib/polkadotProvider/command/services"
 import { mapGetters, mapState } from "vuex"
 import { getOrdersData } from "@/lib/api"
+import { fromEther } from "@/lib/balance-format"
 import Dialog from "@/components/Dialog"
 import Button from "@/components/Button"
 import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
@@ -267,9 +268,9 @@ export default {
     },
 
     formatPrice(price) {
-      const priceAndCurrency = price[0].totalPrice.replaceAll(",", "").split(" ")
-      const formatedPrice = this.web3.utils.fromWei(String(priceAndCurrency, "ether"))
-      return `${formatedPrice} ${price[0].currency}`
+      const priceAndCurrency = price[0].totalPrice.replaceAll(",", "").split(" ")      
+      const formatedPrice = fromEther(priceAndCurrency[0], price[0].currency)
+      return `${Number(formatedPrice).toLocaleString("en-US")} ${price[0].currency}`
     },
 
     isIcon(imageName) {
