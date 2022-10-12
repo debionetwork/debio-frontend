@@ -291,8 +291,6 @@ export default {
           code: item.services[idx].regionCode,
           name: item.services[idx].city
         },
-        qc: {type: "DAI", value: 0},
-        currency: {type: "DAI", value: 0},
         serviceFlow: "StakingRequestService"
       }
 

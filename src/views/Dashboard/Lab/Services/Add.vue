@@ -106,7 +106,7 @@
                             v-model="document.currency"
                             :items="currencyList"
                             :rules="fieldRequiredRule"
-                            :disabled="hasServicePayload || isLoading"
+                            :disabled="isLoading"
                           />
                         </v-col>
 
@@ -128,7 +128,7 @@
                         <v-col>
                           <label style="font-size: 12px;"> QC Price </label>
                           <v-select
-                            :disabled="isBiomedical || hasServicePayload ||isLoading"
+                            :disabled="isBiomedical ||isLoading"
                             placeholder="USDT"
                             outlined
                             dense
@@ -300,7 +300,7 @@ export default {
       category: "",
       dnaCollectionProcess: "",
       name: "",
-      currency: "DAI",
+      currency: "USN",
       price: 0,
       qcPrice: 0,
       description: "",
@@ -497,14 +497,11 @@ export default {
 
       const {
         category,
-        currency,
-        currencyType,
         serviceFlow
       } = this.servicePayload
 
 
       this.document.category = category
-      this.document.currency = currency || currencyType
       this.document.serviceFlow = serviceFlow
       this.serviceFlow = serviceFlow
     },
