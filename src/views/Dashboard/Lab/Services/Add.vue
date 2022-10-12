@@ -665,9 +665,7 @@ export default {
           for (let i=0; i < dataRequestServices.length; i++) {
             await claimRequestService(this.api, this.wallet, {
               id,
-              hash: dataRequestServices[i].request.hash,
-              testing_price: await toEther(this.document.price, this.document.currency),
-              qc_price: await toEther(this.document.qcPrice, this.document.currency)
+              hash: dataRequestServices[i].request.hash
             })
           }
 
