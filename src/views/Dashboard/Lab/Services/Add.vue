@@ -106,7 +106,7 @@
                             v-model="document.currency"
                             :items="currencyList"
                             :rules="fieldRequiredRule"
-                            :disabled="hasServicePayload || isLoading"
+                            :disabled="isLoading"
                           />
                         </v-col>
 
@@ -128,7 +128,7 @@
                         <v-col>
                           <label style="font-size: 12px;"> QC Price </label>
                           <v-select
-                            :disabled="isBiomedical || hasServicePayload ||isLoading"
+                            :disabled="isBiomedical ||isLoading"
                             placeholder="USDT"
                             outlined
                             dense
@@ -300,7 +300,7 @@ export default {
       category: "",
       dnaCollectionProcess: "",
       name: "",
-      currency: "DAI",
+      currency: "USN",
       price: 0,
       qcPrice: 0,
       description: "",
@@ -497,14 +497,11 @@ export default {
 
       const {
         category,
-        currency,
-        currencyType,
         serviceFlow
       } = this.servicePayload
 
 
       this.document.category = category
-      this.document.currency = currency || currencyType
       this.document.serviceFlow = serviceFlow
       this.serviceFlow = serviceFlow
     },
@@ -518,11 +515,11 @@ export default {
           totalPrice: await toEther(price + qcPrice),
           priceComponents: [{
             component: "testing_price",
-            value: await toEther(price)
+            value: await toEther(price, currency)
           }],
           additionalPrices: [{
             component: "qc_price",
-            value: await toEther(qcPrice)
+            value: await toEther(qcPrice, currency)
           }]
         }],
         expectedDuration: { duration, durationType },
@@ -557,14 +554,14 @@ export default {
           name,
           pricesByCurrency: [{
             currency,
-            totalPrice: await toEther(price + qcPrice),
+            totalPrice: await toEther(price + qcPrice, currency),
             priceComponents: [{
               component: "testing_price",
-              value: await toEther(price)
+              value: await toEther(price, currency)
             }],
             additionalPrices: [{
               component: "qc_price",
-              value: await toEther(qcPrice)
+              value: await toEther(qcPrice, currency)
             }]
           }],
           expectedDuration: { duration, durationType },
@@ -665,9 +662,7 @@ export default {
           for (let i=0; i < dataRequestServices.length; i++) {
             await claimRequestService(this.api, this.wallet, {
               id,
-              hash: dataRequestServices[i].request.hash,
-              testing_price: await toEther(this.document.price),
-              qc_price: await toEther(this.document.qcPrice)
+              hash: dataRequestServices[i].request.hash
             })
           }
 

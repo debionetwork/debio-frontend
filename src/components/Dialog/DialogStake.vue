@@ -129,7 +129,7 @@ export default {
       const stakeAmount = await minimumStakeAmount(this.api)
       const _minimumStakeAmount = Number(stakeAmount.replaceAll(",", ""))
 
-      this.minimumStake = stakeAmount ? await _minimumStakeAmount : toEther(50000)
+      this.minimumStake = stakeAmount ? await _minimumStakeAmount : toEther(50000, "DBIO")
       this.stakeAmount = new Intl.NumberFormat("en-US").format(_minimumStakeAmount / (10**18))
     },
 

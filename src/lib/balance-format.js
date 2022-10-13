@@ -2,11 +2,16 @@ import store from "@/store"
 
 const web3 = store.getters["metamask/getWeb3"]
 
-export async function fromEther(balance) {
-  const formatedBalance = web3.utils.fromWei(String(balance), "ether")
+export function fromEther(balance, currency) {
+  let unit
+  currency === "USDT" ? unit = "mwei" : unit = "ether"
+  const formatedBalance = web3.utils.fromWei(String(balance.replaceAll(",", "")), unit)
   return formatedBalance
 }
 
-export async function toEther(balance) {
-  return web3.utils.toWei(String(balance), "ether")
+export async function toEther(balance, currency) {
+  let unit
+  currency === "USDT" ? unit = "mwei" : unit = "ether"
+  const formatedBalance = web3.utils.toWei(String(balance), unit)
+  return formatedBalance
 }

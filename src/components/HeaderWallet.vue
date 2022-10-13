@@ -145,7 +145,7 @@ export default {
     }),
 
     async getBalance(balanceNumber) {
-      const balance = Number(await fromEther(balanceNumber)).toFixed(3)
+      const balance = Number(await fromEther(balanceNumber, "DBIO")).toFixed(3)
       this.balance = balance.replace(/\.000/, "")
       if (this.balance == "0") {
         this.balance = "0"

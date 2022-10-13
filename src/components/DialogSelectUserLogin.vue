@@ -184,7 +184,7 @@ export default {
 
         this.loading = true;
         const balance = await queryBalance(this.api, this.dataAccount?.address)
-        this.balance = Number(await fromEther(balance)).toFixed(3)
+        this.balance = Number(await fromEther(balance, "DBIO")).toFixed(3)
         this.loading = false;
       } catch (err) {
         console.error(err);
