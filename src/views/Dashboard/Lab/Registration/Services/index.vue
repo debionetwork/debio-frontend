@@ -318,7 +318,7 @@ export default {
 
   data: () => ({
     serviceId: "",
-    currentDAIprice: 0,
+    usdRate: 0,
     document: {
       category: "",
       dnaCollectionProcess: "",
@@ -342,7 +342,7 @@ export default {
     isLoading: false,
     isSubmiting: false,
     isUploading: false,
-    currencyList: ["DAI", "Ethereum", "USN", "USDT"],
+    currencyList: ["USN", "USDT"],
     listExpectedDuration: [
       { text: "Hours", value: "Hours" },
       { text: "Days", value: "Days" }
@@ -364,8 +364,7 @@ export default {
   async created() {
     this.dnaCollectionProcessList = (await getDNACollectionProcess()).data
     await this.getServiceCategory()
-    const { daiToUsd } = await getConversionCache()
-    this.currentDAIprice = daiToUsd ?? 1
+    this.usdRate = await getConversionCache(this.document.currency, "USD")
   },
 
   computed: {
@@ -383,11 +382,11 @@ export default {
     }),
 
     priceHint() {
-      return `${this.document.price} ${this.document.currency} = ${(this.currentDAIprice * this.document.price).toFixed(4)} USD`
+      return `${this.document.price} ${this.document.currency} = ${(this.usdRate * this.document.price).toFixed(4)} USD`
     },
 
     qcPriceHint() {
-      return `${this.document.qcPrice} ${this.document.currency} = ${(this.currentDAIprice * this.document.qcPrice).toFixed(4)} USD`
+      return `${this.document.qcPrice} ${this.document.currency} = ${(this.usdRate * this.document.qcPrice).toFixed(4)} USD`
     },
 
     fieldRequiredRule() {
