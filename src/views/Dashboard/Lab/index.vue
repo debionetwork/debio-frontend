@@ -33,11 +33,6 @@
       <v-btn color="primary" @click="onRegister" >
         {{ computeStakingStatus ? "Continue Registration" : "Register Now!" }}
       </v-btn>
-        <WalletBinding
-          :show="showWalletBinding"
-          @toggle="showWalletBinding = $event"
-          @status-wallet="({ status, img }) => connectWalletResult(status, img)"
-        ></WalletBinding>
     </v-container>
     <div v-else>
       <div class="secondary--tex mb-5 lab-verified-box" v-if="labAccount.verificationStatus !== 'Verified'">
@@ -64,16 +59,12 @@
 <script>
 import { mapState } from "vuex"
 import OrderList from "@/components/OrderList"
-import { ethAddressByAccountId } from "@/lib/polkadotProvider/query/userProfile"
-import WalletBinding from "@/components/WalletBinding";
-
 
 export default {
   name: "Lab",
 
   components: {
-    OrderList,
-    WalletBinding
+    OrderList
   },
   
   watch: {
@@ -83,10 +74,6 @@ export default {
       await this.$store.dispatch("substrate/getLabAccount")
     }
   },
-
-  data: () => ({
-    showWalletBinding: false
-  }),
 
   computed: {
     ...mapState({
@@ -121,18 +108,7 @@ export default {
 
   methods: {
     async onRegister() {
-      this.ethRegisterAddress = await ethAddressByAccountId(
-        this.api,
-        this.wallet.address
-      )
-
-      if (!this.ethRegisterAddress) {
-        this.showWalletBinding = true
-      }
-
-      if (this.ethRegisterAddress) {
-        this.$router.push({ name: "lab-registration"})
-      }
+      this.$router.push({ name: "lab-registration"})
     }
   }
 }

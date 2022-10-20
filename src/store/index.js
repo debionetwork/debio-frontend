@@ -7,7 +7,6 @@ import testRequest from "./testRequest"
 import substrate from "./substrate"
 import lab from "./lab"
 import feedback from "./feedback"
-import wallet from "./wallet"
 
 Vue.use(Vuex)
 Vue.config.devtools = true
@@ -20,8 +19,7 @@ export default new Vuex.Store({
     testRequest,
     substrate,
     lab,
-    feedback,
-    wallet
+    feedback
   },
   state: {
   },
