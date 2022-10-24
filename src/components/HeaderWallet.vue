@@ -30,7 +30,7 @@
               icon
               color="#5640A5"
               small
-              @click="handleCopy(polkadotAddress, 'polkadot')"
+              @click="handleCopy(polkadotAddress)"
             >
               <div>
                 <v-img src="@/assets/copy-icon.svg" />
@@ -46,53 +46,6 @@
           </div>
         </div>
         <div class="divider"></div>
-        <div>
-          <div class="d-flex justify-space-between">
-            <div class="d-flex">
-              <div class="wallet-icon">
-                <v-img src="@/assets/metamask-icon.svg" />
-              </div>
-              <strong class="notification-subtitle">Metamask</strong>
-            </div>
-            <div class="disconnect-text" v-if="isConnected" @click="disconnectWallet">Disconnect</div>
-          </div>
-          <div v-if="isConnected">
-            <div class="text-content">Address</div>
-            <div class="d-flex justify-space-between address-wrapper">
-              <div class="address-text">
-                {{ metamaskAddress.substring(0, 25) }}..
-              </div>
-              <v-btn
-                class="ma-2"
-                text
-                icon
-                color="#5640A5"
-                small
-                @click="handleCopy(metamaskAddress, 'metamask')"
-              >
-                <div>
-                  <v-img src="@/assets/copy-icon.svg" />
-                </div>
-              </v-btn>
-            </div>
-            <div class="text-content">Balance</div>
-            <div class="d-flex">
-              <div class="wallet-icon">
-                <v-img src="@/assets/dai-icon.svg" />
-              </div>
-              <strong class="notification-subtitle"
-                >{{ Number(metamaskBalance).toFixed(3) }} DAI</strong
-              >
-            </div>
-          </div>
-          <div v-else>
-            <div class="text-content">
-              Wallet not found, Connect Wallet to bind your Metamask wallet to
-              your account
-            </div>
-            <Button class="btn-connect-wallet" @click="openWalletBinding">CONNECT WALLET</Button>
-          </div>
-        </div>
       </v-card>
     </div>
   </v-menu>
@@ -100,13 +53,8 @@
 
 <script>
 import {mapState, mapMutations, mapActions} from "vuex"
-import {ethAddressByAccountId} from "@/lib/polkadotProvider/query/userProfile"
 import {queryBalance} from "@/lib/polkadotProvider/query/balance"
-import {getBalanceDAI} from "@/lib/metamask/wallet.js"
 import {fromEther} from "@/lib/balance-format"
-import Button from "@/components/Button"
-import { startApp } from "@/lib/metamask";
-import localStorage from "@/lib/local-storage"
 
 
 export default {
@@ -116,28 +64,19 @@ export default {
       walletBalance: (state) => state.substrate.walletBalance,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
-      metamaskWalletAddress: (state) => state.metamask.metamaskWalletAddress,
-      metamaskWalletBalance: (state) => state.metamask.metamaskWalletBalance,
       lastEventData: (state) => state.substrate.lastEventData
     })
   },
   data: () => ({
     balance: 0,
     polkadotAddress: "",
-    metamaskAddress: "",
-    metamaskBalance: 0,
     ethRegisterAddress: null,
     isConnected: false
   }),
 
-  components: {
-    Button
-  },
-
   methods: {
     ...mapMutations({
-      setWalletBalance: "substrate/SET_WALLET_BALANCE",
-      clearWallet: "metamask/CLEAR_WALLET"
+      setWalletBalance: "substrate/SET_WALLET_BALANCE"
     }),
 
     ...mapActions({
@@ -163,73 +102,26 @@ export default {
       }
     },
 
-    openWalletBinding() {
-      this.$emit("showWalletBinding", true)
-    },
-
-    async checkMetamask() {
-      const ethAddress = localStorage.getWalletAddress()
-      this.isConnected = false
-      const ethRegisterAddress = await ethAddressByAccountId(this.api, this.wallet.address)
-      const metamaskAccount = await startApp()
-      if (metamaskAccount.accountList[0] === ethRegisterAddress) {
-        this.metamaskAddress = ethRegisterAddress
-        this.metamaskBalance = await getBalanceDAI(ethRegisterAddress)
-      }
-
-      if (ethAddress) {
-        this.isConnected = true
-      }
-    },
-
-    handleCopy(text, wallet) {
+    handleCopy(text) {
       navigator.clipboard.writeText(text)
-
-      if (wallet === "polkadot") {
-        this.polkadotAddress = "Address Copied!"
-        setTimeout(() => {
-          this.polkadotAddress = text
-        }, 1000)
-      } else if (wallet === "metamask") {
-        this.metamaskAddress = "Address Copied!"
-        setTimeout(() => {
-          this.metamaskAddress = text
-        }, 1000)
-      }
-    },
-
-    disconnectWallet() {
-      this.metamaskAddress = ""
-      this.clearWallet()
-      this.isConnected = false
-      localStorage.removeWalletAddress()
+      this.polkadotAddress = "Address Copied!"
+      setTimeout(() => {
+        this.polkadotAddress = text
+      }, 1000)
     }
   },
 
   watch: {
     lastEventData() {
       if(this.lastEventData) {
-        this.checkMetamask()
         this.fetchWalletBalance()
       }
-    },
-
-    metamaskWalletAddress() {
-      if (this.ethRegisterAddress !== this.metamaskWalletAddress.accounts[0]) {
-        this.isConnected = false
-        return
-      }
-      this.checkMetamask() 
     }
   },
 
   async mounted() {
-    this.checkMetamask()
     this.polkadotAddress = this.wallet.address
-
     await this.fetchWalletBalance()
-
-    if (this.metamaskWalletAddress) await this.checkMetamaskBalance()
   }
 }
 </script>

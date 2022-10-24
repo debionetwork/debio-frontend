@@ -15,8 +15,7 @@ export default {
   computed: {
     ...mapState({
       substrateApi: (state) => state.substrate.api,
-      isLoadingSubstrateApi: (state) => state.substrate.isLoadingApi,
-      web3: (state) => state.metamask.web3
+      isLoadingSubstrateApi: (state) => state.substrate.isLoadingApi
     })
   },
 
@@ -26,8 +25,7 @@ export default {
 
   methods: {
     ...mapActions({
-      initWeb3: "metamask/initWeb3",
-      initContracts: "metamask/contracts/initContracts"
+      initWeb3: "metamask/initWeb3"
     })
   }
 };

@@ -81,7 +81,6 @@ async function setupAppDependencies() {
 async function setupAppDependencies() {
   await store.dispatch("auth/initApp");
   await store.dispatch("metamask/initWeb3");
-  store.dispatch("metamask/contracts/initContracts");
   return
 }
 

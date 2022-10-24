@@ -20,8 +20,8 @@
         <v-spacer />
         <HeaderUserInfo />
         <!-- Menu For Development Purposes -->
-        <!-- <MenuChangeRole /> -->
-        <HeaderWallet @showWalletBinding="openWalletBinding"></HeaderWallet>
+        <!-- <MenuChangeRole /> --> 
+        <HeaderWallet />
         <HeaderNotification :role="'lab'"></HeaderNotification>
         <div class="d-flex align-center ml-3 mr-5">
           <div style="cursor: pointer" @click="logOut">
@@ -32,11 +32,6 @@
     </v-app-bar>
 
     <NavigationDrawer width="200" />
-    <WalletBinding
-      :show="showWalletBinding"
-      @toggle="showWalletBinding = $event"
-      @status-wallet="({status, img}) => connectWalletResult(status, img)"
-    ></WalletBinding>
 
     <v-main class="main" v-if="!allowDashboard && isLabDashboard">
       <router-view />
@@ -62,20 +57,6 @@
       <router-view />
     </v-main>
 
-    <InstallMetamask
-      :show="showInstall"
-      :button="buttonMessage"
-      :title="titleText"
-      @close="showInstall = false"
-    ></InstallMetamask>
-
-    <SwitchNetwork
-      :show="showSwitchNetwork"
-      :networkName="networkName"
-      :currentNetwork="currentNetwork"
-      @click="switchChain"
-    ></SwitchNetwork>
-
     <UnlockWalletDialog :show="show" @toggle="toggle()"></UnlockWalletDialog>
     <ErrorConnectionDialog :show="showError" @action="onCloseError()" />
   </v-app>
@@ -91,15 +72,9 @@ import NavigationDrawer from "@/components/NavigationDrawer"
 import UnlockWalletDialog from "@/components/UnlockWalletDialog"
 import ErrorConnectionDialog from "@/components/Dialog/DialogErrorConnection"
 import HeaderNotification from "@/components/HeaderNotification"
-import WalletBinding from "@/components/WalletBinding"
 import DialogAlert from "@/components/Dialog/DialogAlert"
 import HeaderWallet from "@/components/HeaderWallet"
 import localStorage from "@/lib/local-storage";
-
-import SwitchNetwork from "@/components/Dialog/SwitchNetwork"
-import { startApp, handleSwitchChain } from "@/lib/metamask";
-import InstallMetamask from "@/components/InstallMetamask"
-import getEnv from "@/utils/env"
 
 export default {
   name: "Dashboard",
@@ -110,31 +85,19 @@ export default {
     HeaderUserInfo,
     UnlockWalletDialog,
     HeaderNotification,
-    WalletBinding,
     DialogAlert,
     ErrorConnectionDialog,
-    HeaderWallet,
-    SwitchNetwork,
-    InstallMetamask
+    HeaderWallet
   },
 
   data: () => ({
     showError: false,
     show: false,
-    showWalletBinding: false,
     dialogAlert: false,
     alertTextBtn: "Continue",
     alertImgPath: "warning.png",
     alertTextAlert: "",
     imgWidth: "270",
-    showSwitchNetwork: false,
-    networkName: "",
-    currentNetwork: "",
-    network: {
-      "Ethereum Mainnet": "0x1",
-      "Rinkeby Test Network": "0x4"
-    },
-    showInstall: false,
     buttonMessage: "",
     titleText: ""
   }),
@@ -207,39 +170,6 @@ export default {
 
     toggle() {
       this.show = false
-    },
-
-    openWalletBinding(status) {
-      this.showWalletBinding = status
-    },
-
-    async checkMetamask() {
-      const metamask = await startApp()
-
-      if(metamask?.currentAccount === "no_install"){
-        this.showInstall = true
-        this.buttonMessage = "Install"
-        this.titleText = "Metamask Not Found!"
-        return
-      }
-
-      if (getEnv("VUE_APP_ROLE") === "development") {
-        this.networkName = "Rinkeby Test Network"
-        if (metamask.network === this.network[this.networkName]) return
-        this.showSwitchNetwork = true
-        metamask?.network === "0x1" ? this.currentNetwork = "Ethereum Mainnet" : this.currentNetwork = "other Network"
-      }
-    },
-
-    async switchChain() {
-      await handleSwitchChain("0x4")
-    },
-
-    connectWalletResult(status, img) {
-      if (status) {
-        this.alertImgPath = img
-        this.dialogAlert = true
-      }
     },
 
     onCloseError() {

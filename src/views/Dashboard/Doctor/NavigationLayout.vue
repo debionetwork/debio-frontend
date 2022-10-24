@@ -19,9 +19,7 @@
           </div>
         </a>
         <v-spacer/>
-        <HeaderUserInfo
-          @showWalletBinding="({ status }) => openWalletBinding(status)"
-        ></HeaderUserInfo>
+        <HeaderUserInfo />
         <!-- Menu For Development Purposes -->
         <!-- <MenuChangeRole /> -->
         <HeaderNotification :role="'doctor'"></HeaderNotification>
@@ -35,20 +33,6 @@
     </v-main>
 
     <v-main class="dg-dashboard-main ml-5" v-else>
-      <WalletBinding
-        :show="showWalletBinding"
-        @toggle="showWalletBinding = $event"
-        @status-wallet="({ status, img }) => connectWalletResult(status, img)"
-      ></WalletBinding>
-      <DialogAlert
-        :show="dialogAlert"
-        :btnText="alertTextBtn"
-        :textAlert="alertTextAlert"
-        :imgPath="alertImgPath"
-        :imgWidth="imgWidth"
-        @toggle="dialogAlert = $event"
-        @close="dialogAlert = false"
-      ></DialogAlert>
       <v-container>
         <Breadcrumbs />
         <div class="text-h5 secondary--text text--lighten-2">
@@ -58,8 +42,6 @@
 
       <router-view/>
     </v-main>
-
-    <UnlockWalletDialog :show="show" @toggle="toggle()"></UnlockWalletDialog>
   </v-app>
 </template>
 
@@ -70,10 +52,7 @@ import Breadcrumbs from "@/views/Dashboard/Breadcrumbs";
 // import MenuChangeRole from "@/components/MenuChangeRole";
 import HeaderUserInfo from "@/components/HeaderUserInfo";
 import NavigationDrawer from "@/components/NavigationDrawer";
-import UnlockWalletDialog from "@/components/UnlockWalletDialog";
 import HeaderNotification from "@/components/HeaderNotification";
-import WalletBinding from "@/components/WalletBinding";
-import DialogAlert from "@/components/Dialog/DialogAlert";
 
 export default {
   name: "DashboardDoctor",
@@ -82,18 +61,12 @@ export default {
     NavigationDrawer,
     // MenuChangeRole,
     HeaderUserInfo,
-    UnlockWalletDialog,
-    HeaderNotification,
-    WalletBinding,
-    DialogAlert
+    HeaderNotification
   },
   data: () => ({
     show: false,
-    showWalletBinding: false,
     dialogAlert: false,
     alertTextBtn: "Continue",
-    alertImgPath: "warning.png",
-    alertTextAlert: "",
     imgWidth: "270"
   }),
   mounted() {
@@ -139,17 +112,6 @@ export default {
   methods: {
     toggle() {
       this.show = false;
-    },
-
-    openWalletBinding(status) {
-      this.showWalletBinding = status;
-    },
-
-    connectWalletResult(status, img) {
-      if (status) {
-        this.alertImgPath = img;
-        this.dialogAlert = true;
-      }
     },
 
     goToDashboard() {

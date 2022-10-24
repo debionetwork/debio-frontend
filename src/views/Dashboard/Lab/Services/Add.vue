@@ -312,7 +312,7 @@ export default {
     kitPurchaseLink: null,
     imageUrl: "",
     testResultSampleUrl: "",
-    currentDAIprice: 0,
+    usdRate: 0,
     statusLab: null,
     labInfo: null,
     messageWarning: {},
@@ -322,7 +322,7 @@ export default {
     listCategories:[],
     isLoading: false,
     showModalAlert: false,
-    currencyList: ["DAI", "Ethereum", "USN", "USDT"],
+    currencyList: ["USN", "USDT"],
     listExpectedDuration: ["Hours", "Days"],
     dnaCollectionProcessList: [],
     isBiomedical: false,
@@ -341,11 +341,11 @@ export default {
     }),
 
     priceHint() {
-      return `${this.document.price} ${this.document.currency} = ${(this.currentDAIprice * this.document.price).toFixed(4)} USD`
+      return `${this.document.price} ${this.document.currency} = ${(this.usdRate * this.document.price).toFixed(4)} USD`
     },
 
     qcPriceHint() {
-      return `${this.document.qcPrice} ${this.document.currency} = ${(this.currentDAIprice * this.document.qcPrice).toFixed(4)} USD`
+      return `${this.document.qcPrice} ${this.document.currency} = ${(this.usdRate * this.document.qcPrice).toFixed(4)} USD`
     },
 
     hasServicePayload() {
@@ -398,8 +398,7 @@ export default {
     this.validate()
     this.prefillValues()
     await this.getServiceCategory()
-    const { daiToUsd } = await getConversionCache()
-    this.currentDAIprice = daiToUsd ?? 1
+    this.usdRate = await getConversionCache(this.document.currency, "USD")
   },
 
   methods: {

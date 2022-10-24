@@ -293,9 +293,9 @@ export default {
     files: [],
     testResultSampleFile:[],
     isLoading: false,
-    currentDAIprice: 0,
+    usdRate: 0,
     isUploading: false,
-    currencyList: ["DAI", "Ethereum", "USN", "USDT"],
+    currencyList: ["USN", "USDT"],
     currencyType: "",
     listExpectedDuration: ["Hours", "Days"],
     listCategories: [],
@@ -317,11 +317,11 @@ export default {
     }),
 
     priceHint() {
-      return `${this.document.price} ${this.document.currency} = ${(this.currentDAIprice * this.document.price).toFixed(4)} USD`
+      return `${this.document.price} ${this.document.currency} = ${(this.usdRate * this.document.price).toFixed(4)} USD`
     },
 
     qcPriceHint() {
-      return `${this.document.qcPrice} ${this.document.currency} = ${(this.currentDAIprice * this.document.qcPrice).toFixed(4)} USD`
+      return `${this.document.qcPrice} ${this.document.currency} = ${(this.usdRate * this.document.qcPrice).toFixed(4)} USD`
     },
 
     fieldRequiredRule() {
@@ -397,8 +397,7 @@ export default {
     this.id = this.$route.params.id
     await this.getServiceCategory()
     await this.getService(this.$route.params.id)
-    const { daiToUsd } = await getConversionCache()
-    this.currentDAIprice = daiToUsd ?? 1
+    this.usdRate = await getConversionCache(this.document.currency, "USD")
   },
 
   methods: {

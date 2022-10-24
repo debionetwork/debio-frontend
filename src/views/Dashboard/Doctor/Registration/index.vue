@@ -110,8 +110,6 @@
 <script>
 import { mapGetters } from "vuex"
 import { registerDoctor } from "@/lib/polkadotProvider/command/doctors"
-import { setEthAddress } from "@/lib/polkadotProvider/command/userProfile"
-import { getWalletAddress } from "@/lib/metamask/wallet"
 import countryData from "@/assets/json/country.json"
 import cityData from "@/assets/json/city.json"
 import { upload } from "@/lib/ipfs"
@@ -201,31 +199,25 @@ export default {
       }
       try{
         this.isLoading = true
-        const ethAddress = await getWalletAddress()
-        await setEthAddress(
-          this.api,
-          this.pair,
-          ethAddress,
-          async () => {
-            await registerDoctor(
-              this.api,
-              this.pair,
-              {
-                name: this.doctorName,
-                email: this.email,
-                profileImage: this.image,
-                address: this.address,
-                country: this.country,
-                city: this.city
-              },
-              async () => {
-                this.setDoctorAccount()
-                this.isLoading = false
-                this.$router.push("/doctor")
-              }
-            )
-          }
-        )
+        async () => {
+          await registerDoctor(
+            this.api,
+            this.pair,
+            {
+              name: this.doctorName,
+              email: this.email,
+              profileImage: this.image,
+              address: this.address,
+              country: this.country,
+              city: this.city
+            },
+            async () => {
+              this.setDoctorAccount()
+              this.isLoading = false
+              this.$router.push("/doctor")
+            }
+          )
+        }
       }
       catch(e){
         console.error(e)
