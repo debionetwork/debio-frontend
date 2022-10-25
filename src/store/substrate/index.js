@@ -429,11 +429,8 @@ export default {
 
     async updateDataListNotification({ commit }, { address, data, role }) {
       try {
-
-        console.log("LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role, JSON.stringify(data))
         if (data != null && data != "") {
-          data.reverse();
-          console.log("updatenotification");
+          data.reverse(); 
           localStorage.setLocalStorageByName("LOCAL_NOTIFICATION_BY_ADDRESS_" + address + "_" + role, JSON.stringify(data));
           data.reverse();
           commit("SET_LIST_NOTIFICATION", data);
