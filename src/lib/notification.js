@@ -15,6 +15,7 @@ export async function getUnlistedNotification (roles, newBlock, lastBlock) {
   const role = roles.replace(roles[0], roles[0].toUpperCase())
   const from = "Debio Network"
   const toId = localStorage.getAddress()
+  if (!toId) return
   const { data } = await getNotification(toId, lastBlock, newBlock, role, from)
   const storageName = "LOCAL_NOTIFICATION_BY_ADDRESS_" + toId + "_" + roles;
   const reverse = data.reverse()
@@ -25,7 +26,9 @@ export async function getUnlistedNotification (roles, newBlock, lastBlock) {
     listNotification = JSON.parse(listNotificationJson)
   }
 
-  if(lastBlock >= parseInt(data[data.length-1].block_number)) return
+  if (lastBlock) {
+    if(lastBlock >= parseInt(data[data.length-1].block_number)) return
+  }
   
   reverse.forEach(event => {
     const dateSet = new Date(event.created_at)
