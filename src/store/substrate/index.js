@@ -88,6 +88,12 @@ export default {
     SET_WALLET_BALANCE(state, balance) {
       state.walletBalance = balance
     },
+    SET_USN_BALANCE(state, balance) {
+      state.usnBalance = balance
+    },
+    SET_USDT_BALANCE(state, balance) {
+      state.usdtBalance = balance
+    },
     SET_WALLET_PUBLIC_KEY(state, publicKey) {
       state.walletPublicKey = publicKey
     },
