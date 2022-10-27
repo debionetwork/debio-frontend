@@ -61,7 +61,6 @@ import {mapState, mapMutations, mapActions} from "vuex"
 import {queryBalance} from "@/lib/polkadotProvider/query/balance"
 import {fromEther} from "@/lib/balance-format"
 
-import { startApp } from "@/lib/metamask";
 import localStorage from "@/lib/local-storage"
 import { queryGetAssetBalance, queryGetAllOctopusAssets } from "@/lib/polkadotProvider/query/octopus-assets"
 
