@@ -38,11 +38,16 @@
             </v-btn>
           </div>
           <div class="text-content">Balance</div>
-          <div class="d-flex">
+          <div class="d-flex" v-for="wallet in polkadotWallets" :key="wallet.id">
             <div class="wallet-icon">
-              <v-img src="@/assets/debio-logo.png" />
+              <v-img
+                alt="no-list-data"
+                :src="require(`../assets/${wallet.icon}.svg`)"
+                max-width="24px"
+                max-height="24px"
+              />
             </div>
-            <strong class="notification-subtitle">{{ balance }} DBIO</strong>
+            <strong class="notification-subtitle">{{ wallet.balance }}  {{ wallet.currency }}</strong>
           </div>
         </div>
         <div class="divider"></div>
@@ -56,6 +61,8 @@ import {mapState, mapMutations, mapActions} from "vuex"
 import {queryBalance} from "@/lib/polkadotProvider/query/balance"
 import {fromEther} from "@/lib/balance-format"
 
+import localStorage from "@/lib/local-storage"
+import { queryGetAssetBalance, queryGetAllOctopusAssets } from "@/lib/polkadotProvider/query/octopus-assets"
 
 export default {
   name: "HeaderUserInfo",
@@ -71,12 +78,42 @@ export default {
     balance: 0,
     polkadotAddress: "",
     ethRegisterAddress: null,
-    isConnected: false
+    polkadotWallets: [
+      {
+        id: 0,
+        name: "debio",
+        icon: "debio-logo",
+        currency: "DBIO",
+        unit: "ether",
+        balance: 0
+      },
+
+      {
+        name: "usdn",
+        icon: "near-logo",
+        currency: "USN",
+        unit: "ether",
+        balance: 0
+      },
+
+      {
+        name: "usdt",
+        icon: "tether-logo",
+        currency: "USDT",
+        unit: "mwei",
+        balance: 0
+      }
+    ],
+    isConnected: false,
+    octopusAsset: []
   }),
 
   methods: {
     ...mapMutations({
-      setWalletBalance: "substrate/SET_WALLET_BALANCE"
+      setWalletBalance: "substrate/SET_WALLET_BALANCE",
+      setUSNBalance: "substrate/SET_USN_BALANCE",
+      setUSDTBalance: "substrate/SET_USDT_BALANCE",
+      clearWallet: "metamask/CLEAR_WALLET"
     }),
 
     ...mapActions({
@@ -94,11 +131,51 @@ export default {
     async fetchWalletBalance() {
       try {
         const balanceNumber = await queryBalance(this.api, this.wallet.address)
+        console.log("Balance", balanceNumber)
         this.getBalance(balanceNumber)
         this.setWalletBalance(balanceNumber)
 
       } catch (err) {
         console.error(err)
+      }
+    },
+
+    async getOctopusAssets() {
+      const assets = await queryGetAllOctopusAssets(this.api)
+      for (let i = 0; i < assets.length; i++) {
+        const name = assets[i][0].toHuman()[0]
+        const id = assets[i][1].toHuman()
+        const data = await queryGetAssetBalance(this.api, id, this.wallet.address)
+        const assetData = {id, data, name:  name.split(".")[0]}
+        this.octopusAsset.push(assetData)
+      }
+    },
+    
+    async fetchPolkadotBallance() {  
+      this.polkadotWallets.forEach(async (wallet) => {
+        console.log(wallet)
+        if (wallet.name !== "debio") {
+          const data = this.octopusAsset.find(a => a.name === wallet.name)
+          if (!data) return
+          wallet.balance = this.web3.utils.fromWei(data.data.balance.replaceAll(",", ""), wallet.unit)
+          wallet.id = data.id
+          if (wallet.name === "usdn") this.setUSNBalance(wallet.balance)
+          if (wallet.name === "usdt") this.setUSDTBalance(wallet.balance)
+        }
+      })
+      this.setPolkadotWallet(this.polkadotWallets)
+    },
+
+    openWalletBinding() {
+      this.$emit("showWalletBinding", true)
+    },
+
+    async checkMetamask() {
+      const ethAddress = localStorage.getWalletAddress()
+      this.isConnected = false
+
+      if (ethAddress) {
+        this.isConnected = true
       }
     },
 
@@ -115,6 +192,7 @@ export default {
     lastEventData() {
       if(this.lastEventData) {
         this.fetchWalletBalance()
+        this.fetchPolkadotBallance()
       }
     }
   },
@@ -122,6 +200,9 @@ export default {
   async mounted() {
     this.polkadotAddress = this.wallet.address
     await this.fetchWalletBalance()
+    await this.fetchPolkadotBallance()
+
+    if (this.metamaskWalletAddress) await this.checkMetamaskBalance()
   }
 }
 </script>
