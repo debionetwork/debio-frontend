@@ -1,5 +1,5 @@
 <template>
-  <v-menu bottom left :close-on-content-click="false">
+  <v-menu bottom left offset-y :close-on-content-click="false">
     <template v-slot:activator="{on, attrs}">
       <div class="d-flex align-center ml-10 mr-4" v-bind="attrs" v-on="on">
         <div class="d-flex align-center">
@@ -9,7 +9,7 @@
         </div>
       </div>
     </template>
-    <div class="mt-11">
+    <div>
       <v-card class="card-container">
         <div>
           <strong class="notification-title">Wallet</strong>
@@ -59,7 +59,6 @@
 <script>
 import {mapState, mapMutations, mapActions} from "vuex"
 import {queryBalance} from "@/lib/polkadotProvider/query/balance"
-import {fromEther} from "@/lib/balance-format"
 
 import localStorage from "@/lib/local-storage"
 import { queryGetAssetBalance, queryGetAllOctopusAssets } from "@/lib/polkadotProvider/query/octopus-assets"
@@ -71,6 +70,7 @@ export default {
       walletBalance: (state) => state.substrate.walletBalance,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      web3: (state) => state.metamask.web3,
       lastEventData: (state) => state.substrate.lastEventData
     })
   },
@@ -78,6 +78,7 @@ export default {
     balance: 0,
     polkadotAddress: "",
     ethRegisterAddress: null,
+    polkadotBalance: 0,
     polkadotWallets: [
       {
         id: 0,
@@ -113,6 +114,7 @@ export default {
       setWalletBalance: "substrate/SET_WALLET_BALANCE",
       setUSNBalance: "substrate/SET_USN_BALANCE",
       setUSDTBalance: "substrate/SET_USDT_BALANCE",
+      setPolkadotWallet: "substrate/SET_POLKADOT_WALLET",
       clearWallet: "metamask/CLEAR_WALLET"
     }),
 
@@ -120,21 +122,12 @@ export default {
       clearAuth: "auth/clearAuth"
     }),
 
-    async getBalance(balanceNumber) {
-      const balance = Number(await fromEther(balanceNumber, "DBIO")).toFixed(3)
-      this.balance = balance.replace(/\.000/, "")
-      if (this.balance == "0") {
-        this.balance = "0"
-      }
-    },
-
     async fetchWalletBalance() {
       try {
         const balanceNumber = await queryBalance(this.api, this.wallet.address)
-        console.log("Balance", balanceNumber)
-        this.getBalance(balanceNumber)
         this.setWalletBalance(balanceNumber)
-
+        this.polkadotBalance = this.walletBalance
+        this.polkadotWallets[0].balance = this.walletBalance
       } catch (err) {
         console.error(err)
       }
@@ -153,7 +146,6 @@ export default {
     
     async fetchPolkadotBallance() {  
       this.polkadotWallets.forEach(async (wallet) => {
-        console.log(wallet)
         if (wallet.name !== "debio") {
           const data = this.octopusAsset.find(a => a.name === wallet.name)
           if (!data) return
@@ -200,6 +192,7 @@ export default {
   async mounted() {
     this.polkadotAddress = this.wallet.address
     await this.fetchWalletBalance()
+    await this.getOctopusAssets()
     await this.fetchPolkadotBallance()
 
     if (this.metamaskWalletAddress) await this.checkMetamaskBalance()

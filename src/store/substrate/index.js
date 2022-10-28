@@ -39,7 +39,10 @@ const defaultState = {
   configEvent: null,
   mnemonicData: null,
   lastBlockData: null,
-  blockNumber: null
+  blockNumber: null,
+  usnBalance: null,
+  usdtBalance: null,
+  polkadotWallet: null
 }
 
 export default {
@@ -93,6 +96,9 @@ export default {
     },
     SET_USDT_BALANCE(state, balance) {
       state.usdtBalance = balance
+    },
+    SET_POLKADOT_WALLET(state, wallet) {
+      state.polkadotWallet = wallet
     },
     SET_WALLET_PUBLIC_KEY(state, publicKey) {
       state.walletPublicKey = publicKey
