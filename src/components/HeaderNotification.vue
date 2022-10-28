@@ -3,9 +3,9 @@
   background: white;
   min-width: 287px;
 
-  position: absolute;
-  top: 50px;
-  right: 30px;
+  position: fixed;
+  top: 56px;
+  right: calc(287px + (287px / 2) - 15px);
 
   color: black;
   font-family: "Roboto";
@@ -15,6 +15,7 @@
   border: 1px solid rgb(228, 228, 228);
   box-shadow: 1px 3px 9px 2px rgba(0, 0, 0, 0.2);
   padding-bottom: 15px;
+  border-radius: 5px;
 }
 .notification-title {
   font-size: 10pt;
@@ -42,44 +43,45 @@
 }
 </style>
 <template>
-  <div class="d-flex align-center ml-3 mr-5">
-    <div class="d-flex align-center">
-      <div style="cursor: pointer">
-        <v-badge
-          :content="notifLength"
-          :value="notifLength"
-          color="primary"
-          overlap
-        >
-          <v-icon id="notificationBell">mdi-bell</v-icon>
-        </v-badge>
-      </div>
-    </div>
-    <div class="notification" v-if="showDialog">
-      <b class="notification-title">Notification ({{ notifLength }})</b>
-      <div class="ml-2 mr-2" style="height: 250px; overflow: auto">
-        <div
-          v-for="(notif, index) in listNotif"
-          v-bind:key="index"
-          @click="gotoRoute(notif, index)"
-          class="d-flex align-center justify-space-evenly notification-item"
-        >
-          <v-icon v-if="notif.read" class="notification-icon" color="grey" large
-            >mdi-email-open</v-icon
-          >
-          <v-icon v-else class="notification-icon" color="grey" large
-            >mdi-email</v-icon
-          >
-          <div>
-            <div style="font-size: 14px">{{ notif.message }}</div>
-            <div style="font-size: 12px">
-              {{ notif.notifDate }}
-            </div>
+  <v-menu bottom left offset-y :close-on-content-click="false">
+    <template v-slot:activator="{on, attrs}">
+      <div class="d-flex align-center ml-3 mr-4" v-bind="attrs" v-on="on">
+        <div class="d-flex align-center">
+          <div style="cursor: pointer">
+            <v-icon>mdi-bell</v-icon>
           </div>
         </div>
       </div>
+    </template>
+    <div class="mt-2">
+      <v-card class="card-container">
+        <div>
+          <b class="notification-title">Notification ({{ notifLength }})</b>
+          <div class="ml-2 mr-2" style="height: 250px; overflow: auto">
+            <div
+              v-for="(notif, index) in listNotif"
+              v-bind:key="index"
+              @click="gotoRoute(notif, index)"
+              class="d-flex align-center justify-space-evenly notification-item"
+            >
+              <v-icon v-if="notif.read" class="notification-icon" color="grey" large
+                >mdi-email-open</v-icon
+              >
+              <v-icon v-else class="notification-icon" color="grey" large
+                >mdi-email</v-icon
+              >
+              <div>
+                <div style="font-size: 14px">{{ notif.message }}</div>
+                <div style="font-size: 12px">
+                  {{ notif.notifDate }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </v-card>
     </div>
-  </div>
+  </v-menu>
 </template>
 
 <script>
@@ -115,14 +117,6 @@ export default {
     ...mapActions({
       clearAuth: "auth/clearAuth"
     }),
-
-    openNotif() {
-      if (this.showDialog) {
-        this.showDialog = false;
-      } else {
-        this.showDialog = true;
-      }
-    },
 
     async getListNotification() {
       await this.$store.dispatch("substrate/getListNotification", {
@@ -169,14 +163,6 @@ export default {
   },
 
   async mounted() {
-    const inst = this;
-    document.addEventListener("click", function (e) {
-      if (e.target.id == "notificationBell") {
-        inst.openNotif();
-      } else {
-        inst.showDialog = false;
-      }
-    });
     await this.getListNotification();
   }
 };

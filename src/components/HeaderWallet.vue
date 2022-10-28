@@ -1,5 +1,5 @@
 <template>
-  <v-menu bottom left :close-on-content-click="false">
+  <v-menu bottom left offset-y :close-on-content-click="false">
     <template v-slot:activator="{on, attrs}">
       <div class="d-flex align-center ml-10 mr-4" v-bind="attrs" v-on="on">
         <div class="d-flex align-center">
@@ -9,7 +9,7 @@
         </div>
       </div>
     </template>
-    <div class="mt-11">
+    <div class="mt-2">
       <v-card class="card-container">
         <div>
           <strong class="notification-title">Wallet</strong>
@@ -113,6 +113,7 @@ export default {
       setWalletBalance: "substrate/SET_WALLET_BALANCE",
       setUSNBalance: "substrate/SET_USN_BALANCE",
       setUSDTBalance: "substrate/SET_USDT_BALANCE",
+      setPolkadotWallet: "substrate/SET_POLKADOT_WALLET",
       clearWallet: "metamask/CLEAR_WALLET"
     }),
 
@@ -131,7 +132,6 @@ export default {
     async fetchWalletBalance() {
       try {
         const balanceNumber = await queryBalance(this.api, this.wallet.address)
-        console.log("Balance", balanceNumber)
         this.getBalance(balanceNumber)
         this.setWalletBalance(balanceNumber)
 
@@ -153,7 +153,6 @@ export default {
     
     async fetchPolkadotBallance() {  
       this.polkadotWallets.forEach(async (wallet) => {
-        console.log(wallet)
         if (wallet.name !== "debio") {
           const data = this.octopusAsset.find(a => a.name === wallet.name)
           if (!data) return
