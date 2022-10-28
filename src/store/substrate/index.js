@@ -40,9 +40,9 @@ const defaultState = {
   mnemonicData: null,
   lastBlockData: null,
   blockNumber: null,
-  polkadotWallet: null,
-  usnBalance: 0,
-  usdtBalance: 0
+  usnBalance: null,
+  usdtBalance: null,
+  polkadotWallet: null
 }
 
 export default {
@@ -91,14 +91,14 @@ export default {
     SET_WALLET_BALANCE(state, balance) {
       state.walletBalance = balance
     },
-    SET_POLKADOT_WALLET(state, wallet) {
-      state.polkadotWallet = wallet
-    },
     SET_USN_BALANCE(state, balance) {
       state.usnBalance = balance
     },
     SET_USDT_BALANCE(state, balance) {
       state.usdtBalance = balance
+    },
+    SET_POLKADOT_WALLET(state, wallet) {
+      state.polkadotWallet = wallet
     },
     SET_WALLET_PUBLIC_KEY(state, publicKey) {
       state.walletPublicKey = publicKey

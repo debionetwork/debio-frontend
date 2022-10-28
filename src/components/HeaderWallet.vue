@@ -9,7 +9,7 @@
         </div>
       </div>
     </template>
-    <div class="mt-2">
+    <div>
       <v-card class="card-container">
         <div>
           <strong class="notification-title">Wallet</strong>
@@ -59,7 +59,6 @@
 <script>
 import {mapState, mapMutations, mapActions} from "vuex"
 import {queryBalance} from "@/lib/polkadotProvider/query/balance"
-import {fromEther} from "@/lib/balance-format"
 
 import localStorage from "@/lib/local-storage"
 import { queryGetAssetBalance, queryGetAllOctopusAssets } from "@/lib/polkadotProvider/query/octopus-assets"
@@ -71,6 +70,7 @@ export default {
       walletBalance: (state) => state.substrate.walletBalance,
       api: (state) => state.substrate.api,
       wallet: (state) => state.substrate.wallet,
+      web3: (state) => state.metamask.web3,
       lastEventData: (state) => state.substrate.lastEventData
     })
   },
@@ -78,6 +78,7 @@ export default {
     balance: 0,
     polkadotAddress: "",
     ethRegisterAddress: null,
+    polkadotBalance: 0,
     polkadotWallets: [
       {
         id: 0,
@@ -121,20 +122,12 @@ export default {
       clearAuth: "auth/clearAuth"
     }),
 
-    async getBalance(balanceNumber) {
-      const balance = Number(await fromEther(balanceNumber, "DBIO")).toFixed(3)
-      this.balance = balance.replace(/\.000/, "")
-      if (this.balance == "0") {
-        this.balance = "0"
-      }
-    },
-
     async fetchWalletBalance() {
       try {
         const balanceNumber = await queryBalance(this.api, this.wallet.address)
-        this.getBalance(balanceNumber)
         this.setWalletBalance(balanceNumber)
-
+        this.polkadotBalance = this.walletBalance
+        this.polkadotWallets[0].balance = this.walletBalance
       } catch (err) {
         console.error(err)
       }
@@ -199,6 +192,7 @@ export default {
   async mounted() {
     this.polkadotAddress = this.wallet.address
     await this.fetchWalletBalance()
+    await this.getOctopusAssets()
     await this.fetchPolkadotBallance()
 
     if (this.metamaskWalletAddress) await this.checkMetamaskBalance()

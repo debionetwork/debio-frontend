@@ -53,7 +53,7 @@
         </div>
       </div>
     </template>
-    <div class="mt-2">
+    <div>
       <v-card class="card-container">
         <div>
           <b class="notification-title">Notification ({{ notifLength }})</b>
@@ -79,6 +79,7 @@
             </div>
           </div>
         </div>
+        <div class="divider"></div>
       </v-card>
     </div>
   </v-menu>
