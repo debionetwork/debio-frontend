@@ -52,6 +52,7 @@ import ServerSideDataTable from "@/components/DataTable/ServerSideDataTable"
 import { queryDnaSamples, queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting"
 import SearchBar from "@/components/DataTable/SearchBar"
 import { getOrdersData } from "@/lib/api"
+import serviceHandler from "@/lib/serviceHandler"
 
 export default {
   name: "LabOrderHistory",
@@ -60,6 +61,8 @@ export default {
     ServerSideDataTable,
     SearchBar
   },
+
+  mixins: [serviceHandler],
 
   data: () => ({
     headers: [
@@ -83,6 +86,8 @@ export default {
   },
 
   async created() {
+    console.log("helloq...")
+
     this.fetchDataOrders()
   },
 

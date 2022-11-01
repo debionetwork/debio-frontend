@@ -18,17 +18,17 @@
       <v-list>
         <router-link to="/login">
           <v-list-item link>
-            <v-list-item-title>Customer Login</v-list-item-title>
+            <v-list-item-title>Login</v-list-item-title>
           </v-list-item>
         </router-link>
         <router-link to="/">
           <v-list-item link>
-            <v-list-item-title>Customer Dashboard</v-list-item-title>
+            <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item>
         </router-link>
         <router-link to="/lab">
           <v-list-item link>
-            <v-list-item-title>Lab Dashboard</v-list-item-title>
+            <v-list-item-title>Orders</v-list-item-title>
           </v-list-item>
         </router-link>
       </v-list>

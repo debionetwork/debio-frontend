@@ -117,7 +117,7 @@ export default {
     alertIcon,
     version: "",
     drawerButtons: [
-      { text: "Dashboard", auth: true, route: { name: "lab-dashboard" } },
+      { text: "Orders", auth: true, route: { name: "lab-dashboard" } },
       { text: "Account", auth: false, route: { name: "lab-dashboard-account" } },
       { text: "Services", auth: false, route: { name: "lab-dashboard-services" } },
       { text: "Order History", auth: false, route: { name: "lab-dashboard-order-history" } }
@@ -156,7 +156,7 @@ export default {
 
     computeDisabledCondition() {
       return this.drawerButtons.map(btn => {
-        if (btn.text === "Dashboard" || btn.text === "Customer Care") return { ...btn }
+        if (btn.text === "Orders" || btn.text === "Customer Care") return { ...btn }
         return {
           ...btn,
           auth: this.labAccount?.verificationStatus === "Verified"
