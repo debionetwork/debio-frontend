@@ -11,7 +11,7 @@ const labRoutes = [
         path: "/",
         name: "lab-dashboard",
         meta: {
-          pageHeader: "Lab Dashboard",
+          pageHeader: "Orders",
           breadcrumbs: [
             { text: "Lab", href: "/lab" },
             { text: "Orders", disabled: true }
