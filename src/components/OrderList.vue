@@ -86,8 +86,6 @@ export default {
   },
 
   async created() {
-    console.log("helloq...")
-
     this.fetchDataOrders()
   },
 
