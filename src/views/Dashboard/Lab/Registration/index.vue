@@ -211,7 +211,6 @@ import { u8aToHex } from "@polkadot/util"
 import { generalDebounce } from "@/utils"
 import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
-
 const englishAlphabet = val => (val && /^[A-Za-z0-9!@#$%^&*\\(\\)\-_=+:;"',.\\/? ]+$/.test(val)) || "This field can only contain English alphabet"
 
 export default {

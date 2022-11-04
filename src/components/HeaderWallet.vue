@@ -90,14 +90,6 @@ export default {
       },
 
       {
-        name: "usdn",
-        icon: "near-logo",
-        currency: "USN",
-        unit: "ether",
-        balance: 0
-      },
-
-      {
         name: "usdt",
         icon: "tether-logo",
         currency: "USDT",
@@ -112,7 +104,6 @@ export default {
   methods: {
     ...mapMutations({
       setWalletBalance: "substrate/SET_WALLET_BALANCE",
-      setUSNBalance: "substrate/SET_USN_BALANCE",
       setUSDTBalance: "substrate/SET_USDT_BALANCE",
       setPolkadotWallet: "substrate/SET_POLKADOT_WALLET",
       clearWallet: "metamask/CLEAR_WALLET"
@@ -151,7 +142,6 @@ export default {
           if (!data) return
           wallet.balance = this.web3.utils.fromWei(data.data.balance.replaceAll(",", ""), wallet.unit)
           wallet.id = data.id
-          if (wallet.name === "usdn") this.setUSNBalance(wallet.balance)
           if (wallet.name === "usdt") this.setUSDTBalance(wallet.balance)
         }
       })

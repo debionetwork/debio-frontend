@@ -323,7 +323,7 @@ export default {
       category: "",
       dnaCollectionProcess: "",
       name: "",
-      currency: "USN",
+      currency: "USDT",
       price: 0,
       qcPrice: 0,
       description: "",
@@ -342,7 +342,7 @@ export default {
     isLoading: false,
     isSubmiting: false,
     isUploading: false,
-    currencyList: ["USN", "USDT"],
+    currencyList: ["USDT"],
     listExpectedDuration: [
       { text: "Hours", value: "Hours" },
       { text: "Days", value: "Days" }
@@ -522,7 +522,7 @@ export default {
         category: "",
         dnaCollectionProcess: "",
         name: "",
-        currency: "USN",
+        currency: "USDT",
         price: 0,
         qcPrice: 0,
         description: "",

@@ -40,7 +40,6 @@ const defaultState = {
   mnemonicData: null,
   lastBlockData: null,
   blockNumber: null,
-  usnBalance: null,
   usdtBalance: null,
   polkadotWallet: null
 }
@@ -90,9 +89,6 @@ export default {
     },
     SET_WALLET_BALANCE(state, balance) {
       state.walletBalance = balance
-    },
-    SET_USN_BALANCE(state, balance) {
-      state.usnBalance = balance
     },
     SET_USDT_BALANCE(state, balance) {
       state.usdtBalance = balance
