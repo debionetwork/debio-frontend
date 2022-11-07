@@ -216,7 +216,7 @@ export default {
       if (currency === "USDT") {
         price = Number(amount) / Math.pow(10, 6)
       } else {
-        price = this.web3.utils.fromWei(String(service.info.pricesByCurrency[0].totalPrice.replaceAll(",","")), "ether")
+        price = this.web3.utils.fromWei(amount, "ether")
       }
       
       return `${price} ${currency}`
