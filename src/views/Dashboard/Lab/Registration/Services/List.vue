@@ -59,8 +59,7 @@
             <div>
               <span>
                 Price : 
-                {{ web3.utils.fromWei(String(service.info.pricesByCurrency[0].totalPrice.replaceAll(",","")), "ether") }} 
-                {{ service.info.pricesByCurrency[0].currency }}
+                {{ priceByCurrency(String(service.info.pricesByCurrency[0].totalPrice.replaceAll(",","")), service.info.pricesByCurrency[0].currency) }}
               </span>
             </div>
             <div>
@@ -210,6 +209,17 @@ export default {
           this.isShowError = true
         }
       }
+    },
+
+    priceByCurrency(amount, currency) {
+      let price = 0
+      if (currency === "USDT") {
+        price = Number(amount) / Math.pow(10, 6)
+      } else {
+        price = this.web3.utils.fromWei(String(service.info.pricesByCurrency[0].totalPrice.replaceAll(",","")), "ether")
+      }
+      
+      return `${price} ${currency}`
     }
   }
 }
