@@ -212,13 +212,7 @@ export default {
     },
 
     priceByCurrency(amount, currency) {
-      let price = 0
-      if (currency === "USDT") {
-        price = Number(amount) / Math.pow(10, 6)
-      } else {
-        price = this.web3.utils.fromWei(amount, "ether")
-      }
-      
+      let price = this.web3.utils.fromWei(amount, currency === "USDT" ? "mwei" : "ether")
       return `${price} ${currency}`
     }
   }
