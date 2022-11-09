@@ -341,11 +341,11 @@ export default {
     }),
 
     priceHint() {
-      return `${this.document.price} ${this.document.currency} = ${(this.usdRate * this.document.price).toFixed(4)} USD`
+      return `${this.document.price} ${this.document.currency} = ${(this.usdRate.conversion * this.document.price).toFixed(4)} USD`
     },
 
     qcPriceHint() {
-      return `${this.document.qcPrice} ${this.document.currency} = ${(this.usdRate * this.document.qcPrice).toFixed(4)} USD`
+      return `${this.document.qcPrice} ${this.document.currency} = ${(this.usdRate.conversion * this.document.qcPrice).toFixed(4)} USD`
     },
 
     hasServicePayload() {
