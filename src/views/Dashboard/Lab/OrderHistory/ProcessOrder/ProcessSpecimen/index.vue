@@ -252,6 +252,8 @@ import { submitTestResult, processDnaSample, submitTestResultFee, processDnaSamp
 import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting"
 import localStorage from "@/lib/local-storage"
 import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
+import { getRequestByOrderId } from "@/lib/polkadotProvider/query/service-request"
+import { finalizeServiceRequest } from "@/lib/polkadotProvider/command/service-request"
 
 
 export default {
@@ -330,7 +332,8 @@ export default {
 
     ...mapState({
       mnemonic: state => state.substrate.mnemonicData,
-      web3: state => state.metamask.web3
+      web3: state => state.metamask.web3,
+      lastEventData: (state) => state.substrate.lastEventData
     }),
 
     disableRejectButton(){
@@ -382,6 +385,15 @@ export default {
   watch: {
     mnemonic(val) {
       if (val) this.initialData()
+    },
+
+    async lastEventData(e) {
+      const dataEvent = JSON.parse(e.data.toString())
+      if (dataEvent[0].sellerId === this.pair.address) {
+        if (e.method === "OrderFulfilled" && dataEvent[0].orderFlow === "StakingRequestService" ){
+          await this.finalizeOrder(dataEvent[0].id)
+        }
+      }
     }
   },
 
@@ -492,6 +504,11 @@ export default {
         }
       )
       this.sendingNotification()
+    },
+
+    async finalizeOrder(id) {
+      const requestId = await getRequestByOrderId(this.api, id)
+      await finalizeServiceRequest(this.api, this.pair, requestId)
     },
 
     addFileUploadEventListener(fileInputRef, fileType) {
