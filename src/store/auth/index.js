@@ -28,13 +28,9 @@ export default {
   },
   actions: {
     async initApp({ commit }) {
-      const tokenName = getEnv("VUE_APP_DEBIO_USE_TOKEN_NAME")
-      const escrowETHAddress = getEnv("VUE_APP_DEBIO_ESCROW_ETH_ADDRESS")
       const substrateWs = getEnv("VUE_APP_DEBIO_SUBSTRATE_WS")
       const web3Rpc = getEnv("VUE_APP_WEB3_RPC")
       const configApp = {
-        tokenName,
-        escrowETHAddress,
         substrateWs,
         web3Rpc
       };
