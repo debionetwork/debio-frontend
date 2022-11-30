@@ -99,7 +99,7 @@ export default {
   methods: {
     async fetchDataOrders(keyword) {
       this.orders = []
-      const listStatus = ["Refunded", "Fulfilled"]
+      const listStatus = ["Refunded", "Fulfilled", "Rejected"]
       
       const orders = await this.dispatch(getOrdersData, this.pair.address, this.page, this.pageSize, keyword)
       for (let order of orders.data) {
