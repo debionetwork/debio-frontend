@@ -321,7 +321,6 @@ export default {
     },
 
     qcPriceHint() {
-      console.log(this.usdRate)
       return `${this.document.qcPrice} ${this.document.currency} = ${(this.usdRate.conversion * this.document.qcPrice).toFixed(4)} USD`
     },
 
@@ -402,9 +401,10 @@ export default {
   },
 
   methods: {
-    async getService(sid) {
-      const detailService = await queryServicesById(this.api, sid)
+    async getService(id) {
+      const detailService = await queryServicesById(this.api, id)
       const { category, description, dnaCollectionProcess, expectedDuration, image, longDescription, name, pricesByCurrency, testResultSample } = detailService.info
+    
 
       this.document = {
         category,
@@ -412,13 +412,15 @@ export default {
         name,
         description,
         longDescription: longDescription.split("||")[0],
-        linkKit: longDescription.split("||")[1],
+        linkKit: longDescription.split("||").length > 1 ? "yes" : "no",
         currency: pricesByCurrency[0].currency,
         price: Number(await fromEther(pricesByCurrency[0].priceComponents[0].value.replaceAll(",", ""), pricesByCurrency[0].currency)),
         qcPrice: Number(await fromEther(pricesByCurrency[0].additionalPrices[0].value.replaceAll(",", ""), pricesByCurrency[0].currency)),
         duration: expectedDuration.duration,
         durationType: expectedDuration.durationType
       }
+
+      this.kitPurchaseLink = longDescription.split("||").length > 1 ? longDescription.split("||")[1] : ""
       this.imageUrl = image
       this.testResultSampleUrl = testResultSample
 
