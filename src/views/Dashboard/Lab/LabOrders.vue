@@ -107,7 +107,7 @@ export default {
 
       const title = detailOrder.lab_name
       const labName = detailOrder.service_name
-      const listStatus = ["Refunded", "Fulfilled"]
+      const listStatus = ["Refunded", "Fulfilled", "Rejected"]
       
       let icon = "mdi-needle"
       if (detailOrder.service_image) {
