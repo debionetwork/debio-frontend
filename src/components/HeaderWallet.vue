@@ -61,6 +61,7 @@ import {mapState, mapMutations, mapActions} from "vuex"
 import {queryBalance} from "@/lib/polkadotProvider/query/balance"
 
 import localStorage from "@/lib/local-storage"
+import getEnv from "@/utils/env"
 import { queryGetAssetBalance, queryGetAllOctopusAssets } from "@/lib/polkadotProvider/query/octopus-assets"
 
 export default {
@@ -81,7 +82,6 @@ export default {
     polkadotBalance: 0,
     polkadotWallets: [
       {
-        id: 0,
         name: "debio",
         icon: "debio-logo",
         currency: "DBIO",
@@ -100,6 +100,14 @@ export default {
     isConnected: false,
     octopusAsset: []
   }),
+
+  created() {
+    this.polkadotWallets.forEach(wallet => {
+      if(wallet.name ==="usdt") {
+        wallet.tokenId = getEnv("VUE_APP_DEBIO_USDT_TOKEN_ID")
+      }
+    })
+  },
 
   methods: {
     ...mapMutations({
@@ -127,10 +135,10 @@ export default {
     async getOctopusAssets() {
       const assets = await queryGetAllOctopusAssets(this.api)
       for (let i = 0; i < assets.length; i++) {
-        const name = assets[i][0].toHuman()[0]
+        const tokenId = assets[i][0].toHuman()[0]
         const id = assets[i][1].toHuman()
         const data = await queryGetAssetBalance(this.api, id, this.wallet.address)
-        const assetData = {id, data, name:  name.split(".")[0]}
+        const assetData = {id, data, name:  tokenId.split(".")[0], tokenId}
         this.octopusAsset.push(assetData)
       }
     },
@@ -140,7 +148,8 @@ export default {
         if (wallet.name !== "debio") {
           const data = this.octopusAsset.find(a => a.name === wallet.name)
           if (!data) return
-          wallet.balance = this.web3.utils.fromWei(data.data.balance.replaceAll(",", ""), wallet.unit)
+          const octopusData = this.octopusAsset.find(asset => asset.tokenId === wallet.tokenId )
+          wallet.balance = this.web3.utils.fromWei(octopusData.data.balance.replaceAll(",", ""), wallet.unit)
           wallet.id = data.id
           if (wallet.name === "usdt") this.setUSDTBalance(wallet.balance)
         }
