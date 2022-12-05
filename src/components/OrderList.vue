@@ -82,7 +82,10 @@ export default {
   }),
 
   props: {
-    isDashboard: Boolean
+    isDashboard: {
+      type: Boolean,
+      default: false
+    }
   },
 
   async created() {
@@ -98,32 +101,44 @@ export default {
 
   methods: {
     async fetchDataOrders(keyword) {
-      this.orders = []
-      const listStatus = ["Refunded", "Fulfilled"]
-      
-      const orders = await this.dispatch(getOrdersData, this.pair.address, this.page, this.pageSize, keyword)
-      for (let order of orders.data) {
-        const dna = await queryDnaSamples(this.api, order._source.dna_sample_tracking_id)
-        const dnaTestResult = await queryDnaTestResults(this.api, order._source.dna_sample_tracking_id)
-        const data = {
-          ...order,
-          _source: {
-            ...order._source,
-            dna_sample_status: dna?.status,
-            testResult: dnaTestResult,
-            created_at: new Date(+order._source.created_at.replaceAll(",", "")).toLocaleDateString("id", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric"
-            })
+      this.isLoading = true
+      try {
+        const orderList = []
+        const listStatus = ["Refunded", "Fulfilled"]
+        
+        const orders = await this.dispatch(getOrdersData, this.pair.address, this.page, this.pageSize, keyword)
+        for (let order of orders.data) {
+          const dna = await queryDnaSamples(this.api, order._source.dna_sample_tracking_id)
+
+          if (this.isDashboard && dna?.status === "Rejected") continue
+
+          const dnaTestResult = await queryDnaTestResults(this.api, order._source.dna_sample_tracking_id)
+          const data = {
+            ...order,
+            _source: {
+              ...order._source,
+              dna_sample_status: dna?.status,
+              testResult: dnaTestResult,
+              created_at: new Date(+order._source.created_at.replaceAll(",", "")).toLocaleDateString("id", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+              })
+            }
+          }
+          
+          if (this.isDashboard) {
+            if (!listStatus.includes(data._source.status)) orderList.push(data)
+          } else {
+            if (listStatus.includes(data._source.status)) orderList.push(data)
           }
         }
-        
-        if (this.isDashboard) {
-          if (!listStatus.includes(data._source.status)) this.orders.push(data)
-        } else {
-          if (listStatus.includes(data._source.status)) this.orders.push(data)
-        }
+
+        this.orders = orderList
+      } catch (err) {
+        console.error(err)
+      } finally {
+        this.isLoading = false
       }
     },
 
