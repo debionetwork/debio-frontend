@@ -218,6 +218,7 @@
                     <label v-if="document.linkKit === 'yes'" style="font-size: 12px;"> Link to Purchase Kit </label>
                     <v-text-field
                       v-if="document.linkKit === 'yes'"
+                      :rules="document.linkKit === 'yes' ? [...fieldRequiredRule, ...linkRules] : ''"
                       dense
                       :disabled="isLoading"
                       placeholder="kithub.com/collection/genome-sequencing/"
@@ -355,6 +356,12 @@ export default {
     fieldRequiredRule() {
       return [
         val => !!val || "This field is required"
+      ]
+    },
+
+    linkRules() {
+      return [
+        val => /^[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&/=]*)/.test(val) || "Link is invalid"
       ]
     },
 
