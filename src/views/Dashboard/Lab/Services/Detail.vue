@@ -196,6 +196,7 @@
                       v-if="document.linkKit === 'yes'"
                       dense
                       :disabled="isLoading || isUploading"
+                      :rules="document.linkKit === 'yes' ? [...fieldRequiredRule, ...linkRules] : ''"
                       placeholder="kithub.com/collection/genome-sequencing/"
                       prepend-icon="mdi-file-document"
                       outlined
@@ -327,6 +328,12 @@ export default {
     fieldRequiredRule() {
       return [
         val => !!val || "This field is required"
+      ]
+    },
+
+    linkRules() {
+      return [
+        val => /^[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&/=]*)/.test(val) || "Link is invalid"
       ]
     },
 
