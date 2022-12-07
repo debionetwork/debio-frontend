@@ -128,6 +128,7 @@ export default {
           }
           orderList.push(data)
         }
+        console.log(orderList)
 
         this.orders = orderList
       } catch (err) {
