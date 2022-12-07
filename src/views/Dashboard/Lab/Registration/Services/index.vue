@@ -73,7 +73,7 @@
                         <v-select
                         outlined
                         dense
-                        placeholder="USDT"
+                        placeholder="USDT.e"
                         max="30"
                         :disabled="isLoading || isUploading"
                         v-model="document.currency"
@@ -101,7 +101,7 @@
                         <label style="font-size: 12px;"> QC Price </label>
                         <v-select
                           outlined
-                          placeholder="USDT"
+                          placeholder="USDT.e"
                           dense
                           v-model="document.currency"
                           :disabled="isLoading || isUploading"
@@ -186,6 +186,7 @@
                   <label v-if="document.linkKit === 'yes'" style="font-size: 12px;"> Link to Purchase Kit </label>
                   <v-text-field
                     v-if="document.linkKit === 'yes'"
+                    :rules="document.linkKit === 'yes' ? [...fieldRequiredRule, ...linkRules] : ''"
                     :disabled="isLoading"
                     dense
                     placeholder="kithub.com/collection/genome-sequencing/"
@@ -323,7 +324,7 @@ export default {
       category: "",
       dnaCollectionProcess: "",
       name: "",
-      currency: "USDT",
+      currency: "USDT.e",
       price: 0,
       qcPrice: 0,
       description: "",
@@ -342,7 +343,7 @@ export default {
     isLoading: false,
     isSubmiting: false,
     isUploading: false,
-    currencyList: ["USDT"],
+    currencyList: ["USDT.e"],
     listExpectedDuration: [
       { text: "Hours", value: "Hours" },
       { text: "Days", value: "Days" }
@@ -392,6 +393,12 @@ export default {
     fieldRequiredRule() {
       return [
         rulesHandler.FIELD_REQUIRED
+      ]
+    },
+
+    linkRules() {
+      return [
+        val => /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,7}\b([-a-zA-Z0-9()@:%_.~#?&/=]*)/.test(val) || "Link is invalid"
       ]
     },
 
@@ -522,7 +529,7 @@ export default {
         category: "",
         dnaCollectionProcess: "",
         name: "",
-        currency: "USDT",
+        currency: "USDT.e",
         price: 0,
         qcPrice: 0,
         description: "",

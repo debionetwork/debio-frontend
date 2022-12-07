@@ -92,7 +92,7 @@ export default {
       {
         name: "usdt",
         icon: "tether-logo",
-        currency: "USDT",
+        currency: "USDT.e",
         unit: "mwei",
         balance: 0
       }

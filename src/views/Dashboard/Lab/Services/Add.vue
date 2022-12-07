@@ -101,7 +101,7 @@
                           <v-select
                             outlined
                             dense
-                            placeholder="USDT"
+                            placeholder="USDT.e"
                             max="30"
                             v-model="document.currency"
                             :items="currencyList"
@@ -129,7 +129,7 @@
                           <label style="font-size: 12px;"> QC Price </label>
                           <v-select
                             :disabled="isBiomedical ||isLoading"
-                            placeholder="USDT"
+                            placeholder="USDT.e"
                             outlined
                             dense
                             v-model="document.currency"
@@ -301,7 +301,7 @@ export default {
       category: "",
       dnaCollectionProcess: "",
       name: "",
-      currency: "USDT",
+      currency: "USDT.e",
       price: 0,
       qcPrice: 0,
       description: "",
@@ -323,7 +323,7 @@ export default {
     listCategories:[],
     isLoading: false,
     showModalAlert: false,
-    currencyList: ["USDT"],
+    currencyList: ["USDT.e"],
     listExpectedDuration: ["Hours", "Days"],
     dnaCollectionProcessList: [],
     isBiomedical: false,
@@ -361,7 +361,7 @@ export default {
 
     linkRules() {
       return [
-        val => /^[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&/=]*)/.test(val) || "Link is invalid"
+        val => /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,7}\b([-a-zA-Z0-9()@:%_.~#?&/=]*)/.test(val) || "Link is invalid"
       ]
     },
 
