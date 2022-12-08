@@ -26,7 +26,7 @@ export async function getUnlistedNotification (roles, newBlock, lastBlock) {
     listNotification = JSON.parse(listNotificationJson)
   }
 
-  if (lastBlock) {
+  if (lastBlock && data.length > 0) {
     if(lastBlock >= parseInt(data[data.length-1].block_number)) return
   }
   

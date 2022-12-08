@@ -287,7 +287,7 @@ import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import { createService, createServiceFee, claimRequestService } from "@/lib/polkadotProvider/command/services"
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { getProvideRequestService, getCategories, getConversionCache, getDNACollectionProcess } from "@/lib/api";
-import { toEther } from "@/lib/balance-format"
+import { toEther, formatUSDTE } from "@/lib/balance-format"
 import { generalDebounce } from "@/utils"
 import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
@@ -405,7 +405,7 @@ export default {
     this.validate()
     this.prefillValues()
     await this.getServiceCategory()
-    this.usdRate = await getConversionCache(this.document.currency, "USD")
+    this.usdRate = await getConversionCache(this.document.currency === "USDT.e" ? "USDT" : this.document.currency, "USD")
   },
 
   methods: {
@@ -517,8 +517,8 @@ export default {
       const newService = {
         name,
         pricesByCurrency: [{
-          currency,
-          totalPrice: await toEther(price + qcPrice),
+          currency: formatUSDTE(currency),
+          totalPrice: await toEther(price + qcPrice, currency),
           priceComponents: [{
             component: "testing_price",
             value: await toEther(price, currency)
@@ -559,7 +559,7 @@ export default {
         const newService = {
           name,
           pricesByCurrency: [{
-            currency,
+            currency: formatUSDTE(currency),
             totalPrice: await toEther(price + qcPrice, currency),
             priceComponents: [{
               component: "testing_price",

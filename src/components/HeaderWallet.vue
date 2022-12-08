@@ -47,7 +47,7 @@
                 max-height="24px"
               />
             </div>
-            <strong class="notification-subtitle">{{ wallet.balance }}  {{ wallet.currency }}</strong>
+            <strong class="notification-subtitle">{{ wallet.balance }}  {{ wallet.currency === "USDTE" ? "USDT.e" : wallet.currency }}</strong>
           </div>
         </div>
         <div class="divider"></div>
@@ -92,7 +92,7 @@ export default {
       {
         name: "usdt",
         icon: "tether-logo",
-        currency: "USDT.e",
+        currency: "USDTE",
         unit: "mwei",
         balance: 0
       }

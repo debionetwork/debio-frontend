@@ -262,7 +262,7 @@ import { mapGetters, mapState } from "vuex"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import { getCategories, getConversionCache, getDNACollectionProcess } from "@/lib/api"
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
-import { fromEther, toEther } from "@/lib/balance-format"
+import { fromEther, toEther, formatUSDTE } from "@/lib/balance-format"
 import { updateService, updateServiceFee } from "@/lib/polkadotProvider/command/services"
 import { generalDebounce } from "@/utils"
 import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
@@ -420,7 +420,7 @@ export default {
         description,
         longDescription: longDescription.split("||")[0],
         linkKit: longDescription.split("||").length > 1 ? "yes" : "no",
-        currency: pricesByCurrency[0].currency,
+        currency: formatUSDTE(pricesByCurrency[0].currency),
         price: Number(await fromEther(pricesByCurrency[0].priceComponents[0].value.replaceAll(",", ""), pricesByCurrency[0].currency)),
         qcPrice: Number(await fromEther(pricesByCurrency[0].additionalPrices[0].value.replaceAll(",", ""), pricesByCurrency[0].currency)),
         duration: expectedDuration.duration,
@@ -459,7 +459,7 @@ export default {
       const service = {
         name,
         pricesByCurrency: [{
-          currency,
+          currency : formatUSDTE(currency),
           totalPrice: await toEther(price + qcPrice, currency),
           priceComponents: [{
             component: "testing_price",
@@ -494,7 +494,7 @@ export default {
       const service = {
         name,
         pricesByCurrency: [{
-          currency,
+          currency: formatUSDTE(currency),
           totalPrice: await toEther(price + qcPrice, currency),
           priceComponents: [{
             component: "testing_price",

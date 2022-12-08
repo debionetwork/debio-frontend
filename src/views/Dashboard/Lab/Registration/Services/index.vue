@@ -101,7 +101,7 @@
                         <label style="font-size: 12px;"> QC Price </label>
                         <v-select
                           outlined
-                          placeholder="USDT.e"
+                          placeholder="USDTE.e"
                           dense
                           v-model="document.currency"
                           :disabled="isLoading || isUploading"
@@ -296,7 +296,7 @@ import { stakeLab } from "@/lib/polkadotProvider/command/labs"
 import DialogAlert from "@/components/Dialog/DialogAlert"
 import DialogStake from "@/components/Dialog/DialogStake"
 import serviceHandler from "@/mixins/serviceHandler"
-import { toEther } from "@/lib/balance-format"
+import { toEther, formatUSDTE } from "@/lib/balance-format"
 import { sendEmailRegisteredLab } from "@/lib/api/lab"
 import rulesHandler from "@/constants/rules"
 import { generalDebounce } from "@/utils"
@@ -365,7 +365,7 @@ export default {
   async created() {
     this.dnaCollectionProcessList = (await getDNACollectionProcess()).data
     await this.getServiceCategory()
-    this.usdRate = await getConversionCache(this.document.currency, "USD")
+    this.usdRate = await getConversionCache(this.document.currency === "USDT.e" ? "USDT" : this.document.currency, "USD")
   },
 
   computed: {
@@ -563,7 +563,7 @@ export default {
         name, 
         description, 
         longDescription: this.web3.utils.hexToUtf8(longDescription),
-        currency: pricesByCurrency[0].currency,
+        currency: formatUSDTE(pricesByCurrency[0].currency),
         price: formatPrice(pricesByCurrency[0].priceComponents[0].value),
         qcPrice: formatPrice(pricesByCurrency[0].additionalPrices[0].value),
         duration: expectedDuration.duration,
@@ -601,7 +601,7 @@ export default {
       const newService = {
         name,
         pricesByCurrency: [{
-          currency,
+          currency: formatUSDTE(currency),
           totalPrice: await toEther(price + qcPrice, currency),
           priceComponents: [{
             component: "testing_price",
@@ -635,8 +635,8 @@ export default {
       const newService = {
         name,
         pricesByCurrency: [{
-          currency,
-          totalPrice: await toEther(price + qcPrice),
+          currency: formatUSDTE(currency),
+          totalPrice: await toEther(price + qcPrice, currency),
           priceComponents: [{
             component: "testing_price",
             value: await toEther(price, currency)
@@ -682,7 +682,7 @@ export default {
       const newService = {
         name,
         pricesByCurrency: [{
-          currency,
+          currency: formatUSDTE(currency),
           totalPrice: await toEther(price + qcPrice),
           priceComponents: [{
             component: "testing_price",
