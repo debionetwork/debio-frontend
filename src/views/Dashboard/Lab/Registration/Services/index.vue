@@ -101,7 +101,7 @@
                         <label style="font-size: 12px;"> QC Price </label>
                         <v-select
                           outlined
-                          placeholder="USDTE.e"
+                          placeholder="USDT.e"
                           dense
                           v-model="document.currency"
                           :disabled="isLoading || isUploading"
