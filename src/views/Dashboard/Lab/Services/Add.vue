@@ -101,7 +101,7 @@
                           <v-select
                             outlined
                             dense
-                            placeholder="USDT"
+                            placeholder="USDT.e"
                             max="30"
                             v-model="document.currency"
                             :items="currencyList"
@@ -129,7 +129,7 @@
                           <label style="font-size: 12px;"> QC Price </label>
                           <v-select
                             :disabled="isBiomedical ||isLoading"
-                            placeholder="USDT"
+                            placeholder="USDT.e"
                             outlined
                             dense
                             v-model="document.currency"
@@ -287,7 +287,7 @@ import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import { createService, createServiceFee, claimRequestService } from "@/lib/polkadotProvider/command/services"
 import { queryLabsById } from "@/lib/polkadotProvider/query/labs";
 import { getProvideRequestService, getCategories, getConversionCache, getDNACollectionProcess } from "@/lib/api";
-import { toEther } from "@/lib/balance-format"
+import { toEther, formatUSDTE } from "@/lib/balance-format"
 import { generalDebounce } from "@/utils"
 import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
 
@@ -301,7 +301,7 @@ export default {
       category: "",
       dnaCollectionProcess: "",
       name: "",
-      currency: "USDT",
+      currency: "USDT.e",
       price: 0,
       qcPrice: 0,
       description: "",
@@ -323,7 +323,7 @@ export default {
     listCategories:[],
     isLoading: false,
     showModalAlert: false,
-    currencyList: ["USDT"],
+    currencyList: ["USDT.e"],
     listExpectedDuration: ["Hours", "Days"],
     dnaCollectionProcessList: [],
     isBiomedical: false,
@@ -361,7 +361,7 @@ export default {
 
     linkRules() {
       return [
-        val => /^[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&/=]*)/.test(val) || "Link is invalid"
+        val => /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,7}\b([-a-zA-Z0-9()@:%_.~#?&/=]*)/.test(val) || "Link is invalid"
       ]
     },
 
@@ -405,7 +405,7 @@ export default {
     this.validate()
     this.prefillValues()
     await this.getServiceCategory()
-    this.usdRate = await getConversionCache(this.document.currency, "USD")
+    this.usdRate = await getConversionCache(this.document.currency === "USDT.e" ? "USDT" : this.document.currency, "USD")
   },
 
   methods: {
@@ -517,8 +517,8 @@ export default {
       const newService = {
         name,
         pricesByCurrency: [{
-          currency,
-          totalPrice: await toEther(price + qcPrice),
+          currency: formatUSDTE(currency),
+          totalPrice: await toEther(price + qcPrice, currency),
           priceComponents: [{
             component: "testing_price",
             value: await toEther(price, currency)
@@ -559,7 +559,7 @@ export default {
         const newService = {
           name,
           pricesByCurrency: [{
-            currency,
+            currency: formatUSDTE(currency),
             totalPrice: await toEther(price + qcPrice, currency),
             priceComponents: [{
               component: "testing_price",

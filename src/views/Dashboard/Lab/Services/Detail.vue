@@ -81,7 +81,7 @@
                         <v-col>
                           <label style="font-size: 12px;"> Price </label>
                           <v-select
-                          placeholder="USDT"
+                          placeholder="USDT.e"
                           outlined
                           dense
                           max="30"
@@ -111,7 +111,7 @@
                           <label style="font-size: 12px;"> QC Price </label>
                           <v-select
                           :disabled="isBiomedical || isLoading || isUploading"
-                          placeholder="USDT"
+                          placeholder="USDT.e"
                           outlined
                           dense
                           v-model="document.currency"
@@ -262,7 +262,7 @@ import { mapGetters, mapState } from "vuex"
 import { uploadFile, getFileUrl } from "@/lib/pinata-proxy"
 import { getCategories, getConversionCache, getDNACollectionProcess } from "@/lib/api"
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
-import { fromEther, toEther } from "@/lib/balance-format"
+import { fromEther, toEther, formatUSDTE } from "@/lib/balance-format"
 import { updateService, updateServiceFee } from "@/lib/polkadotProvider/command/services"
 import { generalDebounce } from "@/utils"
 import DialogErrorBalance from "@/components/Dialog/DialogErrorBalance"
@@ -279,7 +279,7 @@ export default {
       category: "",
       dnaCollectionProcess: "",
       name: "",
-      currency: "USDT",
+      currency: "USDT.e",
       price: 0,
       qcPrice: 0,
       description: "",
@@ -296,7 +296,7 @@ export default {
     isLoading: false,
     usdRate: 0,
     isUploading: false,
-    currencyList: ["USDT"],
+    currencyList: ["USDT.e"],
     currencyType: "",
     listExpectedDuration: ["Hours", "Days"],
     listCategories: [],
@@ -333,7 +333,7 @@ export default {
 
     linkRules() {
       return [
-        val => /^[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&/=]*)/.test(val) || "Link is invalid"
+        val => /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,7}\b([-a-zA-Z0-9()@:%_.~#?&/=]*)/.test(val) || "Link is invalid"
       ]
     },
 
@@ -420,7 +420,7 @@ export default {
         description,
         longDescription: longDescription.split("||")[0],
         linkKit: longDescription.split("||").length > 1 ? "yes" : "no",
-        currency: pricesByCurrency[0].currency,
+        currency: formatUSDTE(pricesByCurrency[0].currency),
         price: Number(await fromEther(pricesByCurrency[0].priceComponents[0].value.replaceAll(",", ""), pricesByCurrency[0].currency)),
         qcPrice: Number(await fromEther(pricesByCurrency[0].additionalPrices[0].value.replaceAll(",", ""), pricesByCurrency[0].currency)),
         duration: expectedDuration.duration,
@@ -459,7 +459,7 @@ export default {
       const service = {
         name,
         pricesByCurrency: [{
-          currency,
+          currency : formatUSDTE(currency),
           totalPrice: await toEther(price + qcPrice, currency),
           priceComponents: [{
             component: "testing_price",
@@ -494,7 +494,7 @@ export default {
       const service = {
         name,
         pricesByCurrency: [{
-          currency,
+          currency: formatUSDTE(currency),
           totalPrice: await toEther(price + qcPrice, currency),
           priceComponents: [{
             component: "testing_price",

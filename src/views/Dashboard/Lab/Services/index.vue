@@ -270,7 +270,7 @@ export default {
     formatPrice(price) {
       const priceAndCurrency = price[0].totalPrice.replaceAll(",", "").split(" ")      
       const formatedPrice = fromEther(priceAndCurrency[0], price[0].currency)
-      return `${Number(formatedPrice).toLocaleString("en-US")} ${price[0].currency}`
+      return `${Number(formatedPrice).toLocaleString("en-US")} ${price[0].currency === "USDTE" ? "USDT.e" : price[0].currency}`
     },
 
     isIcon(imageName) {
