@@ -186,6 +186,7 @@
                       :rules="fieldRequiredRule"
                     ></v-textarea>
 
+                    <label style="font-size: 12px;"> Does your lab provide test kit that can be purchased separately for this service </label>
                     <v-radio-group v-model="document.linkKit">
                       <v-radio label="Yes" value="yes"></v-radio>
                       <v-radio label="No" value="no"></v-radio>
@@ -404,7 +405,7 @@ export default {
     this.id = this.$route.params.id
     await this.getServiceCategory()
     await this.getService(this.$route.params.id)
-    this.usdRate = await getConversionCache(this.document.currency, "USD")
+    this.usdRate = await getConversionCache(this.document.currency === "USDT.e" ? "USDT" : this.document.currency, "USD")
   },
 
   methods: {
