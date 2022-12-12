@@ -177,7 +177,7 @@
                     :rules="longDescriptionRules"
                   ></v-textarea>
 
-                  <label style="font-size: 12px;"> Does your lab provide test kit that can be purchased separately for this service? </label>
+                  <label style="font-size: 12px;"> Does your lab provide test kit that can be purchased separately for this service </label>
                   <v-radio-group v-model="document.linkKit" row>
                     <v-radio label="Yes" value="yes"></v-radio>
                     <v-radio label="No" value="no"></v-radio>
