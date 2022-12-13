@@ -104,13 +104,13 @@ export default {
       this.isLoading = true
       try {
         const orderList = []
-        
+        const listStatus = ["Rejected", "ResutlReady"]
+
         const orders = await this.dispatch(getOrdersData, this.pair.address, this.page, this.pageSize, keyword)
         for (let order of orders.data) {
           const dna = await queryDnaSamples(this.api, order._source.dna_sample_tracking_id)
 
           if (this.isDashboard && dna?.status === "Rejected") continue
-          if (!this.isDashboard && dna?.status === "ResultReady") continue
 
           const dnaTestResult = await queryDnaTestResults(this.api, order._source.dna_sample_tracking_id)
           const data = {
@@ -126,7 +126,12 @@ export default {
               })
             }
           }
-          orderList.push(data)
+          
+          if (this.isDashboard) {
+            if (!listStatus.includes(data._source.status)) orderList.push(data)
+          } else {
+            if (listStatus.includes(data._source.status)) orderList.push(data)
+          }
         }
 
         this.orders = orderList
