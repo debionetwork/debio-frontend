@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.2.0](https://github.com/debionetwork/debio-frontend/compare/2.1.0...2.2.0) (2022-12-16)
+
+
+### Features
+
+* add new env for usdt token id and some minor validation in form ([#598](https://github.com/debionetwork/debio-frontend/issues/598)) ([e7b29cf](https://github.com/debionetwork/debio-frontend/commit/e7b29cf60a76eeb08d79f325120691144fe12c70))
+* change USDT to USDT.e and fix link rules ([#601](https://github.com/debionetwork/debio-frontend/issues/601)) ([f495f83](https://github.com/debionetwork/debio-frontend/commit/f495f837296f4dd32cd8f0687f289b93f7d696ef))
+
+
+### Bug Fixes
+
+* filter lab orders ([#596](https://github.com/debionetwork/debio-frontend/issues/596)) ([5e42d37](https://github.com/debionetwork/debio-frontend/commit/5e42d37e18877b8442e66821c688f92ef45217c2))
+* filter order list ([#602](https://github.com/debionetwork/debio-frontend/issues/602)) ([2cb3274](https://github.com/debionetwork/debio-frontend/commit/2cb327403dafd79cf8e2564791cf02a701b6a0f4))
+* filter order list ([#609](https://github.com/debionetwork/debio-frontend/issues/609)) ([93bfa99](https://github.com/debionetwork/debio-frontend/commit/93bfa99bc18dbb2ca29c5a6c9c8368b48c427ec1))
+* minor bugs in service form ([#606](https://github.com/debionetwork/debio-frontend/issues/606)) ([a47663d](https://github.com/debionetwork/debio-frontend/commit/a47663d66d2ab685f152cf636571391b6201dadc))
+* order list rejected ([#597](https://github.com/debionetwork/debio-frontend/issues/597)) ([e1d5f2e](https://github.com/debionetwork/debio-frontend/commit/e1d5f2efb712381948f084141cae985141f124f3))
+* render kit link when edit service ([#590](https://github.com/debionetwork/debio-frontend/issues/590)) ([dd9fc45](https://github.com/debionetwork/debio-frontend/commit/dd9fc4581df9d60b54285878a5fec32e1faa3c0f))
+
 ## [2.1.0](https://github.com/debionetwork/debio-frontend/compare/2.0.6...2.1.0) (2022-11-30)
 
 
