@@ -104,7 +104,7 @@ export default {
       this.isLoading = true
       try {
         const orderList = []
-        const listStatus = ["Rejected", "ResutlReady"]
+        const listStatus = ["Rejected", "ResultReady"]
 
         const orders = await this.dispatch(getOrdersData, this.pair.address, this.page, this.pageSize, keyword)
         for (let order of orders.data) {
