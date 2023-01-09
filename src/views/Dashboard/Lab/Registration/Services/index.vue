@@ -545,39 +545,44 @@ export default {
     },
 
     async prefillServicesForm(service) {
-      window.scrollTo({
-        top: 100,
-        behavior: "smooth"
-      })
+      const hexCheck = /^[0-9a-fA-F]+$/;
+      try {
+        window.scrollTo({
+          top: 100,
+          behavior: "smooth"
+        })
 
-      const formatPrice = price => {
-        return this.web3.utils.fromWei(String(price.replaceAll(",", ""), "ether"))
+        const formatPrice = (price, currency) => {
+          return this.web3.utils.fromWei(String(price.replaceAll(",", "")), currency === "USDT" || currency === "USDTE" || currency === "USDT.e" ? "mwei" : "ether")
+        }
+
+        const { category, description, dnaCollectionProcess, expectedDuration, image, longDescription, name, pricesByCurrency, testResultSample } = service.info
+        this.serviceId = service.id
+
+        this.document = { 
+          category, 
+          dnaCollectionProcess, 
+          name, 
+          description, 
+          longDescription: hexCheck.test(longDescription) ? this.web3.utils.hexToUtf8(longDescription) : longDescription,
+          currency: formatUSDTE(pricesByCurrency[0].currency),
+          price: formatPrice(pricesByCurrency[0].priceComponents[0].value, pricesByCurrency[0].currency),
+          qcPrice: formatPrice(pricesByCurrency[0].additionalPrices[0].value, pricesByCurrency[0].currency),
+          duration: expectedDuration.duration,
+          durationType: expectedDuration.durationType
+        }
+
+        this.testResultSampleUrl = testResultSample
+        this.imageUrl = image
+
+        const res = await fetch(testResultSample)
+        const blob = await res.blob() // Gets the response and returns it as a blob
+        const file = new File([blob], `${name} Test result sample`, {type: "application/pdf"})
+        this.testResultSampleFile = file
+        this.isEdit = true
+      } catch (err) {
+        console.error(err)
       }
-
-      const { category, description, dnaCollectionProcess, expectedDuration, image, longDescription, name, pricesByCurrency, testResultSample } = service.info
-      this.serviceId = service.id
-
-      this.document = { 
-        category, 
-        dnaCollectionProcess, 
-        name, 
-        description, 
-        longDescription: this.web3.utils.hexToUtf8(longDescription),
-        currency: formatUSDTE(pricesByCurrency[0].currency),
-        price: formatPrice(pricesByCurrency[0].priceComponents[0].value),
-        qcPrice: formatPrice(pricesByCurrency[0].additionalPrices[0].value),
-        duration: expectedDuration.duration,
-        durationType: expectedDuration.durationType
-      }
-
-      this.testResultSampleUrl = testResultSample
-      this.imageUrl = image
-
-      const res = await fetch(testResultSample)
-      const blob = await res.blob() // Gets the response and returns it as a blob
-      const file = new File([blob], `${name} Test result sample`, {type: "application/pdf"})
-      this.testResultSampleFile = file
-      this.isEdit = true
     },
 
     async triggerCreateOrUpdate() {
