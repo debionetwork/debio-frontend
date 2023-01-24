@@ -55,7 +55,7 @@
                     <b>Customer Account Number</b>
                   </div>
                   <div class="text-caption grey--text text--darken-1">
-                    {{ customerEthAddress }}
+                    {{ wallet.address }}
                   </div>
                 </div>
               </div>
@@ -73,7 +73,7 @@
                     <b>Escrow Address</b>
                   </div>
                   <div class="text-caption grey--text text--darken-1">
-                    {{ configApp.escrowETHAddress }}
+                    {{ esscrowAddress }}
                   </div>
                 </div>
               </div>
@@ -144,6 +144,7 @@ import DialogAlert from "@/components/Dialog/DialogAlert";
 import Stepper from "@/components/Stepper";
 import { queryDnaTestResults } from "@/lib/polkadotProvider/query/geneticTesting";
 import { queryServicesById } from "@/lib/polkadotProvider/query/services";
+import getEnv from "@/utils/env";
 
 export default {
   name: "ProcessOrderHistory",
@@ -178,14 +179,15 @@ export default {
     ],
     dnaCollectionProcess: "",
     isBiological: false,
-    testResult: null
+    testResult: null,
+    esscrowAddress: ""
   }),
 
   computed: {
     ...mapState({
       genome: (state) => state.testResult.genome,
       report: (state) => state.testResult.report,
-      configApp: (state) => state.auth.configApp
+      wallet: (state) => state.substrate.wallet
     }),
 
     ...mapGetters({
@@ -269,6 +271,7 @@ export default {
   },
 
   async created() {
+    this.esscrowAddress = getEnv("VUE_APP_DEBIO_ESSCROW_ADDRESS")
     await this.prefillOrder(this.$route.params.orderId)
   },
 
