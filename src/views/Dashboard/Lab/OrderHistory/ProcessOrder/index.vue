@@ -55,7 +55,7 @@
                     <b>Customer Account Number</b>
                   </div>
                   <div class="text-caption grey--text text--darken-1">
-                    {{ wallet.address }}
+                    {{ customerAddress }}
                   </div>
                 </div>
               </div>
@@ -159,8 +159,7 @@ export default {
   data: () => ({
     publicKey: "",
     createdAt: "",
-    customerEthAddress: "",
-    sellerEthAddress: "",
+    customerAddress: "",
     specimenNumber: "",
     specimenStatus: "",
     serviceName: "",
@@ -298,10 +297,7 @@ export default {
         this.serviceImage = order.service_image;
         this.publicKey = order.customerBoxPublicKey;
         this.createdAt = order.createdAt;
-        this.customerEthAddress = order.customer_eth_address
-          ? order.customer_eth_address
-          : "Address not set";
-        this.sellerEthAddress = order.seller_eth_address;
+        this.customerAddress = order.customerId
         this.specimenNumber = order.dnaSampleTrackingId;
         this.specimenStatus = order.dna_sample_status;
         if (testResult) this.testResult = testResult;
