@@ -140,7 +140,6 @@
                     <label style="font-size: 12px;"> Short Description </label>
                     <v-text-field
                       dense
-                      label="Short Description"
                       placeholder="BRCA gene test for breast and ovarian cancer risk"
                       outlined
                       v-model="document.description"
@@ -178,7 +177,6 @@
 
                     <label style="font-size: 12px;"> Long Description </label>
                     <v-textarea
-                      label="Long Description"
                       placeholder="Example: The BRCA gene test is a genetic test that uses DNA analysis to identify harmful changes (mutations) in either one of the two breast cancer susceptibility genes — BRCA1 and BRCA2."
                       outlined
                       v-model="document.longDescription"
