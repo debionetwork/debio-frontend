@@ -556,6 +556,8 @@ export default {
       try {
         const { category, dnaCollectionProcess, name, currency, price, qcPrice, description, longDescription, duration, durationType } = this.document
         
+        const hexLongDescription = this.web3.utils.utf8ToHex(longDescription)
+        const hexDescription = this.web3.utils.utf8ToHex(description);
         const newService = {
           name,
           pricesByCurrency: [{
@@ -571,8 +573,9 @@ export default {
             }]
           }],
           expectedDuration: { duration, durationType },
-          category, description, 
-          longDescription: this.web3.utils.utf8ToHex(this.document.linkKit === "yes" ? longDescription + "||" + this.kitPurchaseLink : longDescription),
+          category, 
+          description: hexDescription, 
+          longDescription: `${hexLongDescription}${this.document.linkKit === "yes" && `||${this.kitPurchaseLink}`}`,
           dnaCollectionProcess,
           image: this.imageUrl,
           testResultSample: this.testResultSampleUrl
