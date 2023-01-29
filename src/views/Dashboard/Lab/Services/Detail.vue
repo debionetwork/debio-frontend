@@ -410,15 +410,17 @@ export default {
     async getService(id) {
       const detailService = await queryServicesById(this.api, id)
       const { category, description, dnaCollectionProcess, expectedDuration, image, longDescription, name, pricesByCurrency, testResultSample } = detailService.info
-    
 
+      const [longDesc, linkKit] = longDescription.split("||")
+      const utf8Description = this.web3.utils.isHex(description) ? this.web3.utils.hexToUtf8(description) : description
+      const utf8LongDescription = this.web3.utils.isHex(longDesc) ? this.web3.utils.hexToUtf8(longDesc) : longDesc
       this.document = {
         category,
         dnaCollectionProcess,
         name,
-        description,
-        longDescription: longDescription.split("||")[0],
-        linkKit: longDescription.split("||").length > 1 ? "yes" : "no",
+        description: utf8Description,
+        longDescription: utf8LongDescription,
+        linkKit: linkKit ? "yes" : "no",
         currency: formatUSDTE(pricesByCurrency[0].currency),
         price: Number(await fromEther(pricesByCurrency[0].priceComponents[0].value.replaceAll(",", ""), pricesByCurrency[0].currency)),
         qcPrice: Number(await fromEther(pricesByCurrency[0].additionalPrices[0].value.replaceAll(",", ""), pricesByCurrency[0].currency)),
@@ -426,7 +428,7 @@ export default {
         durationType: expectedDuration.durationType
       }
 
-      this.kitPurchaseLink = longDescription.split("||").length > 1 ? longDescription.split("||")[1] : ""
+      this.kitPurchaseLink = linkKit ?? ""
       this.imageUrl = image
       this.testResultSampleUrl = testResultSample
 
