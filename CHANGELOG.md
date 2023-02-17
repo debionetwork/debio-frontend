@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.3.0](https://github.com/debionetwork/debio-frontend/compare/2.2.0...2.3.0) (2023-02-17)
+
+
+### Features
+
+* change customer and escrow address to polkadot wallet address ([#634](https://github.com/debionetwork/debio-frontend/issues/634)) ([975c953](https://github.com/debionetwork/debio-frontend/commit/975c953cbd28e7f33d65661a098e52ee52c83a66))
+
+
+### Bug Fixes
+
+* change seller polkadot address to customer polkadot address ([#635](https://github.com/debionetwork/debio-frontend/issues/635)) ([9786f03](https://github.com/debionetwork/debio-frontend/commit/9786f03498b78d6f0e2d8277bb10262122717fab))
+* description and longdescription ([#638](https://github.com/debionetwork/debio-frontend/issues/638)) ([d8f3426](https://github.com/debionetwork/debio-frontend/commit/d8f34261a79a286a80be6ba5705d59e10fcd60a5))
+* double label ([#636](https://github.com/debionetwork/debio-frontend/issues/636)) ([816390a](https://github.com/debionetwork/debio-frontend/commit/816390a0036d1e9c244ba6364716d17a3ac13539))
+* handle edit service ([#628](https://github.com/debionetwork/debio-frontend/issues/628)) ([3a3f4b9](https://github.com/debionetwork/debio-frontend/commit/3a3f4b9bbb49fe876d274748eb14f2dfbcc615f2))
+* typo status ([#615](https://github.com/debionetwork/debio-frontend/issues/615)) ([e5081ea](https://github.com/debionetwork/debio-frontend/commit/e5081eaeb19790b3fee3895155174d5134bf21c0))
+
 ## [2.2.0](https://github.com/debionetwork/debio-frontend/compare/2.1.0...2.2.0) (2022-12-16)
 
 
