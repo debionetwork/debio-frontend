@@ -25,6 +25,6 @@ onmessage = function (e) {
     .then(() => {
       console.log("Encrypted");
     })
-    .catch(console.log)
+    .catch(console.error)
 
 }

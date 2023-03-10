@@ -10,6 +10,6 @@ onmessage = function(e) {
     .then(() => {
       console.log("Decrypted");
     })
-    .catch(console.log)
+    .catch(console.error)
 
 }
