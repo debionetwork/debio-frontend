@@ -293,7 +293,7 @@ export default {
     supportingDocumentsRules(){
       return [
         file => !file || file.type == "application/pdf" || "Document type should be application/pdf",
-        file => !file || file.size <= 2_000_000 || "Document size should be less than 2 MB!"
+        file => !file || file.size <= 2000000 || "Document size should be less than 2 MB!"
       ]
     },
     titleRules() {
