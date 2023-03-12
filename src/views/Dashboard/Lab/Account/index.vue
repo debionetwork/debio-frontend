@@ -355,7 +355,7 @@ export default {
       return [
         (file) =>
           !file ||
-          file.size <= 3_097_152 ||
+          file.size <= 3097152 ||
           "The total file size uploaded exceeds the maximum file size allowed (3MB)",
         (file) =>
           !file ||
