@@ -267,7 +267,7 @@ export default {
 
     supportingDocumentsRules(){
       return [
-        file => !file || file.size <= 2_000_000 || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
+        file => !file || file.size <= 2000000 || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
       ]
     },
 

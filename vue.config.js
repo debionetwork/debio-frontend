@@ -1,24 +1,12 @@
-const WorkerPlugin = require('worker-plugin')
+const WorkerPlugin = require("worker-plugin")
+const path = require('path');
 
 module.exports = {
-  chainWebpack: config => {
-    config.module
-      .rule('mjs$')
-      .test(/\.mjs$/)
-      .include
-      .add(/node_modules/)
-      .end()
-      .type('javascript/auto');
-  },
-  configureWebpack: {
-    resolve: {
-      extensions: ['*', '.mjs', '.js', '.vue', '.json']
-    }
-  },
   "transpileDependencies": [
     "vuetify",
-    "eslint-loader",
+    "eslint-loader"
   ],
+  parallel: false,
   configureWebpack: {
     output: {
       globalObject: "this"
@@ -27,16 +15,33 @@ module.exports = {
       new WorkerPlugin()
     ],
     resolve: {
-      extensions: ['*', '.mjs', '.js', '.vue', '.json', '.gql', '.graphql']
+      extensions: ["*", ".mjs", ".js", ".vue", ".json", ".mjs", ".js", ".vue", ".json", ".gql", ".graphql"],
+      alias: {
+        '@ledgerhq/devices/hid-framing': path.join(__dirname, 'node_modules/@ledgerhq/devices/lib/hid-framing'),
+      }
     },
     module: {
       rules: [
         {
+          test: /\.js$/,
+          loader: require.resolve("@open-wc/webpack-import-meta-loader"),
+        },
+        {
+          test: /\.(c|m)?js$/,
+          use: {
+            loader: "babel-loader",
+            options: {
+              compact: false,
+              presets: ["@babel/preset-env"]
+            }
+          }
+        },
+        {
           test: /\.mjs$/,
           include: /node_modules/,
-          type: 'javascript/auto'
+          type: "javascript/auto"
         }
       ]
     }
-  },
+  }
 }
