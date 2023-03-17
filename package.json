@@ -24,8 +24,8 @@
   "dependencies": {
     "@babel/runtime": "^7.12.5",
     "@debionetwork/pinata-ipfs": "0.0.2",
-    "@debionetwork/ui-components": "0.0.8",
-    "@debionetwork/ui-icons": "0.0.2",
+    "@debionetwork/ui-components": "0.0.9",
+    "@debionetwork/ui-icons": "0.0.3",
     "@kiltprotocol/sdk-js": "^0.22.1",
     "@metamask/detect-provider": "^1.2.0",
     "@polkadot/api": "^10.0.1",
@@ -64,10 +64,14 @@
     "web3": "^1.8.0"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.16.11",
-    "@open-wc/webpack-import-meta-loader": "^0.4.7",
     "@babel/core": "^7.13.8",
     "@babel/plugin-transform-runtime": "^7.12.10",
+    "@babel/preset-env": "^7.16.11",
+    "@open-wc/webpack-import-meta-loader": "^0.4.7",
+    "@storybook/addon-actions": "^6.1.21",
+    "@storybook/addon-essentials": "^6.5.12",
+    "@storybook/addon-links": "^6.1.21",
+    "@storybook/vue": "^6.5.12",
     "@vue/cli-plugin-babel": "^4.5.0",
     "@vue/cli-plugin-eslint": "^4.5.0",
     "@vue/cli-plugin-unit-jest": "^4.5.0",
@@ -77,20 +81,19 @@
     "babel-loader": "^8.2.2",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
+    "jest-serializer-vue": "^2.0.2",
     "pug": "^3.0.2",
     "pug-plain-loader": "^1.1.0",
     "sass": "^1.19.0",
     "sass-loader": "^8.0.0",
     "vue-cli-plugin-vuetify": "^2.0.8",
+    "vue-jest": "^3.0.7",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.3.0",
-    "worker-plugin": "^5.0.0",
-    "jest-serializer-vue": "^2.0.2",
-    "vue-jest": "^3.0.7",
-    "@storybook/addon-actions": "^6.1.21",
-    "@storybook/addon-essentials": "^6.5.12",
-    "@storybook/addon-links": "^6.1.21",
-    "@storybook/vue": "^6.5.12"
+    "worker-plugin": "^5.0.0"
+  },
+  "overrides": {
+    "vue": "^2.6.11"
   },
   "eslintConfig": {
     "root": true,
