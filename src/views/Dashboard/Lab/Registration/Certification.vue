@@ -159,7 +159,6 @@
             outlined
             :disabled="isUploading || isLoading"
             @change="fileUploadEventListener"
-            :rules="supportingDocumentsRules"
             show-size
             v-model="files"
             accept="application/pdf, application/msword, image/png, image/jpeg,"
@@ -265,11 +264,11 @@ export default {
       return years
     },
 
-    supportingDocumentsRules(){
-      return [
-        file => !file || file.size <= 2_000_000 || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
-      ]
-    },
+    // supportingDocumentsRules(){
+    //   return [
+    //     file => !file || file.size <= 2_000_000 || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
+    //   ]
+    // },
 
     titleRules() {
       return [
