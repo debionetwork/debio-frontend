@@ -1,51 +1,31 @@
 <template>
   <div>
     <template>
-      <DialogErrorBalance
-        :show="isShowError"
-        @close="closeDialog"
-      />
-      <v-file-input
-        :rules="genomeFileRules"
-        @change="addFileUploadEventListener($event, 'genome')"
-        style="display: none"
-        ref="encryptUploadGenome"
-        accept=".vcf"
-      />
+      <DialogErrorBalance :show="isShowError" @close="closeDialog" />
+      <v-file-input :rules="genomeFileRules" @change="addFileUploadEventListener($event, 'genome')" style="display: none"
+        ref="encryptUploadGenome" accept=".vcf, .txt" />
       <div v-if="hasGenomeFile" class="d-flex mt-5 mb-5">
-        <v-row >
+        <v-row>
           <v-col>
             <b class="secondary--text card-header mb-2" style="display: block">VCF Data</b>
             <div v-for="(file, idx) in files.genome" :key="idx + '-' + file.fileName + '-' + file.fileType">
-              <FileCard
-                :filename="file.fileName"
-                :ipfsUrl="file.ipfsPath"
-                :view-only="submitted"
-                @edit="onEditClick('genome')"
-                @delete="onFileDelete('genome')"
-              />
+              <FileCard :filename="file.fileName" :ipfsUrl="file.ipfsPath" :view-only="submitted"
+                @edit="onEditClick('genome')" @delete="onFileDelete('genome')" />
             </div>
           </v-col>
         </v-row>
       </div>
       <div v-else class="mb-3 mt-3">
-        <div class= "d-flex justify-space-between">
+        <div class="d-flex justify-space-between">
           <div class="mb-5 mt-5">
-            <span
-              style="font-size: 12px"
-            > Estimated Transaction Weight </span>
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-icon
-                    color="primary"
-                    size="14"
-                    v-bind="attrs"
-                    v-on="on"
-                  > mdi-alert-circle-outline
-                  </v-icon>
-                </template>
-                <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
-              </v-tooltip>
+            <span style="font-size: 12px"> Estimated Transaction Weight </span>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon color="primary" size="14" v-bind="attrs" v-on="on"> mdi-alert-circle-outline
+                </v-icon>
+              </template>
+              <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+            </v-tooltip>
           </div>
           <div class="mt-5">
             <span style="font-size: 12px;">
@@ -54,13 +34,7 @@
           </div>
         </div>
 
-        <v-btn
-          color="primary"
-          large
-          block
-          :disabled="uploadGenomeDisabled"
-          @click="uploadGenome"
-        >
+        <v-btn color="primary" large block :disabled="uploadGenomeDisabled" @click="uploadGenome">
           <v-icon left dark class="pr-4">
             mdi-dna
           </v-icon>
@@ -70,56 +44,35 @@
           </template>
         </v-btn>
       </div>
-      <span class="primary--text small">{{hasGenomeError[0]}}</span>
-      <v-progress-linear
-        v-if="loading.genome"
-        class="mt-2"
-        indeterminate color="primary"
-      />
+      <span class="primary--text small">{{ hasGenomeError[0] }}</span>
+      <v-progress-linear v-if="loading.genome" class="mt-2" indeterminate color="primary" />
     </template>
 
     <template>
-      <v-file-input
-        :rules="reportFileRules"
-        @change="addFileUploadEventListener($event, 'report')"
-        style="display: none"
-        ref="encryptUploadReport"
-        accept="application/pdf"
-      />
+      <v-file-input :rules="reportFileRules" @change="addFileUploadEventListener($event, 'report')" style="display: none"
+        ref="encryptUploadReport" accept="application/pdf" />
       <div v-if="hasReportFile" class="d-flex mt-5 mb-5">
-        <v-row >
+        <v-row>
           <v-col>
             <b class="secondary--text card-header mb-2" style="display: block">Report Files</b>
             <div v-for="(file, idx) in files.report" :key="idx + '-' + file.fileName + '-' + file.fileType">
-              <FileCard
-                :filename="file.fileName"
-                :ipfsUrl="file.ipfsPath"
-                :view-only="submitted"
-                @edit="onEditClick('report')"
-                @delete="onFileDelete('report')"
-              />
+              <FileCard :filename="file.fileName" :ipfsUrl="file.ipfsPath" :view-only="submitted"
+                @edit="onEditClick('report')" @delete="onFileDelete('report')" />
             </div>
           </v-col>
         </v-row>
       </div>
       <div v-else class="mb-3">
-        <div class= "d-flex justify-space-between" v-if="!uploadReportDisabled">
+        <div class="d-flex justify-space-between" v-if="!uploadReportDisabled">
           <div class="mb-5 mt-5">
-            <span
-              style="font-size: 12px"
-            > Estimated Transaction Weight </span>
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-icon
-                    color="primary"
-                    size="14"
-                    v-bind="attrs"
-                    v-on="on"
-                  > mdi-alert-circle-outline
-                  </v-icon>
-                </template>
-                <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
-              </v-tooltip>
+            <span style="font-size: 12px"> Estimated Transaction Weight </span>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon color="primary" size="14" v-bind="attrs" v-on="on"> mdi-alert-circle-outline
+                </v-icon>
+              </template>
+              <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+            </v-tooltip>
           </div>
           <div class="mt-5">
             <span style="font-size: 12px;">
@@ -127,13 +80,7 @@
             </span>
           </div>
         </div>
-        <v-btn
-          color="primary"
-          large
-          block
-          :disabled="uploadReportDisabled"
-          @click="uploadReport"
-        >
+        <v-btn color="primary" large block :disabled="uploadReportDisabled" @click="uploadReport">
           <v-icon left dark class="pr-4">
             mdi-file-document-multiple
           </v-icon>
@@ -143,92 +90,58 @@
           </template>
         </v-btn>
       </div>
-      <span class="primary--text small">{{hasReportError[0]}}</span>
-      <v-progress-linear
-        v-if="loading.report"
-        class="mt-2"
-        indeterminate color="primary"
-      />
+      <span class="primary--text small">{{ hasReportError[0] }}</span>
+      <v-progress-linear v-if="loading.report" class="mt-2" indeterminate color="primary" />
     </template>
 
     <div v-if="sendReportButtonVisible" class="mb-3">
-      <v-btn
-        color="primary"
-        large
-        block
-        class="mt-6"
-        :disabled="isLoading"
-        @click="showConfirmationDialog"
-      >
+      <v-btn color="primary" large block class="mt-6" :disabled="isLoading" @click="showConfirmationDialog">
         Submit Result
         <template v-slot:loader>
-          <v-progress-linear
-            v-if="loading.report"
-            class="mt-2"
-            indeterminate color="primary"
-          />
+          <v-progress-linear v-if="loading.report" class="mt-2" indeterminate color="primary" />
         </template>
       </v-btn>
     </div>
-    <DialogAlert
-      :show="genomeUploadSucceedDialog"
-      btnText="Continue"
-      textAlert="VCF data has been uploaded"
-      imgPath="success.png"
-      imgWidth="50"
-      @close="genomeUploadSucceedDialog = false"
-      />
+    <DialogAlert :show="genomeUploadSucceedDialog" btnText="Continue" textAlert="VCF data has been uploaded"
+      imgPath="success.png" imgWidth="50" @close="genomeUploadSucceedDialog = false" />
 
-    <DialogAlert
-      :show="reportUploadSucceedDialog"
-      btnText="Continue"
-      textAlert="Report has been uploaded."
-      imgPath="success.png"
-      imgWidth="50"
-      @close="reportUploadSucceedDialog = false"
-      />
+    <DialogAlert :show="reportUploadSucceedDialog" btnText="Continue" textAlert="Report has been uploaded."
+      imgPath="success.png" imgWidth="50" @close="reportUploadSucceedDialog = false" />
 
     <Dialog :show="confirmationDialog" @close="confirmationDialog = false">
       <template v-slot:title>
-          <div></div>
+        <div></div>
       </template>
       <template v-slot:body>
-          <div class="d-flex justify-center pb-5 pt-5">
-              <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
+        <div class="d-flex justify-center pb-5 pt-5">
+          <v-img v-bind:src="require('@/assets/debio-logo.png')" max-width="50" />
+        </div>
+        <div align="center" class="pb-5">Are you sure you want to submit the results?</div>
+        <div class="d-flex justify-space-between px-5">
+          <div class="mt-5">
+            <span style="font-size: 12px"> Estimated Transaction Weight </span>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon color="primary" size="14" v-bind="attrs" v-on="on"> mdi-alert-circle-outline
+                </v-icon>
+              </template>
+              <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
+            </v-tooltip>
           </div>
-          <div align="center" class="pb-5">Are you sure you want to submit the results?</div>
-          <div class= "d-flex justify-space-between px-5">
-            <div class="mt-5">
-              <span
-                style="font-size: 12px"
-              > Estimated Transaction Weight </span>
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                      color="primary"
-                      size="14"
-                      v-bind="attrs"
-                      v-on="on"
-                    > mdi-alert-circle-outline
-                    </v-icon>
-                  </template>
-                  <span style="font-size: 10px;">Total fee paid in DBIO to execute this transaction.</span>
-                </v-tooltip>
-            </div>
-            <div class="mt-5">
-              <span style="font-size: 12px;">
-                {{ Number(fee).toFixed(4) }} DBIO
-              </span>
-            </div>
+          <div class="mt-5">
+            <span style="font-size: 12px;">
+              {{ Number(fee).toFixed(4) }} DBIO
+            </span>
           </div>
+        </div>
       </template>
       <template v-slot:actions>
-          <v-col col="12" md="6">
-            <Button @click="sendTestResult" :loading="isLoading" elevation="2" dark>Yes</Button>
-          </v-col>
-          <v-col col="12" md="6">
-            <Button @click="confirmationDialog = false" elevation="2" color="purple" dark>No</Button>
-          </v-col>
+        <v-col col="12" md="6">
+          <Button @click="sendTestResult" :loading="isLoading" elevation="2" dark>Yes</Button>
+        </v-col>
+        <v-col col="12" md="6">
+          <Button @click="confirmationDialog = false" elevation="2" color="purple" dark>No</Button>
+        </v-col>
       </template>
     </Dialog>
   </div>
@@ -315,11 +228,11 @@ export default {
     }
   }),
 
-  async mounted(){
+  async mounted() {
     await this.getFee()
 
     const testResult = await queryDnaTestResults(this.api, this.specimenNumber)
-    if(testResult) this.setUploadFields(testResult)
+    if (testResult) this.setUploadFields(testResult)
 
     this.submitted = this.isSubmitted
   },
@@ -336,11 +249,11 @@ export default {
       lastEventData: (state) => state.substrate.lastEventData
     }),
 
-    disableRejectButton(){
+    disableRejectButton() {
       return this.genomeSucceed && this.reportSucceed
     },
 
-    disableSendButton(){
+    disableSendButton() {
       return !this.disableRejectButton
     },
 
@@ -366,9 +279,9 @@ export default {
 
     genomeFileRules() {
       return [
-        value => !value || value.type == "text/x-vcard" || value.type == "text/vcard" || value.type == "text/directory" || "The files uploaded are not in the supported file formats (VCF)",
-        value => !value || value.size < 2000000 || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
-      ]
+        value => !value || (value.type == "text/x-vcard" || value.type == "text/vcard" || value.type == "text/directory" || value.type == "text/plain") || "The files uploaded are not in the supported file formats (VCF or TXT)",
+        value => !value || value.size < 200000000 || "The total file size uploaded exceeds the maximum file size allowed (200MB)"
+      ];
     },
     reportFileRules() {
       return [
@@ -390,19 +303,19 @@ export default {
     async lastEventData(e) {
       const dataEvent = JSON.parse(e.data.toString())
       if (dataEvent[0].sellerId === this.pair.address) {
-        if (e.method === "OrderFulfilled" && dataEvent[0].orderFlow === "StakingRequestService" ){
+        if (e.method === "OrderFulfilled" && dataEvent[0].orderFlow === "StakingRequestService") {
           await this.finalizeOrder(dataEvent[0].id)
         }
       }
     }
   },
 
-  methods:{
+  methods: {
     initialData() {
       this.identity = Kilt.Identity.buildFromMnemonic(this.mnemonic.toString(CryptoJS.enc.Utf8))
     },
 
-    async setUploadFields(testResult){
+    async setUploadFields(testResult) {
       const { resultLink, reportLink } = testResult
       const metadata = async (cid, documentType) => {
         this.loading[documentType] = true
@@ -412,14 +325,14 @@ export default {
         return rows[0].metadata.name
       }
 
-      if(resultLink){
+      if (resultLink) {
         const genomeFile = {
           fileName: await metadata(resultLink.split("/").pop(), "genome"),
           ipfsPath: resultLink
         }
         this.files.genome.push(genomeFile)
       }
-      if(reportLink){
+      if (reportLink) {
         const reportFile = {
           fileName: await metadata(reportLink.split("/").pop(), "report"),
           ipfsPath: reportLink
@@ -441,7 +354,7 @@ export default {
       this.fee = this.web3.utils.fromWei(String(fee.partialFee), "ether")
     },
 
-    async submitTestResultDocument(callback = () => {}) {
+    async submitTestResultDocument(callback = () => { }) {
       try {
         await submitTestResult(
           this.api,
@@ -488,7 +401,7 @@ export default {
 
       this.confirmationDialog = true
     },
-    
+
     async resultReady() {
       this.isProcessing = true
       await this.dispatch(
@@ -533,7 +446,7 @@ export default {
       const file = fileInputRef
       file.fileType = fileType // attach fileType to file, because fileType is not accessible in fr.onload scope
       const fr = new FileReader()
-      fr.onload = async function() {
+      fr.onload = async function () {
         try {
           // Encrypt
           const encrypted = await context.encrypt({
@@ -564,7 +477,7 @@ export default {
           context.loading[file.fileType] = false
 
           // Emit finish
-          if(file.fileType == "genome") {
+          if (file.fileType == "genome") {
             context.genomeSucceed = true
             context.genomeUploadSucceedDialog = true
             context.$emit("uploadGenome")
@@ -573,7 +486,7 @@ export default {
               context.loading[file.fileType] = false
             })
           }
-          if(file.fileType == "report") {
+          if (file.fileType == "report") {
             context.reportSucceed = true
             context.reportUploadSucceedDialog = true
             context.$emit("uploadReport")
@@ -605,7 +518,7 @@ export default {
           cryptWorker.workerEncrypt.postMessage({ pair, text }) // Access this object in e.data in worker
           cryptWorker.workerEncrypt.onmessage = event => {
             // The first returned data is the chunksAmount
-            if(event.data.chunksAmount) {
+            if (event.data.chunksAmount) {
               chunksAmount = event.data.chunksAmount
               return
             }
@@ -613,7 +526,7 @@ export default {
             arrChunks.push(event.data)
             this.encryptProgress[fileType] = arrChunks.length / chunksAmount * 100
 
-            if (arrChunks.length == chunksAmount ) {
+            if (arrChunks.length == chunksAmount) {
               resolve({
                 fileName: fileName,
                 chunks: arrChunks,
@@ -634,7 +547,7 @@ export default {
     async upload({ encryptedFileChunks, fileName, documentType, type, fileSize }) {
       this.loadingStatus[documentType] = "Uploading"
       const data = JSON.stringify(encryptedFileChunks)
-      const blob = new Blob([ data ], { type })
+      const blob = new Blob([data], { type })
 
       const result = await uploadFile({
         title: fileName,
@@ -713,7 +626,7 @@ export default {
 </script>
 
 <style scoped>
-.confirmation-background{
-    background: #E6E6E6;
+.confirmation-background {
+  background: #E6E6E6;
 }
 </style>
