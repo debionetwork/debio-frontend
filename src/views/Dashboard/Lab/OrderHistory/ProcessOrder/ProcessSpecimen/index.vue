@@ -280,7 +280,7 @@ export default {
     genomeFileRules() {
       return [
         value => !value || (value.type == "text/x-vcard" || value.type == "text/vcard" || value.type == "text/directory" || value.type == "text/plain") || "The files uploaded are not in the supported file formats (VCF or TXT)",
-        value => !value || value.size < 200000000 || "The total file size uploaded exceeds the maximum file size allowed (200MB)"
+        value => !value || value.size < 211000000 || "The total file size uploaded exceeds the maximum file size allowed (200MB)"
       ];
     },
     reportFileRules() {
@@ -425,27 +425,37 @@ export default {
     },
 
     addFileUploadEventListener(fileInputRef, fileType) {
-      this.hasGenomeError = []
-      this.hasReportError = []
+      this.hasGenomeError = [];
+      this.hasReportError = [];
 
-      if (fileType === "genome") this.genomeFileRules.forEach(rule => {
-        const resultRule = rule.call(this, fileInputRef)
+      if (fileType === "genome") {
+        this.genomeFileRules.forEach(rule => {
+          const resultRule = rule.call(this, fileInputRef);
 
-        if (typeof resultRule === "string") this.hasGenomeError.push(resultRule)
-      })
-      if (fileType === "report") this.reportFileRules.forEach(rule => {
-        const resultRule = rule.call(this, fileInputRef)
+          if (typeof resultRule === "string") {
+            this.hasGenomeError.push(resultRule);
+          }
+        });
+      }
+      if (fileType === "report") {
+        this.reportFileRules.forEach(rule => {
+          const resultRule = rule.call(this, fileInputRef);
 
-        if (typeof resultRule === "string") this.hasReportError.push(resultRule)
-      });
-      const context = this
+          if (typeof resultRule === "string") {
+            this.hasReportError.push(resultRule);
+          }
+        });
+      }
 
-      if (this.hasGenomeError.length && fileType === "genome" || this.hasReportError.length && fileType === "report") return
+      if ((this.hasGenomeError.length && fileType === "genome") || (this.hasReportError.length && fileType === "report")) {
+        return;
+      }
 
-      context.loading[fileType] = true
-      const file = fileInputRef
-      file.fileType = fileType // attach fileType to file, because fileType is not accessible in fr.onload scope
-      const fr = new FileReader()
+      const context = this;
+      context.loading[fileType] = true;
+      const file = fileInputRef;
+      file.fileType = fileType;
+      const fr = new FileReader();
       fr.onload = async function () {
         try {
           // Encrypt
@@ -454,9 +464,9 @@ export default {
             fileType: file.fileType,
             fileName: file.name,
             fileSize: file.size
-          })
+          });
 
-          const { chunks, fileName: encFileName, fileType: encFileType, fileSize } = encrypted
+          const { chunks, fileName: encFileName, fileType: encFileType, fileSize } = encrypted;
           // Upload
           const uploaded = await context.upload({
             encryptedFileChunks: chunks,
@@ -464,104 +474,107 @@ export default {
             documentType: encFileType,
             type: file.type,
             fileSize
-          })
-
-          // files is array, but currently only support storing 1 file for each type
-
+          });
           if (context.files[fileType].length > 0) {
-            context.files[fileType][0] = { fileName: file.name, fileType, ipfsPath: uploaded }
+            context.files[fileType][0] = { fileName: file.name, fileType, ipfsPath: uploaded };
           } else {
-            context.files[fileType].push({ fileName: file.name, fileType, ipfsPath: uploaded })
+            context.files[fileType].push({ fileName: file.name, fileType, ipfsPath: uploaded });
           }
 
-          context.loading[file.fileType] = false
+          context.loading[file.fileType] = false;
 
           // Emit finish
-          if (file.fileType == "genome") {
-            context.genomeSucceed = true
-            context.genomeUploadSucceedDialog = true
-            context.$emit("uploadGenome")
+          if (file.fileType === "genome") {
+            context.genomeSucceed = true;
+            context.genomeUploadSucceedDialog = true;
+            context.$emit("uploadGenome");
 
             context.submitTestResultDocument(() => {
-              context.loading[file.fileType] = false
-            })
+              context.loading[file.fileType] = false;
+            });
           }
-          if (file.fileType == "report") {
-            context.reportSucceed = true
-            context.reportUploadSucceedDialog = true
-            context.$emit("uploadReport")
+          if (file.fileType === "report") {
+            context.reportSucceed = true;
+            context.reportUploadSucceedDialog = true;
+            context.$emit("uploadReport");
 
             context.submitTestResultDocument(() => {
-              context.loading[file.fileType] = false
-            })
+              context.loading[file.fileType] = false;
+            });
           }
         } catch (err) {
-          console.error(err)
+          console.error(err);
         }
-      }
-      fr.readAsArrayBuffer(file)
+      };
+      fr.readAsArrayBuffer(file);
     },
 
     encrypt({ text, fileType, fileName }) {
-      const context = this
-      this.loadingStatus[fileType] = "Encrypting"
+      const context = this;
+      this.loadingStatus[fileType] = "Encrypting";
 
       return new Promise((resolve, reject) => {
         try {
           const pair = {
             secretKey: u8aToHex(context.identity.boxKeyPair.secretKey),
-            publicKey: context.publicKey // Customer's box publicKey
-          }
+            publicKey: context.publicKey
+          };
 
-          const arrChunks = []
-          let chunksAmount
-          cryptWorker.workerEncrypt.postMessage({ pair, text }) // Access this object in e.data in worker
+          const arrChunks = [];
+          let chunksAmount;
+          cryptWorker.workerEncrypt.postMessage({ pair, text });
           cryptWorker.workerEncrypt.onmessage = event => {
-            // The first returned data is the chunksAmount
             if (event.data.chunksAmount) {
-              chunksAmount = event.data.chunksAmount
-              return
+              chunksAmount = event.data.chunksAmount;
+              return;
             }
 
-            arrChunks.push(event.data)
-            this.encryptProgress[fileType] = arrChunks.length / chunksAmount * 100
+            arrChunks.push(event.data);
+            this.encryptProgress[fileType] = (arrChunks.length / chunksAmount) * 100;
 
-            if (arrChunks.length == chunksAmount) {
+            if (arrChunks.length === chunksAmount) {
               resolve({
                 fileName: fileName,
                 chunks: arrChunks,
                 fileType: fileType
-              })
-              // Cleanup
-              this.encryptProgress[fileType] = 0
-              this.loadingStatus[fileType] = ""
+              });
+              this.encryptProgress[fileType] = 0;
+              this.loadingStatus[fileType] = "";
             }
-          }
-
+          };
         } catch (err) {
-          reject(new Error(err.message))
+          reject(new Error(err.message));
         }
-      })
+      });
     },
 
-    async upload({ encryptedFileChunks, fileName, documentType, type, fileSize }) {
-      this.loadingStatus[documentType] = "Uploading"
-      const data = JSON.stringify(encryptedFileChunks)
-      const blob = new Blob([data], { type })
+    async upload({ encryptedFileChunks, fileName, documentType, type }) {
+      this.loadingStatus[documentType] = "Uploading";
+      const blob = new Blob(encryptedFileChunks, { type });
+
+      if (blob.size > 200 * 1024 * 1024) {
+        throw new Error("File size exceeds the maximum allowed limit of 200MB.");
+      }
+
+      const formData = new FormData();
+      formData.append("file", blob);
+      formData.append("type", type)
+      formData.append("size", blob.size)
+      formData.append("title", fileName)
 
       const result = await uploadFile({
         title: fileName,
         type: type,
-        size: fileSize,
+        size: blob.size,
         file: blob
-      })
+      });
 
-      const link = getFileUrl(result.IpfsHash)
+      const link = getFileUrl(result.IpfsHash);
 
-      this.uploadProgress[documentType] = 0
-      this.loadingStatus[documentType] = ""
+      this.uploadProgress[documentType] = 0;
+      this.loadingStatus[documentType] = "";
 
-      return link
+      return link;
     },
 
     onEditClick(fileType) {
