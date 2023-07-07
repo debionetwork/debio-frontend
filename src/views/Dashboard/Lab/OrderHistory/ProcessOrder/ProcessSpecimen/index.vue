@@ -281,6 +281,7 @@ export default {
       return [
         value => !value || (value.type == "text/x-vcard" || value.type == "text/vcard" || value.type == "text/directory" || value.type == "text/plain") || "The files uploaded are not in the supported file formats (VCF or TXT)",
         value => !value || value.size < 211000000 || "The total file size uploaded exceeds the maximum file size allowed (200MB)"
+
       ];
     },
     reportFileRules() {
@@ -450,7 +451,6 @@ export default {
       if ((this.hasGenomeError.length && fileType === "genome") || (this.hasReportError.length && fileType === "report")) {
         return;
       }
-
       const context = this;
       context.loading[fileType] = true;
       const file = fileInputRef;
@@ -555,12 +555,6 @@ export default {
       if (blob.size > 200 * 1024 * 1024) {
         throw new Error("File size exceeds the maximum allowed limit of 200MB.");
       }
-
-      const formData = new FormData();
-      formData.append("file", blob);
-      formData.append("type", type)
-      formData.append("size", blob.size)
-      formData.append("title", fileName)
 
       const result = await uploadFile({
         title: fileName,

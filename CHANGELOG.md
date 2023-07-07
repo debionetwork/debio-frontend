@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.2](https://github.com/debionetwork/debio-frontend/compare/2.3.1...2.3.2) (2023-07-03)
+
+
+### Bug Fixes
+
+* add .txt file and adjust max size to 200mb ([#703](https://github.com/debionetwork/debio-frontend/issues/703)) ([e18fba2](https://github.com/debionetwork/debio-frontend/commit/e18fba2e9c060e207ecba26559c1db1a7d08bb8a))
+
 ## [2.3.1](https://github.com/debionetwork/debio-frontend/compare/2.3.0...2.3.1) (2023-03-30)
 
 
