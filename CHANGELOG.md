@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.3](https://github.com/debionetwork/debio-frontend/compare/2.3.2...2.3.3) (2023-07-10)
+
+
+### Bug Fixes
+
+* upload vcf ([#709](https://github.com/debionetwork/debio-frontend/issues/709)) ([06a8b29](https://github.com/debionetwork/debio-frontend/commit/06a8b2943939d6b06b597dec0f688d8d17e0bcc9))
+
 ## [2.3.2](https://github.com/debionetwork/debio-frontend/compare/2.3.1...2.3.2) (2023-07-03)
 
 
