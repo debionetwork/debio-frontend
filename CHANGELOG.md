@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.4](https://github.com/debionetwork/debio-frontend/compare/2.3.3...2.3.4) (2023-07-17)
+
+
+### Bug Fixes
+
+* upload report pdf size to 200Mb ([#715](https://github.com/debionetwork/debio-frontend/issues/715)) ([97112b5](https://github.com/debionetwork/debio-frontend/commit/97112b563e125316732bb882bce0456bb7699a0a))
+
 ## [2.3.3](https://github.com/debionetwork/debio-frontend/compare/2.3.2...2.3.3) (2023-07-10)
 
 
