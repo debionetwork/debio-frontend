@@ -281,13 +281,12 @@ export default {
       return [
         value => !value || (value.type == "text/x-vcard" || value.type == "text/vcard" || value.type == "text/directory" || value.type == "text/plain") || "The files uploaded are not in the supported file formats (VCF or TXT)",
         value => !value || value.size < 211000000 || "The total file size uploaded exceeds the maximum file size allowed (200MB)"
-
       ];
     },
     reportFileRules() {
       return [
         value => !value || value.type == "application/pdf" || "The files uploaded are not in the supported file formats (PDF)",
-        value => !value || value.size < 2000000 || "The total file size uploaded exceeds the maximum file size allowed (2MB)"
+        value => !value || value.size < 211000000 || "The total file size uploaded exceeds the maximum file size allowed (200MB)"
       ]
     }
   },
@@ -428,7 +427,6 @@ export default {
     addFileUploadEventListener(fileInputRef, fileType) {
       this.hasGenomeError = [];
       this.hasReportError = [];
-
       if (fileType === "genome") {
         this.genomeFileRules.forEach(rule => {
           const resultRule = rule.call(this, fileInputRef);
