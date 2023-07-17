@@ -427,7 +427,6 @@ export default {
     addFileUploadEventListener(fileInputRef, fileType) {
       this.hasGenomeError = [];
       this.hasReportError = [];
-
       if (fileType === "genome") {
         this.genomeFileRules.forEach(rule => {
           const resultRule = rule.call(this, fileInputRef);
@@ -450,7 +449,6 @@ export default {
       if ((this.hasGenomeError.length && fileType === "genome") || (this.hasReportError.length && fileType === "report")) {
         return;
       }
-
       const context = this;
       context.loading[fileType] = true;
       const file = fileInputRef;
@@ -555,12 +553,6 @@ export default {
       if (blob.size > 200 * 1024 * 1024) {
         throw new Error("File size exceeds the maximum allowed limit of 200MB.");
       }
-
-      const formData = new FormData();
-      formData.append("file", blob);
-      formData.append("type", type)
-      formData.append("size", blob.size)
-      formData.append("title", fileName)
 
       const result = await uploadFile({
         title: fileName,
