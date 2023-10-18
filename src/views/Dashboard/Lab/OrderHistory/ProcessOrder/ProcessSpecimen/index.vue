@@ -280,13 +280,13 @@ export default {
     genomeFileRules() {
       return [
         value => !value || (value.type == "text/x-vcard" || value.type == "text/vcard" || value.type == "text/directory" || value.type == "text/plain") || "The files uploaded are not in the supported file formats (VCF or TXT)",
-        value => !value || value.size < 211000000 || "The total file size uploaded exceeds the maximum file size allowed (200MB)"
+        value => !value || value.size < 220200960 || "The total file size uploaded exceeds the maximum file size allowed (200MB)"
       ];
     },
     reportFileRules() {
       return [
         value => !value || value.type == "application/pdf" || "The files uploaded are not in the supported file formats (PDF)",
-        value => !value || value.size < 211000000 || "The total file size uploaded exceeds the maximum file size allowed (200MB)"
+        value => !value || value.size < 220200960 || "The total file size uploaded exceeds the maximum file size allowed (200MB)"
       ]
     }
   },
