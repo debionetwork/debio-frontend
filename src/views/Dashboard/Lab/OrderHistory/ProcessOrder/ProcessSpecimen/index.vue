@@ -280,13 +280,13 @@ export default {
     genomeFileRules() {
       return [
         value => !value || (value.type == "text/x-vcard" || value.type == "text/vcard" || value.type == "text/directory" || value.type == "text/plain") || "The files uploaded are not in the supported file formats (VCF or TXT)",
-        value => !value || value.size < 211000000 || "The total file size uploaded exceeds the maximum file size allowed (200MB)"
+        value => !value || value.size < 220200960 || "The total file size uploaded exceeds the maximum file size allowed (200MB)"
       ];
     },
     reportFileRules() {
       return [
         value => !value || value.type == "application/pdf" || "The files uploaded are not in the supported file formats (PDF)",
-        value => !value || value.size < 211000000 || "The total file size uploaded exceeds the maximum file size allowed (200MB)"
+        value => !value || value.size < 220200960 || "The total file size uploaded exceeds the maximum file size allowed (200MB)"
       ]
     }
   },
@@ -546,27 +546,38 @@ export default {
       });
     },
 
-    async upload({ encryptedFileChunks, fileName, documentType, type }) {
+    async upload({ encryptedFileChunks, fileName, documentType, type, fileSize }) {
       this.loadingStatus[documentType] = "Uploading";
-      const blob = new Blob(encryptedFileChunks, { type });
+      let links = [] ;
 
-      if (blob.size > 200 * 1024 * 1024) {
-        throw new Error("File size exceeds the maximum allowed limit of 200MB.");
+      try {
+        for (let i = 0; i < this.totalChunks; i++) {
+          let data = [`{"seed":${encryptedFileChunks[i].seed},"data":{"nonce":[${encryptedFileChunks[i].data.nonce}],"box":[${encryptedFileChunks[i].data.box}]}}`]
+          const blob = new Blob(data, { type: type });
+
+          try {
+            const result = await uploadFile({
+              title: fileName,
+              type: type,
+              size: fileSize,
+              file: blob
+            });
+
+            links.push(getFileUrl(result.IpfsHash));
+          } catch (error) {
+            console.error("Error on chunk upload", error);
+          }
+        }
+
+      } catch (e) {
+        console.error("Error on upload", e);
       }
-
-      const result = await uploadFile({
-        title: fileName,
-        type: type,
-        size: blob.size,
-        file: blob
-      });
-
-      const link = getFileUrl(result.IpfsHash);
+      
 
       this.uploadProgress[documentType] = 0;
       this.loadingStatus[documentType] = "";
 
-      return link;
+      return JSON.stringify(links);
     },
 
     onEditClick(fileType) {
