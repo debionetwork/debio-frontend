@@ -38,7 +38,7 @@
           <v-icon left dark class="pr-4">
             mdi-dna
           </v-icon>
-          Upload VCF Data
+          Upload Raw Data
           <template v-slot:loader>
             {{ loadingStatus.genome }}
           </template>
