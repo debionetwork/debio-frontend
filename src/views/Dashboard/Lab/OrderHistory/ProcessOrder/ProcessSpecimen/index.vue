@@ -551,7 +551,7 @@ export default {
       let links = [] ;
 
       try {
-        for (let i = 0; i < this.totalChunks; i++) {
+        for (let i = 0; i < encryptedFileChunks.length; i++) {
           let data = [`{"seed":${encryptedFileChunks[i].seed},"data":{"nonce":[${encryptedFileChunks[i].data.nonce}],"box":[${encryptedFileChunks[i].data.box}]}}`]
           const blob = new Blob(data, { type: type });
 
