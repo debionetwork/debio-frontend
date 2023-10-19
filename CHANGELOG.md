@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.3.5](https://github.com/debionetwork/debio-frontend/compare/2.3.4...2.3.5) (2023-10-19)
+
+
+### Bug Fixes
+
+* change vcf into raw ([#743](https://github.com/debionetwork/debio-frontend/issues/743)) ([480acb6](https://github.com/debionetwork/debio-frontend/commit/480acb6976060a195000673d7bd55aa519d91f50))
+* upload bug ([#742](https://github.com/debionetwork/debio-frontend/issues/742)) ([bae83a2](https://github.com/debionetwork/debio-frontend/commit/bae83a27f6d932b9dbdb11a5b96aff7a8025bda2))
+* upload in lab ([#740](https://github.com/debionetwork/debio-frontend/issues/740)) ([175b257](https://github.com/debionetwork/debio-frontend/commit/175b25780774b0b0233e293b1ce8c6760dc5b33f))
+
 ## [2.3.4](https://github.com/debionetwork/debio-frontend/compare/2.3.3...2.3.4) (2023-07-17)
 
 
