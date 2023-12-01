@@ -174,6 +174,19 @@ const labRoutes = [
           else next()
         },
         component: () => import(/* webpackChunkName */ "@/views/Dashboard/Lab/OrderHistory/ProcessOrder")
+      },
+      {
+        path: "/lab/admin",
+        name: "lab-dashboard-admin",
+        meta: {
+          pageHeader: "Admin Dashboard",
+          breadcrumbs: [
+            { text: "Lab", href: "/lab" },
+            { text: "Admin", href: "/lab/admin" },
+            { text: "Admin Dashboard", disabled: true }
+          ]
+        },
+        component: () => import(/* webpackChunkName */ "@/views/Dashboard/Lab/Admin")
       }
     ]
   }
